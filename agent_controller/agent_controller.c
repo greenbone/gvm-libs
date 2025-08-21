@@ -504,7 +504,8 @@ ensure_error_array (GPtrArray **errors)
 static void
 push_error (GPtrArray **errors, const gchar *msg)
 {
-  if (!errors || !msg || !*msg) return;
+  if (!errors || !msg || !*msg)
+    return;
   ensure_error_array (errors);
   g_ptr_array_add (*errors, g_strdup (msg));
 }
@@ -550,8 +551,9 @@ parse_errors_json_into_array (const gchar *body, GPtrArray **errors)
 
   if (!any_added)
     {
-      push_error (errors,
-                  "Request rejected (400), but no detailed errors were provided.");
+      push_error (
+        errors,
+        "Request rejected (400), but no detailed errors were provided.");
     }
 
   cJSON_Delete (root);
@@ -863,8 +865,8 @@ agent_controller_get_agents (agent_controller_connector_t conn)
  * @param[in] conn Active connector
  * @param[in] agents List of agents to update
  * @param[in] update Update information
- * @param[out] errors  If non-NULL and an HTTP 4xx occurs, will be set to a GPtrArray*
- *                     of gchar* error messages (caller takes ownership and must free)
+ * @param[out] errors  If non-NULL and an HTTP 4xx occurs, will be set to a
+ * GPtrArray* of gchar* error messages (caller takes ownership and must free)
  *
  * @return RESP_CODE_OK (0) on success, RESP_CODE_ERR (-1) on failure
  */
@@ -1154,8 +1156,8 @@ agent_controller_get_scan_agent_config (agent_controller_connector_t conn)
  *
  * @param[in] conn Connector to the Agent Controller
  * @param[in] cfg  Configuration to apply
- * @param[out] errors  If non-NULL and an HTTP 4xx occurs, will be set to a GPtrArray*
- *                     of gchar* error messages (caller takes ownership and must free)
+ * @param[out] errors  If non-NULL and an HTTP 4xx occurs, will be set to a
+ * GPtrArray* of gchar* error messages (caller takes ownership and must free)
  *
  * @return AGENT_RESP_OK (0) on success, AGENT_RESP_ERR (-1) on failure.
  *         The caller retains ownership of cfg.

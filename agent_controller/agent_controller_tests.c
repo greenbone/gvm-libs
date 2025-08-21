@@ -1324,8 +1324,8 @@ Ensure (agent_controller, update_agents_fails_on_http_error_status)
 Ensure (agent_controller, update_agents_400_populates_errors_from_json)
 {
   mock_http_status = 400;
-  mock_response_data = g_strdup (
-    "{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
+  mock_response_data =
+    g_strdup ("{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
 
   agent_controller_connector_t conn = make_conn ();
 
@@ -1426,7 +1426,6 @@ Ensure (agent_controller, update_agents_no_response_returns_error)
   agent_controller_agent_update_free (update);
   agent_controller_connector_free (conn);
 }
-
 
 Ensure (agent_controller, delete_agents_returns_zero_on_success)
 {
@@ -1729,11 +1728,12 @@ Ensure (agent_controller,
   agent_controller_connector_free (conn);
 }
 
-Ensure (agent_controller, update_scan_agent_config_400_populates_errors_from_json)
+Ensure (agent_controller,
+        update_scan_agent_config_400_populates_errors_from_json)
 {
   mock_http_status = 400;
-  mock_response_data = g_strdup (
-    "{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
+  mock_response_data =
+    g_strdup ("{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
 
   agent_controller_connector_t conn = make_conn ();
   agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
@@ -1778,7 +1778,8 @@ Ensure (agent_controller, update_scan_agent_config_400_empty_body_adds_fallback)
   agent_controller_connector_free (conn);
 }
 
-Ensure (agent_controller, update_scan_agent_config_400_invalid_json_adds_invalid_payload)
+Ensure (agent_controller,
+        update_scan_agent_config_400_invalid_json_adds_invalid_payload)
 {
   mock_http_status = 400;
   mock_response_data = g_strdup ("not-json");
@@ -2119,94 +2120,94 @@ Ensure (agent_controller, ensure_error_array_initializes_new_array)
 {
   GPtrArray *errs = NULL;
 
-  ensure_error_array(&errs);
+  ensure_error_array (&errs);
 
-  assert_that(errs, is_not_null);
-  assert_that((int)errs->len, is_equal_to(0));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (0));
 
-  g_ptr_array_free(errs, TRUE);
+  g_ptr_array_free (errs, TRUE);
 }
 
 Ensure (agent_controller, ensure_error_array_noop_when_already_initialized)
 {
-  GPtrArray *errs = g_ptr_array_new_with_free_func(g_free);
-  g_ptr_array_add(errs, g_strdup("existing"));
+  GPtrArray *errs = g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (errs, g_strdup ("existing"));
 
-  ensure_error_array(&errs);
+  ensure_error_array (&errs);
 
-  assert_that((int)errs->len, is_equal_to(1));
-  assert_that((const gchar*)g_ptr_array_index(errs, 0),
-              is_equal_to_string("existing"));
+  assert_that ((int) errs->len, is_equal_to (1));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               is_equal_to_string ("existing"));
 
-  g_ptr_array_free(errs, TRUE);
+  g_ptr_array_free (errs, TRUE);
 }
 
 Ensure (agent_controller, ensure_error_array_handles_null_parameter)
 {
-  ensure_error_array(NULL);
-  assert_that(true, is_true);
+  ensure_error_array (NULL);
+  assert_that (true, is_true);
 }
 
 Ensure (agent_controller, push_error_initializes_and_adds_message)
 {
   GPtrArray *errs = NULL;
 
-  push_error(&errs, "first error");
+  push_error (&errs, "first error");
 
-  assert_that(errs, is_not_null);
-  assert_that((int)errs->len, is_equal_to(1));
-  assert_that((const gchar*)g_ptr_array_index(errs, 0),
-              is_equal_to_string("first error"));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (1));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               is_equal_to_string ("first error"));
 
-  g_ptr_array_free(errs, TRUE);
+  g_ptr_array_free (errs, TRUE);
 }
 
 Ensure (agent_controller, push_error_appends_preserving_existing)
 {
-  GPtrArray *errs = g_ptr_array_new_with_free_func(g_free);
-  g_ptr_array_add(errs, g_strdup("existing"));
+  GPtrArray *errs = g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (errs, g_strdup ("existing"));
 
-  push_error(&errs, "second");
+  push_error (&errs, "second");
 
-  assert_that((int)errs->len, is_equal_to(2));
-  assert_that((const gchar*)g_ptr_array_index(errs, 0),
-              is_equal_to_string("existing"));
-  assert_that((const gchar*)g_ptr_array_index(errs, 1),
-              is_equal_to_string("second"));
+  assert_that ((int) errs->len, is_equal_to (2));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               is_equal_to_string ("existing"));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 1),
+               is_equal_to_string ("second"));
 
-  g_ptr_array_free(errs, TRUE);
+  g_ptr_array_free (errs, TRUE);
 }
 
 Ensure (agent_controller, push_error_ignores_null_or_empty_and_doesnt_alloc)
 {
   GPtrArray *errs = NULL;
 
-  push_error(&errs, NULL);
-  assert_that(errs, is_null);
+  push_error (&errs, NULL);
+  assert_that (errs, is_null);
 
-  push_error(&errs, "");
-  assert_that(errs, is_null);
+  push_error (&errs, "");
+  assert_that (errs, is_null);
 }
 
 Ensure (agent_controller, push_error_handles_null_errors_parameter)
 {
-  push_error(NULL, "won't be used");
-  assert_that(true, is_true);
+  push_error (NULL, "won't be used");
+  assert_that (true, is_true);
 }
 
 Ensure (agent_controller, push_error_does_not_change_existing_on_null_or_empty)
 {
-  GPtrArray *errs = g_ptr_array_new_with_free_func(g_free);
-  g_ptr_array_add(errs, g_strdup("keep"));
+  GPtrArray *errs = g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (errs, g_strdup ("keep"));
 
-  push_error(&errs, NULL);
-  push_error(&errs, "");
+  push_error (&errs, NULL);
+  push_error (&errs, "");
 
-  assert_that((int)errs->len, is_equal_to(1));
-  assert_that((const gchar*)g_ptr_array_index(errs, 0),
-              is_equal_to_string("keep"));
+  assert_that ((int) errs->len, is_equal_to (1));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               is_equal_to_string ("keep"));
 
-  g_ptr_array_free(errs, TRUE);
+  g_ptr_array_free (errs, TRUE);
 }
 
 Ensure (agent_controller, parse_errors_collects_messages_from_array)
@@ -2217,14 +2218,16 @@ Ensure (agent_controller, parse_errors_collects_messages_from_array)
                      "}";
   GPtrArray *errs = NULL;
 
-  parse_errors_json_into_array(json, &errs);
+  parse_errors_json_into_array (json, &errs);
 
-  assert_that(errs, is_not_null);
-  assert_that((int)errs->len, is_equal_to(2));
-  assert_that((const gchar*)g_ptr_array_index(errs, 0), is_equal_to_string("e1"));
-  assert_that((const gchar*)g_ptr_array_index(errs, 1), is_equal_to_string("e2"));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (2));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               is_equal_to_string ("e1"));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 1),
+               is_equal_to_string ("e2"));
 
-  g_ptr_array_free(errs, TRUE);
+  g_ptr_array_free (errs, TRUE);
 }
 
 Ensure (agent_controller, parse_errors_missing_array_adds_fallback_message)
@@ -2232,14 +2235,14 @@ Ensure (agent_controller, parse_errors_missing_array_adds_fallback_message)
   const char *json = "{ \"warnings\": null }";
   GPtrArray *errs = NULL;
 
-  parse_errors_json_into_array(json, &errs);
+  parse_errors_json_into_array (json, &errs);
 
-  assert_that(errs, is_not_null);
-  assert_that((int)errs->len, is_equal_to(1));
-  assert_that((const gchar*)g_ptr_array_index(errs, 0),
-              contains_string("no detailed errors were provided"));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (1));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               contains_string ("no detailed errors were provided"));
 
-  g_ptr_array_free(errs, TRUE);
+  g_ptr_array_free (errs, TRUE);
 }
 
 Ensure (agent_controller, parse_errors_non_string_items_adds_fallback_message)
@@ -2247,14 +2250,14 @@ Ensure (agent_controller, parse_errors_non_string_items_adds_fallback_message)
   const char *json = "{ \"errors\": [1, true, null, {}, []] }";
   GPtrArray *errs = NULL;
 
-  parse_errors_json_into_array(json, &errs);
+  parse_errors_json_into_array (json, &errs);
 
-  assert_that(errs, is_not_null);
-  assert_that((int)errs->len, is_equal_to(1));
-  assert_that((const gchar*)g_ptr_array_index(errs, 0),
-              contains_string("no detailed errors were provided"));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (1));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               contains_string ("no detailed errors were provided"));
 
-  g_ptr_array_free(errs, TRUE);
+  g_ptr_array_free (errs, TRUE);
 }
 
 Ensure (agent_controller, parse_errors_invalid_json_adds_invalid_payload_error)
@@ -2262,21 +2265,21 @@ Ensure (agent_controller, parse_errors_invalid_json_adds_invalid_payload_error)
   const char *json = "not-json";
   GPtrArray *errs = NULL;
 
-  parse_errors_json_into_array(json, &errs);
+  parse_errors_json_into_array (json, &errs);
 
-  assert_that(errs, is_not_null);
-  assert_that((int)errs->len, is_equal_to(1));
-  assert_that((const gchar*)g_ptr_array_index(errs, 0),
-              contains_string("invalid JSON payload"));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (1));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               contains_string ("invalid JSON payload"));
 
-  g_ptr_array_free(errs, TRUE);
+  g_ptr_array_free (errs, TRUE);
 }
 
 Ensure (agent_controller, parse_errors_handles_null_errors_parameter)
 {
   const char *json = "{\"errors\":[\"x\"]}";
-  parse_errors_json_into_array(json, NULL);
-  assert_that(true, is_true);
+  parse_errors_json_into_array (json, NULL);
+  assert_that (true, is_true);
 }
 
 Ensure (agent_controller, parse_errors_ignores_empty_strings_then_fallback)
@@ -2284,14 +2287,14 @@ Ensure (agent_controller, parse_errors_ignores_empty_strings_then_fallback)
   const char *json = "{ \"errors\": [\"\"] }";
   GPtrArray *errs = NULL;
 
-  parse_errors_json_into_array(json, &errs);
+  parse_errors_json_into_array (json, &errs);
 
-  assert_that(errs, is_not_null);
-  assert_that((int)errs->len, is_equal_to(1));
-  assert_that((const gchar*)g_ptr_array_index(errs, 0),
-              contains_string("no detailed errors were provided"));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (1));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               contains_string ("no detailed errors were provided"));
 
-  g_ptr_array_free(errs, TRUE);
+  g_ptr_array_free (errs, TRUE);
 }
 
 int
@@ -2430,7 +2433,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          update_agents_fails_on_http_error_status);
   add_test_with_context (suite, agent_controller,
-                       update_agents_400_populates_errors_from_json);
+                         update_agents_400_populates_errors_from_json);
   add_test_with_context (suite, agent_controller,
                          update_agents_400_invalid_json_adds_invalid_payload);
   add_test_with_context (suite, agent_controller,
@@ -2467,12 +2470,14 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, agent_controller,
     update_scan_agent_config_success_returns_ok_and_sends_payload);
-  add_test_with_context (suite, agent_controller,
-                       update_scan_agent_config_400_populates_errors_from_json);
+  add_test_with_context (
+    suite, agent_controller,
+    update_scan_agent_config_400_populates_errors_from_json);
   add_test_with_context (suite, agent_controller,
                          update_scan_agent_config_400_empty_body_adds_fallback);
-  add_test_with_context (suite, agent_controller,
-                         update_scan_agent_config_400_invalid_json_adds_invalid_payload);
+  add_test_with_context (
+    suite, agent_controller,
+    update_scan_agent_config_400_invalid_json_adds_invalid_payload);
   add_test_with_context (suite, agent_controller,
                          update_scan_agent_config_500_does_not_allocate_errors);
   add_test_with_context (suite, agent_controller,
@@ -2516,7 +2521,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          ensure_error_array_handles_null_parameter);
   add_test_with_context (suite, agent_controller,
-                       push_error_initializes_and_adds_message);
+                         push_error_initializes_and_adds_message);
   add_test_with_context (suite, agent_controller,
                          push_error_appends_preserving_existing);
   add_test_with_context (suite, agent_controller,
@@ -2526,7 +2531,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          push_error_does_not_change_existing_on_null_or_empty);
   add_test_with_context (suite, agent_controller,
-                       parse_errors_collects_messages_from_array);
+                         parse_errors_collects_messages_from_array);
   add_test_with_context (suite, agent_controller,
                          parse_errors_missing_array_adds_fallback_message);
   add_test_with_context (suite, agent_controller,
