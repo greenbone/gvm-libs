@@ -408,49 +408,6 @@ agent_controller_parse_agent (cJSON *item)
 }
 
 /**
- * @brief Checks @cfg carries no effective settings.
- *
- * @param [in] cfg agent scan config
- *
- * @return TRUE if config includes valid value
- */
-static gboolean
-agent_controller_scan_agent_config_is_valid (
-  const agent_controller_scan_agent_config_t cfg)
-{
-  if (!cfg)
-    return FALSE;
-
-  // agent_control.retry
-  if (cfg->agent_control.retry.attempts < 0)
-    return FALSE;
-  if (cfg->agent_control.retry.delay_in_seconds < 0)
-    return FALSE;
-  if (cfg->agent_control.retry.max_jitter_in_seconds < 0)
-    return FALSE;
-
-  // agent_script_executor
-  if (cfg->agent_script_executor.bulk_size <= 0)
-    return FALSE;
-  if (cfg->agent_script_executor.bulk_throttle_time_in_ms < 0)
-    return FALSE;
-  if (cfg->agent_script_executor.indexer_dir_depth < 0)
-    return FALSE;
-  if (cfg->agent_script_executor.period_in_seconds <= 0)
-    return FALSE;
-  if (!cfg->agent_script_executor.scheduler_cron_time)
-    return FALSE;
-
-  // heartbeat
-  if (cfg->heartbeat.interval_in_seconds <= 0)
-    return FALSE;
-  if (cfg->heartbeat.miss_until_inactive < 0)
-    return FALSE;
-
-  return TRUE;
-}
-
-/**
  * @brief Build a JSON payload for updating agents.
  *
  * @param[in] agents List of agents to include in the payload.
@@ -487,14 +444,9 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
       cJSON *cfg_obj = NULL;
       if (update && update->config)
         {
-          if (agent_controller_scan_agent_config_is_valid (update->config))
-            {
-              cfg_obj = agent_controller_scan_agent_config_struct_to_cjson (
-                update->config);
-              cJSON_AddItemToObject (agent_obj, "config", cfg_obj);
-            }
-          else
-            g_warning ("%s: update config is not valid", __func__);
+          cfg_obj =
+            agent_controller_scan_agent_config_struct_to_cjson (update->config);
+          cJSON_AddItemToObject (agent_obj, "config", cfg_obj);
         }
       cJSON_AddItemToObject (patch_body, agent->agent_id, agent_obj);
     }
@@ -531,6 +483,78 @@ agent_controller_json_has_update_available (cJSON *item)
   gboolean updater_up = cJSON_IsBool (u_up) && cJSON_IsTrue (u_up);
 
   return agent_up || updater_up;
+}
+
+/**
+ * @brief Ensure an error array exists and uses g_free on elements.
+ * @param [in, out] errors GPointer Array for initialization
+ */
+static void
+ensure_error_array (GPtrArray **errors)
+{
+  if (errors && *errors == NULL)
+    *errors = g_ptr_array_new_with_free_func (g_free);
+}
+
+/**
+ * @brief Add a single error message to errors, creating the array if needed.
+ * @param [in,out] errors array to add error message
+ * @param [in] msg error message
+ */
+static void
+push_error (GPtrArray **errors, const gchar *msg)
+{
+  if (!errors || !msg || !*msg) return;
+  ensure_error_array (errors);
+  g_ptr_array_add (*errors, g_strdup (msg));
+}
+
+/**
+ * @brief Parse a JSON response body and extract "errors" array into errors.
+ *
+ * @param [in] body body of the response
+ * @param [out] errors parsed errors
+ *
+ */
+static void
+parse_errors_json_into_array (const gchar *body, GPtrArray **errors)
+{
+  if (!errors)
+    return;
+
+  /* cJSON requires NUL-terminated input; make a safe copy. */
+  cJSON *root = cJSON_Parse (body);
+
+  if (!root)
+    {
+      push_error (errors, "Request rejected (400): invalid JSON payload.");
+      return;
+    }
+
+  const cJSON *errors_node = cJSON_GetObjectItemCaseSensitive (root, "errors");
+  gboolean any_added = FALSE;
+
+  if (cJSON_IsArray (errors_node))
+    {
+      int n = cJSON_GetArraySize (errors_node);
+      for (int i = 0; i < n; ++i)
+        {
+          const cJSON *it = cJSON_GetArrayItem (errors_node, i);
+          if (cJSON_IsString (it) && it->valuestring && *it->valuestring)
+            {
+              push_error (errors, it->valuestring);
+              any_added = TRUE;
+            }
+        }
+    }
+
+  if (!any_added)
+    {
+      push_error (errors,
+                  "Request rejected (400), but no detailed errors were provided.");
+    }
+
+  cJSON_Delete (root);
 }
 
 /**
@@ -834,79 +858,21 @@ agent_controller_get_agents (agent_controller_connector_t conn)
 }
 
 /**
- * @brief Authorizes a list of agents.
- *
- * @param[in] conn Active connector
- * @param[in] agents List of agents to authorize
- *
- * @return RESP_CODE_OK (0) on success, RESP_CODE_ERR (-1) on failure
- */
-int
-agent_controller_authorize_agents (agent_controller_connector_t conn,
-                                   agent_controller_agent_list_t agents)
-{
-  if (!conn || !agents)
-    {
-      g_warning ("%s: Invalid connection or agent list", __func__);
-      return AGENT_RESP_ERR;
-    }
-
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  if (!update)
-    {
-      g_warning ("%s: Failed to allocate update override", __func__);
-      return AGENT_RESP_ERR;
-    }
-
-  update->authorized = 1; // Force authorized = 1
-  update->config = NULL;  // No config override
-
-  gchar *payload = agent_controller_build_patch_payload (agents, update);
-  agent_controller_agent_update_free (update);
-
-  if (!payload)
-    {
-      g_warning ("%s: Failed to build PATCH payload", __func__);
-      return AGENT_RESP_ERR;
-    }
-
-  gvm_http_response_t *response = agent_controller_send_request (
-    conn, PATCH, "/api/v1/admin/agents", payload, conn->apikey);
-
-  g_free (payload);
-
-  if (!response)
-    {
-      g_warning ("%s: Failed to get response", __func__);
-      return AGENT_RESP_ERR;
-    }
-
-  if (response->http_status != 200)
-    {
-      g_warning ("%s: Received HTTP status %ld", __func__,
-                 response->http_status);
-      gvm_http_response_cleanup (response);
-      return AGENT_RESP_ERR;
-    }
-
-  gvm_http_response_cleanup (response);
-
-  return AGENT_RESP_OK;
-}
-
-/**
  * @brief Updates properties of a list of agents.
  *
  * @param[in] conn Active connector
  * @param[in] agents List of agents to update
  * @param[in] update Update information
+ * @param[out] errors  If non-NULL and an HTTP 4xx occurs, will be set to a GPtrArray*
+ *                     of gchar* error messages (caller takes ownership and must free)
  *
  * @return RESP_CODE_OK (0) on success, RESP_CODE_ERR (-1) on failure
  */
 int
 agent_controller_update_agents (agent_controller_connector_t conn,
                                 agent_controller_agent_list_t agents,
-                                agent_controller_agent_update_t update)
+                                agent_controller_agent_update_t update,
+                                GPtrArray **errors)
 {
   if (!conn || !agents || !update)
     {
@@ -930,6 +896,21 @@ agent_controller_update_agents (agent_controller_connector_t conn,
   if (!response)
     {
       g_warning ("%s: Failed to get response", __func__);
+      return AGENT_RESP_ERR;
+    }
+
+  if (response->http_status == 400)
+    {
+      if (response->data)
+        {
+          parse_errors_json_into_array (response->data, errors);
+        }
+      else
+        {
+          push_error (errors, "Request rejected (400), empty response body.");
+        }
+
+      gvm_http_response_cleanup (response);
       return AGENT_RESP_ERR;
     }
 
@@ -1029,12 +1010,6 @@ agent_controller_convert_scan_agent_config_string (
 {
   if (!cfg)
     return NULL;
-
-  if (!agent_controller_scan_agent_config_is_valid (cfg))
-    {
-      g_warning ("%s: agent config is not valid", __func__);
-      return NULL;
-    }
 
   cJSON *root = cJSON_CreateObject ();
 
@@ -1179,13 +1154,16 @@ agent_controller_get_scan_agent_config (agent_controller_connector_t conn)
  *
  * @param[in] conn Connector to the Agent Controller
  * @param[in] cfg  Configuration to apply
+ * @param[out] errors  If non-NULL and an HTTP 4xx occurs, will be set to a GPtrArray*
+ *                     of gchar* error messages (caller takes ownership and must free)
  *
  * @return AGENT_RESP_OK (0) on success, AGENT_RESP_ERR (-1) on failure.
  *         The caller retains ownership of cfg.
  */
 int
 agent_controller_update_scan_agent_config (
-  agent_controller_connector_t conn, agent_controller_scan_agent_config_t cfg)
+  agent_controller_connector_t conn, agent_controller_scan_agent_config_t cfg,
+  GPtrArray **errors)
 {
   if (!conn || !cfg)
     {
@@ -1208,6 +1186,21 @@ agent_controller_update_scan_agent_config (
   if (!response)
     {
       g_warning ("%s: No response", __func__);
+      return AGENT_RESP_ERR;
+    }
+
+  if (response->http_status == 400)
+    {
+      if (response->data)
+        {
+          parse_errors_json_into_array (response->data, errors);
+        }
+      else
+        {
+          push_error (errors, "Request rejected (400), empty response body.");
+        }
+
+      gvm_http_response_cleanup (response);
       return AGENT_RESP_ERR;
     }
 

@@ -77,6 +77,8 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
   response->http_status = mock_http_status;
   response->data =
     mock_response_data ? g_strdup (mock_response_data) : g_strdup ("{}");
+  response->size = strlen (response->data);
+
   return response;
 }
 
@@ -859,7 +861,7 @@ Ensure (agent_controller, build_scan_agent_config_payload_defaults)
   assert_that (cfg, is_not_null);
 
   gchar *payload = agent_controller_convert_scan_agent_config_string (cfg);
-  assert_that (payload, is_null);
+  assert_that (payload, is_not_null);
 
   cJSON_free (payload);
   agent_controller_scan_agent_config_free (cfg);
@@ -1232,78 +1234,6 @@ Ensure (agent_controller, get_agents_returns_null_on_invalid_json)
   agent_controller_connector_free (conn);
 }
 
-Ensure (agent_controller, authorize_agents_succeeds_with_valid_input)
-{
-  mock_http_status = 200;
-  mock_response_data = g_strdup ("{}");
-
-  agent_controller_connector_t conn = make_conn ();
-
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  agent->agent_id = g_strdup ("agent");
-  list->agents[0] = agent;
-
-  int result = agent_controller_authorize_agents (conn, list);
-  assert_that (result, is_equal_to (0));
-
-  agent_controller_agent_list_free (list);
-  agent_controller_connector_free (conn);
-}
-
-Ensure (agent_controller, authorize_agents_fails_with_null_conn)
-{
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  list->agents[0] = agent_controller_agent_new ();
-  list->agents[0]->agent_id = g_strdup ("agent");
-
-  int result = agent_controller_authorize_agents (NULL, list);
-  assert_that (result, is_equal_to (-1));
-
-  agent_controller_agent_list_free (list);
-}
-
-Ensure (agent_controller, authorize_agents_fails_with_null_agents)
-{
-  agent_controller_connector_t conn = agent_controller_connector_new ();
-  int result = agent_controller_authorize_agents (conn, NULL);
-  assert_that (result, is_equal_to (-1));
-  agent_controller_connector_free (conn);
-}
-
-Ensure (agent_controller, authorize_agents_fails_when_payload_is_null)
-{
-  agent_controller_connector_t conn = make_conn ();
-
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  list->count = 0;
-
-  int result = agent_controller_authorize_agents (conn, list);
-  assert_that (result, is_equal_to (-1));
-
-  agent_controller_agent_list_free (list);
-  agent_controller_connector_free (conn);
-}
-
-Ensure (agent_controller, authorize_agents_fails_on_http_422)
-{
-  mock_http_status = 422;
-  mock_response_data = g_strdup ("{}");
-
-  agent_controller_connector_t conn = make_conn ();
-
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  agent->agent_id = g_strdup ("no-agent");
-  list->agents[0] = agent;
-
-  int result = agent_controller_authorize_agents (conn, list);
-  assert_that (result, is_equal_to (-1));
-
-  agent_controller_agent_list_free (list);
-  agent_controller_connector_free (conn);
-}
-
 Ensure (agent_controller, update_agents_returns_zero_on_success)
 {
   mock_http_status = 200;
@@ -1319,7 +1249,7 @@ Ensure (agent_controller, update_agents_returns_zero_on_success)
 
   agent_controller_agent_update_t update = agent_controller_agent_update_new ();
 
-  int result = agent_controller_update_agents (conn, list, update);
+  int result = agent_controller_update_agents (conn, list, update, NULL);
   assert_that (result, is_equal_to (0));
 
   agent_controller_agent_list_free (list);
@@ -1336,7 +1266,7 @@ Ensure (agent_controller, update_agents_fails_with_null_connection)
   agent_controller_agent_update_t update = agent_controller_agent_update_new ();
   update->authorized = 1;
 
-  int result = agent_controller_update_agents (NULL, list, update);
+  int result = agent_controller_update_agents (NULL, list, update, NULL);
   assert_that (result, is_equal_to (-1));
 
   agent_controller_agent_list_free (list);
@@ -1348,7 +1278,7 @@ Ensure (agent_controller, update_agents_fails_with_null_agents)
   agent_controller_connector_t conn = agent_controller_connector_new ();
   agent_controller_agent_update_t update = agent_controller_agent_update_new ();
 
-  int result = agent_controller_update_agents (conn, NULL, update);
+  int result = agent_controller_update_agents (conn, NULL, update, NULL);
   assert_that (result, is_equal_to (-1));
 
   agent_controller_agent_update_free (update);
@@ -1362,7 +1292,7 @@ Ensure (agent_controller, update_agents_fails_with_null_update)
   list->agents[0] = agent_controller_agent_new ();
   list->agents[0]->agent_id = g_strdup ("agent");
 
-  int result = agent_controller_update_agents (conn, list, NULL);
+  int result = agent_controller_update_agents (conn, list, NULL, NULL);
   assert_that (result, is_equal_to (-1));
 
   agent_controller_agent_list_free (list);
@@ -1383,13 +1313,120 @@ Ensure (agent_controller, update_agents_fails_on_http_error_status)
   agent_controller_agent_update_t update = agent_controller_agent_update_new ();
   update->authorized = 1;
 
-  int result = agent_controller_update_agents (conn, list, update);
+  int result = agent_controller_update_agents (conn, list, update, NULL);
   assert_that (result, is_equal_to (-1));
 
   agent_controller_agent_list_free (list);
   agent_controller_agent_update_free (update);
   agent_controller_connector_free (conn);
 }
+
+Ensure (agent_controller, update_agents_400_populates_errors_from_json)
+{
+  mock_http_status = 400;
+  mock_response_data = g_strdup (
+    "{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
+  list->agents[0] = agent_controller_agent_new ();
+  list->agents[0]->agent_id = g_strdup ("agent1");
+
+  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
+  update->authorized = 1;
+
+  GPtrArray *errs = NULL;
+  int rc = agent_controller_update_agents (conn, list, update, &errs);
+
+  assert_that (rc, is_equal_to (-1));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (2));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               is_equal_to_string ("e1"));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 1),
+               is_equal_to_string ("e2"));
+  assert_that (last_sent_url, contains_string ("/api/v1/admin/agents"));
+
+  g_ptr_array_free (errs, TRUE);
+  agent_controller_agent_list_free (list);
+  agent_controller_agent_update_free (update);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, update_agents_400_invalid_json_adds_invalid_payload)
+{
+  mock_http_status = 400;
+  mock_response_data = g_strdup ("not-json");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
+  list->agents[0] = agent_controller_agent_new ();
+  list->agents[0]->agent_id = g_strdup ("agent1");
+
+  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
+
+  GPtrArray *errs = NULL;
+  int rc = agent_controller_update_agents (conn, list, update, &errs);
+
+  assert_that (rc, is_equal_to (-1));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (1));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               contains_string ("invalid JSON payload"));
+
+  g_ptr_array_free (errs, TRUE);
+  agent_controller_agent_list_free (list);
+  agent_controller_agent_update_free (update);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, update_agents_500_does_not_allocate_errors)
+{
+  mock_http_status = 500;
+  mock_response_data = g_strdup ("{}");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
+  list->agents[0] = agent_controller_agent_new ();
+  list->agents[0]->agent_id = g_strdup ("agent1");
+
+  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
+
+  GPtrArray *errs = NULL;
+  int rc = agent_controller_update_agents (conn, list, update, &errs);
+
+  assert_that (rc, is_equal_to (-1));
+  assert_that (errs, is_null);
+
+  agent_controller_agent_list_free (list);
+  agent_controller_agent_update_free (update);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, update_agents_no_response_returns_error)
+{
+  mock_http_status = 500;
+  g_clear_pointer (&mock_response_data, g_free);
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
+  list->agents[0] = agent_controller_agent_new ();
+  list->agents[0]->agent_id = g_strdup ("agent1");
+
+  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
+
+  int rc = agent_controller_update_agents (conn, list, update, NULL);
+  assert_that (rc, is_equal_to (-1));
+
+  agent_controller_agent_list_free (list);
+  agent_controller_agent_update_free (update);
+  agent_controller_connector_free (conn);
+}
+
 
 Ensure (agent_controller, delete_agents_returns_zero_on_success)
 {
@@ -1574,17 +1611,17 @@ Ensure (agent_controller, get_scan_agent_config_success_parses_values)
 
 Ensure (agent_controller, update_scan_agent_config_null_args_return_error)
 {
-  assert_that (agent_controller_update_scan_agent_config (NULL, NULL),
+  assert_that (agent_controller_update_scan_agent_config (NULL, NULL, NULL),
                is_equal_to (-1));
 
   agent_controller_connector_t conn = make_conn ();
-  assert_that (agent_controller_update_scan_agent_config (conn, NULL),
+  assert_that (agent_controller_update_scan_agent_config (conn, NULL, NULL),
                is_equal_to (-1));
   agent_controller_connector_free (conn);
 
   agent_controller_scan_agent_config_t cfg =
     agent_controller_scan_agent_config_new ();
-  assert_that (agent_controller_update_scan_agent_config (NULL, cfg),
+  assert_that (agent_controller_update_scan_agent_config (NULL, cfg, NULL),
                is_equal_to (-1));
   agent_controller_scan_agent_config_free (cfg);
 }
@@ -1619,7 +1656,7 @@ Ensure (agent_controller, update_scan_agent_config_no_response_return_error)
 
   mock_http_status = 500;
 
-  int rc = agent_controller_update_scan_agent_config (conn, cfg);
+  int rc = agent_controller_update_scan_agent_config (conn, cfg, NULL);
   assert_that (rc, is_equal_to (-1));
 
   assert_that (last_sent_url,
@@ -1641,7 +1678,7 @@ Ensure (agent_controller,
   mock_http_status = 400;
   mock_response_data = g_strdup ("{}");
 
-  int rc = agent_controller_update_scan_agent_config (conn, cfg);
+  int rc = agent_controller_update_scan_agent_config (conn, cfg, NULL);
   assert_that (rc, is_equal_to (-1));
 
   agent_controller_scan_agent_config_free (cfg);
@@ -1676,7 +1713,7 @@ Ensure (agent_controller,
   mock_http_status = 200;
   mock_response_data = g_strdup ("{}");
 
-  int rc = agent_controller_update_scan_agent_config (conn, cfg);
+  int rc = agent_controller_update_scan_agent_config (conn, cfg, NULL);
   assert_that (rc, is_equal_to (0));
 
   assert_that (last_sent_url, is_not_null);
@@ -1687,6 +1724,112 @@ Ensure (agent_controller,
                contains_string ("\"scheduler_cron_time\":[\"0 23 * * *\"]"));
   assert_that (last_sent_payload,
                contains_string ("\"miss_until_inactive\":1"));
+
+  agent_controller_scan_agent_config_free (cfg);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, update_scan_agent_config_400_populates_errors_from_json)
+{
+  mock_http_status = 400;
+  mock_response_data = g_strdup (
+    "{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
+
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+
+  GPtrArray *errs = NULL;
+  int rc = agent_controller_update_scan_agent_config (conn, cfg, &errs);
+
+  assert_that (rc, is_equal_to (-1));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (2));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               is_equal_to_string ("e1"));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 1),
+               is_equal_to_string ("e2"));
+  assert_that (last_sent_url,
+               contains_string ("/api/v1/admin/scan-agent-config"));
+
+  g_ptr_array_free (errs, TRUE);
+  agent_controller_scan_agent_config_free (cfg);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, update_scan_agent_config_400_empty_body_adds_fallback)
+{
+  mock_http_status = 400;
+  mock_response_data = g_strdup (""); /* ensures size/body_len == 0 */
+
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+
+  GPtrArray *errs = NULL;
+  int rc = agent_controller_update_scan_agent_config (conn, cfg, &errs);
+
+  assert_that (rc, is_equal_to (-1));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (1));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               contains_string ("invalid JSON payload"));
+
+  g_ptr_array_free (errs, TRUE);
+  agent_controller_scan_agent_config_free (cfg);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, update_scan_agent_config_400_invalid_json_adds_invalid_payload)
+{
+  mock_http_status = 400;
+  mock_response_data = g_strdup ("not-json");
+
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+
+  GPtrArray *errs = NULL;
+  int rc = agent_controller_update_scan_agent_config (conn, cfg, &errs);
+
+  assert_that (rc, is_equal_to (-1));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (1));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               contains_string ("invalid JSON payload"));
+
+  g_ptr_array_free (errs, TRUE);
+  agent_controller_scan_agent_config_free (cfg);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, update_scan_agent_config_500_does_not_allocate_errors)
+{
+  mock_http_status = 500;
+  mock_response_data = g_strdup ("{}");
+
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+
+  GPtrArray *errs = NULL;
+  int rc = agent_controller_update_scan_agent_config (conn, cfg, &errs);
+
+  assert_that (rc, is_equal_to (-1));
+  assert_that (errs, is_null);
+
+  agent_controller_scan_agent_config_free (cfg);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, update_scan_agent_config_no_response_returns_error)
+{
+  mock_http_status = 500;
+  g_clear_pointer (&mock_response_data, g_free);
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+
+  GPtrArray *errs = NULL;
+  int rc = agent_controller_update_scan_agent_config (conn, cfg, &errs);
+
+  assert_that (rc, is_equal_to (-1));
+  assert_that (errs, is_null);
 
   agent_controller_scan_agent_config_free (cfg);
   agent_controller_connector_free (conn);
@@ -1972,107 +2115,183 @@ Ensure (agent_controller, parse_cfg_string_whitespace_returns_null)
   assert_that (cfg, is_null);
 }
 
-Ensure (agent_controller, null_cfg_returns_false)
+Ensure (agent_controller, ensure_error_array_initializes_new_array)
 {
-  assert_that (agent_controller_scan_agent_config_is_valid (NULL), is_false);
+  GPtrArray *errs = NULL;
+
+  ensure_error_array(&errs);
+
+  assert_that(errs, is_not_null);
+  assert_that((int)errs->len, is_equal_to(0));
+
+  g_ptr_array_free(errs, TRUE);
 }
 
-Ensure (agent_controller, new_cfg_is_default)
+Ensure (agent_controller, ensure_error_array_noop_when_already_initialized)
 {
-  agent_controller_scan_agent_config_t cfg =
-    agent_controller_scan_agent_config_new ();
-  assert_that (cfg, is_not_null);
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
-  agent_controller_scan_agent_config_free (cfg);
+  GPtrArray *errs = g_ptr_array_new_with_free_func(g_free);
+  g_ptr_array_add(errs, g_strdup("existing"));
+
+  ensure_error_array(&errs);
+
+  assert_that((int)errs->len, is_equal_to(1));
+  assert_that((const gchar*)g_ptr_array_index(errs, 0),
+              is_equal_to_string("existing"));
+
+  g_ptr_array_free(errs, TRUE);
 }
 
-Ensure (agent_controller, minus_retry_attempts_returns_false)
+Ensure (agent_controller, ensure_error_array_handles_null_parameter)
 {
-  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_control.retry.attempts = -1;
-
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
-  agent_controller_scan_agent_config_free (cfg);
+  ensure_error_array(NULL);
+  assert_that(true, is_true);
 }
 
-Ensure (agent_controller, minus_retry_delay_returns_false)
+Ensure (agent_controller, push_error_initializes_and_adds_message)
 {
-  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_control.retry.delay_in_seconds = -1;
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
-  agent_controller_scan_agent_config_free (cfg);
+  GPtrArray *errs = NULL;
+
+  push_error(&errs, "first error");
+
+  assert_that(errs, is_not_null);
+  assert_that((int)errs->len, is_equal_to(1));
+  assert_that((const gchar*)g_ptr_array_index(errs, 0),
+              is_equal_to_string("first error"));
+
+  g_ptr_array_free(errs, TRUE);
 }
 
-Ensure (agent_controller, minus_retry_jitter_returns_false)
+Ensure (agent_controller, push_error_appends_preserving_existing)
 {
-  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_control.retry.max_jitter_in_seconds = -1;
+  GPtrArray *errs = g_ptr_array_new_with_free_func(g_free);
+  g_ptr_array_add(errs, g_strdup("existing"));
 
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
-  agent_controller_scan_agent_config_free (cfg);
+  push_error(&errs, "second");
+
+  assert_that((int)errs->len, is_equal_to(2));
+  assert_that((const gchar*)g_ptr_array_index(errs, 0),
+              is_equal_to_string("existing"));
+  assert_that((const gchar*)g_ptr_array_index(errs, 1),
+              is_equal_to_string("second"));
+
+  g_ptr_array_free(errs, TRUE);
 }
 
-Ensure (agent_controller, zero_exec_bulk_size_returns_false)
+Ensure (agent_controller, push_error_ignores_null_or_empty_and_doesnt_alloc)
 {
-  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_script_executor.bulk_size = 0;
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
-  agent_controller_scan_agent_config_free (cfg);
+  GPtrArray *errs = NULL;
+
+  push_error(&errs, NULL);
+  assert_that(errs, is_null);
+
+  push_error(&errs, "");
+  assert_that(errs, is_null);
 }
 
-Ensure (agent_controller, minus_exec_bulk_throttle_returns_false)
+Ensure (agent_controller, push_error_handles_null_errors_parameter)
 {
-  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_script_executor.bulk_throttle_time_in_ms = -1;
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
-  agent_controller_scan_agent_config_free (cfg);
+  push_error(NULL, "won't be used");
+  assert_that(true, is_true);
 }
 
-Ensure (agent_controller, minus_exec_indexer_depth_returns_false)
+Ensure (agent_controller, push_error_does_not_change_existing_on_null_or_empty)
 {
-  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_script_executor.indexer_dir_depth = -1;
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
-  agent_controller_scan_agent_config_free (cfg);
+  GPtrArray *errs = g_ptr_array_new_with_free_func(g_free);
+  g_ptr_array_add(errs, g_strdup("keep"));
+
+  push_error(&errs, NULL);
+  push_error(&errs, "");
+
+  assert_that((int)errs->len, is_equal_to(1));
+  assert_that((const gchar*)g_ptr_array_index(errs, 0),
+              is_equal_to_string("keep"));
+
+  g_ptr_array_free(errs, TRUE);
 }
 
-Ensure (agent_controller, zero_exec_period_returns_false)
+Ensure (agent_controller, parse_errors_collects_messages_from_array)
 {
-  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_script_executor.period_in_seconds = 0;
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
-  agent_controller_scan_agent_config_free (cfg);
+  const char *json = "{"
+                     "  \"errors\":[\"e1\",\"e2\"],"
+                     "  \"warnings\":null"
+                     "}";
+  GPtrArray *errs = NULL;
+
+  parse_errors_json_into_array(json, &errs);
+
+  assert_that(errs, is_not_null);
+  assert_that((int)errs->len, is_equal_to(2));
+  assert_that((const gchar*)g_ptr_array_index(errs, 0), is_equal_to_string("e1"));
+  assert_that((const gchar*)g_ptr_array_index(errs, 1), is_equal_to_string("e2"));
+
+  g_ptr_array_free(errs, TRUE);
 }
 
-Ensure (agent_controller, cron_count_gt_zero_returns_false)
+Ensure (agent_controller, parse_errors_missing_array_adds_fallback_message)
 {
-  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_script_executor.scheduler_cron_time = NULL;
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
-  agent_controller_scan_agent_config_free (cfg);
+  const char *json = "{ \"warnings\": null }";
+  GPtrArray *errs = NULL;
+
+  parse_errors_json_into_array(json, &errs);
+
+  assert_that(errs, is_not_null);
+  assert_that((int)errs->len, is_equal_to(1));
+  assert_that((const gchar*)g_ptr_array_index(errs, 0),
+              contains_string("no detailed errors were provided"));
+
+  g_ptr_array_free(errs, TRUE);
 }
 
-Ensure (agent_controller, zero_heartbeat_interval_returns_false)
+Ensure (agent_controller, parse_errors_non_string_items_adds_fallback_message)
 {
-  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->heartbeat.interval_in_seconds = 0;
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
-  agent_controller_scan_agent_config_free (cfg);
+  const char *json = "{ \"errors\": [1, true, null, {}, []] }";
+  GPtrArray *errs = NULL;
+
+  parse_errors_json_into_array(json, &errs);
+
+  assert_that(errs, is_not_null);
+  assert_that((int)errs->len, is_equal_to(1));
+  assert_that((const gchar*)g_ptr_array_index(errs, 0),
+              contains_string("no detailed errors were provided"));
+
+  g_ptr_array_free(errs, TRUE);
 }
 
-Ensure (agent_controller, minus_heartbeat_miss_until_inactive_returns_false)
+Ensure (agent_controller, parse_errors_invalid_json_adds_invalid_payload_error)
 {
-  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->heartbeat.miss_until_inactive = -1;
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
-  agent_controller_scan_agent_config_free (cfg);
+  const char *json = "not-json";
+  GPtrArray *errs = NULL;
+
+  parse_errors_json_into_array(json, &errs);
+
+  assert_that(errs, is_not_null);
+  assert_that((int)errs->len, is_equal_to(1));
+  assert_that((const gchar*)g_ptr_array_index(errs, 0),
+              contains_string("invalid JSON payload"));
+
+  g_ptr_array_free(errs, TRUE);
 }
 
-Ensure (agent_controller, fully_valid_config_returns_true)
+Ensure (agent_controller, parse_errors_handles_null_errors_parameter)
 {
-  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_true);
-  agent_controller_scan_agent_config_free (cfg);
+  const char *json = "{\"errors\":[\"x\"]}";
+  parse_errors_json_into_array(json, NULL);
+  assert_that(true, is_true);
+}
+
+Ensure (agent_controller, parse_errors_ignores_empty_strings_then_fallback)
+{
+  const char *json = "{ \"errors\": [\"\"] }";
+  GPtrArray *errs = NULL;
+
+  parse_errors_json_into_array(json, &errs);
+
+  assert_that(errs, is_not_null);
+  assert_that((int)errs->len, is_equal_to(1));
+  assert_that((const gchar*)g_ptr_array_index(errs, 0),
+              contains_string("no detailed errors were provided"));
+
+  g_ptr_array_free(errs, TRUE);
 }
 
 int
@@ -2201,16 +2420,6 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          get_agents_returns_null_on_invalid_json);
   add_test_with_context (suite, agent_controller,
-                         authorize_agents_succeeds_with_valid_input);
-  add_test_with_context (suite, agent_controller,
-                         authorize_agents_fails_with_null_conn);
-  add_test_with_context (suite, agent_controller,
-                         authorize_agents_fails_with_null_agents);
-  add_test_with_context (suite, agent_controller,
-                         authorize_agents_fails_when_payload_is_null);
-  add_test_with_context (suite, agent_controller,
-                         authorize_agents_fails_on_http_422);
-  add_test_with_context (suite, agent_controller,
                          update_agents_returns_zero_on_success);
   add_test_with_context (suite, agent_controller,
                          update_agents_fails_with_null_connection);
@@ -2220,6 +2429,14 @@ main (int argc, char **argv)
                          update_agents_fails_with_null_update);
   add_test_with_context (suite, agent_controller,
                          update_agents_fails_on_http_error_status);
+  add_test_with_context (suite, agent_controller,
+                       update_agents_400_populates_errors_from_json);
+  add_test_with_context (suite, agent_controller,
+                         update_agents_400_invalid_json_adds_invalid_payload);
+  add_test_with_context (suite, agent_controller,
+                         update_agents_500_does_not_allocate_errors);
+  add_test_with_context (suite, agent_controller,
+                         update_agents_no_response_returns_error);
   add_test_with_context (suite, agent_controller,
                          delete_agents_returns_zero_on_success);
   add_test_with_context (suite, agent_controller,
@@ -2250,6 +2467,16 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, agent_controller,
     update_scan_agent_config_success_returns_ok_and_sends_payload);
+  add_test_with_context (suite, agent_controller,
+                       update_scan_agent_config_400_populates_errors_from_json);
+  add_test_with_context (suite, agent_controller,
+                         update_scan_agent_config_400_empty_body_adds_fallback);
+  add_test_with_context (suite, agent_controller,
+                         update_scan_agent_config_400_invalid_json_adds_invalid_payload);
+  add_test_with_context (suite, agent_controller,
+                         update_scan_agent_config_500_does_not_allocate_errors);
+  add_test_with_context (suite, agent_controller,
+                         update_scan_agent_config_no_response_returns_error);
   add_test_with_context (suite, agent_controller,
                          get_agents_with_updates_null_conn_returns_null);
   add_test_with_context (suite, agent_controller,
@@ -2282,30 +2509,34 @@ main (int argc, char **argv)
                          parse_cfg_string_populates_fields_correctly);
   add_test_with_context (suite, agent_controller,
                          parse_cfg_string_whitespace_returns_null);
-  add_test_with_context (suite, agent_controller, null_cfg_returns_false);
-  add_test_with_context (suite, agent_controller, new_cfg_is_default);
   add_test_with_context (suite, agent_controller,
-                         minus_retry_attempts_returns_false);
+                         ensure_error_array_initializes_new_array);
   add_test_with_context (suite, agent_controller,
-                         minus_retry_delay_returns_false);
+                         ensure_error_array_noop_when_already_initialized);
   add_test_with_context (suite, agent_controller,
-                         minus_retry_jitter_returns_false);
+                         ensure_error_array_handles_null_parameter);
   add_test_with_context (suite, agent_controller,
-                         zero_exec_bulk_size_returns_false);
+                       push_error_initializes_and_adds_message);
   add_test_with_context (suite, agent_controller,
-                         minus_exec_bulk_throttle_returns_false);
+                         push_error_appends_preserving_existing);
   add_test_with_context (suite, agent_controller,
-                         minus_exec_indexer_depth_returns_false);
+                         push_error_ignores_null_or_empty_and_doesnt_alloc);
   add_test_with_context (suite, agent_controller,
-                         zero_exec_period_returns_false);
+                         push_error_handles_null_errors_parameter);
   add_test_with_context (suite, agent_controller,
-                         cron_count_gt_zero_returns_false);
+                         push_error_does_not_change_existing_on_null_or_empty);
   add_test_with_context (suite, agent_controller,
-                         zero_heartbeat_interval_returns_false);
+                       parse_errors_collects_messages_from_array);
   add_test_with_context (suite, agent_controller,
-                         minus_heartbeat_miss_until_inactive_returns_false);
+                         parse_errors_missing_array_adds_fallback_message);
   add_test_with_context (suite, agent_controller,
-                         fully_valid_config_returns_true);
+                         parse_errors_non_string_items_adds_fallback_message);
+  add_test_with_context (suite, agent_controller,
+                         parse_errors_invalid_json_adds_invalid_payload_error);
+  add_test_with_context (suite, agent_controller,
+                         parse_errors_handles_null_errors_parameter);
+  add_test_with_context (suite, agent_controller,
+                         parse_errors_ignores_empty_strings_then_fallback);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());

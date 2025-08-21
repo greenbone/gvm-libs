@@ -210,13 +210,10 @@ agent_controller_agent_list_t
 agent_controller_get_agents (agent_controller_connector_t conn);
 
 int
-agent_controller_authorize_agents (agent_controller_connector_t conn,
-                                   agent_controller_agent_list_t agents);
-
-int
 agent_controller_update_agents (agent_controller_connector_t conn,
                                 agent_controller_agent_list_t agents,
-                                agent_controller_agent_update_t update);
+                                agent_controller_agent_update_t update,
+                                GPtrArray **errors);
 
 int
 agent_controller_delete_agents (agent_controller_connector_t conn,
@@ -227,7 +224,8 @@ agent_controller_get_scan_agent_config (agent_controller_connector_t conn);
 
 int
 agent_controller_update_scan_agent_config (
-  agent_controller_connector_t conn, agent_controller_scan_agent_config_t cfg);
+  agent_controller_connector_t conn, agent_controller_scan_agent_config_t cfg,
+  GPtrArray **errors);
 
 agent_controller_agent_list_t
 agent_controller_get_agents_with_updates (agent_controller_connector_t conn);
