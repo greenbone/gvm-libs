@@ -52,7 +52,7 @@ endif(BUILD_SHARED)
 if(BUILD_TESTS)
   add_unit_test(
     httputils-test
-    httputils_test.c
+    httputils_tests.c
     gvm_base_shared
     gvm_util_shared
     ${GLIB_LDFLAGS}
