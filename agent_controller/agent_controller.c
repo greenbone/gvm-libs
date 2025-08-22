@@ -1004,7 +1004,7 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
  *
  * @return Newly allocated, unformatted JSON string on success; NULL on failure
  *         The caller owns the returned string and must free it with
- *         g_free().
+ *         cJSON_free().
  */
 gchar *
 agent_controller_convert_scan_agent_config_string (
