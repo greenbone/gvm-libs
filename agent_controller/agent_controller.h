@@ -61,45 +61,87 @@ typedef enum
 } agent_controller_error_t;
 
 /**
- * @brief Struct for agent scheduling configuration.
+ * @brief Retry settings under agent_control.
  */
-struct agent_controller_config_schedule
+struct agent_controller_retry_cfg
 {
-  gchar *schedule; ///< Schedule expression, e.g., "@every 12h"
+  int attempts;         ///< Max retry attempts before giving up (e.g., 5)
+  int delay_in_seconds; ///< Base delay between retries in seconds (e.g., 60)
+  int max_jitter_in_seconds; ///< Random jitter added to delay to avoid
+  ///< stampedes (0..max)
 };
-typedef struct agent_controller_config_schedule
-  *agent_controller_config_schedule_t;
 
 /**
- * @brief Struct for agent server configuration.
+ * @brief agent_control block.
  */
-struct agent_controller_config_server
+struct agent_controller_agent_control_cfg
 {
-  gchar *base_url;         ///< Base URL of the agent control server
-  gchar *agent_id;         ///< Agent ID assigned by the scan-agent
-  gchar *token;            ///< Authentication token
-  gchar *server_cert_hash; ///< Server certificate fingerprint or hash
+  struct agent_controller_retry_cfg retry; ///< Retry/backoff policy
 };
-typedef struct agent_controller_config_server *agent_controller_config_server_t;
+
+/**
+ * @brief agent_script_executor block.
+ */
+struct agent_controller_script_exec_cfg
+{
+  int bulk_size;                ///< Number of scripts/tasks processed per batch
+  int bulk_throttle_time_in_ms; ///< Throttle/sleep between batches in
+  ///< milliseconds
+  int indexer_dir_depth; ///< Max directory depth to scan/index
+  int period_in_seconds; ///< Periodic run interval in seconds
+
+  GPtrArray *scheduler_cron_time; ///< Optional list of cron expressions
+  ///< Format: standard 5-field cron like
+  /// "0 23 * * *"
+};
+
+/**
+ * @brief heartbeat block.
+ */
+struct agent_controller_heartbeat_cfg
+{
+  int interval_in_seconds; ///< Agent heartbeat interval in seconds (e.g., 600)
+  int miss_until_inactive; ///< Missed heartbeats before marking agent inactive
+  ///< (e.g., 1)
+};
+
+/**
+ * @brief Top-level scan agent config.
+ *
+ * Groups all configuration sections for the scan agent service.
+ */
+struct agent_controller_scan_agent_config
+{
+  struct agent_controller_agent_control_cfg agent_control;
+  struct agent_controller_script_exec_cfg agent_script_executor;
+  struct agent_controller_heartbeat_cfg heartbeat;
+};
+
+typedef struct agent_controller_scan_agent_config
+  *agent_controller_scan_agent_config_t;
 
 /**
  * @brief Struct representing an individual agent.
  */
 struct agent_controller_agent
 {
-  gchar *agent_id;  ///< Unique agent identifier
-  gchar *hostname;  ///< Hostname of the agent machine
-  int authorized;   ///< Authorization status (1: authorized, 0: unauthorized)
-  int min_interval; ///< Minimum update interval in seconds
-  int heartbeat_interval;   ///< Heartbeat reporting interval
+  gchar *agent_id; ///< Unique agent identifier
+  gchar *hostname; ///< Hostname of the agent machine
+  int authorized;  ///< Authorization status (1: authorized, 0: unauthorized)
   gchar *connection_status; ///< Connection status ("active"or "inactive")
   gchar **ip_addresses;     ///< List of IP addresses
   int ip_address_count;     ///< Number of IP addresses
   time_t last_update; ///< Timestamp of the last update (seconds since epoch)
-  agent_controller_config_schedule_t
-    schedule_config; ///< Agent schedule configuration
-  agent_controller_config_server_t server_config; ///< Server configuration
-                                                  ///< associated with the agent
+  time_t last_updater_heartbeat; ///< Timestamp of the last updater
+                                 ///  (seconds since epoch)
+  agent_controller_scan_agent_config_t config; ///< agent scan config
+
+  gchar *updater_version;  ///< Updater version string (may be empty)
+  gchar *agent_version;    ///< Agent version string (may be empty)
+  gchar *operating_system; ///< OS string (may be empty)
+  gchar *architecture; ///< Architecture string (e.g., "amd64", may be empty)
+
+  int update_to_latest; ///< 1: update to latest, 0: do not
 };
 typedef struct agent_controller_agent *agent_controller_agent_t;
 
@@ -118,11 +160,8 @@ typedef struct agent_controller_agent_list *agent_controller_agent_list_t;
  */
 struct agent_controller_agent_update
 {
-  int authorized;         ///< Authorization status for update
-  int min_interval;       ///< New minimum interval
-  int heartbeat_interval; ///< New heartbeat interval
-  agent_controller_config_schedule_t
-    schedule_config; ///< New schedule configuration
+  int authorized; ///< Authorization status for update
+  agent_controller_scan_agent_config_t config; ///< The Agent scan configuration
 };
 typedef struct agent_controller_agent_update *agent_controller_agent_update_t;
 
@@ -160,33 +199,42 @@ agent_controller_agent_update_new (void);
 void
 agent_controller_agent_update_free (agent_controller_agent_update_t update);
 
-agent_controller_config_schedule_t
-agent_controller_config_schedule_new (void);
+agent_controller_scan_agent_config_t
+agent_controller_scan_agent_config_new (void);
 
 void
-agent_controller_config_schedule_free (
-  agent_controller_config_schedule_t schedule);
-
-agent_controller_config_server_t
-agent_controller_config_server_new (void);
-
-void
-agent_controller_config_server_free (agent_controller_config_server_t server);
+agent_controller_scan_agent_config_free (
+  agent_controller_scan_agent_config_t cfg);
 
 agent_controller_agent_list_t
 agent_controller_get_agents (agent_controller_connector_t conn);
 
 int
-agent_controller_authorize_agents (agent_controller_connector_t conn,
-                                   agent_controller_agent_list_t agents);
-
-int
 agent_controller_update_agents (agent_controller_connector_t conn,
                                 agent_controller_agent_list_t agents,
-                                agent_controller_agent_update_t update);
+                                agent_controller_agent_update_t update,
+                                GPtrArray **errors);
 
 int
 agent_controller_delete_agents (agent_controller_connector_t conn,
                                 agent_controller_agent_list_t agents);
+
+agent_controller_scan_agent_config_t
+agent_controller_get_scan_agent_config (agent_controller_connector_t conn);
+
+int
+agent_controller_update_scan_agent_config (
+  agent_controller_connector_t conn, agent_controller_scan_agent_config_t cfg,
+  GPtrArray **errors);
+
+agent_controller_agent_list_t
+agent_controller_get_agents_with_updates (agent_controller_connector_t conn);
+
+gchar *
+agent_controller_convert_scan_agent_config_string (
+  agent_controller_scan_agent_config_t cfg);
+
+agent_controller_scan_agent_config_t
+agent_controller_parse_scan_agent_config_string (const gchar *config);
 
 #endif // AGENT_CONTROLLER_H

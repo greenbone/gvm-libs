@@ -152,6 +152,9 @@ agent_controller_send_request (agent_controller_connector_t conn,
 static time_t
 parse_datetime (const char *datetime_str)
 {
+  if (!datetime_str)
+    return 0;
+
   struct tm tm = {0};
   int milliseconds = 0;
 
@@ -168,6 +171,153 @@ parse_datetime (const char *datetime_str)
   tm.tm_mon -= 1;
 
   return timegm (&tm);
+}
+
+/**
+ * @brief Parse a scan-agent-config JSON object into a newly allocated config
+ * struct.
+ *
+ * @param[in] root  cJSON object representing the full scan-agent-config
+ * payload.
+ *
+ * @return agent_controller_scan_agent_config_t on success; NULL on failure or
+ *         if @p root is NULL / not a JSON object.
+ *         Ownership of root remains with the caller; do not free any children
+ *         retrieved with cJSON_GetObjectItem() individually.
+ */
+static agent_controller_scan_agent_config_t
+agent_controller_parse_scan_agent_config (cJSON *root)
+{
+  if (!root || !cJSON_IsObject (root))
+    return NULL;
+
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+
+  /* agent_control */
+  cJSON *agent_control = cJSON_GetObjectItem (root, "agent_control");
+  if (cJSON_IsObject (agent_control))
+    {
+      cJSON *retry = cJSON_GetObjectItem (agent_control, "retry");
+      if (cJSON_IsObject (retry))
+        {
+          cfg->agent_control.retry.attempts =
+            gvm_json_obj_int (retry, "attempts");
+          cfg->agent_control.retry.delay_in_seconds =
+            gvm_json_obj_int (retry, "delay_in_seconds");
+          cfg->agent_control.retry.max_jitter_in_seconds =
+            gvm_json_obj_int (retry, "max_jitter_in_seconds");
+        }
+    }
+
+  /* agent_script_executor */
+  cJSON *exec = cJSON_GetObjectItem (root, "agent_script_executor");
+  if (cJSON_IsObject (exec))
+    {
+      cfg->agent_script_executor.bulk_size =
+        gvm_json_obj_int (exec, "bulk_size");
+      cfg->agent_script_executor.bulk_throttle_time_in_ms =
+        gvm_json_obj_int (exec, "bulk_throttle_time_in_ms");
+      cfg->agent_script_executor.indexer_dir_depth =
+        gvm_json_obj_int (exec, "indexer_dir_depth");
+      cfg->agent_script_executor.period_in_seconds =
+        gvm_json_obj_int (exec, "period_in_seconds");
+
+      cJSON *cron = cJSON_GetObjectItem (exec, "scheduler_cron_time");
+      if (cJSON_IsArray (cron))
+        {
+          GPtrArray *arr = g_ptr_array_new_with_free_func (g_free);
+          int n = cJSON_GetArraySize (cron);
+
+          for (int i = 0; i < n; ++i)
+            {
+              cJSON *it = cJSON_GetArrayItem (cron, i);
+              if (cJSON_IsString (it) && it->valuestring
+                  && it->valuestring[0] != '\0')
+                {
+                  g_ptr_array_add (arr, g_strdup (it->valuestring));
+                }
+            }
+
+          if (arr->len > 0)
+            cfg->agent_script_executor.scheduler_cron_time = arr;
+          else
+            g_ptr_array_free (arr, TRUE);
+        }
+    }
+
+  /* heartbeat */
+  cJSON *hb = cJSON_GetObjectItem (root, "heartbeat");
+  if (cJSON_IsObject (hb))
+    {
+      cfg->heartbeat.interval_in_seconds =
+        gvm_json_obj_int (hb, "interval_in_seconds");
+      cfg->heartbeat.miss_until_inactive =
+        gvm_json_obj_int (hb, "miss_until_inactive");
+    }
+
+  return cfg;
+}
+
+/**
+ * @brief Parse a scan-agent-config JSON node into a newly allocated config
+ * struct.
+ *
+ * @param[in] node  cJSON node representing the scan-agent-config payload.
+ *                  May be an object, a JSON string, or NULL.
+ *
+ * @return agent_controller_scan_agent_config_t on success; NULL if node is
+ *         NULL/JSON null/unparsable. Ownership of node remains with the
+ *         caller; do not free any children retrieved with cJSON_GetObjectItem()
+ *         individually.
+ */
+static agent_controller_scan_agent_config_t
+agent_controller_parse_scan_agent_config_node (cJSON *node)
+{
+  if (!node || cJSON_IsNull (node))
+    return NULL;
+
+  if (cJSON_IsObject (node))
+    return agent_controller_parse_scan_agent_config (node); /*may return NULL*/
+
+  if (cJSON_IsString (node) && node->valuestring)
+    {
+      /* treat empty/whitespace string as absent */
+      const char *s = node->valuestring;
+      while (*s && g_ascii_isspace ((guchar) *s))
+        ++s;
+      if (*s == '\0')
+        return NULL;
+
+      return agent_controller_parse_scan_agent_config_string (s);
+      /* may return NULL */
+    }
+
+  return NULL;
+}
+
+/**
+ * @brief Serialize scan-agent-config struct to a minimal JSON string.
+ *
+ * @param [in] cfg agent config to convert as json object
+ *
+ * @return cJSON pointer containing scan agent config.
+ */
+static cJSON *
+agent_controller_scan_agent_config_struct_to_cjson (
+  agent_controller_scan_agent_config_t cfg)
+{
+  if (!cfg)
+    return NULL;
+
+  gchar *json = agent_controller_convert_scan_agent_config_string (cfg);
+  if (!json)
+    return cJSON_CreateObject ();
+
+  cJSON *obj = cJSON_Parse (json);
+  cJSON_free (json);
+
+  return obj ? obj : cJSON_CreateObject ();
 }
 
 /**
@@ -191,12 +341,12 @@ agent_controller_parse_agent (cJSON *item)
   const gchar *hostname = gvm_json_obj_str (item, "hostname");
   const gchar *conn_status = gvm_json_obj_str (item, "connection_status");
   const gchar *last_update_str = gvm_json_obj_str (item, "last_update");
+  const gchar *last_updater_heartbeat_str =
+    gvm_json_obj_str (item, "last_updater_heartbeat");
 
   agent->agent_id = agent_id ? g_strdup (agent_id) : NULL;
   agent->hostname = hostname ? g_strdup (hostname) : NULL;
   agent->authorized = cJSON_IsTrue (cJSON_GetObjectItem (item, "authorized"));
-  agent->min_interval = gvm_json_obj_int (item, "min_interval");
-  agent->heartbeat_interval = gvm_json_obj_int (item, "heartbeat_interval");
   agent->connection_status = conn_status ? g_strdup (conn_status) : NULL;
 
   if (last_update_str && *last_update_str)
@@ -206,6 +356,16 @@ agent_controller_parse_agent (cJSON *item)
   else
     {
       agent->last_update = 0;
+    }
+
+  if (last_updater_heartbeat_str && *last_updater_heartbeat_str)
+    {
+      agent->last_updater_heartbeat =
+        parse_datetime (last_updater_heartbeat_str);
+    }
+  else
+    {
+      agent->last_updater_heartbeat = 0;
     }
 
   cJSON *ips_array = cJSON_GetObjectItem (item, "ip_addresses");
@@ -224,46 +384,25 @@ agent_controller_parse_agent (cJSON *item)
         }
     }
 
+  /* Versions / platform */
+  const gchar *upd_ver = gvm_json_obj_str (item, "updater_version");
+  const gchar *agt_ver = gvm_json_obj_str (item, "agent_version");
+  const gchar *os_str = gvm_json_obj_str (item, "operating_system");
+  const gchar *arch = gvm_json_obj_str (item, "architecture");
+  cJSON *update_to_latest_str = cJSON_GetObjectItem (item, "update_to_latest");
+
+  agent->updater_version = upd_ver ? g_strdup (upd_ver) : NULL;
+  agent->agent_version = agt_ver ? g_strdup (agt_ver) : NULL;
+  agent->operating_system = os_str ? g_strdup (os_str) : NULL;
+  agent->architecture = arch ? g_strdup (arch) : NULL;
+  if (cJSON_IsBool (update_to_latest_str))
+    agent->update_to_latest = cJSON_IsTrue (update_to_latest_str) ? 1 : 0;
+  else
+    agent->update_to_latest = 0;
+
+  /* Config */
   cJSON *config_obj = cJSON_GetObjectItem (item, "config");
-  if (config_obj && cJSON_IsObject (config_obj))
-    {
-      // Parse "schedule"
-      cJSON *schedule_obj = cJSON_GetObjectItem (config_obj, "schedule");
-      if (schedule_obj && cJSON_IsObject (schedule_obj))
-        {
-          const gchar *schedule_str =
-            gvm_json_obj_str (schedule_obj, "schedule");
-          if (schedule_str)
-            {
-              agent->schedule_config =
-                g_malloc0 (sizeof (struct agent_controller_config_schedule));
-              agent->schedule_config->schedule = g_strdup (schedule_str);
-            }
-        }
-
-      // Parse "control-server"
-      cJSON *server_obj = cJSON_GetObjectItem (config_obj, "control-server");
-      if (server_obj && cJSON_IsObject (server_obj))
-        {
-          agent->server_config =
-            g_malloc0 (sizeof (struct agent_controller_config_server));
-
-          const gchar *base_url = gvm_json_obj_str (server_obj, "base_url");
-          const gchar *server_agent_id =
-            gvm_json_obj_str (server_obj, "agent_id");
-          const gchar *token = gvm_json_obj_str (server_obj, "token");
-          const gchar *server_cert_hash =
-            gvm_json_obj_str (server_obj, "server_cert_hash");
-
-          agent->server_config->base_url =
-            base_url ? g_strdup (base_url) : NULL;
-          agent->server_config->agent_id =
-            server_agent_id ? g_strdup (server_agent_id) : NULL;
-          agent->server_config->token = token ? g_strdup (token) : NULL;
-          agent->server_config->server_cert_hash =
-            server_cert_hash ? g_strdup (server_cert_hash) : NULL;
-        }
-    }
+  agent->config = agent_controller_parse_scan_agent_config_node (config_obj);
 
   return agent;
 }
@@ -301,41 +440,14 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
         use_authorized = update->authorized;
       cJSON_AddBoolToObject (agent_obj, "authorized", use_authorized);
 
-      // min_interval
-      int use_min_interval = agent->min_interval;
-      if (update && update->min_interval != -1)
-        use_min_interval = update->min_interval;
-      cJSON_AddNumberToObject (agent_obj, "min_interval", use_min_interval);
-
-      // heartbeat_interval
-      int use_heartbeat_interval = agent->heartbeat_interval;
-      if (update && update->heartbeat_interval != -1)
-        use_heartbeat_interval = update->heartbeat_interval;
-      cJSON_AddNumberToObject (agent_obj, "heartbeat_interval",
-                               use_heartbeat_interval);
-
-      // Config block
-      cJSON *config_obj = NULL;
-
-      // Use schedule override if given, else agent's own
-      agent_controller_config_schedule_t schedule_to_use =
-        (update && update->schedule_config) ? update->schedule_config
-                                            : agent->schedule_config;
-      if (schedule_to_use && schedule_to_use->schedule)
+      /* config: prefer update->config if provided */
+      cJSON *cfg_obj = NULL;
+      if (update && update->config)
         {
-          config_obj = cJSON_CreateObject ();
-
-          cJSON *schedule_obj = cJSON_CreateObject ();
-          cJSON_AddStringToObject (schedule_obj, "schedule",
-                                   schedule_to_use->schedule);
-          cJSON_AddItemToObject (config_obj, "schedule", schedule_obj);
+          cfg_obj =
+            agent_controller_scan_agent_config_struct_to_cjson (update->config);
+          cJSON_AddItemToObject (agent_obj, "config", cfg_obj);
         }
-
-      if (config_obj)
-        {
-          cJSON_AddItemToObject (agent_obj, "config", config_obj);
-        }
-
       cJSON_AddItemToObject (patch_body, agent->agent_id, agent_obj);
     }
 
@@ -343,6 +455,108 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
   cJSON_Delete (patch_body);
 
   return payload;
+}
+
+/**
+ * @brief Check if a JSON agent object reports an available update.
+ *
+ * Evaluates the boolean fields "agent_update_available" and
+ * "updater_update_available" on the given item. Only strict JSON booleans
+ * are considered; missing keys or non-boolean types are treated as FALSE.
+ *
+ * @param[in] item  cJSON object representing a single agent.
+ *
+ * @return TRUE if either "agent_update_available" or
+ *         "updater_update_available" is TRUE; otherwise FALSE.
+ */
+
+static gboolean
+agent_controller_json_has_update_available (cJSON *item)
+{
+  if (!item || !cJSON_IsObject (item))
+    return FALSE;
+
+  cJSON *a_up = cJSON_GetObjectItem (item, "agent_update_available");
+  cJSON *u_up = cJSON_GetObjectItem (item, "updater_update_available");
+
+  gboolean agent_up = cJSON_IsBool (a_up) && cJSON_IsTrue (a_up);
+  gboolean updater_up = cJSON_IsBool (u_up) && cJSON_IsTrue (u_up);
+
+  return agent_up || updater_up;
+}
+
+/**
+ * @brief Ensure an error array exists and uses g_free on elements.
+ * @param [in, out] errors GPointer Array for initialization
+ */
+static void
+ensure_error_array (GPtrArray **errors)
+{
+  if (errors && *errors == NULL)
+    *errors = g_ptr_array_new_with_free_func (g_free);
+}
+
+/**
+ * @brief Add a single error message to errors, creating the array if needed.
+ * @param [in,out] errors array to add error message
+ * @param [in] msg error message
+ */
+static void
+push_error (GPtrArray **errors, const gchar *msg)
+{
+  if (!errors || !msg || !*msg)
+    return;
+  ensure_error_array (errors);
+  g_ptr_array_add (*errors, g_strdup (msg));
+}
+
+/**
+ * @brief Parse a JSON response body and extract "errors" array into errors.
+ *
+ * @param [in] body body of the response
+ * @param [out] errors parsed errors
+ *
+ */
+static void
+parse_errors_json_into_array (const gchar *body, GPtrArray **errors)
+{
+  if (!errors)
+    return;
+
+  /* cJSON requires NUL-terminated input; make a safe copy. */
+  cJSON *root = cJSON_Parse (body);
+
+  if (!root)
+    {
+      push_error (errors, "Request rejected (400): invalid JSON payload.");
+      return;
+    }
+
+  const cJSON *errors_node = cJSON_GetObjectItemCaseSensitive (root, "errors");
+  gboolean any_added = FALSE;
+
+  if (cJSON_IsArray (errors_node))
+    {
+      int n = cJSON_GetArraySize (errors_node);
+      for (int i = 0; i < n; ++i)
+        {
+          const cJSON *it = cJSON_GetArrayItem (errors_node, i);
+          if (cJSON_IsString (it) && it->valuestring && *it->valuestring)
+            {
+              push_error (errors, it->valuestring);
+              any_added = TRUE;
+            }
+        }
+    }
+
+  if (!any_added)
+    {
+      push_error (
+        errors,
+        "Request rejected (400), but no detailed errors were provided.");
+    }
+
+  cJSON_Delete (root);
 }
 
 /**
@@ -460,16 +674,11 @@ agent_controller_agent_free (agent_controller_agent_t agent)
       g_free (agent->ip_addresses);
     }
 
-  if (agent->schedule_config)
-    {
-      agent_controller_config_schedule_free (agent->schedule_config);
-    }
-
-  if (agent->server_config)
-    {
-      agent_controller_config_server_free (agent->server_config);
-    }
-
+  agent_controller_scan_agent_config_free (agent->config);
+  g_free (agent->updater_version);
+  g_free (agent->agent_version);
+  g_free (agent->operating_system);
+  g_free (agent->architecture);
   g_free (agent);
 }
 
@@ -526,9 +735,7 @@ agent_controller_agent_update_new (void)
     g_malloc0 (sizeof (struct agent_controller_agent_update));
 
   update->authorized = -1;
-  update->min_interval = -1;
-  update->heartbeat_interval = -1;
-  update->schedule_config = NULL;
+  update->config = NULL;
 
   return update;
 }
@@ -544,70 +751,42 @@ agent_controller_agent_update_free (agent_controller_agent_update_t update)
   if (!update)
     return;
 
-  if (update->schedule_config)
+  if (update->config)
     {
-      agent_controller_config_schedule_free (update->schedule_config);
+      agent_controller_scan_agent_config_free (update->config);
     }
 
   g_free (update);
 }
 
 /**
- * @brief Allocates and initializes a new schedule configuration.
- *
- * @return agent_controller_config_schedule_t pointer
+ * @brief Allocate/zero a new scan agent config.
  */
-agent_controller_config_schedule_t
-agent_controller_config_schedule_new (void)
+agent_controller_scan_agent_config_t
+agent_controller_scan_agent_config_new (void)
 {
-  return g_malloc0 (sizeof (struct agent_controller_config_schedule));
+  return g_malloc0 (sizeof (struct agent_controller_scan_agent_config));
 }
 
 /**
- * @brief Frees a schedule configuration structure.
+ * @brief Free a scan agent config.
  *
- * @param[in] schedule to be freed
+ * @param[in] cfg to be freed
  */
 void
-agent_controller_config_schedule_free (
-  agent_controller_config_schedule_t schedule)
+agent_controller_scan_agent_config_free (
+  agent_controller_scan_agent_config_t cfg)
 {
-  if (!schedule)
+  if (!cfg)
     return;
 
-  g_free (schedule->schedule);
+  if (cfg->agent_script_executor.scheduler_cron_time)
+    {
+      g_ptr_array_free (cfg->agent_script_executor.scheduler_cron_time, TRUE);
+      cfg->agent_script_executor.scheduler_cron_time = NULL;
+    }
 
-  g_free (schedule);
-}
-
-/**
- * @brief Allocates and initializes a new server configuration.
- *
- * @return agent_controller_config_server_t pointer
- */
-agent_controller_config_server_t
-agent_controller_config_server_new (void)
-{
-  return g_malloc0 (sizeof (struct agent_controller_config_server));
-}
-
-/**
- * @brief Frees a server configuration structure.
- *
- * @param server to be freed
- */
-void
-agent_controller_config_server_free (agent_controller_config_server_t server)
-{
-  if (!server)
-    return;
-
-  g_free (server->base_url);
-  g_free (server->agent_id);
-  g_free (server->token);
-  g_free (server->server_cert_hash);
-
-  g_free (server);
+  g_free (cfg);
 }
 
 /**
@@ -681,81 +860,21 @@ agent_controller_get_agents (agent_controller_connector_t conn)
 }
 
 /**
- * @brief Authorizes a list of agents.
- *
- * @param[in] conn Active connector
- * @param[in] agents List of agents to authorize
- *
- * @return RESP_CODE_OK (0) on success, RESP_CODE_ERR (-1) on failure
- */
-int
-agent_controller_authorize_agents (agent_controller_connector_t conn,
-                                   agent_controller_agent_list_t agents)
-{
-  if (!conn || !agents)
-    {
-      g_warning ("%s: Invalid connection or agent list", __func__);
-      return AGENT_RESP_ERR;
-    }
-
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  if (!update)
-    {
-      g_warning ("%s: Failed to allocate update override", __func__);
-      return AGENT_RESP_ERR;
-    }
-
-  update->authorized = 1;          // Force authorized = 1
-  update->min_interval = -1;       // No override
-  update->heartbeat_interval = -1; // No override
-  update->schedule_config = NULL;  // No schedule override
-
-  gchar *payload = agent_controller_build_patch_payload (agents, update);
-  agent_controller_agent_update_free (update);
-
-  if (!payload)
-    {
-      g_warning ("%s: Failed to build PATCH payload", __func__);
-      return AGENT_RESP_ERR;
-    }
-
-  gvm_http_response_t *response = agent_controller_send_request (
-    conn, PATCH, "/api/v1/admin/agents", payload, conn->apikey);
-
-  g_free (payload);
-
-  if (!response)
-    {
-      g_warning ("%s: Failed to get response", __func__);
-      return AGENT_RESP_ERR;
-    }
-
-  if (response->http_status != 200)
-    {
-      g_warning ("%s: Received HTTP status %ld", __func__,
-                 response->http_status);
-      gvm_http_response_cleanup (response);
-      return AGENT_RESP_ERR;
-    }
-
-  gvm_http_response_cleanup (response);
-
-  return AGENT_RESP_OK;
-}
-
-/**
  * @brief Updates properties of a list of agents.
  *
  * @param[in] conn Active connector
  * @param[in] agents List of agents to update
  * @param[in] update Update information
+ * @param[out] errors  If non-NULL and an HTTP 4xx occurs, will be set to a
+ * GPtrArray* of gchar* error messages (caller takes ownership and must free)
  *
  * @return RESP_CODE_OK (0) on success, RESP_CODE_ERR (-1) on failure
  */
 int
 agent_controller_update_agents (agent_controller_connector_t conn,
                                 agent_controller_agent_list_t agents,
-                                agent_controller_agent_update_t update)
+                                agent_controller_agent_update_t update,
+                                GPtrArray **errors)
 {
   if (!conn || !agents || !update)
     {
@@ -779,6 +898,21 @@ agent_controller_update_agents (agent_controller_connector_t conn,
   if (!response)
     {
       g_warning ("%s: Failed to get response", __func__);
+      return AGENT_RESP_ERR;
+    }
+
+  if (response->http_status == 400)
+    {
+      if (response->data)
+        {
+          parse_errors_json_into_array (response->data, errors);
+        }
+      else
+        {
+          push_error (errors, "Request rejected (400), empty response body.");
+        }
+
+      gvm_http_response_cleanup (response);
       return AGENT_RESP_ERR;
     }
 
@@ -861,4 +995,291 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
   gvm_http_response_cleanup (response);
 
   return AGENT_RESP_OK;
+}
+
+/**
+ * @brief Updates scan agent config globally
+ *
+ * @param[in] cfg  Scan-agent configuration to serialize. Must not be NULL.
+ *
+ * @return Newly allocated, unformatted JSON string on success; NULL on failure
+ *         The caller owns the returned string and must free it with
+ *         g_free().
+ */
+gchar *
+agent_controller_convert_scan_agent_config_string (
+  agent_controller_scan_agent_config_t cfg)
+{
+  if (!cfg)
+    return NULL;
+
+  cJSON *root = cJSON_CreateObject ();
+
+  /* ---------- agent_control.retry ---------- */
+
+  cJSON *agent_control = cJSON_CreateObject ();
+  cJSON *retry = cJSON_CreateObject ();
+  cJSON_AddNumberToObject (retry, "attempts",
+                           cfg->agent_control.retry.attempts);
+  cJSON_AddNumberToObject (retry, "delay_in_seconds",
+                           cfg->agent_control.retry.delay_in_seconds);
+  cJSON_AddNumberToObject (retry, "max_jitter_in_seconds",
+                           cfg->agent_control.retry.max_jitter_in_seconds);
+  cJSON_AddItemToObject (agent_control, "retry", retry);
+  cJSON_AddItemToObject (root, "agent_control", agent_control);
+
+  /* ---------- agent_script_executor ---------- */
+
+  cJSON *exec = cJSON_CreateObject ();
+  cJSON_AddNumberToObject (exec, "bulk_size",
+                           cfg->agent_script_executor.bulk_size);
+  cJSON_AddNumberToObject (exec, "bulk_throttle_time_in_ms",
+                           cfg->agent_script_executor.bulk_throttle_time_in_ms);
+  cJSON_AddNumberToObject (exec, "indexer_dir_depth",
+                           cfg->agent_script_executor.indexer_dir_depth);
+  cJSON_AddNumberToObject (exec, "period_in_seconds",
+                           cfg->agent_script_executor.period_in_seconds);
+
+  const GPtrArray *arr = cfg->agent_script_executor.scheduler_cron_time;
+  if (arr && arr->len > 0)
+    {
+      cJSON *cron = cJSON_CreateArray ();
+      for (guint i = 0; i < arr->len; ++i)
+        {
+          const gchar *expr = g_ptr_array_index ((GPtrArray *) arr, i);
+          if (expr && *expr)
+            cJSON_AddItemToArray (cron, cJSON_CreateString (expr));
+        }
+
+      if (cJSON_GetArraySize (cron) > 0)
+        cJSON_AddItemToObject (exec, "scheduler_cron_time", cron);
+      else
+        cJSON_Delete (cron);
+    }
+
+  cJSON_AddItemToObject (root, "agent_script_executor", exec);
+
+  /* ---------- heartbeat ---------- */
+
+  cJSON *hb = cJSON_CreateObject ();
+  cJSON_AddNumberToObject (hb, "interval_in_seconds",
+                           cfg->heartbeat.interval_in_seconds);
+  cJSON_AddNumberToObject (hb, "miss_until_inactive",
+                           cfg->heartbeat.miss_until_inactive);
+  cJSON_AddItemToObject (root, "heartbeat", hb);
+
+  /* If nothing set, root returns empty → "{}" */
+  gchar *payload = cJSON_PrintUnformatted (root);
+  cJSON_Delete (root);
+  return payload;
+}
+
+/**
+ * @brief Parse a scan-agent-config from a JSON string into a newly allocated
+ struct.
+
+ * @param[in] config  NUL-terminated JSON text. Must represent a JSON object.
+ *
+ * @return Newly allocated agent_controller_scan_agent_config_t on success;
+ *         NULL if config is NULL, the JSON cannot be parsed, or the root
+ *         is not a JSON object.
+ */
+agent_controller_scan_agent_config_t
+agent_controller_parse_scan_agent_config_string (const gchar *config)
+{
+  if (!config)
+    return NULL;
+
+  cJSON *root = cJSON_Parse (config);
+  if (!root)
+    {
+      g_warning ("%s: JSON parse failed", __func__);
+      return NULL;
+    }
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_parse_scan_agent_config (root);
+  cJSON_Delete (root);
+  return cfg;
+}
+
+/**
+ * @brief Retrieves the scan-agent configuration.
+ *
+ * @param[in] conn Active agent controller connector
+ *
+ * @return Newly allocated agent_controller_scan_agent_config_t on success,
+ *         NULL on failure. Caller must free the returned object with
+ *         agent_controller_scan_agent_config_free().
+ */
+agent_controller_scan_agent_config_t
+agent_controller_get_scan_agent_config (agent_controller_connector_t conn)
+{
+  if (!conn)
+    {
+      g_warning ("%s: Connector is NULL", __func__);
+      return NULL;
+    }
+
+  gvm_http_response_t *response = agent_controller_send_request (
+    conn, GET, "/api/v1/admin/scan-agent-config", NULL, conn->apikey);
+  if (!response)
+    {
+      g_warning ("%s: No response", __func__);
+      return NULL;
+    }
+
+  if (response->http_status < 200 || response->http_status >= 300)
+    {
+      g_warning ("%s: HTTP %ld", __func__, response->http_status);
+      gvm_http_response_cleanup (response);
+      return NULL;
+    }
+
+  cJSON *root = cJSON_Parse (response->data);
+  if (!root)
+    {
+      g_warning ("%s: JSON parse failed", __func__);
+      gvm_http_response_cleanup (response);
+      return NULL;
+    }
+
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_parse_scan_agent_config (root);
+
+  cJSON_Delete (root);
+  gvm_http_response_cleanup (response);
+  return cfg;
+}
+
+/**
+ * @brief Updates the scan-agent configuration.
+ *
+ * @param[in] conn Connector to the Agent Controller
+ * @param[in] cfg  Configuration to apply
+ * @param[out] errors  If non-NULL and an HTTP 4xx occurs, will be set to a
+ * GPtrArray* of gchar* error messages (caller takes ownership and must free)
+ *
+ * @return AGENT_RESP_OK (0) on success, AGENT_RESP_ERR (-1) on failure.
+ *         The caller retains ownership of cfg.
+ */
+int
+agent_controller_update_scan_agent_config (
+  agent_controller_connector_t conn, agent_controller_scan_agent_config_t cfg,
+  GPtrArray **errors)
+{
+  if (!conn || !cfg)
+    {
+      g_warning ("%s: Invalid args", __func__);
+      return AGENT_RESP_ERR;
+    }
+
+  gchar *payload = agent_controller_convert_scan_agent_config_string (cfg);
+  if (!payload)
+    {
+      g_warning ("%s: Failed to build payload", __func__);
+      return AGENT_RESP_ERR;
+    }
+
+  gvm_http_response_t *response = agent_controller_send_request (
+    conn, PUT, "/api/v1/admin/scan-agent-config", payload, conn->apikey);
+
+  cJSON_free (payload);
+
+  if (!response)
+    {
+      g_warning ("%s: No response", __func__);
+      return AGENT_RESP_ERR;
+    }
+
+  if (response->http_status == 400)
+    {
+      if (response->data)
+        {
+          parse_errors_json_into_array (response->data, errors);
+        }
+      else
+        {
+          push_error (errors, "Request rejected (400), empty response body.");
+        }
+
+      gvm_http_response_cleanup (response);
+      return AGENT_RESP_ERR;
+    }
+
+  if (response->http_status < 200 || response->http_status >= 300)
+    {
+      g_warning ("%s: HTTP %ld", __func__, response->http_status);
+      gvm_http_response_cleanup (response);
+      return AGENT_RESP_ERR;
+    }
+
+  gvm_http_response_cleanup (response);
+  return AGENT_RESP_OK;
+}
+
+/**
+ * @brief Fetch agents that have an update available.
+ *
+ * @param[in] conn Connector to the Agent Controller
+ *
+ * @return List of agents on success (count may be 0 if none qualify),
+ *         NULL on failure. Free with agent_controller_agent_list_free().
+ */
+agent_controller_agent_list_t
+agent_controller_get_agents_with_updates (agent_controller_connector_t conn)
+{
+  if (!conn)
+    {
+      g_warning ("%s: Connector is NULL", __func__);
+      return NULL;
+    }
+
+  gvm_http_response_t *response = agent_controller_send_request (
+    conn, GET, "/api/v1/admin/agents/updates", NULL, conn->apikey);
+
+  if (!response)
+    {
+      g_warning ("%s: Failed to get response", __func__);
+      return NULL;
+    }
+
+  if (response->http_status != 200)
+    {
+      g_warning ("%s: Received HTTP status %ld", __func__,
+                 response->http_status);
+      gvm_http_response_cleanup (response);
+      return NULL;
+    }
+
+  cJSON *root = cJSON_Parse (response->data);
+  if (!root || !cJSON_IsArray (root))
+    {
+      g_warning ("%s: Failed to parse JSON array", __func__);
+      if (root)
+        cJSON_Delete (root);
+      gvm_http_response_cleanup (response);
+      return NULL;
+    }
+
+  int count = cJSON_GetArraySize (root);
+  agent_controller_agent_list_t agent_list =
+    agent_controller_agent_list_new (count);
+
+  int valid_index = 0;
+  for (int i = 0; i < count; ++i)
+    {
+      cJSON *item = cJSON_GetArrayItem (root, i);
+      if (!agent_controller_json_has_update_available (item))
+        continue;
+
+      agent_controller_agent_t agent = agent_controller_parse_agent (item);
+      if (agent)
+        agent_list->agents[valid_index++] = agent;
+    }
+  agent_list->count = valid_index;
+
+  cJSON_Delete (root);
+  gvm_http_response_cleanup (response);
+
+  return agent_list;
 }

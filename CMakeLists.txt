@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.5)
 message("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 # VERSION: Always include major, minor and patch level.
-project(gvm-libs VERSION 22.25.1 LANGUAGES C)
+project(gvm-libs VERSION 22.26.1 LANGUAGES C)
 
 if(POLICY CMP0005)
   cmake_policy(SET CMP0005 NEW)
