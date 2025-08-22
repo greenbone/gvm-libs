@@ -2332,6 +2332,7 @@ struct xml_file_iterator_struct
   xmlParserCtxtPtr parser_ctxt; //< libXML parser context for building DOM
   gchar *file_path;             //< Path to the XML file being processed
   FILE *file;                   //< Stream pointer for the XML file
+  int stack_depth;              // track depth (replaces nodeNr)
 };
 
 /**
@@ -2364,6 +2365,7 @@ xml_file_iterator_start_element_ns (void *ctx, const xmlChar *localname,
   xmlSAX2StartElementNs (iterator->parser_ctxt, localname, prefix, URI,
                          nb_namespaces, namespaces, nb_attributes, nb_defaulted,
                          attributes);
+  iterator->stack_depth++;
 }
 
 /**
@@ -2386,8 +2388,8 @@ xml_file_iterator_end_element_ns (void *ctx, const xmlChar *localname,
 {
   xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
   xmlSAX2EndElementNs (iterator->parser_ctxt, localname, prefix, URI);
-
-  if (iterator->parser_ctxt->nodeNr == iterator->output_depth)
+  iterator->stack_depth--;
+  if (iterator->stack_depth == iterator->output_depth)
     {
       xmlNodePtr parent, child;
       parent = iterator->parser_ctxt->node;
@@ -2899,6 +2901,7 @@ xml_file_iterator_init_from_file_path (xml_file_iterator_t iterator,
     return 3;
 
   iterator->initialized = 1;
+  iterator->stack_depth = 0;
 
   return 0;
 }
@@ -2968,6 +2971,7 @@ xml_file_iterator_rewind (xml_file_iterator_t iterator)
       if (iterator->parser_ctxt == NULL)
         return 1;
     }
+  iterator->stack_depth = 0;
 
   return 0;
 }
