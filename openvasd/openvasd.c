@@ -13,6 +13,7 @@
 #include "../base/array.h"
 #include "../base/networking.h"
 #include "../http/httputils.h"
+#include "../http_scanner/http_scanner.h"
 #include "../util/json.h"
 
 #include <cjson/cJSON.h>
@@ -30,35 +31,6 @@
 
 #define RESP_CODE_ERR -1
 #define RESP_CODE_OK 0
-
-/**
- * @brief Struct holding the data for connecting with openvasd.
- */
-struct openvasd_connector
-{
-  gchar *ca_cert;  /**< Path to the directory holding the CA certificate. */
-  gchar *cert;     /**< Client certificate. */
-  gchar *key;      /**< Client key. */
-  gchar *apikey;   /**< API key for authentication. */
-  gchar *host;     /**< server hostname. */
-  gchar *scan_id;  /**< Scan ID. */
-  int port;        /**< server port. */
-  gchar *protocol; /**< server protocol (http or https). */
-  gvm_http_response_stream_t stream_resp; /** For response */
-};
-
-/**
- * @brief Struct holding options for openvasd parameters.
- */
-struct openvasd_param
-{
-  gchar *id;          /**< Parameter id. */
-  gchar *name;        /**< Parameter name. */
-  gchar *defval;      /**< Default value. */
-  gchar *description; /**< Description. */
-  gchar *type;        /**< Parameter type. */
-  int mandatory;      /**< If mandatory. */
-};
 
 /**
  * @brief Struct credential information for openvasd.
@@ -100,275 +72,22 @@ struct openvasd_vt_single
   GHashTable *vt_values;
 };
 
-/** @brief Initialize an openvasd connector.
- *
- *  @return An openvasd connector struct. It must be freed
- *  with openvasd_connector_free()
- */
-openvasd_connector_t
-openvasd_connector_new (void)
-{
-  openvasd_connector_t connector;
-  gvm_http_response_stream_t stream;
-
-  connector = g_malloc0 (sizeof (struct openvasd_connector));
-  stream = gvm_http_response_stream_new ();
-  connector->stream_resp = stream;
-
-  return connector;
-}
-
-/** @brief Build a openvasd connector
- *
- *  Receive option name and value to build the openvasd connector
- *
- *  @param conn struct holding the openvasd connector information
- *  @param opt    option to set
- *  @param val    value to set
- *
- *  @return Return OK on success, otherwise error;
- */
-openvasd_error_t
-openvasd_connector_builder (openvasd_connector_t conn, openvasd_conn_opt_t opt,
-                            const void *val)
-{
-  if (conn == NULL)
-    conn = openvasd_connector_new ();
-
-  if (opt < OPENVASD_CA_CERT || opt > OPENVASD_PORT)
-    return OPENVASD_INVALID_OPT;
-
-  if (val == NULL)
-    return OPENVASD_INVALID_VALUE;
-
-  switch (opt)
-    {
-    case OPENVASD_CA_CERT:
-      conn->ca_cert = g_strdup ((char *) val);
-      break;
-    case OPENVASD_CERT:
-      conn->cert = g_strdup ((char *) val);
-      break;
-    case OPENVASD_KEY:
-      conn->key = g_strdup ((char *) val);
-      break;
-    case OPENVASD_API_KEY:
-      conn->apikey = g_strdup ((char *) val);
-      break;
-    case OPENVASD_PROTOCOL:
-      if (g_strcmp0 ((char *) val, "http") != 0
-          && g_strcmp0 ((char *) val, "https") != 0)
-        return OPENVASD_INVALID_VALUE;
-      conn->protocol = g_strdup ((char *) val);
-      break;
-    case OPENVASD_HOST:
-      conn->host = g_strdup ((char *) val);
-      break;
-    case OPENVASD_SCAN_ID:
-      conn->scan_id = g_strdup ((const gchar *) val);
-      break;
-    case OPENVASD_PORT:
-    default:
-      conn->port = *((int *) val);
-      break;
-    };
-
-  return OPENVASD_OK;
-}
-
-/** @brief Build a openvasd connector
- *
- *  Receive option name and value to build the openvasd connector
- *
- *  @param conn   struct holding the openvasd connector information
- *
- *  @return Return OPENVASD_OK
- */
-openvasd_error_t
-openvasd_connector_free (openvasd_connector_t conn)
-{
-  if (conn == NULL)
-    return OPENVASD_OK;
-
-  g_free (conn->ca_cert);
-  g_free (conn->cert);
-  g_free (conn->key);
-  g_free (conn->apikey);
-  g_free (conn->protocol);
-  g_free (conn->host);
-  g_free (conn->scan_id);
-  gvm_http_response_stream_free (conn->stream_resp);
-  g_free (conn);
-  conn = NULL;
-
-  return OPENVASD_OK;
-}
-
-/**
- * @brief Free an openvasd response struct
- *
- * @param resp Response to be freed
- */
-void
-openvasd_response_cleanup (openvasd_resp_t resp)
-{
-  if (resp == NULL)
-    return;
-
-  g_free (resp->body);
-  g_free (resp->header);
-  g_free (resp);
-  resp = NULL;
-}
-
-static gvm_http_headers_t *
-init_customheader (const gchar *apikey, gboolean contenttype)
-{
-  gvm_http_headers_t *headers = gvm_http_headers_new ();
-
-  // Set API KEY
-  if (apikey)
-    {
-      GString *xapikey = g_string_new ("X-API-KEY: ");
-      g_string_append (xapikey, apikey);
-
-      if (!gvm_http_add_header (headers, xapikey->str))
-        g_warning ("%s: Not possible to set API-KEY", __func__);
-
-      g_string_free (xapikey, TRUE);
-    }
-
-  // Set Content-Type
-  if (contenttype)
-    {
-      if (!gvm_http_add_header (headers, "Content-Type: application/json"))
-        g_warning ("%s: Not possible to set Content-Type", __func__);
-    }
-
-  return headers;
-}
-
-/**
- * @brief Sends an HTTP(S) request to the OpenVAS daemon using
- *        the specified parameters.
- *
- * @param conn The `openvasd_connector_t` containing server and certificate
- * details.
- * @param method The HTTP method (GET, POST, etc.).
- * @param path The resource path (e.g., `/vts`).
- * @param data The request payload (if applicable).
- * @param custom_headers Additional request headers.
- * @param header_name The header key to extract from the response.
- *
- * @return `openvasd_resp_t` containing response status, body, and header value.
- */
-static openvasd_resp_t
-openvasd_send_request (openvasd_connector_t conn, gvm_http_method_t method,
-                       const gchar *path, const gchar *data,
-                       const gchar *header_name)
-{
-  openvasd_resp_t response = g_malloc0 (sizeof (struct openvasd_response));
-  response->code = RESP_CODE_ERR;
-  response->body = NULL;
-  response->header = NULL;
-
-  if (!conn)
-    {
-      g_warning ("openvasd_send_request_test: Invalid connector");
-      response->body = g_strdup ("{\"error\": \"Missing openvasd connector\"}");
-      return response;
-    }
-
-  gchar *url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
-                                conn->port, path);
-
-  if (!conn->stream_resp)
-    {
-      conn->stream_resp = g_malloc0 (sizeof (struct gvm_http_response_stream));
-    }
-
-  gvm_http_headers_t *custom_headers =
-    init_customheader (conn->apikey, data ? TRUE : FALSE);
-
-  // Send request
-  gvm_http_response_t *http_response =
-    gvm_http_request (url, method, data, custom_headers, conn->ca_cert,
-                      conn->cert, conn->key, conn->stream_resp);
-
-  // Check for request errors
-  if (http_response->http_status == -1)
-    {
-      g_warning ("%s: Error performing CURL request", __func__);
-      response->body = g_strdup ("{\"error\": \"Error sending request\"}");
-      gvm_http_response_cleanup (http_response);
-      g_free (url);
-      gvm_http_headers_free (custom_headers);
-      return response;
-    }
-
-  // Populate response struct
-  response->code = (int) http_response->http_status;
-  response->body = g_strdup (
-    http_response->data ? http_response->data : "{\"error\": \"No response\"}");
-
-  // Extract specific header if requested
-  if (header_name)
-    {
-      struct curl_header *hname;
-      if (curl_easy_header (http_response->http->handler, header_name, 0,
-                            CURLH_HEADER, -1, &hname)
-          == CURLHE_OK)
-        {
-          response->header = g_strdup (hname->value);
-        }
-    }
-
-  // Cleanup
-  gvm_http_response_cleanup (http_response);
-  g_free (url);
-  gvm_http_headers_free (custom_headers);
-
-  return response;
-}
-
-/**
- * @brief Request HEAD
- *
- * @param conn Connector struct with the data necessary for the connection
- *
- * @return Response containing the header information
- */
-openvasd_resp_t
-openvasd_get_version (openvasd_connector_t conn)
-{
-  openvasd_resp_t response = NULL;
-
-  response = openvasd_send_request (conn, HEAD, "/", NULL, NULL);
-
-  openvasd_reset_vt_stream (conn);
-  return response;
-}
-
 /**
  * @brief Initialized an curl multiperform handler which allows fetch feed
  * metadata chunk by chunk.
  *
  * @param conn Connector struct with the data necessary for the connection
- * @param mhnd The curl multiperform handler. It the caller doesn't provide
- * it initialized, it will be initialized. The caller has to free it with
- * gvm_http_multi_free().
- * @param resp The stringstream struct for the write callback function.
  *
  * @return The response.
  */
-openvasd_resp_t
-openvasd_get_vt_stream_init (openvasd_connector_t conn)
+http_scanner_resp_t
+openvasd_get_vt_stream_init (http_scanner_connector_t conn)
 {
   GString *path;
-  openvasd_resp_t response = NULL;
+  http_scanner_resp_t response = NULL;
   gvm_http_headers_t *customheader = NULL;
 
-  response = g_malloc0 (sizeof (struct openvasd_response));
+  response = g_malloc0 (sizeof (struct http_scanner_response));
 
   path = g_string_new ("/vts?information=1");
   gchar *url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
@@ -434,24 +153,6 @@ openvasd_get_vt_stream_init (openvasd_connector_t conn)
   return response;
 }
 
-void
-openvasd_reset_vt_stream (openvasd_connector_t conn)
-{
-  gvm_http_response_stream_reset (conn->stream_resp);
-}
-
-gchar *
-openvasd_vt_stream_str (openvasd_connector_t conn)
-{
-  return conn->stream_resp->data;
-}
-
-size_t
-openvasd_vt_stream_len (openvasd_connector_t conn)
-{
-  return conn->stream_resp->length;
-}
-
 /**
  * @brief Get a new feed metadata chunk.
  *
@@ -464,7 +165,7 @@ openvasd_vt_stream_len (openvasd_connector_t conn)
  * transmision finished. -1 on error
  */
 int
-openvasd_get_vt_stream (openvasd_connector_t conn)
+openvasd_get_vt_stream (http_scanner_connector_t conn)
 {
   static int running = 0;
 
@@ -501,732 +202,37 @@ openvasd_get_vt_stream (openvasd_connector_t conn)
  * @return Response Struct containing the feed metadata in json format in the
  * body.
  */
-openvasd_resp_t
-openvasd_get_vts (openvasd_connector_t conn)
+http_scanner_resp_t
+openvasd_get_vts (http_scanner_connector_t conn)
 {
   GString *path;
-  openvasd_resp_t response = NULL;
+  http_scanner_resp_t response = NULL;
 
   path = g_string_new ("/vts?information=1");
-  response = openvasd_send_request (conn, GET, path->str, NULL, NULL);
+  response = http_scanner_send_request (conn, GET, path->str, NULL, NULL);
 
   g_string_free (path, TRUE);
 
   if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (openvasd_vt_stream_str (conn));
+    response->body = g_strdup (http_scanner_stream_str (conn));
 
-  openvasd_reset_vt_stream (conn);
+  http_scanner_reset_stream (conn);
   return response;
 }
 
 /**
- * @Brief Get VT's metadata
+ * @brief Get performance data.
  *
- * @param conn Connector struct with the data necessary for the connection
- * @param data String containing the scan config in JSON format.
+ * @param conn Connector struct with the data necessary for the connection.
+ * @param opts Options for the performance request.
  *
- * @return Response Struct containing the resonse.
+ * @return Response Struct containing the performance data.
  */
-openvasd_resp_t
-openvasd_start_scan (openvasd_connector_t conn, gchar *data)
-{
-  openvasd_resp_t response = NULL;
-  cJSON *parser = NULL;
-  GString *path;
-
-  response = openvasd_send_request (conn, POST, "/scans", data, NULL);
-
-  if (response->code == RESP_CODE_ERR)
-    {
-      if (response->body == NULL)
-        response->body =
-          g_strdup ("{\"error\": \"Storing scan configuration\"}");
-      g_warning ("%s: Error storing scan configuration ", __func__);
-      openvasd_reset_vt_stream (conn);
-      return response;
-    }
-
-  // Get the Scan ID
-  parser = cJSON_Parse (openvasd_vt_stream_str (conn));
-  if (!parser)
-    {
-      const gchar *error_ptr = cJSON_GetErrorPtr ();
-      g_warning ("%s: Error parsing json string to get the scan ID", __func__);
-      if (error_ptr != NULL)
-        {
-          response->body = g_strdup_printf ("{\"error\": \"%s\"}", error_ptr);
-          g_warning ("%s: %s", __func__, error_ptr);
-        }
-      else
-        {
-          response->body = g_strdup (
-            "{\"error\": \"Parsing json string to get the scan ID\"}");
-        }
-      response->code = RESP_CODE_ERR;
-      cJSON_Delete (parser);
-      openvasd_reset_vt_stream (conn);
-      return response;
-    }
-
-  conn->scan_id = g_strdup (cJSON_GetStringValue (parser));
-
-  // Start the scan
-  path = g_string_new ("/scans");
-  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_id);
-    }
-  else
-    {
-      response->code = RESP_CODE_ERR;
-      response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
-      g_string_free (path, TRUE);
-      g_warning ("%s: Missing scan ID", __func__);
-      cJSON_Delete (parser);
-      return response;
-    }
-
-  openvasd_response_cleanup (response);
-  openvasd_reset_vt_stream (conn);
-  response = openvasd_send_request (conn, POST, path->str,
-                                    "{\"action\": \"start\"}", NULL);
-
-  g_string_free (path, TRUE);
-
-  if (response->code == RESP_CODE_ERR)
-    {
-      if (response->body == NULL)
-        response->body = g_strdup ("{\"error\": \"Starting the scan.\"}");
-      g_warning ("%s: Error starting the scan.", __func__);
-      cJSON_Delete (parser);
-      return response;
-    }
-
-  cJSON_Delete (parser);
-  response->body = g_strdup (openvasd_vt_stream_str (conn));
-  openvasd_reset_vt_stream (conn);
-  return response;
-}
-
-openvasd_resp_t
-openvasd_stop_scan (openvasd_connector_t conn)
-{
-  openvasd_resp_t response;
-  GString *path;
-
-  // Stop the scan
-  path = g_string_new ("/scans");
-  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_id);
-    }
-  else
-    {
-      response = g_malloc0 (sizeof (struct openvasd_response));
-      response->code = RESP_CODE_ERR;
-      response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
-      g_string_free (path, TRUE);
-      g_warning ("%s: Missing scan ID", __func__);
-      return response;
-    }
-
-  response = openvasd_send_request (conn, POST, path->str,
-                                    "{\"action\": \"stop\"}", NULL);
-
-  g_string_free (path, TRUE);
-
-  if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (openvasd_vt_stream_str (conn));
-
-  openvasd_reset_vt_stream (conn);
-  return response;
-}
-
-openvasd_resp_t
-openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
-{
-  openvasd_resp_t response = NULL;
-  GString *path = NULL;
-
-  path = g_string_new ("/scans");
-  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_id);
-      if (last > first)
-        g_string_append_printf (path, "/results?range%ld-%ld", first, last);
-      else if (last < first)
-        g_string_append_printf (path, "/results?range=%ld", first);
-      else
-        g_string_append (path, "/results");
-    }
-  else
-    {
-      response = g_malloc0 (sizeof (struct openvasd_response));
-      response->code = RESP_CODE_ERR;
-      response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
-      g_string_free (path, TRUE);
-      g_warning ("%s: Missing scan ID", __func__);
-      return response;
-    }
-
-  response = openvasd_send_request (conn, GET, path->str, NULL, NULL);
-  g_string_free (path, TRUE);
-
-  if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else
-    {
-      g_warning ("%s: Not possible to get scan results", __func__);
-      response->body =
-        g_strdup ("{\"error\": \"Not possible to get scan results\"}");
-    }
-
-  openvasd_reset_vt_stream (conn);
-  return response;
-}
-
-openvasd_result_t
-openvasd_result_new (unsigned long id, gchar *type, gchar *ip_address,
-                     gchar *hostname, gchar *oid, gchar *port, gchar *protocol,
-                     gchar *message, gchar *detail_name, gchar *detail_value,
-                     gchar *detail_source_type, gchar *detail_source_name,
-                     gchar *detail_source_description)
-{
-  openvasd_result_t result = g_malloc0 (sizeof (struct openvasd_result));
-
-  result->id = id;
-  result->type = g_strdup (type);
-  result->ip_address = g_strdup (ip_address);
-  result->hostname = g_strdup (hostname);
-  result->oid = g_strdup (oid);
-  result->message = g_strdup (message);
-  result->detail_name = g_strdup (detail_name);
-  result->detail_value = g_strdup (detail_value);
-  result->detail_source_name = g_strdup (detail_source_name);
-  result->detail_source_type = g_strdup (detail_source_type);
-  result->detail_source_description = g_strdup (detail_source_description);
-
-  if (!g_strcmp0 (type, "host_detail"))
-    result->port = g_strdup ("general/Host_Details");
-  else if (port == NULL || (!g_strcmp0 (port, "0") && protocol))
-    result->port = g_strdup_printf ("general/%s", protocol);
-  else if (protocol)
-    result->port = g_strdup_printf ("%s/%s", port, protocol);
-  else
-    result->port = g_strdup_printf ("general/tcp");
-
-  return result;
-}
-
-char *
-openvasd_get_result_member_str (openvasd_result_t result,
-                                openvasd_result_member_string_t member)
-{
-  if (!result)
-    return NULL;
-  switch (member)
-    {
-    case TYPE:
-      return result->type;
-
-    case IP_ADDRESS:
-      return result->ip_address;
-    case HOSTNAME:
-      return result->hostname;
-    case OID:
-      return result->oid;
-    case PORT:
-      return result->port;
-    case MESSAGE:
-      return result->message;
-    case DETAIL_NAME:
-      return result->detail_name;
-    case DETAIL_VALUE:
-      return result->detail_value;
-    case DETAIL_SOURCE_NAME:
-      return result->detail_source_name;
-    case DETAIL_SOURCE_TYPE:
-      return result->detail_source_type;
-    case DETAIL_SOURCE_DESCRIPTION:
-      return result->detail_source_description;
-    default:
-      return NULL;
-    }
-}
-
-int
-openvasd_get_result_member_int (openvasd_result_t result,
-                                openvasd_result_member_int_t member)
-{
-  if (!result)
-    return -1;
-
-  switch (member)
-    {
-    case ID:
-      return result->id;
-    default:
-      return -1;
-    }
-}
-
-void
-openvasd_result_free (openvasd_result_t result)
-{
-  if (result == NULL)
-    return;
-
-  g_free (result->type);
-  g_free (result->ip_address);
-  g_free (result->hostname);
-  g_free (result->oid);
-  g_free (result->port);
-  g_free (result->message);
-  g_free (result->detail_name);
-  g_free (result->detail_value);
-  g_free (result->detail_source_name);
-  g_free (result->detail_source_type);
-  g_free (result->detail_source_description);
-  g_free (result);
-  result = NULL;
-}
-
-static int
-parse_results (const gchar *body, GSList **results)
-{
-  cJSON *parser;
-  cJSON *result_obj = NULL;
-  const gchar *err = NULL;
-  openvasd_result_t result = NULL;
-  int ret = -1;
-
-  parser = cJSON_Parse (body);
-  if (parser == NULL)
-    {
-      err = cJSON_GetErrorPtr ();
-      goto res_cleanup;
-    }
-  if (!cJSON_IsArray (parser))
-    {
-      // No results. No information.
-      goto res_cleanup;
-    }
-
-  cJSON_ArrayForEach (result_obj, parser)
-  {
-    cJSON *item;
-    gchar *port = NULL;
-    gchar *detail_name = NULL;
-    gchar *detail_value = NULL;
-    gchar *detail_source_type = NULL;
-    gchar *detail_source_name = NULL;
-    gchar *detail_source_description = NULL;
-
-    if (!cJSON_IsObject (result_obj))
-      // error
-      goto res_cleanup;
-
-    item = cJSON_GetObjectItem (result_obj, "detail");
-    if (item != NULL && cJSON_IsObject (item))
-      {
-        cJSON *detail_obj = NULL;
-
-        detail_name = gvm_json_obj_str (item, "name");
-        detail_value = gvm_json_obj_str (item, "value");
-
-        detail_obj = cJSON_GetObjectItem (item, "source");
-        if (detail_obj && cJSON_IsObject (detail_obj))
-          {
-            detail_source_type = gvm_json_obj_str (detail_obj, "type");
-            detail_source_name = gvm_json_obj_str (detail_obj, "name");
-            detail_source_description =
-              gvm_json_obj_str (detail_obj, "description");
-          }
-      }
-    port = g_strdup_printf ("%d", gvm_json_obj_int (result_obj, "port")),
-
-    result = openvasd_result_new (
-      gvm_json_obj_double (result_obj, "id"),
-      gvm_json_obj_str (result_obj, "type"),
-      gvm_json_obj_str (result_obj, "ip_address"),
-      gvm_json_obj_str (result_obj, "hostname"),
-      gvm_json_obj_str (result_obj, "oid"), port,
-      gvm_json_obj_str (result_obj, "protocol"),
-      gvm_json_obj_str (result_obj, "message"), detail_name, detail_value,
-      detail_source_type, detail_source_name, detail_source_description);
-
-    g_free (port);
-    *results = g_slist_append (*results, result);
-    ret = 200;
-  }
-
-res_cleanup:
-  if (err != NULL)
-    {
-      g_warning ("%s: Unable to parse scan results. Reason: %s", __func__, err);
-    }
-  cJSON_Delete (parser);
-
-  return ret;
-}
-
-int
-openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
-                         unsigned long last, GSList **results)
-{
-  int ret;
-  openvasd_resp_t resp;
-
-  resp = openvasd_get_scan_results (conn, first, last);
-  if (resp->code == 200)
-    ret = parse_results (resp->body, results);
-  else
-    ret = resp->code;
-
-  openvasd_response_cleanup (resp);
-
-  return ret;
-}
-
-openvasd_resp_t
-openvasd_get_scan_status (openvasd_connector_t conn)
-{
-  openvasd_resp_t response;
-  GString *path = NULL;
-
-  path = g_string_new ("/scans");
-  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_id);
-      g_string_append (path, "/status");
-    }
-  else
-    {
-      response = g_malloc0 (sizeof (struct openvasd_response));
-      response->code = RESP_CODE_ERR;
-      response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
-      g_string_free (path, TRUE);
-      g_warning ("%s: Missing scan ID", __func__);
-      return response;
-    }
-
-  response = openvasd_send_request (conn, GET, path->str, NULL, NULL);
-  g_string_free (path, TRUE);
-
-  if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else
-    {
-      response->body =
-        g_strdup ("{\"error\": \"Not possible to get scan status\"}");
-      g_warning ("%s: Not possible to get scan status", __func__);
-    }
-
-  openvasd_reset_vt_stream (conn);
-  return response;
-}
-
-/** @brief Get the value from an object or error.
- *
- *  @return 0 on success, -1 on error.
- */
-static int
-get_member_value_or_fail (cJSON *reader, const gchar *member)
-{
-  int ret;
-
-  if (gvm_json_obj_check_int (reader, member, &ret))
-    return -1;
-
-  return ret;
-}
-
-static int
-openvasd_get_scan_progress_ext (openvasd_connector_t conn,
-                                openvasd_resp_t response)
-{
-  cJSON *parser;
-  cJSON *reader = NULL;
-  const gchar *err = NULL;
-  int all = 0, excluded = 0, dead = 0, alive = 0, queued = 0, finished = 0;
-  int running_hosts_progress_sum = 0;
-
-  openvasd_resp_t resp;
-  int progress = -1;
-
-  if (!response && !conn)
-    return -1;
-
-  if (response == NULL)
-    resp = openvasd_get_scan_status (conn);
-  else
-    resp = response;
-
-  if (resp->code == 404)
-    return -2;
-  else if (resp->code != 200)
-    return -1;
-
-  parser = cJSON_Parse (resp->body);
-  if (!parser)
-    {
-      err = cJSON_GetErrorPtr ();
-      goto cleanup;
-    }
-
-  reader = cJSON_GetObjectItem (parser, "host_info");
-  if (reader == NULL)
-    {
-      goto cleanup;
-    }
-  if (!cJSON_IsObject (reader))
-    {
-      // Scan still not started. No information.
-      progress = 0;
-      goto cleanup;
-    }
-
-  // read general hosts count
-  all = get_member_value_or_fail (reader, "all");
-  excluded = get_member_value_or_fail (reader, "excluded");
-  dead = get_member_value_or_fail (reader, "dead");
-  alive = get_member_value_or_fail (reader, "alive");
-  queued = get_member_value_or_fail (reader, "queued");
-  finished = get_member_value_or_fail (reader, "finished");
-
-  // read progress of single running hosts
-  cJSON *scanning;
-  scanning = cJSON_GetObjectItem (reader, "scanning");
-  if (scanning != NULL && cJSON_IsObject (scanning))
-    {
-      cJSON *host = scanning->child;
-      while (host)
-        {
-          running_hosts_progress_sum += cJSON_GetNumberValue (host);
-          host = host->next;
-        }
-    }
-
-  if (all < 0 || excluded < 0 || dead < 0 || alive < 0 || queued < 0
-      || finished < 0)
-    {
-      goto cleanup;
-    }
-
-  if ((all + finished - dead) > 0)
-    progress = (running_hosts_progress_sum + 100 * (alive + finished))
-               / (all + finished - dead);
-  else
-    progress = 0;
-
-cleanup:
-  if (err != NULL)
-    g_warning ("%s: Unable to parse scan status. Reason: %s", __func__, err);
-  cJSON_Delete (parser);
-
-  return progress;
-}
-
-int
-openvasd_get_scan_progress (openvasd_connector_t conn)
-{
-  return openvasd_get_scan_progress_ext (conn, NULL);
-}
-
-static openvasd_status_t
-get_status_code_from_openvas (const gchar *status_val)
-{
-  openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
-
-  if (g_strcmp0 (status_val, "stored") == 0)
-    status_code = OPENVASD_SCAN_STATUS_STORED;
-  else if (g_strcmp0 (status_val, "requested") == 0)
-    status_code = OPENVASD_SCAN_STATUS_REQUESTED;
-  else if (g_strcmp0 (status_val, "running") == 0)
-    status_code = OPENVASD_SCAN_STATUS_RUNNING;
-  else if (g_strcmp0 (status_val, "stopped") == 0)
-    status_code = OPENVASD_SCAN_STATUS_STOPPED;
-  else if (g_strcmp0 (status_val, "succeeded") == 0)
-    status_code = OPENVASD_SCAN_STATUS_SUCCEEDED;
-  else if (g_strcmp0 (status_val, "interrupted") == 0)
-    status_code = OPENVASD_SCAN_STATUS_FAILED;
-
-  return status_code;
-}
-
-static int
-parse_status (const gchar *body, openvasd_scan_status_t status_info)
-{
-  cJSON *parser;
-  gchar *status_val = NULL;
-  openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
-
-  if (!status_info)
-    return -1;
-
-  parser = cJSON_Parse (body);
-  if (parser == NULL)
-    return -1;
-
-  if (gvm_json_obj_check_str (parser, "status", &status_val))
-    {
-      cJSON_Delete (parser);
-      return -1;
-    }
-
-  status_code = get_status_code_from_openvas (status_val);
-
-  status_info->status = status_code;
-  status_info->end_time = gvm_json_obj_double (parser, "end_time");
-  status_info->start_time = gvm_json_obj_double (parser, "start_time");
-  cJSON_Delete (parser);
-
-  return 0;
-}
-
-/** @brief Return a struct with the general scan status
- *
- *  @param conn openvasd connector data
- *
- *  @return The data in a struct. The struct must be freed
- *          by the caller.
- */
-openvasd_scan_status_t
-openvasd_parsed_scan_status (openvasd_connector_t conn)
-{
-  openvasd_resp_t resp = NULL;
-  int progress = -1;
-  openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
-  openvasd_scan_status_t status_info = NULL;
-
-  resp = openvasd_get_scan_status (conn);
-
-  status_info = g_malloc0 (sizeof (struct openvasd_scan_status));
-  if (resp->code != 200 || parse_status (resp->body, status_info) == -1)
-    {
-      status_info->status = status_code;
-      status_info->response_code = resp->code;
-      openvasd_response_cleanup (resp);
-      return status_info;
-    }
-
-  progress = openvasd_get_scan_progress_ext (NULL, resp);
-  openvasd_response_cleanup (resp);
-  status_info->progress = progress;
-
-  return status_info;
-}
-
-openvasd_resp_t
-openvasd_delete_scan (openvasd_connector_t conn)
-{
-  openvasd_resp_t response;
-  GString *path;
-
-  // Stop the scan
-  path = g_string_new ("/scans");
-  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_id);
-    }
-  else
-    {
-      response = g_malloc0 (sizeof (struct openvasd_response));
-      response->code = RESP_CODE_ERR;
-      response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
-      g_string_free (path, TRUE);
-      g_warning ("%s: Missing scan ID", __func__);
-      return response;
-    }
-
-  response = openvasd_send_request (conn, DELETE, path->str, NULL, NULL);
-
-  g_string_free (path, TRUE);
-
-  if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else
-    {
-      response->body =
-        g_strdup ("{\"error\": \"Not possible to delete scan.\"}");
-      g_warning ("%s: Not possible to delete scan", __func__);
-    }
-
-  openvasd_reset_vt_stream (conn);
-  return response;
-}
-
-openvasd_resp_t
-openvasd_get_health_alive (openvasd_connector_t conn)
-{
-  openvasd_resp_t response = NULL;
-
-  response = openvasd_send_request (conn, GET, "/health/alive", NULL, NULL);
-
-  if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else
-    {
-      response->body =
-        g_strdup ("{\"error\": \"Not possible to get health information.\"}");
-      g_warning ("%s: Not possible to get health information", __func__);
-    }
-
-  openvasd_reset_vt_stream (conn);
-  return response;
-}
-
-openvasd_resp_t
-openvasd_get_health_ready (openvasd_connector_t conn)
-{
-  openvasd_resp_t response = NULL;
-
-  response =
-    openvasd_send_request (conn, GET, "/health/ready", NULL, "feed-version");
-
-  if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else
-    {
-      response->body =
-        g_strdup ("{\"error\": \"Not possible to get health information.\"}");
-      g_warning ("%s: Not possible to get health information", __func__);
-    }
-
-  openvasd_reset_vt_stream (conn);
-  return response;
-}
-
-openvasd_resp_t
-openvasd_get_health_started (openvasd_connector_t conn)
-{
-  openvasd_resp_t response = NULL;
-
-  response = openvasd_send_request (conn, GET, "/health/started", NULL, NULL);
-
-  if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else
-    {
-      response->body =
-        g_strdup ("{\"error\": \"Not possible to get health information.\"}");
-      g_warning ("%s: Not possible to get health information", __func__);
-    }
-
-  openvasd_reset_vt_stream (conn);
-  return response;
-}
-
-openvasd_resp_t
-openvasd_get_performance (openvasd_connector_t conn,
+http_scanner_resp_t
+openvasd_get_performance (http_scanner_connector_t conn,
                           openvasd_get_performance_opts_t opts)
 {
-  openvasd_resp_t response;
+  http_scanner_resp_t response;
   gchar *query;
   time_t now;
 
@@ -1235,7 +241,7 @@ openvasd_get_performance (openvasd_connector_t conn,
   if (!opts.titles || !strcmp (opts.titles, "") || opts.start < 0
       || opts.start > now || opts.end < 0 || opts.end > now)
     {
-      response = g_malloc0 (sizeof (struct openvasd_response));
+      response = g_malloc0 (sizeof (struct http_scanner_response));
       response->code = RESP_CODE_ERR;
       response->body =
         g_strdup ("{\"error\": \"Couldn't send get_performance command "
@@ -1245,11 +251,11 @@ openvasd_get_performance (openvasd_connector_t conn,
 
   query = g_strdup_printf ("/health/performance?start=%d&end=%d&titles=%s",
                            opts.start, opts.end, opts.titles);
-  response = openvasd_send_request (conn, GET, query, NULL, NULL);
+  response = http_scanner_send_request (conn, GET, query, NULL, NULL);
   g_free (query);
 
   if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (openvasd_vt_stream_str (conn));
+    response->body = g_strdup (http_scanner_stream_str (conn));
   else
     {
       response->body = g_strdup (
@@ -1257,16 +263,26 @@ openvasd_get_performance (openvasd_connector_t conn,
       g_warning ("%s: Not possible to get performance information", __func__);
     }
 
-  openvasd_reset_vt_stream (conn);
+  http_scanner_reset_stream (conn);
   return response;
 }
 
+/**
+ * @brief Parse performance data.
+ *
+ * @param conn Connector struct with the data necessary for the connection.
+ * @param opts Options for the performance request.
+ * @param graph Pointer to store the graph data.
+ * @param err Pointer to store error message if any.
+ *
+ * @return 0 on success, -1 on error.
+ */
 int
-openvasd_parsed_performance (openvasd_connector_t conn,
+openvasd_parsed_performance (http_scanner_connector_t conn,
                              openvasd_get_performance_opts_t opts,
                              gchar **graph, gchar **err)
 {
-  openvasd_resp_t resp = NULL;
+  http_scanner_resp_t resp = NULL;
   cJSON *parser;
   cJSON *item;
   int ret = 0;
@@ -1294,238 +310,20 @@ openvasd_parsed_performance (openvasd_connector_t conn,
         *graph = g_strdup (cJSON_GetStringValue (item));
     }
 
-  openvasd_response_cleanup (resp);
+  http_scanner_response_cleanup (resp);
   cJSON_Delete (parser);
 
   return ret;
 }
 
-openvasd_resp_t
-openvasd_get_scan_preferences (openvasd_connector_t conn)
-{
-  openvasd_resp_t response = NULL;
-
-  response =
-    openvasd_send_request (conn, GET, "/scans/preferences", NULL, NULL);
-
-  if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else
-    {
-      response->body =
-        g_strdup ("{\"error\": \"Not possible to get scans preferences.\"}");
-      g_warning ("%s: Not possible to get scans_preferences", __func__);
-    }
-
-  openvasd_reset_vt_stream (conn);
-  return response;
-}
+// Scan config builder.
 
 /**
- * @brief Create a new openvasd parameter.
+ * @brief Add a port range to the scan json object.
  *
- * @return New openvasd parameter.
+ * @param range Port range to add.
+ * @param p_array JSON array to add the port range to.
  */
-static openvasd_param_t *
-openvasd_param_new (char *id, gchar *name, gchar *defval, gchar *description,
-                    gchar *type, int mandatory)
-{
-  openvasd_param_t *param = g_malloc0 (sizeof (openvasd_param_t));
-
-  param->id = id;
-  param->defval = defval;
-  param->description = description;
-  param->name = name;
-  param->mandatory = mandatory;
-  param->type = type;
-  return param;
-}
-
-/**
- * @brief Free an openvasd parameter.
- *
- * @param param openvasd parameter to destroy.
- */
-void
-openvasd_param_free (openvasd_param_t *param)
-{
-  if (!param)
-    return;
-  g_free (param->id);
-  g_free (param->name);
-  g_free (param->defval);
-  g_free (param->description);
-  g_free (param->type);
-}
-
-/**
- * @brief Get the parameter id
- *
- * @param param openvasd parameter
- */
-char *
-openvasd_param_id (openvasd_param_t *param)
-{
-  if (!param)
-    return NULL;
-
-  return param->id;
-}
-
-/**
- * @brief Get the parameter default
- *
- * @param param openvasd parameter
- */
-char *
-openvasd_param_name (openvasd_param_t *param)
-{
-  if (!param)
-    return NULL;
-
-  return param->defval;
-}
-
-/**
- * @brief Get the parameter description
- *
- * @param param openvasd parameter
- */
-char *
-openvasd_param_desc (openvasd_param_t *param)
-{
-  if (!param)
-    return NULL;
-
-  return param->description;
-}
-
-/**
- * @brief Get the parameter type
- *
- * @param param openvasd parameter
- */
-char *
-openvasd_param_type (openvasd_param_t *param)
-{
-  if (!param)
-    return NULL;
-
-  return param->type;
-}
-
-/**
- * @brief Get the parameter default
- *
- * @param param openvasd parameter
- */
-char *
-openvasd_param_default (openvasd_param_t *param)
-{
-  if (!param)
-    return NULL;
-
-  return param->defval;
-}
-
-/**
- * @brief If the parameter is mandatory
- *
- * @param param openvasd parameter
- */
-int
-openvasd_param_mandatory (openvasd_param_t *param)
-{
-  if (!param)
-    return 0;
-
-  return param->mandatory;
-}
-
-int
-openvasd_parsed_scans_preferences (openvasd_connector_t conn, GSList **params)
-{
-  openvasd_resp_t resp = NULL;
-  cJSON *parser;
-  cJSON *param_obj = NULL;
-  int err = 0;
-
-  resp = openvasd_get_scan_preferences (conn);
-
-  if (resp->code != 200)
-    return -1;
-
-  // No results. No information.
-  parser = cJSON_Parse (resp->body);
-  if (parser == NULL || !cJSON_IsArray (parser))
-    {
-      err = 1;
-      goto prefs_cleanup;
-    }
-
-  cJSON_ArrayForEach (param_obj, parser)
-  {
-    gchar *defval = NULL, *param_type = NULL;
-    openvasd_param_t *param = NULL;
-    int val, mandatory = 0;
-    char buf[6];
-    cJSON *item = NULL;
-
-    item = cJSON_GetObjectItem (param_obj, "default");
-    if (item != NULL)
-      {
-        if (cJSON_IsNumber (item))
-          {
-            val = item->valueint;
-            g_snprintf (buf, sizeof (buf), "%d", val);
-            defval = g_strdup (buf);
-            param_type = g_strdup ("integer");
-          }
-        else if (cJSON_IsString (item))
-          {
-            defval = g_strdup (item->valuestring);
-            param_type = g_strdup ("string");
-          }
-        else if (cJSON_IsBool (item))
-          {
-            if (cJSON_IsTrue (item))
-              defval = g_strdup ("yes");
-            else
-              defval = g_strdup ("no");
-            param_type = g_strdup ("boolean");
-          }
-        else
-          {
-            g_warning ("%s: Unable to parse scan preferences.", __func__);
-            g_free (defval);
-            g_free (param_type);
-            continue;
-          }
-      }
-
-    param = openvasd_param_new (
-      g_strdup (gvm_json_obj_str (param_obj, "id")),
-      g_strdup (gvm_json_obj_str (param_obj, "name")), g_strdup (defval),
-      g_strdup (gvm_json_obj_str (param_obj, "description")),
-      g_strdup (param_type), mandatory);
-    g_free (defval);
-    g_free (param_type);
-    *params = g_slist_append (*params, param);
-  }
-
-prefs_cleanup:
-  openvasd_response_cleanup (resp);
-  cJSON_Delete (parser);
-  if (err)
-    {
-      g_warning ("%s: Unable to parse scan preferences.", __func__);
-      return -1;
-    }
-
-  return 0;
-}
-
-// Scan config builder
 static void
 add_port_to_scan_json (gpointer range, gpointer p_array)
 {
@@ -1550,6 +348,12 @@ add_port_to_scan_json (gpointer range, gpointer p_array)
   cJSON_AddItemToArray ((cJSON *) p_array, port);
 }
 
+/**
+ * @brief Add a credential to the scan json object.
+ *
+ * @param credentials Credential to add.
+ * @param cred_array JSON array to add the credential to.
+ */
 static void
 add_credential_to_scan_json (gpointer credentials, gpointer cred_array)
 {
@@ -1577,6 +381,13 @@ add_credential_to_scan_json (gpointer credentials, gpointer cred_array)
   cJSON_AddItemToArray ((cJSON *) cred_array, cred_obj);
 }
 
+/**
+ * @brief Add a scan preference to the scan json object.
+ *
+ * @param key Preference ID.
+ * @param val Preference value.
+ * @param scan_prefs_array JSON array to add the preference to.
+ */
 static void
 add_scan_preferences_to_scan_json (gpointer key, gpointer val,
                                    gpointer scan_prefs_array)
@@ -1587,6 +398,12 @@ add_scan_preferences_to_scan_json (gpointer key, gpointer val,
   cJSON_AddItemToArray (scan_prefs_array, pref_obj);
 }
 
+/**
+ * @brief Add a VT to the scan json object.
+ *
+ * @param single_vt VT to add.
+ * @param vts_array JSON array to add the VT to.
+ */
 static void
 add_vts_to_scan_json (gpointer single_vt, gpointer vts_array)
 {

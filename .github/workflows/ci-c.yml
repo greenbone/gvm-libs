@@ -17,7 +17,7 @@ jobs:
       - name: Check Source Format
         id: check
         run: |
-          clang-format -i -style=file {agent_controller,base,boreas,gmp,http,openvasd,osp,util}/*.{c,h}
+          clang-format -i -style=file {agent_controller,base,boreas,gmp,http,http_scanner,openvasd,osp,util}/*.{c,h}
           git diff --exit-code
       - name: Report Diff
         if: ${{ failure() && steps.check.outcome == 'failure' }}
@@ -25,7 +25,7 @@ jobs:
           echo "## Clang Format Check" >> $GITHUB_STEP_SUMMARY
           echo "Found formatting issues in the source code. Please run clang-format to fix them." >> $GITHUB_STEP_SUMMARY
           echo '```sh' >> $GITHUB_STEP_SUMMARY
-          echo 'clang-format -i -style=file {agent_controller,base,boreas,gmp,http,openvasd,osp,util}/*.{c,h}' >> $GITHUB_STEP_SUMMARY
+          echo 'clang-format -i -style=file {agent_controller,base,boreas,gmp,http,http_scanner,openvasd,osp,util}/*.{c,h}' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "## Clang Format Diff" >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
