@@ -46,9 +46,9 @@ if(CLANG_FORMAT)
     format
     COMMAND
       ${CLANG_FORMAT} "-i" "./agent_controller/*.c" "./base/*.c" "./boreas/*.c"
-      "./gmp/*.c" "./openvasd/*.c" "./osp/*.c" "./util/*.c"
+      "./gmp/*.c" "./http_scanner/*.c" "./openvasd/*.c" "./osp/*.c" "./util/*.c"
       "./agent_controller/*.h" "./base/*.h" "./boreas/*.h" "./gmp/*.h"
-      "./openvasd/*.h" "./osp/*.h" "./util/*.h"
+      "./http_scanner/*.h" "./openvasd/*.h" "./osp/*.h" "./util/*.h"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
 else(CLANG_FORMAT)
@@ -257,7 +257,14 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
   )
 
   if(OPENVASD)
-    list(APPEND TESTS openvasd-test httputils-test vtparser-test)
+    list(
+      APPEND
+      TESTS
+      openvasd-test
+      http-scanner-test
+      httputils-test
+      vtparser-test
+    )
   endif(OPENVASD)
 
   if(ENABLE_AGENTS)
@@ -311,6 +318,7 @@ if(NOT SKIP_SRC)
 
   if(OPENVASD)
     add_subdirectory(http)
+    add_subdirectory(http_scanner)
     add_subdirectory(openvasd)
   endif(OPENVASD)
 
