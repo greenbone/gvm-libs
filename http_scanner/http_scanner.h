@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <time.h>
 
-/** @brief HTTP scanner Errors */
+/** @brief HTTP scanner Errors. */
 enum HTTP_SCANNER_ERROR
 {
   HTTP_SCANNER_INVALID_OPT,
@@ -28,7 +28,7 @@ enum HTTP_SCANNER_ERROR
   HTTP_SCANNER_OK,
 };
 
-/** @brief options for the connector builder */
+/** @brief options for the connector builder. */
 enum HTTP_SCANNER_CONNECTOR_OPTS
 {
   HTTP_SCANNER_CA_CERT,
@@ -41,6 +41,7 @@ enum HTTP_SCANNER_CONNECTOR_OPTS
   HTTP_SCANNER_PORT,
 };
 
+/** @brief Members of an HTTP scanner result. */
 enum HTTP_SCANNER_RESULT_MEMBER_STRING
 {
   TYPE,
@@ -56,28 +57,25 @@ enum HTTP_SCANNER_RESULT_MEMBER_STRING
   DETAIL_SOURCE_DESCRIPTION,
 };
 
+/** @brief Members of an HTTP scanner result. */
 enum HTTP_SCANNER_RESULT_MEMBER_INT
 {
   ID,
 };
 
-/**
- * @brief Openvasd scan status.
- */
+/** @brief Openvasd scan status. */
 typedef enum
 {
   HTTP_SCANNER_SCAN_STATUS_ERROR = -2,  /**< Error status. */
   HTTP_SCANNER_SCAN_STATUS_FAILED = -1, /**< Failed status. */
-  HTTP_SCANNER_SCAN_STATUS_STORED,      /**< Stored status */
-  HTTP_SCANNER_SCAN_STATUS_REQUESTED,   /**< Queued status */
+  HTTP_SCANNER_SCAN_STATUS_STORED,      /**< Stored status. */
+  HTTP_SCANNER_SCAN_STATUS_REQUESTED,   /**< Queued status. */
   HTTP_SCANNER_SCAN_STATUS_RUNNING,     /**< Running status. */
   HTTP_SCANNER_SCAN_STATUS_STOPPED,     /**< Stopped status. */
-  HTTP_SCANNER_SCAN_STATUS_SUCCEEDED,   /**< Succeeded status */
+  HTTP_SCANNER_SCAN_STATUS_SUCCEEDED,   /**< Succeeded status. */
 } http_scanner_status_t;
 
-/**
- * @brief Struct holding the data for connecting with HTTP scanner.
- */
+/**  @brief Struct holding the data for connecting with HTTP scanner. */
 struct http_scanner_connector
 {
   gchar *ca_cert;  /**< Path to the directory holding the CA certificate. */
@@ -88,9 +86,10 @@ struct http_scanner_connector
   gchar *scan_id;  /**< Scan ID. */
   int port;        /**< server port. */
   gchar *protocol; /**< server protocol (http or https). */
-  gvm_http_response_stream_t stream_resp; /** For response */
+  gvm_http_response_stream_t stream_resp; /** For response. */
 };
 
+/** @brief Struct to hold an HTTP scanner response. */
 struct http_scanner_response
 {
   long code;     /**< HTTP code response. */
@@ -98,6 +97,7 @@ struct http_scanner_response
   gchar *header; /**< A header value. */
 };
 
+/** @brief Struct to hold an HTTP scanner scan status. */
 struct http_scanner_scan_status
 {
   time_t start_time;
@@ -107,7 +107,7 @@ struct http_scanner_scan_status
   long response_code;
 };
 
-/** @brief Struct to hold an scan result */
+/** @brief Struct to hold an scan result. */
 struct http_scanner_result
 {
   unsigned long id;
@@ -124,9 +124,7 @@ struct http_scanner_result
   gchar *detail_source_description;
 };
 
-/**
- * @brief Struct holding options for HTTP scanner parameters.
- */
+/** @brief Struct holding options for HTTP scanner parameters. */
 struct http_scanner_param
 {
   gchar *id;          /**< Parameter id. */

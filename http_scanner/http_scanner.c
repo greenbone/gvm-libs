@@ -23,7 +23,7 @@
 /** @brief Initialize an HTTP scanner connector.
  *
  *  @return An HTTP scanner connector struct. It must be freed
- *  with http_scanner_connector_free()
+ *  with http_scanner_connector_free().
  */
 http_scanner_connector_t
 http_scanner_connector_new (void)
@@ -40,13 +40,13 @@ http_scanner_connector_new (void)
 
 /** @brief Build an HTTP scanner connector.
  *
- *  Receive option name and value to build the HTTP scanner connector
+ *  Receive option name and value to build the HTTP scanner connector.
  *
- *  @param conn   struct holding the HTTP scanner connector information
- *  @param opt    option to set
- *  @param val    value to set
+ *  @param conn   struct holding the HTTP scanner connector information.
+ *  @param opt    option to set.
+ *  @param val    value to set.
  *
- *  @return Return OK on success, otherwise error;
+ *  @return Return OK on success, otherwise error.
  */
 http_scanner_error_t
 http_scanner_connector_builder (http_scanner_connector_t conn,
@@ -96,13 +96,13 @@ http_scanner_connector_builder (http_scanner_connector_t conn,
   return HTTP_SCANNER_OK;
 }
 
-/** @brief Build an HTTP scanner connector
+/** @brief Free an HTTP scanner connector.
  *
- *  Receive option name and value to build the HTTP scanner connector
+ *  Free all the memory allocated for the HTTP scanner connector.
  *
- *  @param conn   struct holding the HTTP scanner connector information
+ *  @param conn struct holding the HTTP scanner connector information.
  *
- *  @return Return HTTP_SCANNER_OK
+ *  @return Return HTTP_SCANNER_OK.
  */
 http_scanner_error_t
 http_scanner_connector_free (http_scanner_connector_t conn)
@@ -125,9 +125,9 @@ http_scanner_connector_free (http_scanner_connector_t conn)
 }
 
 /**
- * @brief Free an HTTP scanner response struct
+ * @brief Free an HTTP scanner response struct.
  *
- * @param resp Response to be freed
+ * @param resp Response to be freed.
  */
 void
 http_scanner_response_cleanup (http_scanner_resp_t resp)
@@ -141,6 +141,14 @@ http_scanner_response_cleanup (http_scanner_resp_t resp)
   resp = NULL;
 }
 
+/**
+ * @brief Initialize custom headers for the HTTP request.
+ *
+ * @param apikey      API key to be included in the headers.
+ * @param contenttype If TRUE, include Content-Type header as application/json.
+ *
+ * @return Pointer to the initialized headers structure.
+ */
 gvm_http_headers_t *
 init_customheader (const gchar *apikey, gboolean contenttype)
 {
@@ -254,11 +262,11 @@ http_scanner_send_request (http_scanner_connector_t conn,
 }
 
 /**
- * @brief Request HEAD
+ * @brief Request HEAD.
  *
- * @param conn Connector struct with the data necessary for the connection
+ * @param conn Connector struct with the data necessary for the connection.
  *
- * @return Response containing the header information
+ * @return Response containing the header information.
  */
 http_scanner_resp_t
 http_scanner_get_version (http_scanner_connector_t conn)
@@ -274,7 +282,7 @@ http_scanner_get_version (http_scanner_connector_t conn)
 /**
  * @Brief Create a scan.
  *
- * @param conn Connector struct with the data necessary for the connection
+ * @param conn Connector struct with the data necessary for the connection.
  * @param data String containing the scan config in JSON format.
  * @param prefix prefix for the scan creation endpoint or NULL.
  *
@@ -340,7 +348,7 @@ http_scanner_create_scan (http_scanner_connector_t conn, gchar *data,
 /**
  * @brief Start a scan.
  *
- * @param conn Connector struct with the data necessary for the connection
+ * @param conn Connector struct with the data necessary for the connection.
  *
  * @return Response Struct containing the response.
  */
@@ -388,7 +396,7 @@ http_scanner_start_scan (http_scanner_connector_t conn)
 /**
  * @brief Stop a scan.
  *
- * @param conn Connector struct with the data necessary for the connection
+ * @param conn Connector struct with the data necessary for the connection.
  *
  * @return Response Struct containing the response.
  */
@@ -430,7 +438,7 @@ http_scanner_stop_scan (http_scanner_connector_t conn)
 /**
  * @brief Get results of a scan.
  *
- * @param conn Connector struct with the data necessary for the connection
+ * @param conn  Connector struct with the data necessary for the connection.
  * @param first First result index to retrieve.
  * @param last  Last result index to retrieve.
  */
@@ -531,6 +539,14 @@ http_scanner_result_new (unsigned long id, gchar *type, gchar *ip_address,
   return result;
 }
 
+/**
+ * @brief Get a string member from a result.
+ *
+ * @param result Result object.
+ * @param member Member to retrieve.
+ *
+ * @return Value of the member or NULL if not found.
+ */
 char *
 http_scanner_get_result_member_str (http_scanner_result_t result,
                                     http_scanner_result_member_string_t member)
@@ -567,6 +583,14 @@ http_scanner_get_result_member_str (http_scanner_result_t result,
     }
 }
 
+/**
+ * @brief Get an integer member from a result.
+ *
+ * @param result Result object.
+ * @param member Member to retrieve.
+ *
+ * @return Value of the member or -1 if not found.
+ */
 int
 http_scanner_get_result_member_int (http_scanner_result_t result,
                                     http_scanner_result_member_int_t member)
@@ -727,7 +751,7 @@ http_scanner_result_free (http_scanner_result_t result)
 /**
  * @brief Get the status of a scan.
  *
- * @param conn Connector struct with the data necessary for the connection
+ * @param conn Connector struct with the data necessary for the connection.
  *
  * @return Response Struct containing the response.
  */
@@ -773,7 +797,7 @@ http_scanner_get_scan_status (http_scanner_connector_t conn)
 /**
  * @brief Delete a scan.
  *
- * @param conn Connector struct with the data necessary for the connection
+ * @param conn Connector struct with the data necessary for the connection.
  *
  * @return Response Struct containing the response.
  */
@@ -820,7 +844,7 @@ http_scanner_delete_scan (http_scanner_connector_t conn)
 /**
  * @brief Get health alive information.
  *
- * @param conn Connector struct with the data necessary for the connection
+ * @param conn Connector struct with the data necessary for the connection.
  *
  * @return Response Struct containing the response.
  */
@@ -847,7 +871,7 @@ http_scanner_get_health_alive (http_scanner_connector_t conn)
 /**
  * @brief Get health ready information.
  *
- * @param conn Connector struct with the data necessary for the connection
+ * @param conn Connector struct with the data necessary for the connection.
  *
  * @return Response Struct containing the response.
  */
@@ -872,6 +896,13 @@ http_scanner_get_health_ready (http_scanner_connector_t conn)
   return response;
 }
 
+/**
+ * @brief Get health started information.
+ *
+ * @param conn Connector struct with the data necessary for the connection
+ *
+ * @return Response Struct containing the response.
+ */
 http_scanner_resp_t
 http_scanner_get_health_started (http_scanner_connector_t conn)
 {
@@ -910,7 +941,7 @@ get_member_value_or_fail (cJSON *reader, const gchar *member)
 
 /** @brief Return the scan progress.
  *
- *  @param conn HTTP scanner connector data
+ *  @param conn     HTTP scanner connector data
  *  @param response If not NULL, use this response instead of requesting a new
  *                  one.
  *
@@ -1005,7 +1036,7 @@ cleanup:
 
 /** @brief Return the scan progress.
  *
- *  @param conn HTTP scanner connector data
+ *  @param conn HTTP scanner connector data.
  *
  *  @return The progress percentage (0-100), -1 on error, -2 if the scan is not
  *          found (404).
@@ -1042,6 +1073,13 @@ get_status_code (const gchar *status_val)
   return status_code;
 }
 
+/** @brief Parse the status of a scan.
+ *
+ *  @param body        Body containing the status.
+ *  @param status_info Pointer to a struct to store the parsed status.
+ *
+ *  @return 0 on success, otherwise -1.
+ */
 static int
 parse_status (const gchar *body, http_scanner_scan_status_t status_info)
 {
@@ -1072,9 +1110,9 @@ parse_status (const gchar *body, http_scanner_scan_status_t status_info)
   return 0;
 }
 
-/** @brief Return a struct with the general scan status
+/** @brief Return a struct with the general scan status.
  *
- *  @param conn HTTP scanner connector data
+ *  @param conn HTTP scanner connector data.
  *
  *  @return The data in a struct. The struct must be freed
  *          by the caller.
@@ -1106,9 +1144,9 @@ http_scanner_parsed_scan_status (http_scanner_connector_t conn)
 }
 
 /**
- * @brief Get scan preferences
+ * @brief Get scan preferences.
  *
- * @param conn Connector struct with the data necessary for the connection
+ * @param conn Connector struct with the data necessary for the connection.
  *
  * @return Response Struct containing the scan preferences.
  */
@@ -1171,9 +1209,9 @@ http_scanner_param_free (http_scanner_param_t *param)
 }
 
 /**
- * @brief Get the parameter id
+ * @brief Get the parameter id.
  *
- * @param param HTTP scanner parameter
+ * @param param HTTP scanner parameter.
  */
 char *
 http_scanner_param_id (http_scanner_param_t *param)
@@ -1185,9 +1223,9 @@ http_scanner_param_id (http_scanner_param_t *param)
 }
 
 /**
- * @brief Get the parameter default
+ * @brief Get the parameter name.
  *
- * @param param HTTP scanner parameter
+ * @param param HTTP scanner parameter.
  */
 char *
 http_scanner_param_name (http_scanner_param_t *param)
@@ -1199,9 +1237,9 @@ http_scanner_param_name (http_scanner_param_t *param)
 }
 
 /**
- * @brief Get the parameter description
+ * @brief Get the parameter description.
  *
- * @param param HTTP scanner parameter
+ * @param param HTTP scanner parameter.
  */
 char *
 http_scanner_param_desc (http_scanner_param_t *param)
@@ -1213,9 +1251,9 @@ http_scanner_param_desc (http_scanner_param_t *param)
 }
 
 /**
- * @brief Get the parameter type
+ * @brief Get the parameter type.
  *
- * @param param HTTP scanner parameter
+ * @param param HTTP scanner parameter.
  */
 char *
 http_scanner_param_type (http_scanner_param_t *param)
@@ -1227,9 +1265,9 @@ http_scanner_param_type (http_scanner_param_t *param)
 }
 
 /**
- * @brief Get the parameter default
+ * @brief Get the parameter default.
  *
- * @param param HTTP scanner parameter
+ * @param param HTTP scanner parameter.
  */
 char *
 http_scanner_param_default (http_scanner_param_t *param)
@@ -1241,9 +1279,9 @@ http_scanner_param_default (http_scanner_param_t *param)
 }
 
 /**
- * @brief If the parameter is mandatory
+ * @brief If the parameter is mandatory.
  *
- * @param param HTTP scanner parameter
+ * @param param HTTP scanner parameter.
  */
 int
 http_scanner_param_mandatory (http_scanner_param_t *param)
@@ -1254,6 +1292,14 @@ http_scanner_param_mandatory (http_scanner_param_t *param)
   return param->mandatory;
 }
 
+/**
+ * @brief Get the scan preferences and parse them.
+ *
+ * @param conn   Connector struct with the data necessary for the connection.
+ * @param params Pointer to a GSList to store the parsed parameters.
+ *
+ * @return 0 on success, otherwise -1.
+ */
 int
 http_scanner_parsed_scans_preferences (http_scanner_connector_t conn,
                                        GSList **params)
@@ -1340,7 +1386,7 @@ prefs_cleanup:
 
 /** @brief Reset the response stream.
  *
- *  @param conn HTTP scanner connector data
+ *  @param conn HTTP scanner connector data.
  */
 void
 http_scanner_reset_stream (http_scanner_connector_t conn)
@@ -1350,7 +1396,7 @@ http_scanner_reset_stream (http_scanner_connector_t conn)
 
 /** @brief Get the response stream data.
  *
- *  @param conn HTTP scanner connector data
+ *  @param conn HTTP scanner connector data.
  *
  *  @return The response stream data.
  */
@@ -1362,7 +1408,7 @@ http_scanner_stream_str (http_scanner_connector_t conn)
 
 /** @brief Get the response stream length.
  *
- *  @param conn HTTP scanner connector data
+ *  @param conn HTTP scanner connector data.
  *
  *  @return The response stream length.
  */
