@@ -88,7 +88,6 @@ struct agent_controller_script_exec_cfg
   int bulk_throttle_time_in_ms; ///< Throttle/sleep between batches in
   ///< milliseconds
   int indexer_dir_depth; ///< Max directory depth to scan/index
-  int period_in_seconds; ///< Periodic run interval in seconds
 
   GPtrArray *scheduler_cron_time; ///< Optional list of cron expressions
   ///< Format: standard 5-field cron like

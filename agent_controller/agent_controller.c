@@ -220,8 +220,6 @@ agent_controller_parse_scan_agent_config (cJSON *root)
         gvm_json_obj_int (exec, "bulk_throttle_time_in_ms");
       cfg->agent_script_executor.indexer_dir_depth =
         gvm_json_obj_int (exec, "indexer_dir_depth");
-      cfg->agent_script_executor.period_in_seconds =
-        gvm_json_obj_int (exec, "period_in_seconds");
 
       cJSON *cron = cJSON_GetObjectItem (exec, "scheduler_cron_time");
       if (cJSON_IsArray (cron))
@@ -1037,8 +1035,6 @@ agent_controller_convert_scan_agent_config_string (
                            cfg->agent_script_executor.bulk_throttle_time_in_ms);
   cJSON_AddNumberToObject (exec, "indexer_dir_depth",
                            cfg->agent_script_executor.indexer_dir_depth);
-  cJSON_AddNumberToObject (exec, "period_in_seconds",
-                           cfg->agent_script_executor.period_in_seconds);
 
   const GPtrArray *arr = cfg->agent_script_executor.scheduler_cron_time;
   if (arr && arr->len > 0)
