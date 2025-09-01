@@ -107,7 +107,6 @@ make_scan_agent_config (void)
   cfg->agent_script_executor.bulk_size = 1;
   cfg->agent_script_executor.bulk_throttle_time_in_ms = 1;
   cfg->agent_script_executor.indexer_dir_depth = 1;
-  cfg->agent_script_executor.period_in_seconds = 1;
   cfg->agent_script_executor.scheduler_cron_time =
     g_ptr_array_new_with_free_func (g_free);
   g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
@@ -765,7 +764,6 @@ Ensure (agent_controller, patch_payload_overrides_only_config)
   update->config->agent_script_executor.bulk_size = 1;
   update->config->agent_script_executor.bulk_throttle_time_in_ms = 1;
   update->config->agent_script_executor.indexer_dir_depth = 1;
-  update->config->agent_script_executor.period_in_seconds = 1;
   update->config->agent_script_executor.scheduler_cron_time =
     g_ptr_array_new_with_free_func (g_free);
   g_ptr_array_add (update->config->agent_script_executor.scheduler_cron_time,
@@ -805,7 +803,6 @@ Ensure (agent_controller, scan_agent_config_new_initializes_defaults)
   assert_that (cfg->agent_script_executor.bulk_throttle_time_in_ms,
                is_equal_to (0));
   assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (0));
-  assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (0));
   assert_that (cfg->agent_script_executor.scheduler_cron_time, is_null);
 
   /* heartbeat defaults */
@@ -880,7 +877,6 @@ Ensure (agent_controller, build_scan_agent_config_payload_with_values)
   cfg->agent_script_executor.bulk_size = 2;
   cfg->agent_script_executor.bulk_throttle_time_in_ms = 100;
   cfg->agent_script_executor.indexer_dir_depth = 10;
-  cfg->agent_script_executor.period_in_seconds = 60;
 
   /* GPtrArray-based cron list */
   cfg->agent_script_executor.scheduler_cron_time =
@@ -905,7 +901,6 @@ Ensure (agent_controller, build_scan_agent_config_payload_with_values)
   assert_that (payload, contains_string ("\"bulk_size\":2"));
   assert_that (payload, contains_string ("\"bulk_throttle_time_in_ms\":100"));
   assert_that (payload, contains_string ("\"indexer_dir_depth\":10"));
-  assert_that (payload, contains_string ("\"period_in_seconds\":60"));
 
   assert_that (payload, contains_string ("\"scheduler_cron_time\":["));
   assert_that (payload, contains_string ("\"0 23 * * *\""));
@@ -956,7 +951,6 @@ Ensure (agent_controller, parse_scan_agent_config_full)
   assert_that (cfg->agent_script_executor.bulk_throttle_time_in_ms,
                is_equal_to (100));
   assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (10));
-  assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (60));
 
   assert_that (cfg->agent_script_executor.scheduler_cron_time, is_not_null);
   GPtrArray *cron = cfg->agent_script_executor.scheduler_cron_time;
@@ -994,7 +988,6 @@ Ensure (agent_controller, parse_scan_agent_config_missing_blocks)
   assert_that (cfg->agent_script_executor.bulk_throttle_time_in_ms,
                is_equal_to (0));
   assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (0));
-  assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (0));
 
   assert_that (cfg->agent_script_executor.scheduler_cron_time, is_null);
 
@@ -1018,7 +1011,6 @@ Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
   cfg->agent_script_executor.bulk_size = 4;
   cfg->agent_script_executor.bulk_throttle_time_in_ms = 250;
   cfg->agent_script_executor.indexer_dir_depth = 2;
-  cfg->agent_script_executor.period_in_seconds = 120;
 
   cfg->agent_script_executor.scheduler_cron_time =
     g_ptr_array_new_with_free_func (g_free);
@@ -1048,8 +1040,6 @@ Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
                is_equal_to (250));
   assert_that (parsed->agent_script_executor.indexer_dir_depth,
                is_equal_to (2));
-  assert_that (parsed->agent_script_executor.period_in_seconds,
-               is_equal_to (120));
 
   assert_that (parsed->agent_script_executor.scheduler_cron_time, is_not_null);
   GPtrArray *cron = parsed->agent_script_executor.scheduler_cron_time;
@@ -1643,7 +1633,6 @@ Ensure (agent_controller, update_scan_agent_config_no_response_return_error)
   cfg->agent_script_executor.bulk_size = 1;
   cfg->agent_script_executor.bulk_throttle_time_in_ms = 1;
   cfg->agent_script_executor.indexer_dir_depth = 1;
-  cfg->agent_script_executor.period_in_seconds = 1;
   cfg->agent_script_executor.scheduler_cron_time =
     g_ptr_array_new_with_free_func (g_free);
   g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
@@ -1699,7 +1688,6 @@ Ensure (agent_controller,
   cfg->agent_script_executor.bulk_size = 2;
   cfg->agent_script_executor.bulk_throttle_time_in_ms = 100;
   cfg->agent_script_executor.indexer_dir_depth = 10;
-  cfg->agent_script_executor.period_in_seconds = 60;
 
   cfg->agent_script_executor.scheduler_cron_time =
     g_ptr_array_new_with_free_func (g_free);
@@ -2050,7 +2038,6 @@ Ensure (agent_controller, parse_cfg_string_empty_object_gives_defaults)
   assert_that (cfg->agent_script_executor.bulk_throttle_time_in_ms,
                is_equal_to (0));
   assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (0));
-  assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (0));
 
   assert_that (cfg->heartbeat.interval_in_seconds, is_equal_to (0));
   assert_that (cfg->heartbeat.miss_until_inactive, is_equal_to (0));
@@ -2091,7 +2078,6 @@ Ensure (agent_controller, parse_cfg_string_populates_fields_correctly)
   assert_that (cfg->agent_script_executor.bulk_throttle_time_in_ms,
                is_equal_to (100));
   assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (10));
-  assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (60));
 
   assert_that (cfg->agent_script_executor.scheduler_cron_time, is_not_null);
   GPtrArray *cron = cfg->agent_script_executor.scheduler_cron_time;
