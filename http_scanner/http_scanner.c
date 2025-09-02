@@ -11,6 +11,8 @@
 
 #include "http_scanner.h"
 
+#include "../http/httputils.h"
+
 #undef G_LOG_DOMAIN
 /**
  * @brief GLib logging domain.
@@ -19,6 +21,20 @@
 
 #define RESP_CODE_ERR -1
 #define RESP_CODE_OK 0
+
+/**  @brief Struct holding the data for connecting with HTTP scanner. */
+struct http_scanner_connector
+{
+  gchar *ca_cert;  /**< Path to the directory holding the CA certificate. */
+  gchar *cert;     /**< Client certificate. */
+  gchar *key;      /**< Client key. */
+  gchar *apikey;   /**< API key for authentication. */
+  gchar *host;     /**< server hostname. */
+  gchar *scan_id;  /**< Scan ID. */
+  int port;        /**< server port. */
+  gchar *protocol; /**< server protocol (http or https). */
+  gvm_http_response_stream_t stream_resp; /** For response. */
+};
 
 /** @brief Initialize an HTTP scanner connector.
  *
@@ -149,7 +165,7 @@ http_scanner_response_cleanup (http_scanner_resp_t resp)
  *
  * @return Pointer to the initialized headers structure.
  */
-gvm_http_headers_t *
+static gvm_http_headers_t *
 init_customheader (const gchar *apikey, gboolean contenttype)
 {
   gvm_http_headers_t *headers = gvm_http_headers_new ();
@@ -177,12 +193,176 @@ init_customheader (const gchar *apikey, gboolean contenttype)
 }
 
 /**
+ * @brief Initialized an curl multiperform handler which allows fetch feed
+ * metadata chunk by chunk.
+ *
+ * @param conn Connector struct with the data necessary for the connection
+ * @param path The resource path.
+ *
+ * @return The response.
+ */
+http_scanner_resp_t
+http_scanner_init_request_multi (http_scanner_connector_t conn,
+                                 const gchar *path)
+{
+  http_scanner_resp_t response = NULL;
+  gvm_http_headers_t *customheader = NULL;
+
+  response = g_malloc0 (sizeof (struct http_scanner_response));
+
+  if (!conn)
+    {
+      g_warning ("%s: Invalid connector", __func__);
+      response->code = RESP_CODE_ERR;
+      response->body =
+        g_strdup ("{\"error\": \"Missing HTTP scanner connector\"}");
+      return response;
+    }
+
+  gchar *url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
+                                conn->port, path);
+
+  customheader = init_customheader (conn->apikey, FALSE);
+
+  if (!conn->stream_resp)
+    {
+      conn->stream_resp = g_malloc0 (sizeof (struct gvm_http_response_stream));
+    }
+
+  gvm_http_multi_t *multi_handle = gvm_http_multi_new ();
+  if (!multi_handle)
+    {
+      g_warning ("%s: Failed to initialize curl multi-handle", __func__);
+      g_free (url);
+      response->code = RESP_CODE_ERR;
+      response->body =
+        g_strdup ("{\"error\": \"Failed to initialize multi-handle\"}");
+      return response;
+    }
+
+  // Initialize request using curlutils
+  gvm_http_t *http = gvm_http_new (url, GET, NULL, customheader, conn->ca_cert,
+                                   conn->cert, conn->key, conn->stream_resp);
+
+  g_free (url);
+
+  // Check if curl handle was created properly
+  if (!http || !http->handler)
+    {
+      g_warning ("%s: Failed to initialize curl request", __func__);
+      gvm_http_headers_free (customheader);
+      gvm_http_multi_free (multi_handle);
+      response->code = RESP_CODE_ERR;
+      response->body =
+        g_strdup ("{\"error\": \"Failed to initialize CURL request\"}");
+      return response;
+    }
+
+  gvm_http_multi_result_t multi_add_result =
+    gvm_http_multi_add_handler (multi_handle, http);
+  if (multi_add_result != GVM_HTTP_OK)
+    {
+      g_warning ("%s: Failed to add CURL handle to multi", __func__);
+      gvm_http_multi_handler_free (multi_handle, http);
+      gvm_http_headers_free (customheader);
+      gvm_http_multi_free (multi_handle);
+      response->code = RESP_CODE_ERR;
+      response->body =
+        g_strdup ("{\"error\": \"Failed to add CURL handle to multi\"}");
+      return response;
+    }
+
+  conn->stream_resp->multi_handler = multi_handle;
+  conn->stream_resp->multi_handler->headers = customheader;
+
+  g_debug ("%s: Multi handle initialized successfully", __func__);
+
+  response->code = RESP_CODE_OK;
+  return response;
+}
+
+/**
+ * @brief Process the multi handle to fetch data.
+ *
+ * This function must be called until the
+ * return value is 0, meaning there is no more data to fetch.
+ *
+ * @param conn Connector struct with the data necessary for the connection.
+ * @param timeout Maximum time in milliseconds to wait for activity.
+ *
+ * @return greather than 0 if the handler is still getting data. 0 if the
+ * transmision finished. -1 on error
+ */
+int
+http_scanner_process_request_multi (http_scanner_connector_t conn, int timeout)
+{
+  static int running = 0;
+
+  if (!conn || !conn->stream_resp)
+    {
+      g_warning ("%s: Invalid connector", __func__);
+      return -1;
+    }
+
+  gvm_http_multi_t *multi = conn->stream_resp->multi_handler;
+  if (!multi || !multi->handler)
+    {
+      g_warning ("%s: Invalid multi-handler", __func__);
+      return -1;
+    }
+
+  gvm_http_multi_result_t mc = gvm_http_multi_perform (multi, &running);
+
+  if (mc == GVM_HTTP_OK && running)
+    {
+      /* wait for activity, timeout, or "nothing" */
+      if (gvm_http_multi_poll (multi, timeout) != GVM_HTTP_OK)
+        {
+          g_warning ("%s: error polling the multi-handle for activity",
+                     __func__);
+          return -1;
+        }
+    }
+
+  return running;
+}
+
+/**
+ * @brief Maps http_scanner_method_t to gvm_http_method_t.
+ *
+ * @param method The HTTP scanner method to map.
+ *
+ * @return The corresponding gvm_http_method_t value.
+ */
+static gvm_http_method_t
+get_http_method (http_scanner_method_t method)
+{
+  switch (method)
+    {
+    case HTTP_SCANNER_GET:
+      return GET;
+    case HTTP_SCANNER_POST:
+      return POST;
+    case HTTP_SCANNER_PUT:
+      return PUT;
+    case HTTP_SCANNER_DELETE:
+      return DELETE;
+    case HTTP_SCANNER_HEAD:
+      return HEAD;
+    case HTTP_SCANNER_PATCH:
+      return PATCH;
+    default:
+      return GET;
+    }
+}
+
+/**
  * @brief Sends an HTTP(S) request using the specified parameters.
  *
  * @param conn The `http_scanner_connector_t` containing server and certificate
  * details.
  * @param method The HTTP method (GET, POST, etc.).
- * @param path The resource path (e.g., `/vts`).
+ * @param path The resource path (e.g., `/scans`).
  * @param data The request payload (if applicable).
  * @param custom_headers Additional request headers.
  * @param header_name The header key to extract from the response.
@@ -192,7 +372,7 @@ init_customheader (const gchar *apikey, gboolean contenttype)
  */
 http_scanner_resp_t
 http_scanner_send_request (http_scanner_connector_t conn,
-                           gvm_http_method_t method, const gchar *path,
+                           http_scanner_method_t method, const gchar *path,
                            const gchar *data, const gchar *header_name)
 {
   http_scanner_resp_t response =
@@ -222,8 +402,8 @@ http_scanner_send_request (http_scanner_connector_t conn,
 
   // Send request
   gvm_http_response_t *http_response =
-    gvm_http_request (url, method, data, custom_headers, conn->ca_cert,
-                      conn->cert, conn->key, conn->stream_resp);
+    gvm_http_request (url, get_http_method (method), data, custom_headers,
+                      conn->ca_cert, conn->cert, conn->key, conn->stream_resp);
 
   // Check for request errors
   if (http_response->http_status == -1)
@@ -273,7 +453,8 @@ http_scanner_get_version (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response = NULL;
 
-  response = http_scanner_send_request (conn, HEAD, "/", NULL, NULL);
+  response =
+    http_scanner_send_request (conn, HTTP_SCANNER_HEAD, "/", NULL, NULL);
 
   http_scanner_reset_stream (conn);
   return response;
@@ -302,7 +483,8 @@ http_scanner_create_scan (http_scanner_connector_t conn, gchar *data,
   else
     path = g_string_new ("/scans");
 
-  response = http_scanner_send_request (conn, POST, path->str, data, NULL);
+  response =
+    http_scanner_send_request (conn, HTTP_SCANNER_POST, path->str, data, NULL);
 
   g_string_free (path, TRUE);
 
@@ -375,7 +557,7 @@ http_scanner_start_scan (http_scanner_connector_t conn)
       return response;
     }
 
-  response = http_scanner_send_request (conn, POST, path->str,
+  response = http_scanner_send_request (conn, HTTP_SCANNER_POST, path->str,
                                         "{\"action\": \"start\"}", NULL);
 
   g_string_free (path, TRUE);
@@ -423,7 +605,7 @@ http_scanner_stop_scan (http_scanner_connector_t conn)
       return response;
     }
 
-  response = http_scanner_send_request (conn, POST, path->str,
+  response = http_scanner_send_request (conn, HTTP_SCANNER_POST, path->str,
                                         "{\"action\": \"stop\"}", NULL);
 
   g_string_free (path, TRUE);
@@ -471,7 +653,8 @@ http_scanner_get_scan_results (http_scanner_connector_t conn, long first,
       return response;
     }
 
-  response = http_scanner_send_request (conn, GET, path->str, NULL, NULL);
+  response =
+    http_scanner_send_request (conn, HTTP_SCANNER_GET, path->str, NULL, NULL);
   g_string_free (path, TRUE);
 
   if (response->code != RESP_CODE_ERR)
@@ -778,7 +961,8 @@ http_scanner_get_scan_status (http_scanner_connector_t conn)
       return response;
     }
 
-  response = http_scanner_send_request (conn, GET, path->str, NULL, NULL);
+  response =
+    http_scanner_send_request (conn, HTTP_SCANNER_GET, path->str, NULL, NULL);
   g_string_free (path, TRUE);
 
   if (response->code != RESP_CODE_ERR)
@@ -824,7 +1008,8 @@ http_scanner_delete_scan (http_scanner_connector_t conn)
       return response;
     }
 
-  response = http_scanner_send_request (conn, DELETE, path->str, NULL, NULL);
+  response = http_scanner_send_request (conn, HTTP_SCANNER_DELETE, path->str,
+                                        NULL, NULL);
 
   g_string_free (path, TRUE);
 
@@ -853,7 +1038,8 @@ http_scanner_get_health_alive (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response = NULL;
 
-  response = http_scanner_send_request (conn, GET, "/health/alive", NULL, NULL);
+  response = http_scanner_send_request (conn, HTTP_SCANNER_GET, "/health/alive",
+                                        NULL, NULL);
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (http_scanner_stream_str (conn));
@@ -880,8 +1066,8 @@ http_scanner_get_health_ready (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response = NULL;
 
-  response = http_scanner_send_request (conn, GET, "/health/ready", NULL,
-                                        "feed-version");
+  response = http_scanner_send_request (conn, HTTP_SCANNER_GET, "/health/ready",
+                                        NULL, "feed-version");
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (http_scanner_stream_str (conn));
@@ -908,8 +1094,8 @@ http_scanner_get_health_started (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response = NULL;
 
-  response =
-    http_scanner_send_request (conn, GET, "/health/started", NULL, NULL);
+  response = http_scanner_send_request (conn, HTTP_SCANNER_GET,
+                                        "/health/started", NULL, NULL);
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (http_scanner_stream_str (conn));
@@ -1155,8 +1341,8 @@ http_scanner_get_scan_preferences (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response = NULL;
 
-  response =
-    http_scanner_send_request (conn, GET, "/scans/preferences", NULL, NULL);
+  response = http_scanner_send_request (conn, HTTP_SCANNER_GET,
+                                        "/scans/preferences", NULL, NULL);
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (http_scanner_stream_str (conn));

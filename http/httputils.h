@@ -146,6 +146,9 @@ gvm_http_multi_add_handler (gvm_http_multi_t *multi, gvm_http_t *http);
 gvm_http_multi_result_t
 gvm_http_multi_perform (gvm_http_multi_t *multi, int *running_handles);
 
+gvm_http_multi_result_t
+gvm_http_multi_poll (gvm_http_multi_t *multi, int timeout);
+
 void
 gvm_http_multi_handler_free (gvm_http_multi_t *multi, gvm_http_t *http);
 

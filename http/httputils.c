@@ -517,6 +517,39 @@ gvm_http_multi_perform (gvm_http_multi_t *multi, int *running_handles)
 }
 
 /**
+ * @brief Polls the multi-handle for activity, waiting up to the specified
+ * timeout.
+ *
+ * @param multi Pointer to the `gvm_http_multi_t` structure containing the
+ * multi-handle.
+ * @param timeout Maximum time in milliseconds to wait for activity.
+ *
+ * @return A `gvm_http_multi_result_t` indicating the result of the poll
+ * operation:
+ *         - GVM_HTTP_OK: Polling succeeded.
+ *         - GVM_HTTP_MULTI_BAD_HANDLE: Invalid or NULL multi-handle.
+ *         - GVM_HTTP_MULTI_FAILED: Polling failed due to an error.
+ */
+gvm_http_multi_result_t
+gvm_http_multi_poll (gvm_http_multi_t *multi, int timeout)
+{
+  if (!multi || !multi->handler)
+    return GVM_HTTP_MULTI_BAD_HANDLE;
+
+  CURLMcode poll_result =
+    curl_multi_poll (multi->handler, NULL, 0, timeout, NULL);
+  switch (poll_result)
+    {
+    case CURLM_OK:
+      return GVM_HTTP_OK;
+    case CURLM_BAD_HANDLE:
+      return GVM_HTTP_MULTI_BAD_HANDLE;
+    default:
+      return GVM_HTTP_MULTI_FAILED;
+    }
+}
+
+/**
  * @brief Removes a gvm_http_t handler from a multi-handle and frees its
  * resources.
  *
