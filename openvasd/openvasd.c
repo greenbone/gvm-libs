@@ -73,8 +73,7 @@ struct openvasd_vt_single
 };
 
 /**
- * @brief Initialized an curl multiperform handler which allows fetch feed
- * metadata chunk by chunk.
+ * @brief Fetch feed metadata chunk by chunk.
  *
  * @param conn Connector struct with the data necessary for the connection
  *
@@ -85,71 +84,12 @@ openvasd_get_vt_stream_init (http_scanner_connector_t conn)
 {
   GString *path;
   http_scanner_resp_t response = NULL;
-  gvm_http_headers_t *customheader = NULL;
-
-  response = g_malloc0 (sizeof (struct http_scanner_response));
 
   path = g_string_new ("/vts?information=1");
-  gchar *url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
-                                conn->port, path->str);
-  customheader = init_customheader (conn->apikey, FALSE);
-
-  if (!conn->stream_resp)
-    {
-      conn->stream_resp = g_malloc0 (sizeof (struct gvm_http_response_stream));
-    }
-
-  gvm_http_multi_t *multi_handle = gvm_http_multi_new ();
-  if (!multi_handle)
-    {
-      g_warning ("%s: Failed to initialize curl multi-handle", __func__);
-      g_string_free (path, TRUE);
-      g_free (url);
-      response->code = RESP_CODE_ERR;
-      response->body =
-        g_strdup ("{\"error\": \"Failed to initialize multi-handle\"}");
-      return response;
-    }
-
-  // Initialize request using curlutils
-  gvm_http_t *http = gvm_http_new (url, GET, NULL, customheader, conn->ca_cert,
-                                   conn->cert, conn->key, conn->stream_resp);
+  response = http_scanner_init_request_multi (conn, path->str);
 
   g_string_free (path, TRUE);
-  g_free (url);
 
-  // Check if curl handle was created properly
-  if (!http || !http->handler)
-    {
-      g_warning ("%s: Failed to initialize curl request", __func__);
-      gvm_http_headers_free (customheader);
-      gvm_http_multi_free (multi_handle);
-      response->code = RESP_CODE_ERR;
-      response->body =
-        g_strdup ("{\"error\": \"Failed to initialize CURL request\"}");
-      return response;
-    }
-
-  gvm_http_multi_result_t multi_add_result =
-    gvm_http_multi_add_handler (multi_handle, http);
-  if (multi_add_result != GVM_HTTP_OK)
-    {
-      g_warning ("%s: Failed to add CURL handle to multi", __func__);
-      gvm_http_multi_handler_free (multi_handle, http);
-      gvm_http_headers_free (customheader);
-      gvm_http_multi_free (multi_handle);
-      response->code = RESP_CODE_ERR;
-      response->body =
-        g_strdup ("{\"error\": \"Failed to add CURL handle to multi\"}");
-      return response;
-    }
-
-  conn->stream_resp->multi_handler = multi_handle;
-  conn->stream_resp->multi_handler->headers = customheader;
-
-  g_debug ("%s: Multi handle initialized successfully", __func__);
-
-  response->code = RESP_CODE_OK;
   return response;
 }
 
@@ -159,7 +99,7 @@ openvasd_get_vt_stream_init (http_scanner_connector_t conn)
  * This function must be call until the
  * return value is 0, meaning there is no more data to fetch.
  *
- * @param mhnd Curl multiperfom for requesting the feed metadata
+ * @param conn Connector struct with the data necessary for the connection
  *
  * @return greather than 0 if the handler is still getting data. 0 if the
  * transmision finished. -1 on error
@@ -167,31 +107,7 @@ openvasd_get_vt_stream_init (http_scanner_connector_t conn)
 int
 openvasd_get_vt_stream (http_scanner_connector_t conn)
 {
-  static int running = 0;
-
-  gvm_http_multi_t *multi = conn->stream_resp->multi_handler;
-  if (!multi || !multi->handler)
-    {
-      g_warning ("%s: Invalid multi-handler", __func__);
-      return -1;
-    }
-
-  gvm_http_multi_result_t mc = gvm_http_multi_perform (multi, &running);
-
-  if (mc == GVM_HTTP_OK && running)
-    {
-      /* wait for activity, timeout, or "nothing" */
-      CURLMcode poll_result =
-        curl_multi_poll (multi->handler, NULL, 0, 5000, NULL);
-      if (poll_result != CURLM_OK)
-        {
-          g_warning ("%s: error on curl_multi_poll(): %d\n", __func__,
-                     poll_result);
-          return -1;
-        }
-    }
-
-  return running;
+  return http_scanner_process_request_multi (conn, 5000);
 }
 
 /**
@@ -209,7 +125,8 @@ openvasd_get_vts (http_scanner_connector_t conn)
   http_scanner_resp_t response = NULL;
 
   path = g_string_new ("/vts?information=1");
-  response = http_scanner_send_request (conn, GET, path->str, NULL, NULL);
+  response =
+    http_scanner_send_request (conn, HTTP_SCANNER_GET, path->str, NULL, NULL);
 
   g_string_free (path, TRUE);
 
@@ -251,7 +168,8 @@ openvasd_get_performance (http_scanner_connector_t conn,
 
   query = g_strdup_printf ("/health/performance?start=%d&end=%d&titles=%s",
                            opts.start, opts.end, opts.titles);
-  response = http_scanner_send_request (conn, GET, query, NULL, NULL);
+  response =
+    http_scanner_send_request (conn, HTTP_SCANNER_GET, query, NULL, NULL);
   g_free (query);
 
   if (response->code != RESP_CODE_ERR)

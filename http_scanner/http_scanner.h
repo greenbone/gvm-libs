@@ -11,7 +11,6 @@
 #ifndef _GVM_HTTP_SCANNER_H
 #define _GVM_HTTP_SCANNER_H
 
-#include "../http/httputils.h"
 #include "../util/jsonpull.h"
 
 #include <glib.h>
@@ -75,20 +74,6 @@ typedef enum
   HTTP_SCANNER_SCAN_STATUS_SUCCEEDED,   /**< Succeeded status. */
 } http_scanner_status_t;
 
-/**  @brief Struct holding the data for connecting with HTTP scanner. */
-struct http_scanner_connector
-{
-  gchar *ca_cert;  /**< Path to the directory holding the CA certificate. */
-  gchar *cert;     /**< Client certificate. */
-  gchar *key;      /**< Client key. */
-  gchar *apikey;   /**< API key for authentication. */
-  gchar *host;     /**< server hostname. */
-  gchar *scan_id;  /**< Scan ID. */
-  int port;        /**< server port. */
-  gchar *protocol; /**< server protocol (http or https). */
-  gvm_http_response_stream_t stream_resp; /** For response. */
-};
-
 /** @brief Struct to hold an HTTP scanner response. */
 struct http_scanner_response
 {
@@ -135,6 +120,19 @@ struct http_scanner_param
   int mandatory;      /**< If mandatory. */
 };
 
+/**
+ * @brief HTTP Scanner Request methods
+ */
+typedef enum
+{
+  HTTP_SCANNER_GET,
+  HTTP_SCANNER_POST,
+  HTTP_SCANNER_PUT,
+  HTTP_SCANNER_DELETE,
+  HTTP_SCANNER_HEAD,
+  HTTP_SCANNER_PATCH
+} http_scanner_method_t;
+
 typedef enum HTTP_SCANNER_CONNECTOR_OPTS http_scanner_conn_opt_t;
 
 typedef enum HTTP_SCANNER_RESULT_MEMBER_INT http_scanner_result_member_int_t;
@@ -164,6 +162,12 @@ http_scanner_connector_builder (http_scanner_connector_t,
 http_scanner_error_t http_scanner_connector_free (http_scanner_connector_t);
 
 void http_scanner_response_cleanup (http_scanner_resp_t);
+
+http_scanner_resp_t
+http_scanner_init_request_multi (http_scanner_connector_t, const gchar *);
+
+int
+http_scanner_process_request_multi (http_scanner_connector_t, int);
 
 http_scanner_resp_t http_scanner_get_version (http_scanner_connector_t);
 
@@ -247,11 +251,8 @@ gchar *http_scanner_stream_str (http_scanner_connector_t);
 
 size_t http_scanner_stream_len (http_scanner_connector_t);
 
-gvm_http_headers_t *
-init_customheader (const gchar *, gboolean);
-
 http_scanner_resp_t
-http_scanner_send_request (http_scanner_connector_t, gvm_http_method_t,
+http_scanner_send_request (http_scanner_connector_t, http_scanner_method_t,
                            const gchar *, const gchar *, const gchar *);
 
 #endif /* _GVM_HTTP_SCANNER_H */
