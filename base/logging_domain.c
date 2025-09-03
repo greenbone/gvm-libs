@@ -76,6 +76,7 @@ gvm_logging_domain_free (gvm_logging_domain_t *log_domain)
   g_free (log_domain->prepend_time_format);
   g_free (log_domain->log_file);
   g_free (log_domain->default_level);
+  g_free (log_domain->syslog_facility);
   g_free (log_domain->syslog_ident);
   g_free (log_domain->prepend_separator);
 
