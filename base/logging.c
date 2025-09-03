@@ -888,6 +888,8 @@ check_log_file (gvm_logging_domain_t *log_domain_entry)
       if (!channel)
         return -1;
     }
+  g_io_channel_shutdown (channel, TRUE, NULL);
+  g_io_channel_unref (channel);
   return 0;
 }
 
