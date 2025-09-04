@@ -1563,7 +1563,7 @@ prefs_cleanup:
   cJSON_Delete (parser);
   if (err)
     {
-      g_warning ("%s: Unable to parse scan preferences.", __func__);
+      g_warning ("%s: Failed to parse scan preferences.", __func__);
       return -1;
     }
 

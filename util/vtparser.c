@@ -52,7 +52,15 @@ get_category_from_name (const gchar *cat)
   return -1;
 }
 
-static void
+/**
+ * @brief Add to the NVT Info structure.
+ *
+ * @param nvt The NVT Info structure.
+ * @param tag_obj The JSON object containing the tags.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int
 add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
 {
   if (cJSON_IsObject (tag_obj))
@@ -137,10 +145,12 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
       else
         {
           g_warning ("%s: SEVERITY missing value element", __func__);
-          nvti_free (nvt);
-          nvt = NULL;
+          return -1;
         }
-    } // end tag
+      return 0;
+    }
+  g_warning ("%s: Tag is not an object", __func__);
+  return -1;
 }
 
 static void
@@ -307,8 +317,17 @@ parse_vt_json (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event,
   nvti_set_category (*nvt, get_category_from_name (str));
 
   cJSON *tag_obj = cJSON_GetObjectItem (vt_obj, "tag");
+
   if (tag_obj)
-    add_tags_to_nvt (*nvt, tag_obj);
+    {
+      if (add_tags_to_nvt (*nvt, tag_obj))
+        {
+          g_warning ("%s: Error adding tags", __func__);
+          cJSON_Delete (vt_obj);
+          nvti_free (*nvt);
+          return -1;
+        }
+    }
 
   parse_references (*nvt, vt_obj);
   add_preferences_to_nvt (*nvt, vt_obj);
