@@ -978,6 +978,27 @@ get_routes (void)
 }
 
 /**
+ * @brief Free the list of routes.
+ *
+ * @param GSList of route_entry structs, or NULL.
+ */
+static void
+free_routes (GSList *routes)
+{
+  if (routes)
+  {
+    GSList *routes_p;
+
+    for (routes_p = routes; routes_p; routes_p = routes_p->next)
+      {
+        if (((route_entry_t *) (routes_p->data))->interface)
+          g_free (((route_entry_t *) (routes_p->data))->interface);
+      }
+    g_slist_free (routes);
+  }
+}
+
+/**
  * @brief Get Interface which should be used for routing to destination addr.
  *
  * This function should be used sparingly as it parses /proc/net/route for
@@ -1013,7 +1034,6 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
   if (storage_dest->ss_family == AF_INET)
     {
       GSList *routes;
-      GSList *routes_p;
 
       routes = get_routes ();
 
@@ -1043,6 +1063,7 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
           struct sockaddr_in *sin_dest_p, *sin_src_p;
           struct in_addr global_src;
           unsigned long best_match;
+          GSList *routes_p;
 
           /* Check if global_source_addr in use. */
           gvm_source_addr (&global_src);
@@ -1093,16 +1114,7 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
                 }
             }
         }
-      /* Free GSList. */
-      if (routes)
-        {
-          for (routes_p = routes; routes_p; routes_p = routes_p->next)
-            {
-              if (((route_entry_t *) (routes_p->data))->interface)
-                g_free (((route_entry_t *) (routes_p->data))->interface);
-            }
-          g_slist_free (routes);
-        }
+      free_routes (routes);
     }
   else if (storage_dest->ss_family == AF_INET6)
     {

@@ -1102,6 +1102,7 @@ Ensure (networking, get_routes)
   list_len = g_slist_length (list);
   assert_that (list, is_not_null);
   assert_that (list_len, is_equal_to (3));
+  free_routes (list);
   g_g_io_channel_new_file_use_real = true;
   g_g_io_channel_shutdown_use_real = true;
 
