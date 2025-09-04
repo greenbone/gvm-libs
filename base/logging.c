@@ -853,7 +853,6 @@ static int
 check_log_file (gvm_logging_domain_t *log_domain_entry)
 {
   GIOChannel *channel = NULL;
-  GError *error = NULL;
   const gchar *log_file;
 
   log_file = gvm_logging_domain_get_log_file (log_domain_entry);
@@ -868,7 +867,7 @@ check_log_file (gvm_logging_domain_t *log_domain_entry)
   if (g_ascii_strcasecmp (log_file, "syslog") == 0)
     return 0;
 
-  channel = g_io_channel_new_file (log_file, "a", &error);
+  channel = g_io_channel_new_file (log_file, "a", NULL);
   if (!channel)
     {
       gchar *log = g_strdup (log_file);
@@ -883,11 +882,12 @@ check_log_file (gvm_logging_domain_t *log_domain_entry)
       g_free (log);
 
       /* Try again. */
-      error = NULL;
-      channel = g_io_channel_new_file (log_file, "a", &error);
+      channel = g_io_channel_new_file (log_file, "a", NULL);
       if (!channel)
         return -1;
     }
+  g_io_channel_shutdown (channel, TRUE, NULL);
+  g_io_channel_unref (channel);
   return 0;
 }
 
