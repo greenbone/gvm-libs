@@ -375,7 +375,7 @@ Ensure (agent_controller, init_custom_header_calls_add_header)
   const gchar *auth = g_ptr_array_index (called_headers, 0);
   const gchar *ctype = g_ptr_array_index (called_headers, 1);
 
-  assert_that (auth, contains_string ("Authorization: Bearer my-token"));
+  assert_that (auth, contains_string ("X-API-KEY: my-token"));
   assert_that (ctype, is_equal_to_string ("Content-Type: application/json"));
 
   g_ptr_array_free (called_headers, TRUE);

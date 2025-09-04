@@ -52,7 +52,7 @@ struct agent_controller_connector
 /**
  * @brief Initialize custom HTTP headers for Agent Controller requests.
  *
- * @param[in] bearer_token The Bearer token to use for Authorization (optional).
+ * @param[in] apikey The Api Key to use for Authorization (optional).
  * @param[in] content_type Whether to add "Content-Type: application/json"
  * (TRUE/FALSE).
  *
@@ -60,20 +60,20 @@ struct agent_controller_connector
  *         Must be freed with `gvm_http_headers_free()`.
  */
 static gvm_http_headers_t *
-init_custom_header (const gchar *bearer_token, gboolean content_type)
+init_custom_header (const gchar *apikey, gboolean content_type)
 {
   gvm_http_headers_t *headers = gvm_http_headers_new ();
 
-  // Set Authorization header if API key exists
-  if (bearer_token && *bearer_token)
+  // Set API KEY
+  if (apikey)
     {
-      GString *auth = g_string_new ("Authorization: Bearer ");
-      g_string_append (auth, bearer_token);
+      GString *xapikey = g_string_new ("X-API-KEY: ");
+      g_string_append (xapikey, apikey);
 
-      if (!gvm_http_add_header (headers, auth->str))
-        g_warning ("%s: Failed to set Authorization header", __func__);
+      if (!gvm_http_add_header (headers, xapikey->str))
+        g_warning ("%s: Not possible to set API-KEY", __func__);
 
-      g_string_free (auth, TRUE);
+      g_string_free (xapikey, TRUE);
     }
 
   // Set Content-Type: application/json
@@ -94,7 +94,7 @@ init_custom_header (const gchar *bearer_token, gboolean content_type)
  * @param[in] method        The HTTP method (GET, POST, PUT, etc.).
  * @param[in] path          The request path (e.g., "/api/v1/admin/agents").
  * @param[in] payload       Optional request body payload.
- * @param[in] bearer_token  Optional Bearer token for Authorization header.
+ * @param[in] apikey        Optional Api key for Authorization header.
  *
  * @return Pointer to a `gvm_http_response_t` containing status code and body.
  *         Must be freed using `gvm_http_response_cleanup()`.
@@ -102,7 +102,7 @@ init_custom_header (const gchar *bearer_token, gboolean content_type)
 static gvm_http_response_t *
 agent_controller_send_request (agent_controller_connector_t conn,
                                gvm_http_method_t method, const gchar *path,
-                               const gchar *payload, const gchar *bearer_token)
+                               const gchar *payload, const gchar *apikey)
 {
   if (!conn)
     {
@@ -119,7 +119,7 @@ agent_controller_send_request (agent_controller_connector_t conn,
   gchar *url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
                                 conn->port, path);
 
-  gvm_http_headers_t *headers = init_custom_header (bearer_token, TRUE);
+  gvm_http_headers_t *headers = init_custom_header (apikey, TRUE);
 
   gvm_http_response_t *http_response = gvm_http_request (
     url, method, payload, headers, conn->ca_cert, conn->cert, conn->key,
