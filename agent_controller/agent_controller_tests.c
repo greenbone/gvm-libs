@@ -118,6 +118,26 @@ make_scan_agent_config (void)
   return cfg;
 }
 
+static agent_controller_agent_list_t
+make_agent_list_with_ids (const char *const *ids, int n)
+{
+  agent_controller_agent_list_t list = agent_controller_agent_list_new (n);
+  assert_that (list, is_not_null);
+
+  for (int i = 0; i < n; ++i)
+    {
+      if (ids[i] == NULL)
+        {
+          list->agents[i] = NULL;
+          continue;
+        }
+      agent_controller_agent_t a = agent_controller_agent_new ();
+      a->agent_id = g_strdup (ids[i]);
+      list->agents[i] = a;
+    }
+  return list;
+}
+
 Ensure (agent_controller, connector_new_returns_valid_connector)
 {
   agent_controller_connector_t conn = agent_controller_connector_new ();
@@ -2283,6 +2303,139 @@ Ensure (agent_controller, parse_errors_ignores_empty_strings_then_fallback)
   g_ptr_array_free (errs, TRUE);
 }
 
+Ensure (agent_controller, build_create_scan_payload_null_returns_null)
+{
+  gchar *payload = agent_controller_build_create_scan_payload (NULL);
+  assert_that (payload, is_null);
+}
+
+Ensure (agent_controller,
+        build_create_scan_payload_zero_agents_builds_empty_arrays)
+{
+  agent_controller_agent_list_t list = agent_controller_agent_list_new (0);
+  assert_that (list, is_not_null);
+
+  gchar *payload = agent_controller_build_create_scan_payload (list);
+  assert_that (payload, is_not_null);
+
+  cJSON *root = cJSON_Parse (payload);
+  assert_that (root, is_not_null);
+
+  cJSON *target = cJSON_GetObjectItemCaseSensitive (root, "target");
+  assert_that (target, is_not_null);
+  assert_that (cJSON_IsObject (target), is_true);
+
+  cJSON *hosts = cJSON_GetObjectItemCaseSensitive (target, "hosts");
+  assert_that (hosts, is_not_null);
+  assert_that (cJSON_IsArray (hosts), is_true);
+  assert_that (cJSON_GetArraySize (hosts), is_equal_to (0));
+
+  cJSON *vts = cJSON_GetObjectItemCaseSensitive (root, "vts");
+  assert_that (vts, is_not_null);
+  assert_that (cJSON_IsArray (vts), is_true);
+  assert_that (cJSON_GetArraySize (vts), is_equal_to (0));
+
+  cJSON_Delete (root);
+  g_free (payload);
+  agent_controller_agent_list_free (list);
+}
+
+Ensure (agent_controller,
+        build_create_scan_payload_filters_invalid_and_keeps_order)
+{
+  const char *ids[] = {"a1", NULL, "", "a3"};
+  agent_controller_agent_list_t list = make_agent_list_with_ids (ids, 4);
+
+  gchar *payload = agent_controller_build_create_scan_payload (list);
+  assert_that (payload, is_not_null);
+
+  cJSON *root = cJSON_Parse (payload);
+  assert_that (root, is_not_null);
+
+  cJSON *target = cJSON_GetObjectItemCaseSensitive (root, "target");
+  assert_that (target, is_not_null);
+
+  cJSON *hosts = cJSON_GetObjectItemCaseSensitive (target, "hosts");
+  assert_that (hosts, is_not_null);
+  assert_that (cJSON_IsArray (hosts), is_true);
+
+  int n = cJSON_GetArraySize (hosts);
+  assert_that (n, is_equal_to (2));
+
+  cJSON *h0 = cJSON_GetArrayItem (hosts, 0);
+  cJSON *h1 = cJSON_GetArrayItem (hosts, 1);
+  assert_that (h0, is_not_null);
+  assert_that (h1, is_not_null);
+  assert_that (cJSON_IsString (h0), is_true);
+  assert_that (cJSON_IsString (h1), is_true);
+  assert_that (h0->valuestring, is_equal_to_string ("a1"));
+  assert_that (h1->valuestring, is_equal_to_string ("a3"));
+
+  cJSON *vts = cJSON_GetObjectItemCaseSensitive (root, "vts");
+  assert_that (vts, is_not_null);
+  assert_that (cJSON_IsArray (vts), is_true);
+  assert_that (cJSON_GetArraySize (vts), is_equal_to (0));
+
+  cJSON_Delete (root);
+  g_free (payload);
+  agent_controller_agent_list_free (list);
+}
+
+Ensure (agent_controller, get_scan_id_null_returns_null)
+{
+  gchar *sid = agent_controller_get_scan_id (NULL);
+  assert_that (sid, is_null);
+}
+
+Ensure (agent_controller, get_scan_id_whitespace_returns_null)
+{
+  const char *body = "   \n\t  ";
+  gchar *sid = agent_controller_get_scan_id (body);
+  assert_that (sid, is_null);
+}
+
+Ensure (agent_controller, get_scan_id_invalid_json_returns_null)
+{
+  const char *body = "{";
+  gchar *sid = agent_controller_get_scan_id (body);
+  assert_that (sid, is_null);
+}
+
+Ensure (agent_controller, get_scan_id_missing_key_returns_null)
+{
+  const char *body = "{\"message\":\"ok\"}";
+  gchar *sid = agent_controller_get_scan_id (body);
+  assert_that (sid, is_null);
+}
+
+Ensure (agent_controller, get_scan_id_non_string_returns_null)
+{
+  const char *body_num = "{\"scan_id\": 123}";
+  gchar *sid = agent_controller_get_scan_id (body_num);
+  assert_that (sid, is_null);
+
+  const char *body_obj = "{\"scan_id\": {\"id\":\"x\"}}";
+  sid = agent_controller_get_scan_id (body_obj);
+  assert_that (sid, is_null);
+
+  const char *body_arr = "{\"scan_id\": [\"x\"]}";
+  sid = agent_controller_get_scan_id (body_arr);
+  assert_that (sid, is_null);
+}
+
+Ensure (agent_controller, get_scan_id_returns_dup_string_on_success)
+{
+  const char *body =
+    "{ \"scan_id\": \"5381179e-8986-11f0-91e1-f4a80df45233\" }";
+  gchar *sid = agent_controller_get_scan_id (body);
+
+  assert_that (sid, is_not_null);
+  assert_that (sid,
+               is_equal_to_string ("5381179e-8986-11f0-91e1-f4a80df45233"));
+
+  g_free (sid);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -2528,6 +2681,26 @@ main (int argc, char **argv)
                          parse_errors_handles_null_errors_parameter);
   add_test_with_context (suite, agent_controller,
                          parse_errors_ignores_empty_strings_then_fallback);
+  add_test_with_context (suite, agent_controller,
+                         build_create_scan_payload_null_returns_null);
+  add_test_with_context (
+    suite, agent_controller,
+    build_create_scan_payload_zero_agents_builds_empty_arrays);
+  add_test_with_context (
+    suite, agent_controller,
+    build_create_scan_payload_filters_invalid_and_keeps_order);
+  add_test_with_context (suite, agent_controller,
+                         get_scan_id_null_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_scan_id_whitespace_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_scan_id_invalid_json_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_scan_id_missing_key_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_scan_id_non_string_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_scan_id_returns_dup_string_on_success);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
