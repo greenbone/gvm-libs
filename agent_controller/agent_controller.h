@@ -236,4 +236,11 @@ agent_controller_convert_scan_agent_config_string (
 agent_controller_scan_agent_config_t
 agent_controller_parse_scan_agent_config_string (const gchar *config);
 
+gchar *
+agent_controller_build_create_scan_payload (
+  agent_controller_agent_list_t agents);
+
+gchar *
+agent_controller_get_scan_id (const gchar *body);
+
 #endif // AGENT_CONTROLLER_H
