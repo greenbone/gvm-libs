@@ -993,6 +993,7 @@ free_routes (GSList *routes)
       {
         if (((route_entry_t *) (routes_p->data))->interface)
           g_free (((route_entry_t *) (routes_p->data))->interface);
+        g_free (routes_p->data);
       }
     g_slist_free (routes);
   }
