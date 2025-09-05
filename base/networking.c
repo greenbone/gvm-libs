@@ -969,6 +969,7 @@ get_routes (void)
     }
 
   status = g_io_channel_shutdown (file_channel, TRUE, &err);
+  g_io_channel_unref (file_channel);
   if ((G_IO_STATUS_NORMAL != status) || err)
     g_warning ("%s: %s", __func__,
                err ? err->message
