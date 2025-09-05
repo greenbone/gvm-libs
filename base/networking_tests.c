@@ -1110,6 +1110,8 @@ Ensure (networking, get_routes)
   status = g_io_channel_shutdown (file_channel, TRUE, &err);
   if ((G_IO_STATUS_NORMAL != status) || err)
     g_warning ("%s: Could not shutdown channel.", __func__);
+  if (err)
+    g_error_free (err);
   g_io_channel_unref (file_channel);
   ret = unlink ("./myfile");
   if (0 != ret)
