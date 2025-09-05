@@ -860,7 +860,9 @@ Ensure (networking, port_range_ranges)
   assert_that (validate_port_range (valid_portrange1), is_equal_to (0));
 
   assert_that (port_range_ranges (NULL), is_null);
-  assert_that (port_range_ranges (valid_portrange1), is_not_null);
+  valid_portrange1_ranges = port_range_ranges (valid_portrange1);
+  assert_that (valid_portrange1_ranges, is_not_null);
+  array_free (valid_portrange1_ranges);
 
   valid_portrange1_ranges = port_range_ranges (valid_portrange1);
   assert_that (valid_portrange1_ranges, is_not_null);
@@ -901,6 +903,8 @@ Ensure (networking, port_range_ranges)
   assert_that (valid_portrange1_range5->end, is_equal_to (12));
   assert_that (valid_portrange1_range5->exclude, is_equal_to (0));
   assert_that (valid_portrange1_range5->type, is_equal_to (PORT_PROTOCOL_UDP));
+
+  array_free (valid_portrange1_ranges);
 }
 
 Ensure (networking, port_in_port_ranges)
@@ -947,6 +951,8 @@ Ensure (networking, port_in_port_ranges)
                is_false);
   assert_that (port_in_port_ranges (12, PORT_PROTOCOL_OTHER, portrange_ranges),
                is_false);
+
+  array_free (portrange_ranges);
 }
 
 /* Test suite. */
