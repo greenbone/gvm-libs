@@ -1124,6 +1124,7 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
                  __func__);
     }
 
+  freeifaddrs (ifaddr);
   return interface_out != NULL ? interface_out : NULL;
 }
 
