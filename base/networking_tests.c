@@ -1134,6 +1134,7 @@ Ensure (networking, gvm_routethrough_v4)
   /* No destination address. */
   interface = gvm_routethrough (NULL, &storage_src);
   assert_that (interface, is_null);
+  g_free (interface);
 
   /* Destination address localhost and no source address. */
   inet_pton (AF_INET, "127.0.0.1", &(dst.s_addr));
@@ -1143,6 +1144,7 @@ Ensure (networking, gvm_routethrough_v4)
   assert_that (interface, is_not_null);
   /* Dependent on local environment. */
   // assert_that (interface, is_equal_to_string ("lo"));
+  g_free (interface);
 
   /* Destination address not localhost and no source address. */
   inet_pton (AF_INET, "93.184.216.34", &(dst.s_addr)); // example.com
@@ -1152,6 +1154,7 @@ Ensure (networking, gvm_routethrough_v4)
   assert_that (interface, is_not_null);
   /* Dependent on local environment. */
   // assert_that (interface, is_equal_to_string ("enp0s9"));
+  g_free (interface);
 
   /* Destination address localhost and source address */
   inet_pton (AF_INET, "127.0.0.1", &(dst.s_addr));
@@ -1163,6 +1166,7 @@ Ensure (networking, gvm_routethrough_v4)
                == htonl (0x7F000001));
   /* Dependent on local environment. */
   // assert_that (interface, is_equal_to_string ("lo"));
+  g_free (interface);
 
   /* Dst address not localhost and src address */
   inet_pton (AF_INET, "93.184.216.34", &(dst.s_addr));
@@ -1176,6 +1180,7 @@ Ensure (networking, gvm_routethrough_v4)
   /* Dependent on local environment. */
   // assert_that (((struct sockaddr_in *) (&storage_src))->sin_addr.s_addr !=
   // 0); assert_that (interface, is_equal_to_string ("enp0s9"));
+  g_free (interface);
 }
 
 Ensure (networking, gvm_source_addr)
