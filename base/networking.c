@@ -987,17 +987,17 @@ static void
 free_routes (GSList *routes)
 {
   if (routes)
-  {
-    GSList *routes_p;
+    {
+      GSList *routes_p;
 
-    for (routes_p = routes; routes_p; routes_p = routes_p->next)
-      {
-        if (((route_entry_t *) (routes_p->data))->interface)
-          g_free (((route_entry_t *) (routes_p->data))->interface);
-        g_free (routes_p->data);
-      }
-    g_slist_free (routes);
-  }
+      for (routes_p = routes; routes_p; routes_p = routes_p->next)
+        {
+          if (((route_entry_t *) (routes_p->data))->interface)
+            g_free (((route_entry_t *) (routes_p->data))->interface);
+          g_free (routes_p->data);
+        }
+      g_slist_free (routes);
+    }
 }
 
 /**
