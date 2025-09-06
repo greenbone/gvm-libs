@@ -1279,3 +1279,73 @@ agent_controller_get_agents_with_updates (agent_controller_connector_t conn)
 
   return agent_list;
 }
+
+/**
+ * @brief Build a JSON payload for creating a scan in the agent controller.
+ *
+ * @param[in] agents List of agents to include in the payload.
+ *
+ * @return A newly allocated JSON string representing the create-scan payload.
+ *         The caller is responsible for freeing the returned string using
+ *         g_free().
+ */
+gchar *
+agent_controller_build_create_scan_payload (
+  agent_controller_agent_list_t agents)
+{
+  if (!agents)
+    return NULL;
+
+  cJSON *root = cJSON_CreateObject ();
+
+  cJSON *target = cJSON_CreateObject ();
+  cJSON *hosts = cJSON_CreateArray ();
+
+  // Iterate over agents and add agent_id to "hosts"
+  for (int i = 0; i < agents->count; ++i)
+    {
+      agent_controller_agent_t agent = agents->agents[i];
+      if (!agent || !agent->agent_id)
+        continue;
+
+      if (agent && agent->agent_id && *agent->agent_id)
+        cJSON_AddItemToArray (hosts, cJSON_CreateString (agent->agent_id));
+    }
+
+  cJSON_AddItemToObject (target, "hosts", hosts);
+  cJSON_AddItemToObject (root, "target", target);
+
+  // vts (empty array)
+  cJSON *vts = cJSON_CreateArray ();
+  cJSON_AddItemToObject (root, "vts", vts);
+
+  gchar *payload = cJSON_PrintUnformatted (root);
+  cJSON_Delete (root);
+
+  return payload;
+}
+
+/**
+ * @brief Extract the scan_id from a create-scan response body.
+ *
+ * @param[in] body JSON string response from the agent controller.
+ *
+ * @return A newly allocated string containing the scan_id, or NULL if not
+ * found. Caller must free with g_free().
+ */
+gchar *
+agent_controller_get_scan_id (const gchar *body)
+{
+  if (!body)
+    return NULL;
+
+  cJSON *root = cJSON_Parse (body);
+  if (!root)
+    return NULL;
+
+  const char *scan_id = gvm_json_obj_str (root, "scan_id");
+  gchar *result = scan_id ? g_strdup (scan_id) : NULL;
+
+  cJSON_Delete (root);
+  return result;
+}
