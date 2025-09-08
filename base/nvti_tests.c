@@ -20,7 +20,11 @@ AfterEach (nvti)
 
 Ensure (nvti, nvti_new_never_returns_null)
 {
-  assert_that (nvti_new (), is_not_null);
+  nvti_t *nvti;
+
+  nvti = nvti_new ();
+  assert_that (nvti, is_not_null);
+  nvti_free (nvti);
 }
 
 /* nvti solution_method */
@@ -144,6 +148,8 @@ Ensure (nvti, nvtis_add_does_not_use_oid_as_key)
    * that changing the first character of nvti->oid did not affect the key. */
   assert_that (nvtis_lookup (nvtis, "1"), is_not_null);
   assert_that (nvtis_lookup (nvtis, "2"), is_null);
+
+  nvtis_free (nvtis);
 }
 
 /* nvti severity vector */
@@ -151,40 +157,48 @@ Ensure (nvti, nvtis_add_does_not_use_oid_as_key)
 Ensure (nvti, nvti_get_severity_vector_both)
 {
   nvti_t *nvti;
+  gchar *vector;
 
   nvti = nvti_new ();
   nvti_set_tag (nvti, "cvss_base_vector=DEF");
   nvti_set_tag (nvti, "severity_vector=ABC");
 
-  assert_that (nvti_severity_vector_from_tag (nvti),
-               is_equal_to_string ("ABC"));
+  vector = nvti_severity_vector_from_tag (nvti);
 
+  assert_that (vector, is_equal_to_string ("ABC"));
+
+  g_free (vector);
   nvti_free (nvti);
 }
 
 Ensure (nvti, nvti_get_severity_vector_no_cvss_base)
 {
   nvti_t *nvti;
+  gchar *vector;
 
   nvti = nvti_new ();
   nvti_set_tag (nvti, "severity_vector=ABC");
 
-  assert_that (nvti_severity_vector_from_tag (nvti),
-               is_equal_to_string ("ABC"));
+  vector = nvti_severity_vector_from_tag (nvti);
 
+  assert_that (vector, is_equal_to_string ("ABC"));
+
+  g_free (vector);
   nvti_free (nvti);
 }
 
 Ensure (nvti, nvti_get_severity_vector_no_severity_vector)
 {
   nvti_t *nvti;
+  gchar *vector;
 
   nvti = nvti_new ();
   nvti_set_tag (nvti, "cvss_base_vector=DEF");
 
-  assert_that (nvti_severity_vector_from_tag (nvti),
-               is_equal_to_string ("DEF"));
+  vector = nvti_severity_vector_from_tag (nvti);
+  assert_that (vector, is_equal_to_string ("DEF"));
 
+  g_free (vector);
   nvti_free (nvti);
 }
 
