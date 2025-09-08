@@ -956,6 +956,7 @@ simplify_cvss4_vector (const char *cvss_str)
       if (value == NULL)
         {
           g_debug ("%s: value for metric %s missing", __func__, metric_str);
+          g_strfreev (split_component);
           break;
         }
       else if (strcasecmp (metric_str, "U") == 0)
@@ -968,6 +969,7 @@ simplify_cvss4_vector (const char *cvss_str)
               g_debug ("%s: value for metric %s must be one of"
                        " 'Red', 'Amber', 'Green', 'Clear', 'X'",
                        __func__, metric_str);
+              g_strfreev (split_component);
               break;
             }
           else
@@ -977,6 +979,7 @@ simplify_cvss4_vector (const char *cvss_str)
         {
           g_debug ("%s: value for metric %s must be 1 character", __func__,
                    metric_str);
+          g_strfreev (split_component);
           break;
         }
 
