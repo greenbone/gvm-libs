@@ -1221,6 +1221,7 @@ cvss4_maximal_scoring_differences (const char *macrovector,
       eq2_next_lower_macro[1]++;
       score_eq2_next_lower_macro =
         cvss4_macrovector_score (eq2_next_lower_macro);
+      g_free (eq2_next_lower_macro);
     }
   else
     score_eq2_next_lower_macro = -1.0;
