@@ -202,8 +202,6 @@ int
 http_scanner_parsed_results (http_scanner_connector_t, unsigned long,
                              unsigned long, GSList **);
 
-http_scanner_resp_t http_scanner_get_scan_status (http_scanner_connector_t);
-
 http_scanner_scan_status_t
   http_scanner_parsed_scan_status (http_scanner_connector_t);
 
@@ -214,9 +212,6 @@ http_scanner_resp_t http_scanner_get_health_alive (http_scanner_connector_t);
 http_scanner_resp_t http_scanner_get_health_ready (http_scanner_connector_t);
 
 http_scanner_resp_t http_scanner_get_health_started (http_scanner_connector_t);
-
-http_scanner_resp_t
-  http_scanner_get_scan_preferences (http_scanner_connector_t);
 
 http_scanner_resp_t
   http_scanner_get_scan_preferences (http_scanner_connector_t);
