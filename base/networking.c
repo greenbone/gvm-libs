@@ -969,12 +969,35 @@ get_routes (void)
     }
 
   status = g_io_channel_shutdown (file_channel, TRUE, &err);
+  g_io_channel_unref (file_channel);
   if ((G_IO_STATUS_NORMAL != status) || err)
     g_warning ("%s: %s", __func__,
                err ? err->message
                    : "g_io_channel_shutdown() was not successful");
 
   return routes;
+}
+
+/**
+ * @brief Free the list of routes.
+ *
+ * @param GSList of route_entry structs, or NULL.
+ */
+static void
+free_routes (GSList *routes)
+{
+  if (routes)
+    {
+      GSList *routes_p;
+
+      for (routes_p = routes; routes_p; routes_p = routes_p->next)
+        {
+          if (((route_entry_t *) (routes_p->data))->interface)
+            g_free (((route_entry_t *) (routes_p->data))->interface);
+          g_free (routes_p->data);
+        }
+      g_slist_free (routes);
+    }
 }
 
 /**
@@ -1013,7 +1036,6 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
   if (storage_dest->ss_family == AF_INET)
     {
       GSList *routes;
-      GSList *routes_p;
 
       routes = get_routes ();
 
@@ -1043,6 +1065,7 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
           struct sockaddr_in *sin_dest_p, *sin_src_p;
           struct in_addr global_src;
           unsigned long best_match;
+          GSList *routes_p;
 
           /* Check if global_source_addr in use. */
           gvm_source_addr (&global_src);
@@ -1093,16 +1116,7 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
                 }
             }
         }
-      /* Free GSList. */
-      if (routes)
-        {
-          for (routes_p = routes; routes_p; routes_p = routes_p->next)
-            {
-              if (((route_entry_t *) (routes_p->data))->interface)
-                g_free (((route_entry_t *) (routes_p->data))->interface);
-            }
-          g_slist_free (routes);
-        }
+      free_routes (routes);
     }
   else if (storage_dest->ss_family == AF_INET6)
     {
@@ -1111,6 +1125,7 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
                  __func__);
     }
 
+  freeifaddrs (ifaddr);
   return interface_out != NULL ? interface_out : NULL;
 }
 

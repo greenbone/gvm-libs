@@ -860,7 +860,9 @@ Ensure (networking, port_range_ranges)
   assert_that (validate_port_range (valid_portrange1), is_equal_to (0));
 
   assert_that (port_range_ranges (NULL), is_null);
-  assert_that (port_range_ranges (valid_portrange1), is_not_null);
+  valid_portrange1_ranges = port_range_ranges (valid_portrange1);
+  assert_that (valid_portrange1_ranges, is_not_null);
+  array_free (valid_portrange1_ranges);
 
   valid_portrange1_ranges = port_range_ranges (valid_portrange1);
   assert_that (valid_portrange1_ranges, is_not_null);
@@ -901,6 +903,8 @@ Ensure (networking, port_range_ranges)
   assert_that (valid_portrange1_range5->end, is_equal_to (12));
   assert_that (valid_portrange1_range5->exclude, is_equal_to (0));
   assert_that (valid_portrange1_range5->type, is_equal_to (PORT_PROTOCOL_UDP));
+
+  array_free (valid_portrange1_ranges);
 }
 
 Ensure (networking, port_in_port_ranges)
@@ -947,6 +951,8 @@ Ensure (networking, port_in_port_ranges)
                is_false);
   assert_that (port_in_port_ranges (12, PORT_PROTOCOL_OTHER, portrange_ranges),
                is_false);
+
+  array_free (portrange_ranges);
 }
 
 /* Test suite. */
@@ -1102,6 +1108,7 @@ Ensure (networking, get_routes)
   list_len = g_slist_length (list);
   assert_that (list, is_not_null);
   assert_that (list_len, is_equal_to (3));
+  free_routes (list);
   g_g_io_channel_new_file_use_real = true;
   g_g_io_channel_shutdown_use_real = true;
 
@@ -1109,6 +1116,9 @@ Ensure (networking, get_routes)
   status = g_io_channel_shutdown (file_channel, TRUE, &err);
   if ((G_IO_STATUS_NORMAL != status) || err)
     g_warning ("%s: Could not shutdown channel.", __func__);
+  if (err)
+    g_error_free (err);
+  g_io_channel_unref (file_channel);
   ret = unlink ("./myfile");
   if (0 != ret)
     g_warning ("%s: Could not delete file \"./myfile\");", __func__);
@@ -1132,6 +1142,7 @@ Ensure (networking, gvm_routethrough_v4)
   /* No destination address. */
   interface = gvm_routethrough (NULL, &storage_src);
   assert_that (interface, is_null);
+  g_free (interface);
 
   /* Destination address localhost and no source address. */
   inet_pton (AF_INET, "127.0.0.1", &(dst.s_addr));
@@ -1141,6 +1152,7 @@ Ensure (networking, gvm_routethrough_v4)
   assert_that (interface, is_not_null);
   /* Dependent on local environment. */
   // assert_that (interface, is_equal_to_string ("lo"));
+  g_free (interface);
 
   /* Destination address not localhost and no source address. */
   inet_pton (AF_INET, "93.184.216.34", &(dst.s_addr)); // example.com
@@ -1150,6 +1162,7 @@ Ensure (networking, gvm_routethrough_v4)
   assert_that (interface, is_not_null);
   /* Dependent on local environment. */
   // assert_that (interface, is_equal_to_string ("enp0s9"));
+  g_free (interface);
 
   /* Destination address localhost and source address */
   inet_pton (AF_INET, "127.0.0.1", &(dst.s_addr));
@@ -1161,6 +1174,7 @@ Ensure (networking, gvm_routethrough_v4)
                == htonl (0x7F000001));
   /* Dependent on local environment. */
   // assert_that (interface, is_equal_to_string ("lo"));
+  g_free (interface);
 
   /* Dst address not localhost and src address */
   inet_pton (AF_INET, "93.184.216.34", &(dst.s_addr));
@@ -1174,6 +1188,7 @@ Ensure (networking, gvm_routethrough_v4)
   /* Dependent on local environment. */
   // assert_that (((struct sockaddr_in *) (&storage_src))->sin_addr.s_addr !=
   // 0); assert_that (interface, is_equal_to_string ("enp0s9"));
+  g_free (interface);
 }
 
 Ensure (networking, gvm_source_addr)
