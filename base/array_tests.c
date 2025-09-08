@@ -20,7 +20,11 @@ AfterEach (array)
 
 Ensure (array, make_array_never_returns_null)
 {
-  assert_that (make_array (), is_not_null);
+  array_t *array;
+
+  array = make_array ();
+  assert_that (array, is_not_null);
+  array_free (array);
 }
 
 /* Test suite. */
