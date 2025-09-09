@@ -18,7 +18,11 @@ AfterEach (osp)
 
 Ensure (osp, osp_new_target_never_returns_null)
 {
-  assert_that (osp_target_new (NULL, NULL, NULL, 0, 0, 0), is_not_null);
+  osp_target_t *target;
+
+  target = osp_target_new (NULL, NULL, NULL, 0, 0, 0);
+  assert_that (target, is_not_null);
+  osp_target_free (target);
 }
 
 Ensure (osp, osp_new_conn_ret_null)
@@ -30,6 +34,7 @@ Ensure (osp, osp_get_vts_no_vts_ret_error)
 {
   osp_connection_t *conn = g_malloc0 (sizeof (*conn));
   assert_that (osp_get_vts (conn, NULL), is_equal_to (1));
+  g_free (conn);
 }
 
 Ensure (osp, osp_get_vts_no_conn_ret_error)
@@ -82,6 +87,7 @@ Ensure (osp, target_append_as_xml)
   assert_that (target_xml->str, is_equal_to_string (expected_xml_string));
 
   osp_target_free (target);
+  g_string_free (target_xml, TRUE);
 }
 
 /* Test suite. */
