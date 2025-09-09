@@ -579,8 +579,14 @@ gvm_http_multi_handler_free (gvm_http_multi_t *multi, gvm_http_t *http)
 void
 gvm_http_multi_free (gvm_http_multi_t *multi)
 {
-  if (!multi || !multi->handler)
+  if (!multi)
     return;
+
+  if (!multi->handler)
+    {
+      g_free (multi);
+      return;
+    }
 
   int queued = 0;
   CURLMsg *msg;
