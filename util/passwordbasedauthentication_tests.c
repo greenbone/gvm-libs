@@ -69,6 +69,7 @@ Ensure (PBA, verify_hash_returns_invalid_on_np_hash_np_password)
   assert_not_equal (hash, NULL);
   assert_equal (pba_verify_hash (&setting, NULL, "*password"), INVALID);
   assert_equal (pba_verify_hash (&setting, hash, NULL), INVALID);
+  free (hash);
 }
 
 Ensure (PBA, defaults)
@@ -110,6 +111,7 @@ Ensure (PBA, handle_md5_hash)
   hash = get_password_hashes ("admin");
   assert_equal (pba_verify_hash (settings, hash, "admin"), UPDATE_RECOMMENDED);
   pba_finalize (settings);
+  g_free (hash);
 }
 
 int
