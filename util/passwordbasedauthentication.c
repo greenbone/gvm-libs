@@ -28,6 +28,13 @@
 #define CRYPT_OUTPUT_SIZE 384
 #endif
 
+/**
+ * @brief Check if a prefix is supported.
+ *
+ * @param[in]  id  Prefix.
+ *
+ * @return 1 if supported, else 0.
+ */
 static int
 is_prefix_supported (const char *id)
 {
@@ -44,7 +51,14 @@ is_prefix_supported (const char *id)
 const char ascii64[] =
   "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-/* Tries to get BUFLEN random bytes into BUF; returns 0 on success. */
+/**
+ * @brief Try to get random bytes.
+ *
+ * @param[in]  buf     Destination for bytes.
+ * @param[in]  buflen  Number of bytes to get.
+ *
+ * @return 0 on success, else error.
+ */
 static int
 get_random (char *buf, size_t buflen)
 {
@@ -65,19 +79,24 @@ get_random (char *buf, size_t buflen)
 exit:
   return result;
 }
-/* Generate a string suitable for use as the setting when hashing a passphrase.
- * PREFIX controls which hash function will be used,
- * COUNT controls the computional cost of the hash,
- * RBYTES should point to NRBYTES bytes of random data.
+
+/**
+ * @brief Generate string suitable for use as setting when hashing a passphrase.
  *
- * If PREFIX is a NULL pointer, the current best default is used; if RBYTES
+ * If prefix is a NULL pointer, the current best default is used; if rbytes
  * is a NULL pointer, random data will be retrieved from the operating system
  * if possible.
  *
- * The generated setting string is written to OUTPUT, which is OUTPUT_SIZE long.
- * OUTPUT_SIZE must be at least CRYPT_GENSALT_OUTPUT_SIZE.
+ * @param[in]  prefix  Controls which hash function will be used.
+ * @param[in]  count   Controls the computional cost of the hash.
+ * @param[in]  rbytes  Should point to nrbytes bytes of random data.
+ * @param[in]  nrbytes  Number of bytes in rbytes.
+ * @param[out] output   The generated setting string is written here.
+ * @param[in]  output_size  Length of output. Must be at least
+ *                          CRYPT_GENSALT_OUTPUT_SIZE.
  *
- * */
+ * @return On success \p output, else NULL.
+ */
 char *
 crypt_gensalt_r (const char *prefix, unsigned long count, const char *rbytes,
                  int nrbytes, char *output, int output_size);
@@ -129,6 +148,19 @@ exit:
 
 #endif
 
+/**
+ * @brief Init PBA.
+ *
+ * @param[in] pepper  A static hidden addition to the randomly generated salt.
+ * @param[in] pepper_size  The size of pepper; it must not be larger than
+ *                         MAX_PEPPER_SIZE.
+ * @param[in] count        Number of rounds used to calculate the hash. 0 to
+ *                         use COUNT_DEFAULT.
+ * @param[in] prefix       The algorithm used, if NULL then the most secure
+ *                         available algorithm will be used.
+ *
+ * @return Settings, or NULL on error. Free with pba_finalize.
+ */
 struct PBASettings *
 pba_init (const char *pepper, unsigned int pepper_size, unsigned int count,
           char *prefix)
@@ -148,12 +180,24 @@ exit:
   return result;
 }
 
+/**
+ * @brief Cleanup PBA settings.
+ *
+ * @param[in]  settings  PBA settings.
+ */
 void
 pba_finalize (struct PBASettings *settings)
 {
   free (settings);
 }
 
+/**
+ * @brief Check if a PBA settings is PHC compliant.
+ *
+ * @param[in]  setting  Setting.
+ *
+ * @return 1 if compliant, else 0.
+ */
 static int
 pba_is_phc_compliant (const char *setting)
 {
@@ -164,6 +208,14 @@ pba_is_phc_compliant (const char *setting)
   return strlen (setting) > 1 && setting[0] == '$';
 }
 
+/**
+ * @brief Create a password hash.
+ *
+ * @param[in]  setting   PBA settings.
+ * @param[in]  password  Password.
+ *
+ * @return Hash. Must be freed with free().
+ */
 char *
 pba_hash (struct PBASettings *setting, const char *password)
 {
@@ -211,6 +263,15 @@ exit:
   return result;
 }
 
+/**
+ * @brief Verify a password hash.
+ *
+ * @param[in]  setting   PBA settings.
+ * @param[in]  hash      Hash.
+ * @param[in]  password  Password.
+ *
+ * @return Validity. VALID, UPDATE_RECOMMENDED, ...
+ */
 enum pba_rc
 pba_verify_hash (const struct PBASettings *setting, const char *hash,
                  const char *password)
