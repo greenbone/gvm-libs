@@ -87,6 +87,7 @@ Ensure (vtparser, parse_vt_json_parses_a_vt)
   gvm_json_pull_event_t event;
   FILE *file;
   nvti_t *nvt;
+  gchar *refs;
 
   file = memopen ("[" VT "]");
   assert_that (file, is_not_null);
@@ -100,10 +101,13 @@ Ensure (vtparser, parse_vt_json_parses_a_vt)
   parse_vt_json (&parser, &event, &nvt);
   assert_that (nvt, is_not_null);
   assert_that (nvti_name (nvt), is_equal_to_string (VT_NAME));
-  assert_that (nvti_refs (nvt, NULL, NULL, 1),
+  refs = nvti_refs (nvt, NULL, NULL, 1);
+  assert_that (refs,
                is_equal_to_string ("cve:CVE-2017-18189,"
                                    " 2020-cb7b7181a0:FEDORA,"
                                    " https://example.org/ann/EG-IZ3CX:URL"));
+  g_free (refs);
+  nvti_free (nvt);
 
   gvm_json_pull_event_cleanup (&event);
   gvm_json_pull_parser_cleanup (&parser);
