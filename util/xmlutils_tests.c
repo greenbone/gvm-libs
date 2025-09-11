@@ -210,6 +210,8 @@ Ensure (xmlutils, parse_element_parses_simple_xml)
   assert_that (element_name (b), is_equal_to_string ("b"));
 
   assert_that (element_text (b), is_equal_to_string ("1"));
+
+  element_free (element);
 }
 
 Ensure (xmlutils, parse_element_parses_xml_with_attributes)
@@ -224,6 +226,8 @@ Ensure (xmlutils, parse_element_parses_xml_with_attributes)
   b = element_child (element, "b");
 
   assert_that (element_attribute (b, "ba1"), is_equal_to_string ("test"));
+
+  element_free (element);
 }
 
 Ensure (xmlutils, parse_element_handles_declaration)
@@ -241,6 +245,8 @@ Ensure (xmlutils, parse_element_handles_declaration)
   assert_that (element_name (b), is_equal_to_string ("b"));
 
   assert_that (element_text (b), is_equal_to_string ("1"));
+
+  element_free (element);
 }
 
 Ensure (xmlutils, parse_element_handles_namespace)
@@ -261,6 +267,8 @@ Ensure (xmlutils, parse_element_handles_namespace)
   assert_that (element_text (b), is_equal_to_string ("1"));
 
   assert_that (element_attribute (b, "n2:ba2"), is_equal_to_string ("test2"));
+
+  element_free (element);
 }
 
 Ensure (xmlutils, parse_element_oval_timestamp)
@@ -304,6 +312,8 @@ Ensure (xmlutils, parse_element_oval_timestamp)
   assert_that (timestamp, is_not_null);
   assert_that (element_text (timestamp),
                is_equal_to_string ("2015-08-20T10:09:07.183-04:00"));
+
+  element_free (element);
 }
 
 Ensure (xmlutils, parse_element_item_metadata)
@@ -339,6 +349,8 @@ Ensure (xmlutils, parse_element_item_metadata)
   meta = element_child (item, "meta:item-metadata");
   assert_that (meta, is_not_null);
   assert_that (element_name (meta), is_equal_to_string ("meta:item-metadata"));
+
+  element_free (element);
 }
 
 Ensure (xmlutils, parse_element_item_metadata_with_namespace)
@@ -393,6 +405,8 @@ Ensure (xmlutils, parse_element_item_metadata_with_namespace)
   assert_that (element_name (meta), is_equal_to_string ("item-metadata"));
   // assert_that (element_name (meta), is_equal_to_string
   // ("meta:item-metadata"));
+
+  element_free (element);
 }
 
 Ensure (xmlutils, parse_element_item_handles_cdata)
@@ -469,6 +483,7 @@ Ensure (xmlutils, parse_element_item_handles_cdata)
       "[70027] Cross-origin error message leak with workers. [70336] Stale "
       "pointer in table painting. [72028] Stale pointer with SVG cursors. "
       "[73746]"));
+  element_free (element);
 }
 
 /* element_next. */
@@ -498,6 +513,8 @@ Ensure (xmlutils, element_next_handles_multiple_children)
   assert_that (child, is_not_null);
   assert_that (element_name (child), is_equal_to_string ("c"));
   assert_that (element_text (child), is_equal_to_string ("3"));
+
+  element_free (element);
 }
 
 Ensure (xmlutils, parse_element_free_using_child)
