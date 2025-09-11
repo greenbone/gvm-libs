@@ -33,6 +33,7 @@ Ensure (radiusutils, radius_init)
 
   rh = radius_init (HOST, SECRET);
   assert_that (rh, is_not_null);
+  rc_destroy (rh);
 }
 
 #else
