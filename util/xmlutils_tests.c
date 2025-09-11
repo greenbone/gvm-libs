@@ -221,6 +221,7 @@ Ensure (xmlutils, parse_element_parses_xml_with_attributes)
 {
   element_t element, b;
   const gchar *xml;
+  gchar *attr;
 
   xml = "<a><b ba1='test'>1</b></a>";
 
@@ -228,7 +229,9 @@ Ensure (xmlutils, parse_element_parses_xml_with_attributes)
 
   b = element_child (element, "b");
 
-  assert_that (element_attribute (b, "ba1"), is_equal_to_string ("test"));
+  attr = element_attribute (b, "ba1");
+  assert_that (attr, is_equal_to_string ("test"));
+  g_free (attr);
 
   element_free (element);
 }
@@ -259,7 +262,7 @@ Ensure (xmlutils, parse_element_handles_namespace)
 {
   element_t element, b;
   const gchar *xml;
-  gchar *text;
+  gchar *text, *attr;
 
   xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a><n:b ba1='test' "
         "n2:ba2='test2'>1</n:b></a>";
@@ -275,7 +278,9 @@ Ensure (xmlutils, parse_element_handles_namespace)
   assert_that (text, is_equal_to_string ("1"));
   g_free (text);
 
-  assert_that (element_attribute (b, "n2:ba2"), is_equal_to_string ("test2"));
+  attr = element_attribute (b, "n2:ba2");
+  assert_that (attr, is_equal_to_string ("test2"));
+  g_free (attr);
 
   element_free (element);
 }
@@ -632,6 +637,7 @@ Ensure (xmlutils, depth1_returns_top_level_children_in_order)
 
 Ensure (xmlutils, depth2_returns_grandchildren)
 {
+  gchar *attr;
   const char *xml = "<root>"
                     "  <a>A</a>"
                     "  <c><d id='1'>D</d><d id='2'>E</d></c>"
@@ -653,14 +659,18 @@ Ensure (xmlutils, depth2_returns_grandchildren)
   assert_that (err, is_null);
   assert_that (e, is_not_null);
   assert_that (element_name (e), is_equal_to_string ("d"));
-  assert_that (element_attribute (e, "id"), is_equal_to_string ("1"));
+  attr = element_attribute (e, "id");
+  assert_that (attr, is_equal_to_string ("1"));
+  g_free (attr);
   element_free (e);
 
   e = xml_file_iterator_next (it, &err);
   assert_that (err, is_null);
   assert_that (e, is_not_null);
   assert_that (element_name (e), is_equal_to_string ("d"));
-  assert_that (element_attribute (e, "id"), is_equal_to_string ("2"));
+  attr = element_attribute (e, "id");
+  assert_that (attr, is_equal_to_string ("2"));
+  g_free (attr);
   element_free (e);
 
   e = xml_file_iterator_next (it, &err);
