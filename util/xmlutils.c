@@ -2936,6 +2936,8 @@ xml_file_iterator_free (xml_file_iterator_t iterator)
 
   if (iterator->parser_ctxt)
     {
+      if (iterator->parser_ctxt->myDoc)
+        xmlFreeDoc (iterator->parser_ctxt->myDoc);
       xmlFreeParserCtxt (iterator->parser_ctxt);
     }
 
@@ -2969,6 +2971,8 @@ xml_file_iterator_rewind (xml_file_iterator_t iterator)
 
   if (iterator->parser_ctxt)
     {
+      if (iterator->parser_ctxt->myDoc)
+        xmlFreeDoc (iterator->parser_ctxt->myDoc);
       xmlFreeParserCtxt (iterator->parser_ctxt);
       iterator->parser_ctxt = xmlCreatePushParserCtxt (
         &(iterator->sax_handler), iterator, NULL, 0, iterator->file_path);
