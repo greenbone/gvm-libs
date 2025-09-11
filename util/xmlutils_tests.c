@@ -52,6 +52,8 @@ Ensure (xmlutils, parse_entity_parses_simple_xml)
   assert_that (entity_name (b), is_equal_to_string ("b"));
 
   assert_that (entity_text (b), is_equal_to_string ("1"));
+
+  free_entity (entity);
 }
 
 Ensure (xmlutils, parse_entity_parses_xml_with_attributes)
@@ -66,6 +68,8 @@ Ensure (xmlutils, parse_entity_parses_xml_with_attributes)
   b = entity_child (entity, "b");
 
   assert_that (entity_attribute (b, "ba1"), is_equal_to_string ("test"));
+
+  free_entity (entity);
 }
 
 Ensure (xmlutils, parse_entity_handles_declaration)
@@ -83,6 +87,8 @@ Ensure (xmlutils, parse_entity_handles_declaration)
   assert_that (entity_name (b), is_equal_to_string ("b"));
 
   assert_that (entity_text (b), is_equal_to_string ("1"));
+
+  free_entity (entity);
 }
 
 Ensure (xmlutils, parse_entity_handles_namespace)
@@ -101,6 +107,8 @@ Ensure (xmlutils, parse_entity_handles_namespace)
   assert_that (entity_name (b), is_equal_to_string ("n:b"));
 
   assert_that (entity_text (b), is_equal_to_string ("1"));
+
+  free_entity (entity);
 }
 
 Ensure (xmlutils, parse_entity_oval_timestamp)
@@ -144,6 +152,8 @@ Ensure (xmlutils, parse_entity_oval_timestamp)
   assert_that (timestamp, is_not_null);
   assert_that (entity_text (timestamp),
                is_equal_to_string ("2015-08-20T10:09:07.183-04:00"));
+
+  free_entity (entity);
 }
 
 /* next_entities. */
@@ -179,6 +189,8 @@ Ensure (xmlutils, next_entities_handles_multiple_children)
   assert_that (entity_name (child), is_equal_to_string ("c"));
   assert_that (entity_text (child), is_equal_to_string ("3"));
   children = next_entities (children);
+
+  free_entity (entity);
 }
 
 /* parse_element */
