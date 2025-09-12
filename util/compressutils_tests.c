@@ -34,6 +34,8 @@ Ensure (compressutils, can_compress_and_uncompress_without_header)
     gvm_uncompress (compressed, compressed_len, &uncompressed_len);
   assert_that (uncompressed_len, is_equal_to (strlen (testdata) + 1));
   assert_that (uncompressed, is_equal_to_string (testdata));
+  g_free (compressed);
+  g_free (uncompressed);
 }
 
 Ensure (compressutils, can_compress_and_uncompress_with_header)
@@ -56,6 +58,8 @@ Ensure (compressutils, can_compress_and_uncompress_with_header)
     gvm_uncompress (compressed, compressed_len, &uncompressed_len);
   assert_that (uncompressed_len, is_equal_to (strlen (testdata) + 1));
   assert_that (uncompressed, is_equal_to_string (testdata));
+  g_free (compressed);
+  g_free (uncompressed);
 }
 
 Ensure (compressutils, can_uncompress_using_reader)
@@ -69,6 +73,7 @@ Ensure (compressutils, can_uncompress_using_reader)
   int compressed_fd = mkstemp (compressed_filename);
   (void) !write (compressed_fd, compressed, compressed_len);
   close (compressed_fd);
+  g_free (compressed);
 
   FILE *stream = gvm_gzip_open_file_reader (compressed_filename);
   assert_that (stream, is_not_null);
@@ -76,6 +81,7 @@ Ensure (compressutils, can_uncompress_using_reader)
   gchar *uncompressed = g_malloc0 (30);
   (void) !fread (uncompressed, 1, 30, stream);
   assert_that (uncompressed, is_equal_to_string (testdata));
+  g_free (uncompressed);
 
   assert_that (fclose (stream), is_equal_to (0));
 }
@@ -91,6 +97,7 @@ Ensure (compressutils, can_uncompress_using_fd_reader)
   int compressed_fd = mkstemp (compressed_filename);
   (void) !write (compressed_fd, compressed, compressed_len);
   close (compressed_fd);
+  g_free (compressed);
 
   compressed_fd = open (compressed_filename, O_RDONLY);
 
@@ -100,6 +107,7 @@ Ensure (compressutils, can_uncompress_using_fd_reader)
   gchar *uncompressed = g_malloc0 (30);
   (void) !fread (uncompressed, 1, 30, stream);
   assert_that (uncompressed, is_equal_to_string (testdata));
+  g_free (uncompressed);
 
   assert_that (fclose (stream), is_equal_to (0));
 }

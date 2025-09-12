@@ -35,7 +35,8 @@
  * @param[in]   srclen  Length of data to compress.
  * @param[out]  dstlen  Length of compressed data.
  *
- * @return Pointer to compressed data if success, NULL otherwise.
+ * @return Pointer to compressed data if success, NULL otherwise. Caller must
+ *         g_free.
  */
 void *
 gvm_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
@@ -103,7 +104,8 @@ gvm_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
  * @param[in]   srclen  Length of data to uncompress.
  * @param[out]  dstlen  Length of uncompressed data.
  *
- * @return Pointer to uncompressed data if success, NULL otherwise.
+ * @return Pointer to uncompressed data if success, NULL otherwise. Caller must
+ *         g_free.
  */
 void *
 gvm_uncompress (const void *src, unsigned long srclen, unsigned long *dstlen)
@@ -173,7 +175,8 @@ gvm_uncompress (const void *src, unsigned long srclen, unsigned long *dstlen)
  * @param[in]   srclen  Length of data to compress.
  * @param[out]  dstlen  Length of compressed data.
  *
- * @return Pointer to compressed data if success, NULL otherwise.
+ * @return Pointer to compressed data if success, NULL otherwise. Caller must
+ *         g_free.
  */
 void *
 gvm_compress_gzipheader (const void *src, unsigned long srclen,
