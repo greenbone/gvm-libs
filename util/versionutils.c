@@ -104,22 +104,33 @@ cmp_versions (const char *version1, const char *version2)
     }
 
   if (part1 == NULL && part2 == NULL)
-    return release_state2 - release_state1;
+    {
+      g_free (ver1);
+      g_free (ver2);
+      return release_state2 - release_state1;
+    }
 
   if (is_text (part1) || is_text (part2))
     {
-      if (part1)
-        g_free (part1);
-      if (part2)
-        g_free (part2);
-      return (-5); // undefined
+      g_free (ver1);
+      g_free (ver2);
+      g_free (part1);
+      g_free (part2);
+      return -5; // undefined
     }
 
   rs1 = get_release_state (ver1, index1);
   rs2 = get_release_state (ver2, index2);
 
+  g_free (ver1);
+  g_free (ver2);
+
   if ((rs1 && release_state1) || (rs2 && release_state2))
-    return (-5); // undefined
+    {
+      g_free (part1);
+      g_free (part2);
+      return -5; // undefined
+    }
 
   if (part1 == NULL)
     {
@@ -161,8 +172,6 @@ cmp_versions (const char *version1, const char *version2)
 
   g_free (part1);
   g_free (part2);
-  g_free (ver1);
-  g_free (ver2);
   return ret;
 }
 
@@ -257,7 +266,7 @@ prepare_version_string (const char *version)
 
   prep_version[index_pv] = '\0';
   g_free (ver);
-  return (g_strdup (prep_version));
+  return g_strdup (prep_version);
 }
 
 /**
