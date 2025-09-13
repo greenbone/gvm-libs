@@ -172,16 +172,23 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, versionutils, cmp_versions_handles_null_inputs);
   add_test_with_context (suite, versionutils, cmp_versions_identical_versions);
-  add_test_with_context (suite, versionutils, cmp_versions_basic_format_differences);
-  add_test_with_context (suite, versionutils, cmp_versions_text_vs_numeric_parts);
+  add_test_with_context (suite, versionutils,
+                         cmp_versions_basic_format_differences);
+  add_test_with_context (suite, versionutils,
+                         cmp_versions_text_vs_numeric_parts);
   add_test_with_context (suite, versionutils, cmp_versions_equivalent_formats);
-  add_test_with_context (suite, versionutils, cmp_versions_undefined_text_parts);
+  add_test_with_context (suite, versionutils,
+                         cmp_versions_undefined_text_parts);
   add_test_with_context (suite, versionutils, cmp_versions_text_vs_numeric);
-  add_test_with_context (suite, versionutils, cmp_versions_release_candidate_vs_release);
-  add_test_with_context (suite, versionutils, cmp_versions_release_candidate_numeric_comparison);
-  add_test_with_context (suite, versionutils, cmp_versions_release_candidate_text_comparison);
+  add_test_with_context (suite, versionutils,
+                         cmp_versions_release_candidate_vs_release);
+  add_test_with_context (suite, versionutils,
+                         cmp_versions_release_candidate_numeric_comparison);
+  add_test_with_context (suite, versionutils,
+                         cmp_versions_release_candidate_text_comparison);
   add_test_with_context (suite, versionutils, cmp_versions_date_format);
-  add_test_with_context (suite, versionutils, cmp_versions_additional_numeric_comparison);
+  add_test_with_context (suite, versionutils,
+                         cmp_versions_additional_numeric_comparison);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
