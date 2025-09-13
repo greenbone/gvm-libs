@@ -108,10 +108,8 @@ cmp_versions (const char *version1, const char *version2)
 
   if (is_text (part1) || is_text (part2))
     {
-      if (part1)
-        g_free (part1);
-      if (part2)
-        g_free (part2);
+      g_free (part1);
+      g_free (part2);
       return (-5); // undefined
     }
 
