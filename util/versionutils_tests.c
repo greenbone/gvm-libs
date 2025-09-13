@@ -19,6 +19,31 @@ AfterEach (versionutils)
 
 /* cmp_versions */
 
+Ensure (versionutils, cmp_versions_handles_null_inputs)
+{
+  int result;
+
+  result = cmp_versions (NULL, "test");
+  assert_that (result, is_equal_to (-5));
+
+  result = cmp_versions ("test", NULL);
+  assert_that (result, is_equal_to (-5));
+
+  result = cmp_versions (NULL, NULL);
+  assert_that (result, is_equal_to (-5));
+}
+
+Ensure (versionutils, cmp_versions_identical_versions)
+{
+  char *version1, *version2;
+  int result;
+
+  version1 = "test-1.0";
+  version2 = "test-1.0";
+  result = cmp_versions (version1, version2);
+  assert_that (result, is_equal_to (0));
+}
+
 Ensure (versionutils, cmp_versions_basic_format_differences)
 {
   char *version1, *version2;
@@ -119,6 +144,22 @@ Ensure (versionutils, cmp_versions_date_format)
   assert_that (result, is_greater_than (0));
 }
 
+Ensure (versionutils, cmp_versions_additional_numeric_comparison)
+{
+  char *version1, *version2;
+  int result;
+
+  version1 = "test-2.5";
+  version2 = "test-2.3";
+  result = cmp_versions (version1, version2);
+  assert_that (result, is_greater_than (0));
+
+  version1 = "test-2.22";
+  version2 = "test-2.1";
+  result = cmp_versions (version1, version2);
+  assert_that (result, is_greater_than (0));
+}
+
 /* Test suite. */
 
 int
@@ -129,6 +170,8 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
+  add_test_with_context (suite, versionutils, cmp_versions_handles_null_inputs);
+  add_test_with_context (suite, versionutils, cmp_versions_identical_versions);
   add_test_with_context (suite, versionutils, cmp_versions_basic_format_differences);
   add_test_with_context (suite, versionutils, cmp_versions_text_vs_numeric_parts);
   add_test_with_context (suite, versionutils, cmp_versions_equivalent_formats);
@@ -138,6 +181,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, versionutils, cmp_versions_release_candidate_numeric_comparison);
   add_test_with_context (suite, versionutils, cmp_versions_release_candidate_text_comparison);
   add_test_with_context (suite, versionutils, cmp_versions_date_format);
+  add_test_with_context (suite, versionutils, cmp_versions_additional_numeric_comparison);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
