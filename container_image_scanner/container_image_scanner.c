@@ -239,3 +239,19 @@ container_image_credential_set_auth_data (container_image_credential_t *credenti
       g_warning ("%s: Invalid auth data name: %s", __func__, name);
     }
 }
+
+/**
+ * @brief Add a credential to a container_image target.
+ *
+ * @param target       The container_image target to add the credential to.
+ * @param credential   The credential to add. Will be freed with target.
+ */
+void
+container_image_target_add_credential (container_image_target_t *target,
+                                       container_image_credential_t *credential)
+{
+  if (!target || !credential)
+    return;
+
+  target->credentials = g_slist_prepend (target->credentials, credential);
+}
