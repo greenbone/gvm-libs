@@ -1,4 +1,4 @@
-name: Build & Push Container Images
+name: Build and Push Container Images
 
 on:
   push:
@@ -16,43 +16,72 @@ on:
         description: "The ref to build a container image from. For example a tag v23.0.0."
         required: true
 
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.ref-name || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-push-debian-stable-container:
-    if: github.repository == 'greenbone/gvm-libs'
-    name: Build and Push debian:stable to Greenbone Registry
-    uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
+  build:
+    if: ${{ github.repository == 'greenbone/gvm-libs' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - build:
+              name: stable
+              dockerfile: .docker/prod.Dockerfile
+              stable-name: stable
+              edge-name: edge
+          - build:
+              name: testing
+              dockerfile: .docker/prod-testing.Dockerfile
+              stable-name: testing
+              edge-name: testing-edge
+          - build:
+              name: oldstable
+              dockerfile: .docker/prod-oldstable.Dockerfile
+              stable-name: oldstable
+              edge-name: oldstable-edge
+    name: Build and Push Container Images (${{ matrix.build.name }})
+    uses: greenbone/workflows/.github/workflows/container-build-push-gea.yml@main
     with:
-      base-image-label: "stable"
-      build-docker-file: .docker/prod.Dockerfile
-      image-url: community/gvm-libs
-      image-labels: |
+      ref: ${{ inputs.ref-name }}
+      ref-name: ${{ inputs.ref-name }}
+      name: ${{ matrix.build.name }}
+      dockerfile: ${{ matrix.build.dockerfile }}
+      stable-name: ${{ matrix.build.stable-name }}
+      edge-name: ${{ matrix.build.edge-name }}
+      enable-latest: ${{ matrix.build.name == 'stable' }}
+      enable-pr: ${{ matrix.build.name == 'stable' }}
+      labels: |
         org.opencontainers.image.vendor=Greenbone
         org.opencontainers.image.base.name=debian:stable-slim
-      ref-name: ${{ inputs.ref-name }}
+      build-args: ${{ matrix.build.build-args }}
+      prefix: ${{ matrix.build.prefix }}
+      images: |
+        ghcr.io/${{ github.repository }},enable=true
+        ${{ vars.GREENBONE_REGISTRY }}/community/${{ github.event.repository.name }},enable=${{ github.event_name != 'pull_request' && matrix.build.name == 'default' }}
     secrets: inherit
 
-  build-push-debian-oldstable-container:
-    name: Build and Push debian:oldstable to Greenbone Registry
-    uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
+  notify:
+    needs:
+      - build
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && github.repository == 'greenbone/gvm-libs' }}
+    uses: greenbone/workflows/.github/workflows/notify-mattermost-2nd-gen.yml@main
     with:
-      base-image-label: "oldstable"
-      build-docker-file: .docker/prod-oldstable.Dockerfile
-      image-url: community/gvm-libs
-      image-labels: |
-        org.opencontainers.image.vendor=Greenbone
-        org.opencontainers.image.base.name=debian:oldstable-slim
-      ref-name: ${{ inputs.ref-name }}
+      status: ${{ contains(needs.*.result, 'failure') && 'failure' || 'success' }}
     secrets: inherit
 
-  build-push-debian-testing-container:
-    name: Build and Push debian:testing to Greenbone Registry
-    uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
-    with:
-      base-image-label: "testing"
-      build-docker-file: .docker/prod-testing.Dockerfile
-      image-url: community/gvm-libs
-      image-labels: |
-        org.opencontainers.image.vendor=Greenbone
-        org.opencontainers.image.base.name=debian:testing-slim
-      ref-name: ${{ inputs.ref-name }}
-    secrets: inherit
+  trigger-replication:
+    needs:
+      - build
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && github.repository == 'greenbone/gvm-libs' }}
+    runs-on: self-hosted-generic
+    steps:
+      - name: Ensure all tags are replicated on the public registry
+        uses: greenbone/actions/trigger-harbor-replication@v3
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          registry: ${{ vars.GREENBONE_REGISTRY }}
+          token: ${{ secrets.GREENBONE_REGISTRY_REPLICATION_TOKEN }}
+          user: ${{ secrets.GREENBONE_REGISTRY_REPLICATION_USER }}
