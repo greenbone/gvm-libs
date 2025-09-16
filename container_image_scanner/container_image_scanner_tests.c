@@ -20,6 +20,12 @@ AfterEach (container_image)
 {
 }
 
+Ensure (container_image, null_free_doesnt_crash)
+{
+  container_image_target_free (NULL);
+  container_image_credential_free (NULL);
+}
+
 Ensure (container_image, new_container_image_target_has_hosts)
 {
   const gchar *hosts = "oci://test/path,oci://test2/path";
@@ -63,6 +69,28 @@ Ensure (container_image, container_image_add_credential_to_scan_json)
 
   container_image_credential_free (credential);
   cJSON_Delete (credentials);
+}
+
+Ensure (container_image, container_image_credential_set_valid_auth_data)
+{
+  container_image_credential_t *credential =
+    container_image_credential_new ("up", "generic");
+
+  container_image_credential_set_auth_data (credential, "username", "password");
+  container_image_credential_set_auth_data (credential, "temp", "test");
+
+  assert_that (g_hash_table_size (credential->auth_data), is_equal_to (2));
+
+  assert_that (g_hash_table_contains (credential->auth_data, "username"),
+               is_true);
+  assert_that (g_hash_table_contains (credential->auth_data, "temp"), is_true);
+
+  container_image_credential_set_auth_data (credential, "temp", NULL);
+
+  assert_that (g_hash_table_size (credential->auth_data), is_equal_to (1));
+  assert_that (g_hash_table_contains (credential->auth_data, "temp"), is_false);
+
+  container_image_credential_free (credential);
 }
 
 Ensure (container_image, container_image_credential_set_invalid_auth_data)
@@ -199,10 +227,13 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
+  add_test_with_context (suite, container_image, null_free_doesnt_crash);
   add_test_with_context (suite, container_image,
                          new_container_image_target_has_hosts);
   add_test_with_context (suite, container_image,
                          container_image_add_credential_to_scan_json);
+  add_test_with_context (suite, container_image,
+                         container_image_credential_set_valid_auth_data);
   add_test_with_context (suite, container_image,
                          container_image_credential_set_invalid_auth_data);
   add_test_with_context (suite, container_image,
