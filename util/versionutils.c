@@ -154,20 +154,15 @@ cmp_versions (const char *version1, const char *version2)
 
   if (rs1 && rs2)
     ret = rs2 - rs1;
-
-  if (rs1)
+  else if (rs1)
     ret = -1;
-
-  if (rs2)
+  else if (rs2)
     ret = 1;
-
-  if (!rs1 && !rs2 && atoi (part1) < atoi (part2))
+  else if (atoi (part1) < atoi (part2))
     ret = -1;
-
-  if (!rs1 && !rs2 && atoi (part1) == atoi (part2))
+  else if (atoi (part1) == atoi (part2))
     ret = 0;
-
-  if (!rs1 && !rs2 && atoi (part1) > atoi (part2))
+  else if (atoi (part1) > atoi (part2))
     ret = 1;
 
   g_free (part1);
