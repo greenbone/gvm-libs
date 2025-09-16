@@ -10,14 +10,13 @@
 
 #include "container_image_scanner.h"
 
-
 /**
  * @brief Struct holding target information.
  */
 struct container_image_target
 {
-  GSList *credentials;      /** Credentials to use in the scan */
-  gchar *hosts;             /** String defining one or many hosts to scan */
+  GSList *credentials; /** Credentials to use in the scan */
+  gchar *hosts;        /** String defining one or many hosts to scan */
 };
 
 /**
@@ -220,8 +219,9 @@ container_image_credential_free (container_image_credential_t *credential)
  * @param  value       The authentication data or NULL to unset.
  */
 void
-container_image_credential_set_auth_data (container_image_credential_t *credential,
-                                          const gchar *name, const gchar *value)
+container_image_credential_set_auth_data (
+  container_image_credential_t *credential, const gchar *name,
+  const gchar *value)
 {
   if (credential == NULL || name == NULL)
     return;
