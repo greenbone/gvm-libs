@@ -20,6 +20,18 @@ AfterEach (container_image)
 {
 }
 
+Ensure (container_image, new_container_image_target_has_hosts)
+{
+  const gchar *hosts = "oci://test/path,oci://test2/path";
+
+  container_image_target_t *target = container_image_target_new (hosts);
+
+  assert_that (target, is_not_equal_to (NULL));
+  assert_that (target->hosts, is_equal_to_string (hosts));
+
+  container_image_target_free (target);
+}
+
 Ensure (container_image, container_image_add_credential_to_scan_json)
 {
   container_image_credential_t *credential;
@@ -53,6 +65,130 @@ Ensure (container_image, container_image_add_credential_to_scan_json)
   cJSON_Delete (credentials);
 }
 
+Ensure (container_image, container_image_credential_set_invalid_auth_data)
+{
+  container_image_credential_t *credential =
+    container_image_credential_new ("up", "generic");
+
+  // NULL values
+  container_image_credential_set_auth_data (NULL, NULL, NULL);
+  container_image_credential_set_auth_data (NULL, "name", NULL);
+  container_image_credential_set_auth_data (NULL, "name", "value");
+  container_image_credential_set_auth_data (credential, NULL, NULL);
+  container_image_credential_set_auth_data (credential, NULL, "value");
+
+  // Invalid names
+  container_image_credential_set_auth_data (credential, "_$", "123");
+  container_image_credential_set_auth_data (credential, "\x00", "123");
+  container_image_credential_set_auth_data (credential, "\xFF", "123");
+  container_image_credential_set_auth_data (credential, "AlmostValid\x7E",
+                                            "123");
+
+  assert_that (g_hash_table_size (credential->auth_data), is_equal_to (0));
+
+  container_image_credential_free (credential);
+}
+
+Ensure (container_image, container_image_add_preferences_to_scan_json)
+{
+  const gchar *key1 = "test1";
+  const gchar *value1 = "123";
+
+  const gchar *key2 = "test2";
+  const gchar *value2 = "456";
+
+  cJSON *scan_prefs_array = cJSON_CreateArray ();
+
+  add_scan_preferences_to_scan_json ((gpointer) key1, (gpointer) value1,
+                                     scan_prefs_array);
+  add_scan_preferences_to_scan_json ((gpointer) key2, (gpointer) value2,
+                                     scan_prefs_array);
+
+  const cJSON *test1 = cJSON_GetArrayItem (scan_prefs_array, 0);
+  const cJSON *test2 = cJSON_GetArrayItem (scan_prefs_array, 1);
+
+  assert_that (cJSON_IsObject (test1), is_true);
+  assert_that (cJSON_IsObject (test2), is_true);
+
+  assert_that (cJSON_GetStringValue (cJSON_GetObjectItem (test1, "id")),
+               is_equal_to_string (key1));
+  assert_that (cJSON_GetStringValue (cJSON_GetObjectItem (test1, "value")),
+               is_equal_to_string (value1));
+
+  assert_that (cJSON_GetStringValue (cJSON_GetObjectItem (test2, "id")),
+               is_equal_to_string (key2));
+  assert_that (cJSON_GetStringValue (cJSON_GetObjectItem (test2, "value")),
+               is_equal_to_string (value2));
+
+  cJSON_Delete (scan_prefs_array);
+}
+
+Ensure (container_image, container_image_target_add_credentials)
+{
+  container_image_target_t *target = container_image_target_new ("hosts");
+
+  container_image_credential_t *credential =
+    container_image_credential_new ("test", "generic");
+
+  // Invalid calls, no credentials added
+  container_image_target_add_credential (NULL, NULL);
+  container_image_target_add_credential (target, NULL);
+  container_image_target_add_credential (NULL, credential);
+
+  container_image_credential_free (credential);
+
+  // Add valid credentials
+  container_image_target_add_credential (
+    target, container_image_credential_new (NULL, NULL));
+  container_image_target_add_credential (
+    target, container_image_credential_new ("up", "generic"));
+  container_image_target_add_credential (
+    target, container_image_credential_new ("ssh", NULL));
+  container_image_target_add_credential (
+    target, container_image_credential_new (NULL, "docker"));
+
+  assert_that (g_slist_length (target->credentials), is_equal_to (4));
+
+  container_image_target_free (target);
+}
+
+Ensure (container_image, emit_simple_scan_json)
+{
+  container_image_target_t *target =
+    container_image_target_new ("oci://test-host/test-image");
+
+  container_image_credential_t *credential =
+    container_image_credential_new ("up", "generic");
+  container_image_credential_set_auth_data (credential, "username", "password");
+
+  container_image_target_add_credential (target, credential);
+
+  GHashTable *preferences = g_hash_table_new (g_str_hash, g_str_equal);
+  g_hash_table_insert (preferences, "accept_invalid_certs", "true");
+
+  gchar *json = container_image_build_scan_config_json (target, preferences);
+
+  assert_that (json, is_equal_to_string (
+                       "{\n"
+                       "\t\"target\":\t{\n"
+                       "\t\t\"hosts\":\t[\"oci://test-host/test-image\"],\n"
+                       "\t\t\"credentials\":\t[{\n"
+                       "\t\t\t\t\"service\":\t\"generic\",\n"
+                       "\t\t\t\t\"up\":\t{\n"
+                       "\t\t\t\t\t\"username\":\t\"password\"\n"
+                       "\t\t\t\t}\n"
+                       "\t\t\t}]\n"
+                       "\t},\n"
+                       "\t\"scan_preferences\":\t[{\n"
+                       "\t\t\t\"id\":\t\"accept_invalid_certs\",\n"
+                       "\t\t\t\"value\":\t\"true\"\n"
+                       "\t\t}]\n"
+                       "}"));
+
+  g_free (json);
+  g_hash_table_destroy (preferences);
+  container_image_target_free (target);
+}
 
 /* Test suite. */
 int
@@ -63,7 +199,17 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
-  add_test_with_context (suite, container_image, container_image_add_credential_to_scan_json);
+  add_test_with_context (suite, container_image,
+                         new_container_image_target_has_hosts);
+  add_test_with_context (suite, container_image,
+                         container_image_add_credential_to_scan_json);
+  add_test_with_context (suite, container_image,
+                         container_image_credential_set_invalid_auth_data);
+  add_test_with_context (suite, container_image,
+                         container_image_add_preferences_to_scan_json);
+  add_test_with_context (suite, container_image,
+                         container_image_target_add_credentials);
+  add_test_with_context (suite, container_image, emit_simple_scan_json);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
