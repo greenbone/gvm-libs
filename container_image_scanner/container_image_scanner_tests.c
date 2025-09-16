@@ -28,13 +28,17 @@ Ensure (container_image, null_free_doesnt_crash)
 
 Ensure (container_image, new_container_image_target_has_hosts)
 {
-  const gchar *hosts = "oci://test/path,oci://test2/path";
+  container_image_target_t *target = container_image_target_new (NULL);
 
-  container_image_target_t *target = container_image_target_new (hosts);
+  assert_that (target, is_not_equal_to (NULL));
+  assert_that (target->hosts, is_equal_to (NULL));
+  container_image_target_free (target);
+
+  const gchar *hosts = "oci://test/path,oci://test2/path";
+  target = container_image_target_new (hosts);
 
   assert_that (target, is_not_equal_to (NULL));
   assert_that (target->hosts, is_equal_to_string (hosts));
-
   container_image_target_free (target);
 }
 
