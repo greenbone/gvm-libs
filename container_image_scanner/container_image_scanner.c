@@ -212,7 +212,7 @@ container_image_credential_free (container_image_credential_t *credential)
 }
 
 /**
- * @brief Set authentication data from a container_image credential.
+ * @brief Set authentication data for a container_image credential.
  *
  * @param  credential  The credential to get the data from.
  * @param  name        The name of the data item to get.
