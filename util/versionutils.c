@@ -341,8 +341,9 @@ is_text (const char *part)
 {
   if (!part)
     return FALSE;
-  if (strcmp (part, "dev") == 0 || strcmp (part, "alpha") == 0
-      || strcmp (part, "beta") == 0 || strcmp (part, "rc") == 0)
+  if (strcmp (part, "dev") == 0 || strcmp (part, "development") == 0
+      || strcmp (part, "alpha") == 0 || strcmp (part, "beta") == 0
+      || strcmp (part, "rc") == 0)
     return FALSE;
   if (g_ascii_isdigit (*part))
     return FALSE;
