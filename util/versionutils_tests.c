@@ -49,21 +49,29 @@ Ensure (versionutils, cmp_versions_different_release_states)
   version2 = "test-1.0-alpha";
   result = cmp_versions (version1, version2);
   assert_that (result, is_greater_than (0));
+  result = cmp_versions (version2, version1);
+  assert_that (result, is_less_than (0));
 
   version1 = "test-1.0-rc";
   version2 = "test-1.0-beta";
   result = cmp_versions (version1, version2);
   assert_that (result, is_greater_than (0));
+  result = cmp_versions (version2, version1);
+  assert_that (result, is_less_than (0));
 
   version1 = "test-1.0";
   version2 = "test-1.0-rc";
   result = cmp_versions (version1, version2);
   assert_that (result, is_greater_than (0));
+  result = cmp_versions (version2, version1);
+  assert_that (result, is_less_than (0));
 
   version1 = "test-2.0";
   version2 = "test-1.0";
   result = cmp_versions (version1, version2);
   assert_that (result, is_greater_than (0));
+  result = cmp_versions (version2, version1);
+  assert_that (result, is_less_than (0));
 }
 
 Ensure (versionutils, cmp_versions_dev_vs_development_equivalence)
