@@ -66,6 +66,17 @@ Ensure (versionutils, cmp_versions_different_release_states)
   assert_that (result, is_greater_than (0));
 }
 
+Ensure (versionutils, cmp_versions_dev_vs_development_equivalence)
+{
+  char *version1, *version2;
+  int result;
+
+  version1 = "test-1.0-dev";
+  version2 = "test-1.0-development";
+  result = cmp_versions (version1, version2);
+  assert_that (result, is_equal_to (0));
+}
+
 Ensure (versionutils, cmp_versions_identical_versions)
 {
   char *version1, *version2;
@@ -207,6 +218,8 @@ main (int argc, char **argv)
   add_test_with_context (suite, versionutils, cmp_versions_identical_versions);
   add_test_with_context (suite, versionutils,
                          cmp_versions_different_release_states);
+  add_test_with_context (suite, versionutils,
+                         cmp_versions_dev_vs_development_equivalence);
   add_test_with_context (suite, versionutils,
                          cmp_versions_basic_format_differences);
   add_test_with_context (suite, versionutils,
