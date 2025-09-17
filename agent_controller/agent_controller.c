@@ -899,7 +899,7 @@ agent_controller_update_agents (agent_controller_connector_t conn,
       return AGENT_RESP_ERR;
     }
 
-  if (response->http_status == 400)
+  if (response->http_status == 400 || response->http_status == 422)
     {
       if (response->data)
         {
@@ -907,7 +907,11 @@ agent_controller_update_agents (agent_controller_connector_t conn,
         }
       else
         {
-          push_error (errors, "Request rejected (400), empty response body.");
+          gchar *msg =
+            g_strdup_printf ("Request rejected (%ld), empty response body.",
+                             response->http_status);
+          push_error (errors, msg);
+          g_free (msg);
         }
 
       gvm_http_response_cleanup (response);
@@ -1187,7 +1191,7 @@ agent_controller_update_scan_agent_config (
       return AGENT_RESP_ERR;
     }
 
-  if (response->http_status == 400)
+  if (response->http_status == 400 || response->http_status == 422)
     {
       if (response->data)
         {
@@ -1195,7 +1199,11 @@ agent_controller_update_scan_agent_config (
         }
       else
         {
-          push_error (errors, "Request rejected (400), empty response body.");
+          gchar *msg =
+            g_strdup_printf ("Request rejected (%ld), empty response body.",
+                             response->http_status);
+          push_error (errors, msg);
+          g_free (msg);
         }
 
       gvm_http_response_cleanup (response);

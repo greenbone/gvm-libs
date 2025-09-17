@@ -1364,6 +1364,39 @@ Ensure (agent_controller, update_agents_400_populates_errors_from_json)
   agent_controller_connector_free (conn);
 }
 
+Ensure (agent_controller, update_agents_422_populates_errors_from_json)
+{
+  mock_http_status = 422;
+  mock_response_data =
+    g_strdup ("{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
+  list->agents[0] = agent_controller_agent_new ();
+  list->agents[0]->agent_id = g_strdup ("agent1");
+
+  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
+  update->authorized = 1;
+
+  GPtrArray *errs = NULL;
+  int rc = agent_controller_update_agents (conn, list, update, &errs);
+
+  assert_that (rc, is_equal_to (-1));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (2));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               is_equal_to_string ("e1"));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 1),
+               is_equal_to_string ("e2"));
+  assert_that (last_sent_url, contains_string ("/api/v1/admin/agents"));
+
+  g_ptr_array_free (errs, TRUE);
+  agent_controller_agent_list_free (list);
+  agent_controller_agent_update_free (update);
+  agent_controller_connector_free (conn);
+}
+
 Ensure (agent_controller, update_agents_400_invalid_json_adds_invalid_payload)
 {
   mock_http_status = 400;
@@ -1740,6 +1773,34 @@ Ensure (agent_controller,
         update_scan_agent_config_400_populates_errors_from_json)
 {
   mock_http_status = 400;
+  mock_response_data =
+    g_strdup ("{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
+
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+
+  GPtrArray *errs = NULL;
+  int rc = agent_controller_update_scan_agent_config (conn, cfg, &errs);
+
+  assert_that (rc, is_equal_to (-1));
+  assert_that (errs, is_not_null);
+  assert_that ((int) errs->len, is_equal_to (2));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
+               is_equal_to_string ("e1"));
+  assert_that ((const gchar *) g_ptr_array_index (errs, 1),
+               is_equal_to_string ("e2"));
+  assert_that (last_sent_url,
+               contains_string ("/api/v1/admin/scan-agent-config"));
+
+  g_ptr_array_free (errs, TRUE);
+  agent_controller_scan_agent_config_free (cfg);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        update_scan_agent_config_422_populates_errors_from_json)
+{
+  mock_http_status = 422;
   mock_response_data =
     g_strdup ("{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
 
@@ -2574,6 +2635,8 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          update_agents_400_populates_errors_from_json);
   add_test_with_context (suite, agent_controller,
+                         update_agents_422_populates_errors_from_json);
+  add_test_with_context (suite, agent_controller,
                          update_agents_400_invalid_json_adds_invalid_payload);
   add_test_with_context (suite, agent_controller,
                          update_agents_500_does_not_allocate_errors);
@@ -2612,6 +2675,9 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, agent_controller,
     update_scan_agent_config_400_populates_errors_from_json);
+  add_test_with_context (
+    suite, agent_controller,
+    update_scan_agent_config_422_populates_errors_from_json);
   add_test_with_context (suite, agent_controller,
                          update_scan_agent_config_400_empty_body_adds_fallback);
   add_test_with_context (
