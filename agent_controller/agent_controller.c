@@ -901,7 +901,7 @@ agent_controller_update_agents (agent_controller_connector_t conn,
       return AGENT_RESP_ERR;
     }
 
-  if (response->http_status == 400)
+  if (response->http_status == 400 || response->http_status == 422)
     {
       if (response->data)
         {
@@ -1191,7 +1191,7 @@ agent_controller_update_scan_agent_config (
       return AGENT_RESP_ERR;
     }
 
-  if (response->http_status == 400)
+  if (response->http_status == 400 || response->http_status == 422)
     {
       if (response->data)
         {
