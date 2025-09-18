@@ -21,7 +21,7 @@ typedef struct container_image_target container_image_target_t;
 typedef struct container_image_credential container_image_credential_t;
 
 container_image_target_t *
-container_image_target_new (const gchar *);
+container_image_target_new (const gchar *, const gchar *);
 
 void
 container_image_target_free (container_image_target_t *);

@@ -15,6 +15,7 @@
  */
 struct container_image_target
 {
+  gchar *scan_id;      /**  Scan ID */
   GSList *credentials; /** Credentials to use in the scan */
   gchar *hosts;        /** String defining one or many hosts to scan */
 };
@@ -98,6 +99,9 @@ container_image_build_scan_config_json (container_image_target_t *target,
   /* Build the message in json format to be published. */
   scan_obj = cJSON_CreateObject ();
 
+  if (target->scan_id && target->scan_id[0] != '\0')
+    cJSON_AddStringToObject (scan_obj, "scan_id", target->scan_id);
+
   // begin target
   target_obj = cJSON_CreateObject ();
 
@@ -138,15 +142,19 @@ container_image_build_scan_config_json (container_image_target_t *target,
 /**
  * @brief Create a new container_image target.
  *
+ * @param scanid         Scan ID.
  * @param hosts          The hostnames of the target.
  *
  * @return The newly allocated container_image_target_t.
  */
 container_image_target_t *
-container_image_target_new (const gchar *hosts)
+container_image_target_new (const gchar *scanid, const gchar *hosts)
 {
   container_image_target_t *new_target;
   new_target = g_malloc0 (sizeof (container_image_target_t));
+
+  if (scanid && *scanid)
+    new_target->scan_id = g_strdup (scanid);
 
   new_target->hosts = hosts ? g_strdup (hosts) : NULL;
 
@@ -167,6 +175,7 @@ container_image_target_free (container_image_target_t *target)
   g_slist_free_full (target->credentials,
                      (GDestroyNotify) container_image_credential_free);
   g_free (target->hosts);
+  g_free (target->scan_id);
   g_free (target);
   target = NULL;
 }
