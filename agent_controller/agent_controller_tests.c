@@ -266,6 +266,8 @@ Ensure (agent_controller, agent_new_allocates_zero_initialized_agent)
   agent_controller_agent_t agent = agent_controller_agent_new ();
 
   assert_that (agent, is_not_null);
+
+  agent_controller_agent_free (agent);
 }
 
 Ensure (agent_controller, agent_free_handles_agent)
@@ -444,7 +446,7 @@ Ensure (agent_controller, send_request_builds_url_and_calls_http_request)
                is_equal_to_string ("https://localhost:8080/api/v1/test"));
   assert_that (last_sent_payload, is_equal_to_string (payload));
 
-  g_free (resp);
+  gvm_http_response_free (resp);
   agent_controller_connector_free (conn);
 }
 
@@ -495,7 +497,7 @@ Ensure (agent_controller, send_request_works_without_bearer_token)
   assert_that (last_sent_url,
                is_equal_to_string ("https://localhost:8080/test"));
 
-  g_free (resp);
+  gvm_http_response_free (resp);
   agent_controller_connector_free (conn);
 }
 
