@@ -97,7 +97,7 @@ init_custom_header (const gchar *apikey, gboolean content_type)
  * @param[in] apikey        Optional Api key for Authorization header.
  *
  * @return Pointer to a `gvm_http_response_t` containing status code and body.
- *         Must be freed using `gvm_http_response_cleanup()`.
+ *         Must be freed using `gvm_http_response_free()`.
  */
 static gvm_http_response_t *
 agent_controller_send_request (agent_controller_connector_t conn,
@@ -816,7 +816,7 @@ agent_controller_get_agents (agent_controller_connector_t conn)
     {
       g_warning ("%s: Received HTTP status %ld", __func__,
                  response->http_status);
-      gvm_http_response_cleanup (response);
+      gvm_http_response_free (response);
       return NULL;
     }
 
@@ -826,7 +826,7 @@ agent_controller_get_agents (agent_controller_connector_t conn)
       g_warning ("%s: Failed to parse JSON array", __func__);
       if (root)
         cJSON_Delete (root);
-      gvm_http_response_cleanup (response);
+      gvm_http_response_free (response);
       return NULL;
     }
 
@@ -852,7 +852,7 @@ agent_controller_get_agents (agent_controller_connector_t conn)
   agent_list->count = valid_index;
 
   cJSON_Delete (root);
-  gvm_http_response_cleanup (response);
+  gvm_http_response_free (response);
 
   return agent_list;
 }
@@ -914,7 +914,7 @@ agent_controller_update_agents (agent_controller_connector_t conn,
           g_free (msg);
         }
 
-      gvm_http_response_cleanup (response);
+      gvm_http_response_free (response);
       return AGENT_RESP_ERR;
     }
 
@@ -922,11 +922,11 @@ agent_controller_update_agents (agent_controller_connector_t conn,
     {
       g_warning ("%s: Received HTTP status %ld", __func__,
                  response->http_status);
-      gvm_http_response_cleanup (response);
+      gvm_http_response_free (response);
       return AGENT_RESP_ERR;
     }
 
-  gvm_http_response_cleanup (response);
+  gvm_http_response_free (response);
 
   return AGENT_RESP_OK;
 }
@@ -990,11 +990,11 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
     {
       g_warning ("%s: Received HTTP status %ld", __func__,
                  response->http_status);
-      gvm_http_response_cleanup (response);
+      gvm_http_response_free (response);
       return AGENT_RESP_ERR;
     }
 
-  gvm_http_response_cleanup (response);
+  gvm_http_response_free (response);
 
   return AGENT_RESP_OK;
 }
@@ -1131,7 +1131,7 @@ agent_controller_get_scan_agent_config (agent_controller_connector_t conn)
   if (response->http_status < 200 || response->http_status >= 300)
     {
       g_warning ("%s: HTTP %ld", __func__, response->http_status);
-      gvm_http_response_cleanup (response);
+      gvm_http_response_free (response);
       return NULL;
     }
 
@@ -1139,7 +1139,7 @@ agent_controller_get_scan_agent_config (agent_controller_connector_t conn)
   if (!root)
     {
       g_warning ("%s: JSON parse failed", __func__);
-      gvm_http_response_cleanup (response);
+      gvm_http_response_free (response);
       return NULL;
     }
 
@@ -1147,7 +1147,7 @@ agent_controller_get_scan_agent_config (agent_controller_connector_t conn)
     agent_controller_parse_scan_agent_config (root);
 
   cJSON_Delete (root);
-  gvm_http_response_cleanup (response);
+  gvm_http_response_free (response);
   return cfg;
 }
 
@@ -1206,18 +1206,18 @@ agent_controller_update_scan_agent_config (
           g_free (msg);
         }
 
-      gvm_http_response_cleanup (response);
+      gvm_http_response_free (response);
       return AGENT_RESP_ERR;
     }
 
   if (response->http_status < 200 || response->http_status >= 300)
     {
       g_warning ("%s: HTTP %ld", __func__, response->http_status);
-      gvm_http_response_cleanup (response);
+      gvm_http_response_free (response);
       return AGENT_RESP_ERR;
     }
 
-  gvm_http_response_cleanup (response);
+  gvm_http_response_free (response);
   return AGENT_RESP_OK;
 }
 
@@ -1251,7 +1251,7 @@ agent_controller_get_agents_with_updates (agent_controller_connector_t conn)
     {
       g_warning ("%s: Received HTTP status %ld", __func__,
                  response->http_status);
-      gvm_http_response_cleanup (response);
+      gvm_http_response_free (response);
       return NULL;
     }
 
@@ -1261,7 +1261,7 @@ agent_controller_get_agents_with_updates (agent_controller_connector_t conn)
       g_warning ("%s: Failed to parse JSON array", __func__);
       if (root)
         cJSON_Delete (root);
-      gvm_http_response_cleanup (response);
+      gvm_http_response_free (response);
       return NULL;
     }
 
@@ -1283,7 +1283,7 @@ agent_controller_get_agents_with_updates (agent_controller_connector_t conn)
   agent_list->count = valid_index;
 
   cJSON_Delete (root);
-  gvm_http_response_cleanup (response);
+  gvm_http_response_free (response);
 
   return agent_list;
 }

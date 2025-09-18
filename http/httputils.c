@@ -295,7 +295,7 @@ gvm_http_response_stream_free (gvm_http_response_stream_t s)
  * created.
  *
  * @return A pointer to a `gvm_http_response_t` containing the response data and
- * status. Must be freed with `gvm_http_response_cleanup()`.
+ * status. Must be freed with `gvm_http_response_free()`.
  */
 gvm_http_response_t *
 gvm_http_request (const gchar *url, gvm_http_method_t method,
@@ -369,20 +369,14 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
  *                 Can safely be NULL.
  */
 void
-gvm_http_response_cleanup (gvm_http_response_t *response)
+gvm_http_response_free (gvm_http_response_t *response)
 {
   if (!response)
     return;
 
-  if (response->http)
-    {
-      gvm_http_free (response->http);
-      response->http = NULL;
-    }
-
+  gvm_http_free (response->http);
   g_free (response->data);
-  response->data = NULL;
-  response->size = 0;
+  g_free (response);
 }
 
 /**
