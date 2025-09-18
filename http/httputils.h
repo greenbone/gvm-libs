@@ -135,7 +135,7 @@ void
 gvm_http_headers_free (gvm_http_headers_t *headers);
 
 void
-gvm_http_response_cleanup (gvm_http_response_t *response);
+gvm_http_response_free (gvm_http_response_t *response);
 
 gvm_http_multi_t *
 gvm_http_multi_new (void);

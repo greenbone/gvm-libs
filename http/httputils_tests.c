@@ -76,18 +76,16 @@ Ensure (gvm_http, multi_handler_free_does_not_crash_on_null)
   assert_that (true, is_true);
 }
 
-Ensure (gvm_http, response_cleanup_frees_data_fields)
+Ensure (gvm_http, response_free_does_not_crash)
 {
   gvm_http_response_t *res = g_malloc0 (sizeof (gvm_http_response_t));
   res->data = g_strdup ("mock");
   res->size = 100;
   res->http_status = 200;
 
-  gvm_http_response_cleanup (res);
+  gvm_http_response_free (res);
 
-  assert_that (res->data, is_null);
-  assert_that (res->size, is_equal_to (0));
-  g_free (res);
+  assert_that (true, is_true);
 }
 
 Ensure (gvm_http, response_stream_free_handles_null)
@@ -187,7 +185,7 @@ main (int argc, char **argv)
                          multi_perform_with_null_returns_bad_handle);
   add_test_with_context (suite, gvm_http,
                          multi_handler_free_does_not_crash_on_null);
-  add_test_with_context (suite, gvm_http, response_cleanup_frees_data_fields);
+  add_test_with_context (suite, gvm_http, response_free_does_not_crash);
   add_test_with_context (suite, gvm_http, response_stream_free_handles_null);
   add_test_with_context (suite, gvm_http,
                          response_stream_free_handles_valid_stream);
