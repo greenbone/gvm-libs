@@ -183,6 +183,13 @@ if(BUILD_TESTS)
     ${GLIB_LDFLAGS}
     ${LINKER_HARDENING_FLAGS}
   )
+  add_unit_test(
+    strings-test
+    strings_tests.c
+    gvm_base_shared
+    ${GLIB_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
 endif(BUILD_TESTS)
 
 ## Install
