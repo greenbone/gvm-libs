@@ -164,20 +164,28 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
-  add_test_with_context (suite, strings, gvm_append_string_appends_to_null_string);
-  add_test_with_context (suite, strings, gvm_append_string_appends_to_existing_string);
-  add_test_with_context (suite, strings, gvm_append_string_appends_empty_string);
+  add_test_with_context (suite, strings,
+                         gvm_append_string_appends_to_null_string);
+  add_test_with_context (suite, strings,
+                         gvm_append_string_appends_to_existing_string);
+  add_test_with_context (suite, strings,
+                         gvm_append_string_appends_empty_string);
 
-  add_test_with_context (suite, strings, gvm_append_text_appends_to_null_string);
-  add_test_with_context (suite, strings, gvm_append_text_appends_to_existing_string);
-  add_test_with_context (suite, strings, gvm_append_text_appends_text_when_size_is_wrong);
-  add_test_with_context (suite, strings, gvm_append_text_appends_partial_to_null);
+  add_test_with_context (suite, strings,
+                         gvm_append_text_appends_to_null_string);
+  add_test_with_context (suite, strings,
+                         gvm_append_text_appends_to_existing_string);
+  add_test_with_context (suite, strings,
+                         gvm_append_text_appends_text_when_size_is_wrong);
+  add_test_with_context (suite, strings,
+                         gvm_append_text_appends_partial_to_null);
 
   add_test_with_context (suite, strings, gvm_free_string_var_frees_string);
   add_test_with_context (suite, strings, gvm_free_string_var_frees_null_string);
 
   add_test_with_context (suite, strings, gvm_strip_space_strips_leading_spaces);
-  add_test_with_context (suite, strings, gvm_strip_space_strips_trailing_spaces);
+  add_test_with_context (suite, strings,
+                         gvm_strip_space_strips_trailing_spaces);
   add_test_with_context (suite, strings, gvm_strip_space_strips_both_ends);
   add_test_with_context (suite, strings, gvm_strip_space_strips_newlines);
   add_test_with_context (suite, strings, gvm_strip_space_empty_string);
