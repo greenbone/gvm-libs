@@ -38,6 +38,7 @@ enum HTTP_SCANNER_CONNECTOR_OPTS
   HTTP_SCANNER_HOST,
   HTTP_SCANNER_SCAN_ID,
   HTTP_SCANNER_PORT,
+  HTTP_SCANNER_SCAN_PREFIX,
 };
 
 /** @brief Members of an HTTP scanner result. */
@@ -172,7 +173,7 @@ http_scanner_process_request_multi (http_scanner_connector_t, int);
 http_scanner_resp_t http_scanner_get_version (http_scanner_connector_t);
 
 http_scanner_resp_t
-http_scanner_create_scan (http_scanner_connector_t, gchar *, gchar *);
+http_scanner_create_scan (http_scanner_connector_t, gchar *);
 
 http_scanner_resp_t http_scanner_start_scan (http_scanner_connector_t);
 
