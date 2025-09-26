@@ -164,6 +164,7 @@ Ensure (http_scanner, http_scanner_connector_builder_all_valid_fields)
   const char *protocol = "https";
   const char *host = "localhost";
   const char *scan_id = "scan-uuid-123";
+  const char *scan_prefix = "scan-prefix";
   int port = 9390;
 
   assert_that (
@@ -202,6 +203,11 @@ Ensure (http_scanner, http_scanner_connector_builder_all_valid_fields)
                is_equal_to (HTTP_SCANNER_OK));
   assert_that (conn->port, is_equal_to (port));
 
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_PREFIX,
+                                               scan_prefix),
+               is_equal_to (HTTP_SCANNER_OK));
+  assert_that (conn->scan_prefix, is_equal_to_string (scan_prefix));
+
   g_free (conn->ca_cert);
   g_free (conn->cert);
   g_free (conn->key);
@@ -209,6 +215,7 @@ Ensure (http_scanner, http_scanner_connector_builder_all_valid_fields)
   g_free (conn->protocol);
   g_free (conn->host);
   g_free (conn->scan_id);
+  g_free (conn->scan_prefix);
   g_free (conn);
 }
 
