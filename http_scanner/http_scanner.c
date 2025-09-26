@@ -466,6 +466,26 @@ http_scanner_get_version (http_scanner_connector_t conn)
 }
 
 /**
+ * @brief Builds the path prefix for scan endpoints.
+ *
+ * @param conn Connector struct with the data necessary for the connection.
+ *
+ * @return The constructed path prefix. Has to be freed by the caller.
+ */
+static GString *
+build_path_prefix (http_scanner_connector_t conn)
+{
+  GString *path = g_string_new ("");
+  if (conn != NULL && conn->scan_prefix != NULL && conn->scan_prefix[0] != '\0')
+    {
+      g_string_append (path, "/");
+      g_string_append (path, conn->scan_prefix);
+    }
+  g_string_append (path, "/scans");
+  return path;
+}
+
+/**
  * @Brief Create a scan.
  *
  * @param conn Connector struct with the data necessary for the connection.
@@ -479,15 +499,8 @@ http_scanner_create_scan (http_scanner_connector_t conn, gchar *data)
 {
   http_scanner_resp_t response = NULL;
   cJSON *parser = NULL;
-  GString *path = g_string_new ("");
+  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_prefix != NULL && conn->scan_prefix[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_prefix);
-    }
-
-  g_string_append (path, "/scans");
   response =
     http_scanner_send_request (conn, HTTP_SCANNER_POST, path->str, data, NULL);
 
@@ -543,16 +556,9 @@ http_scanner_resp_t
 http_scanner_start_scan (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response;
-  GString *path = g_string_new ("");
+  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_prefix != NULL && conn->scan_prefix[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_prefix);
-    }
-
-  g_string_append (path, "/scans");
-  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
+  if (conn != NULL && conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
       g_string_append (path, "/");
       g_string_append (path, conn->scan_id);
@@ -596,16 +602,9 @@ http_scanner_resp_t
 http_scanner_stop_scan (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response;
-  GString *path = g_string_new ("");
+  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_prefix != NULL && conn->scan_prefix[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_prefix);
-    }
-
-  g_string_append (path, "/scans");
-  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
+  if (conn != NULL && conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
       g_string_append (path, "/");
       g_string_append (path, conn->scan_id);
@@ -644,16 +643,9 @@ http_scanner_get_scan_results (http_scanner_connector_t conn, long first,
                                long last)
 {
   http_scanner_resp_t response = NULL;
-  GString *path = g_string_new ("");
+  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_prefix != NULL && conn->scan_prefix[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_prefix);
-    }
-
-  g_string_append (path, "/scans");
-  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
+  if (conn != NULL && conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
       g_string_append (path, "/");
       g_string_append (path, conn->scan_id);
@@ -963,16 +955,9 @@ http_scanner_resp_t
 http_scanner_get_scan_status (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response;
-  GString *path = g_string_new ("");
+  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_prefix != NULL && conn->scan_prefix[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_prefix);
-    }
-
-  g_string_append (path, "/scans");
-  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
+  if (conn != NULL && conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
       g_string_append (path, "/");
       g_string_append (path, conn->scan_id);
@@ -1016,16 +1001,9 @@ http_scanner_resp_t
 http_scanner_delete_scan (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response;
-  GString *path = g_string_new ("");
+  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_prefix != NULL && conn->scan_prefix[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_prefix);
-    }
-
-  g_string_append (path, "/scans");
-  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
+  if (conn != NULL && conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
       g_string_append (path, "/");
       g_string_append (path, conn->scan_id);
@@ -1372,15 +1350,10 @@ http_scanner_resp_t
 http_scanner_get_scan_preferences (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response = NULL;
-  GString *path = g_string_new ("");
+  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_prefix != NULL && conn->scan_prefix[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_prefix);
-    }
+  g_string_append (path, "/preferences");
 
-  g_string_append (path, "/scans/preferences");
   response =
     http_scanner_send_request (conn, HTTP_SCANNER_GET, path->str, NULL, NULL);
 
