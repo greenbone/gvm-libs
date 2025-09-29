@@ -34,6 +34,7 @@ Ensure (http_scanner, http_scanner_delete_scan_handles_missing_id)
   assert_that (resp->body,
                is_equal_to_string ("{\"error\": \"Missing scan ID\"}"));
   http_scanner_response_cleanup (resp);
+  http_scanner_connector_free (conn);
 }
 
 /* http_scanner_start_scan */
@@ -50,6 +51,7 @@ Ensure (http_scanner, http_scanner_start_scan_handles_missing_id)
   assert_that (resp->body,
                is_equal_to_string ("{\"error\": \"Missing scan ID\"}"));
   http_scanner_response_cleanup (resp);
+  http_scanner_connector_free (conn);
 }
 
 /* http_scanner_stop_scan */
@@ -66,6 +68,7 @@ Ensure (http_scanner, http_scanner_stop_scan_handles_missing_id)
   assert_that (resp->body,
                is_equal_to_string ("{\"error\": \"Missing scan ID\"}"));
   http_scanner_response_cleanup (resp);
+  http_scanner_connector_free (conn);
 }
 
 /* parse_results */
@@ -208,15 +211,7 @@ Ensure (http_scanner, http_scanner_connector_builder_all_valid_fields)
                is_equal_to (HTTP_SCANNER_OK));
   assert_that (conn->scan_prefix, is_equal_to_string (scan_prefix));
 
-  g_free (conn->ca_cert);
-  g_free (conn->cert);
-  g_free (conn->key);
-  g_free (conn->apikey);
-  g_free (conn->protocol);
-  g_free (conn->host);
-  g_free (conn->scan_id);
-  g_free (conn->scan_prefix);
-  g_free (conn);
+  http_scanner_connector_free (conn);
 }
 
 Ensure (http_scanner, http_scanner_connector_builder_valid_protocol_http)
@@ -228,8 +223,7 @@ Ensure (http_scanner, http_scanner_connector_builder_valid_protocol_http)
   assert_that (result, is_equal_to (HTTP_SCANNER_OK));
   assert_that (conn->protocol, is_equal_to_string ("http"));
 
-  g_free (conn->protocol);
-  g_free (conn);
+  http_scanner_connector_free (conn);
 }
 
 Ensure (http_scanner, http_scanner_connector_builder_invalid_protocol)
@@ -241,7 +235,7 @@ Ensure (http_scanner, http_scanner_connector_builder_invalid_protocol)
   assert_that (result, is_equal_to (HTTP_SCANNER_INVALID_VALUE));
   assert_that (conn->protocol, is_null);
 
-  g_free (conn);
+  http_scanner_connector_free (conn);
 }
 
 Ensure (http_scanner, http_scanner_connector_builder_null_conn)
