@@ -59,18 +59,18 @@ http_scanner_connector_new (void)
  *
  *  Receive option name and value to build the HTTP scanner connector.
  *
- *  @param conn   struct holding the HTTP scanner connector information.
+ *  @param conn   the HTTP scanner connector information.
  *  @param opt    option to set.
  *  @param val    value to set.
  *
- *  @return Return OK on success, otherwise error.
+ *  @return Return HTTP_SCANNER_OK on success, otherwise error.
  */
 http_scanner_error_t
 http_scanner_connector_builder (http_scanner_connector_t conn,
                                 http_scanner_conn_opt_t opt, const void *val)
 {
   if (conn == NULL)
-    conn = http_scanner_connector_new ();
+    return HTTP_SCANNER_NOT_INITIALIZED;
 
   if (opt < HTTP_SCANNER_CA_CERT || opt > HTTP_SCANNER_SCAN_PREFIX)
     return HTTP_SCANNER_INVALID_OPT;
