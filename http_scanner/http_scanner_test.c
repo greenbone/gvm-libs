@@ -244,6 +244,14 @@ Ensure (http_scanner, http_scanner_connector_builder_invalid_protocol)
   g_free (conn);
 }
 
+Ensure (http_scanner, http_scanner_connector_builder_null_conn)
+{
+  http_scanner_error_t result =
+    http_scanner_connector_builder (NULL, HTTP_SCANNER_PROTOCOL, "https");
+
+  assert_that (result, is_equal_to (HTTP_SCANNER_NOT_INITIALIZED));
+}
+
 Ensure (http_scanner, http_scanner_connector_free)
 {
   http_scanner_connector_t conn = http_scanner_connector_new ();
@@ -287,6 +295,8 @@ main (int argc, char **argv)
                          http_scanner_connector_builder_valid_protocol_http);
   add_test_with_context (suite, http_scanner,
                          http_scanner_connector_builder_invalid_protocol);
+  add_test_with_context (suite, http_scanner,
+                         http_scanner_connector_builder_null_conn);
   add_test_with_context (suite, http_scanner, http_scanner_connector_free);
   add_test_with_context (suite, http_scanner,
                          http_scanner_connector_builder_invalid_protocol);
