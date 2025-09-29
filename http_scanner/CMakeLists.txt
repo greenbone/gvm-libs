@@ -77,7 +77,7 @@ endif(BUILD_SHARED)
 if(BUILD_TESTS)
   add_unit_test(
     http-scanner-test
-    http_scanner_test.c
+    http_scanner_tests.c
     gvm_http_shared
     gvm_base_shared
     gvm_util_shared
