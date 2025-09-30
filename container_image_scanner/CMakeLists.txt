@@ -70,6 +70,7 @@ if(BUILD_SHARED)
       gvm_util_shared
       ${GLIB_LDFLAGS}
       ${CURL_LDFLAGS}
+      ${CJSON_LDFLAGS}
       ${LINKER_HARDENING_FLAGS}
   )
 endif(BUILD_SHARED)
