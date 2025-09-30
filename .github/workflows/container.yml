@@ -37,11 +37,15 @@ jobs:
               dockerfile: .docker/prod-testing.Dockerfile
               stable-name: testing
               edge-name: testing-edge
+              enable-version: false
+              enable-latest: false
           - build:
               name: oldstable
               dockerfile: .docker/prod-oldstable.Dockerfile
               stable-name: oldstable
               edge-name: oldstable-edge
+              enable-version: false
+              enable-latest: false
     name: Build and Push Container Images (${{ matrix.build.name }})
     uses: greenbone/workflows/.github/workflows/container-build-push-gea.yml@main
     with:
