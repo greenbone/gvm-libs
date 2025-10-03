@@ -150,6 +150,12 @@ if(BUILD_TESTS)
     ${LINKER_HARDENING_FLAGS}
   )
   add_unit_test(
+    settings-test
+    settings_tests.c
+    ${GLIB_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+  add_unit_test(
     version-test
     version_tests.c
     ${GLIB_LDFLAGS}
