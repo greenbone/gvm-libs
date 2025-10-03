@@ -45,7 +45,7 @@ Ensure (settings, init_settings_iterator_from_nonexistent_file)
   settings_iterator_t iterator;
   int ret;
 
-  ret = init_settings_iterator_from_file (&iterator, "nonexistent.conf", "group");
+  ret = init_settings_iterator_from_file (&iterator, "missing.conf", "group");
   assert_that (ret, is_equal_to (-1));
 }
 
@@ -129,7 +129,10 @@ Ensure (settings, settings_group_handling)
   // Create a temporary configuration file with multiple groups
   file = fopen (config_file, "w");
   assert_that (file, is_not_null);
-  fprintf (file, "[group1]\nkey1=value1\nkey2=value2\n\n[group2]\nkey3=value3\nkey4=value4\n");
+  fprintf (file, "[group1]\n"
+                 "key1=value1\nkey2=value2\n\n"
+                 "[group2]\n"
+                 "key3=value3\nkey4=value4\n");
   fclose (file);
 
   // Initialize iterator from file for group1
@@ -199,9 +202,12 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
-  add_test_with_context (suite, settings, init_settings_iterator_from_file_with_null_params);
-  add_test_with_context (suite, settings, init_settings_iterator_from_nonexistent_file);
-  add_test_with_context (suite, settings, init_settings_iterator_from_valid_file);
+  add_test_with_context (suite, settings,
+                         init_settings_iterator_from_file_with_null_params);
+  add_test_with_context (suite, settings,
+                         init_settings_iterator_from_nonexistent_file);
+  add_test_with_context (suite, settings,
+                         init_settings_iterator_from_valid_file);
   add_test_with_context (suite, settings, settings_iterator_operations);
   add_test_with_context (suite, settings, settings_group_handling);
   add_test_with_context (suite, settings, settings_cleanup_function);
