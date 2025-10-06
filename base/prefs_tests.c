@@ -169,13 +169,18 @@ main (int argc, char **argv)
   suite = create_test_suite ();
 
   add_test_with_context (suite, prefs, preferences_get_initializes_prefs);
-  add_test_with_context (suite, prefs, prefs_get_returns_null_for_nonexistent_key);
+  add_test_with_context (suite, prefs,
+                         prefs_get_returns_null_for_nonexistent_key);
   add_test_with_context (suite, prefs, prefs_get_returns_correct_value);
-  add_test_with_context (suite, prefs, prefs_get_bool_returns_zero_for_nonexistent_key);
-  add_test_with_context (suite, prefs, prefs_get_bool_returns_one_for_yes_value);
-  add_test_with_context (suite, prefs, prefs_get_bool_returns_zero_for_non_yes_value);
+  add_test_with_context (suite, prefs,
+                         prefs_get_bool_returns_zero_for_nonexistent_key);
+  add_test_with_context (suite, prefs,
+                         prefs_get_bool_returns_one_for_yes_value);
+  add_test_with_context (suite, prefs,
+                         prefs_get_bool_returns_zero_for_non_yes_value);
   add_test_with_context (suite, prefs, prefs_set_creates_new_preference);
-  add_test_with_context (suite, prefs, prefs_set_overwrites_existing_preference);
+  add_test_with_context (suite, prefs,
+                         prefs_set_overwrites_existing_preference);
   add_test_with_context (suite, prefs, prefs_config_loads_from_file);
 
   if (argc > 1)
