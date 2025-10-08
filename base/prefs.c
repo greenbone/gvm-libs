@@ -167,8 +167,7 @@ prefs_config (const char *config)
           gchar *value;
 
           value = settings_iterator_value (&settings);
-          prefs_set (settings_iterator_name (&settings),
-                     value);
+          prefs_set (settings_iterator_name (&settings), value);
           g_free (value);
         }
 
