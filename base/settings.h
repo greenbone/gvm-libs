@@ -49,7 +49,7 @@ int
 settings_iterator_next (settings_iterator_t *);
 const gchar *
 settings_iterator_name (settings_iterator_t *);
-const gchar *
+gchar *
 settings_iterator_value (settings_iterator_t *);
 
 #endif /* not _GVM_SETTINGS_H */
