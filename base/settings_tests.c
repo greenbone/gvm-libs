@@ -78,7 +78,7 @@ Ensure (settings, settings_iterator_operations)
   gchar *config_file = "test_settings.conf";
   FILE *file;
   const gchar *name;
-  const gchar *value;
+  gchar *value;
 
   // Create a temporary configuration file
   file = fopen (config_file, "w");
@@ -96,18 +96,21 @@ Ensure (settings, settings_iterator_operations)
   value = settings_iterator_value (&iterator);
   assert_that (name, is_equal_to_string ("key1"));
   assert_that (value, is_equal_to_string ("value1"));
+  g_free (value);
 
   assert_that (settings_iterator_next (&iterator), is_true);
   name = settings_iterator_name (&iterator);
   value = settings_iterator_value (&iterator);
   assert_that (name, is_equal_to_string ("key2"));
   assert_that (value, is_equal_to_string ("value2"));
+  g_free (value);
 
   assert_that (settings_iterator_next (&iterator), is_true);
   name = settings_iterator_name (&iterator);
   value = settings_iterator_value (&iterator);
   assert_that (name, is_equal_to_string ("key3"));
   assert_that (value, is_equal_to_string ("value3"));
+  g_free (value);
 
   // No more items
   assert_that (settings_iterator_next (&iterator), is_false);
@@ -124,7 +127,7 @@ Ensure (settings, settings_group_handling)
   gchar *config_file = "test_group_settings.conf";
   FILE *file;
   const gchar *name;
-  const gchar *value;
+  gchar *value;
 
   // Create a temporary configuration file with multiple groups
   file = fopen (config_file, "w");
@@ -145,12 +148,14 @@ Ensure (settings, settings_group_handling)
   value = settings_iterator_value (&iterator);
   assert_that (name, is_equal_to_string ("key1"));
   assert_that (value, is_equal_to_string ("value1"));
+  g_free (value);
 
   assert_that (settings_iterator_next (&iterator), is_true);
   name = settings_iterator_name (&iterator);
   value = settings_iterator_value (&iterator);
   assert_that (name, is_equal_to_string ("key2"));
   assert_that (value, is_equal_to_string ("value2"));
+  g_free (value);
 
   // No more items in group1
   assert_that (settings_iterator_next (&iterator), is_false);
@@ -168,12 +173,14 @@ Ensure (settings, settings_group_handling)
   value = settings_iterator_value (&iterator);
   assert_that (name, is_equal_to_string ("key3"));
   assert_that (value, is_equal_to_string ("value3"));
+  g_free (value);
 
   assert_that (settings_iterator_next (&iterator), is_true);
   name = settings_iterator_name (&iterator);
   value = settings_iterator_value (&iterator);
   assert_that (name, is_equal_to_string ("key4"));
   assert_that (value, is_equal_to_string ("value4"));
+  g_free (value);
 
   // No more items in group2
   assert_that (settings_iterator_next (&iterator), is_false);
