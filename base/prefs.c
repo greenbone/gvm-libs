@@ -163,8 +163,14 @@ prefs_config (const char *config)
   if (!init_settings_iterator_from_file (&settings, config, "Misc"))
     {
       while (settings_iterator_next (&settings))
-        prefs_set (settings_iterator_name (&settings),
-                   settings_iterator_value (&settings));
+        {
+          gchar *value;
+
+          value = settings_iterator_value (&settings);
+          prefs_set (settings_iterator_name (&settings),
+                     value);
+          g_free (value);
+        }
 
       cleanup_settings_iterator (&settings);
     }

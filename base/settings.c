@@ -173,9 +173,9 @@ settings_iterator_name (settings_iterator_t *iterator)
  *
  * @param[in]  iterator  Settings iterator.
  *
- * @return Value of current key.
+ * @return Value of current key. Caller must g_free.
  */
-const gchar *
+gchar *
 settings_iterator_value (settings_iterator_t *iterator)
 {
   return g_key_file_get_value (iterator->settings.key_file,
