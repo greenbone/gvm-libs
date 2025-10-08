@@ -136,6 +136,7 @@ set(
   serverutils.c
   sshutils.c
   streamvalidator.c
+  tlsutils.c
   uuidutils.c
   versionutils.c
   vtparser.c
@@ -160,6 +161,7 @@ set(
   serverutils.h
   sshutils.h
   streamvalidator.h
+  tlsutils.h
   uuidutils.h
   versionutils.h
   vtparser.h
