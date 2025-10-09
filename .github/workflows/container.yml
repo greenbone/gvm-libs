@@ -37,15 +37,11 @@ jobs:
               dockerfile: .docker/prod-testing.Dockerfile
               stable-name: testing
               edge-name: testing-edge
-              enable-version: false
-              enable-latest: false
           - build:
               name: oldstable
               dockerfile: .docker/prod-oldstable.Dockerfile
               stable-name: oldstable
               edge-name: oldstable-edge
-              enable-version: false
-              enable-latest: false
     name: Build and Push Container Images (${{ matrix.build.name }})
     uses: greenbone/workflows/.github/workflows/container-build-push-gea.yml@main
     with:
@@ -57,14 +53,12 @@ jobs:
       edge-name: ${{ matrix.build.edge-name }}
       enable-latest: ${{ matrix.build.name == 'stable' }}
       enable-pr: ${{ matrix.build.name == 'stable' }}
+      enable-version: ${{ matrix.build.name == 'stable' }}
       labels: |
         org.opencontainers.image.vendor=Greenbone
         org.opencontainers.image.base.name=debian:stable-slim
       build-args: ${{ matrix.build.build-args }}
       prefix: ${{ matrix.build.prefix }}
-      images: |
-        ghcr.io/${{ github.repository }},enable=true
-        ${{ vars.GREENBONE_REGISTRY }}/community/${{ github.event.repository.name }},enable=${{ github.event_name != 'pull_request' && matrix.build.name == 'stable' }}
     secrets: inherit
 
   notify:
