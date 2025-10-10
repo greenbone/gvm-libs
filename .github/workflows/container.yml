@@ -23,6 +23,7 @@ concurrency:
 jobs:
   build:
     if: ${{ github.repository == 'greenbone/gvm-libs' }}
+    continue-on-error: ${{ matrix.build.continue-on-error || false }}
     strategy:
       fail-fast: false
       matrix:
@@ -37,6 +38,7 @@ jobs:
               dockerfile: .docker/prod-testing.Dockerfile
               stable-name: testing
               edge-name: testing-edge
+              continue-on-error: true
           - build:
               name: oldstable
               dockerfile: .docker/prod-oldstable.Dockerfile
