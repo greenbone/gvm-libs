@@ -7,10 +7,10 @@
 
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
+#include <fcntl.h>
 #include <glib.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <fcntl.h>
 
 Describe (fileutils);
 BeforeEach (fileutils)
@@ -190,11 +190,9 @@ Ensure (fileutils, validate_gvm_file_as_base64)
 
 Ensure (fileutils, validate_gvm_export_file_name)
 {
-  gchar *file_name = gvm_export_file_name ("%N.%F", "user", "task",
-                                           "12345678-1234-1234-1234-123456789012",
-                                           "2023-01-01T12:00:00Z",
-                                           "2023-01-02T12:00:00Z",
-                                           "Test Task", "XML");
+  gchar *file_name = gvm_export_file_name (
+    "%N.%F", "user", "task", "12345678-1234-1234-1234-123456789012",
+    "2023-01-01T12:00:00Z", "2023-01-02T12:00:00Z", "Test Task", "XML");
 
   assert_that (file_name, is_not_null);
   assert_that (file_name, contains_string ("Test_Task"));
@@ -202,7 +200,8 @@ Ensure (fileutils, validate_gvm_export_file_name)
 
   g_free (file_name);
 
-  file_name = gvm_export_file_name ("%N.%F", NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+  file_name =
+    gvm_export_file_name ("%N.%F", NULL, NULL, NULL, NULL, NULL, NULL, NULL);
   assert_that (file_name, is_not_null);
 
   g_free (file_name);
@@ -218,15 +217,24 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
-  add_test_with_context (suite, fileutils, validate_gvm_file_exists_for_nonexistent_file);
-  add_test_with_context (suite, fileutils, validate_gvm_file_exists_for_existing_file);
-  add_test_with_context (suite, fileutils, validate_gvm_file_is_executable_for_nonexistent_file);
-  add_test_with_context (suite, fileutils, validate_gvm_file_is_executable_for_non_executable_file);
-  add_test_with_context (suite, fileutils, validate_gvm_file_is_readable_for_nonexistent_file);
-  add_test_with_context (suite, fileutils, validate_gvm_file_is_readable_for_existing_file);
-  add_test_with_context (suite, fileutils, validate_gvm_file_check_is_dir_for_nonexistent_path);
-  add_test_with_context (suite, fileutils, validate_gvm_file_check_is_dir_for_file);
-  add_test_with_context (suite, fileutils, validate_gvm_file_check_is_dir_for_directory);
+  add_test_with_context (suite, fileutils,
+                         validate_gvm_file_exists_for_nonexistent_file);
+  add_test_with_context (suite, fileutils,
+                         validate_gvm_file_exists_for_existing_file);
+  add_test_with_context (suite, fileutils,
+                         validate_gvm_file_is_executable_for_nonexistent_file);
+  add_test_with_context (
+    suite, fileutils, validate_gvm_file_is_executable_for_non_executable_file);
+  add_test_with_context (suite, fileutils,
+                         validate_gvm_file_is_readable_for_nonexistent_file);
+  add_test_with_context (suite, fileutils,
+                         validate_gvm_file_is_readable_for_existing_file);
+  add_test_with_context (suite, fileutils,
+                         validate_gvm_file_check_is_dir_for_nonexistent_path);
+  add_test_with_context (suite, fileutils,
+                         validate_gvm_file_check_is_dir_for_file);
+  add_test_with_context (suite, fileutils,
+                         validate_gvm_file_check_is_dir_for_directory);
   add_test_with_context (suite, fileutils, validate_gvm_file_copy);
   add_test_with_context (suite, fileutils, validate_gvm_file_move);
   add_test_with_context (suite, fileutils, validate_gvm_file_as_base64);
