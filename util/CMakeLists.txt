@@ -259,6 +259,23 @@ if(BUILD_TESTS)
     ${LINKER_HARDENING_FLAGS}
   )
   add_unit_test(
+    fileutils-test
+    fileutils_tests.c
+    ${GLIB_LDFLAGS}
+    ${GIO_LDFLAGS}
+    ${GPGME_LDFLAGS}
+    ${ZLIB_LDFLAGS}
+    ${RADIUS_LDFLAGS}
+    ${LIBSSH_LDFLAGS}
+    ${GNUTLS_LDFLAGS}
+    ${GCRYPT_LDFLAGS}
+    ${LDAP_LDFLAGS}
+    ${REDIS_LDFLAGS}
+    ${LIBXML2_LDFLAGS}
+    ${UUID_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+  add_unit_test(
     mqtt-test
     mqtt_tests.c
     gvm_util_shared
