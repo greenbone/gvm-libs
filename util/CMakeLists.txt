@@ -214,6 +214,23 @@ endif(BUILD_SHARED)
 ## Tests
 
 if(BUILD_TESTS)
+  add_unit_test(
+    authutils-test
+    authutils_tests.c
+    ${GLIB_LDFLAGS}
+    ${GIO_LDFLAGS}
+    ${GPGME_LDFLAGS}
+    ${ZLIB_LDFLAGS}
+    ${RADIUS_LDFLAGS}
+    ${LIBSSH_LDFLAGS}
+    ${GNUTLS_LDFLAGS}
+    ${GCRYPT_LDFLAGS}
+    ${LDAP_LDFLAGS}
+    ${REDIS_LDFLAGS}
+    ${LIBXML2_LDFLAGS}
+    ${UUID_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
   add_unit_test(json-test json_tests.c ${GLIB_LDFLAGS} ${CJSON_LDFLAGS})
   add_unit_test(jsonpull-test jsonpull_tests.c ${GLIB_LDFLAGS} ${CJSON_LDFLAGS})
   add_unit_test(
