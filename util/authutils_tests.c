@@ -46,7 +46,7 @@ Ensure (authutils, auth_method_name_valid_returns_one_for_valid_names)
 Ensure (authutils, auth_method_name_valid_returns_zero_for_invalid_names)
 {
   assert_that (auth_method_name_valid ("invalid_method"), is_equal_to (0));
-  //assert_that (auth_method_name_valid (NULL), is_equal_to (0)); // TODO
+  // assert_that (auth_method_name_valid (NULL), is_equal_to (0)); // TODO
 }
 
 /* gvm_auth_ldap_enabled */
@@ -163,7 +163,8 @@ Ensure (authutils, gvm_authenticate_classic_fails_with_null_hash)
   assert_that (result, is_equal_to (1)); // Failure
 }
 
-Ensure (authutils, gvm_authenticate_classic_returns_error_for_invalid_hash_format)
+Ensure (authutils,
+        gvm_authenticate_classic_returns_error_for_invalid_hash_format)
 {
   int result = gvm_authenticate_classic ("user", "password", "invalid");
   assert_that (result, is_equal_to (-1)); // Error
@@ -204,21 +205,38 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
-  add_test_with_context (suite, authutils, auth_method_name_returns_correct_strings);
-  add_test_with_context (suite, authutils, auth_method_name_valid_returns_one_for_valid_names);
-  add_test_with_context (suite, authutils, auth_method_name_valid_returns_zero_for_invalid_names);
-  add_test_with_context (suite, authutils, gvm_auth_ldap_enabled_returns_one_when_enabled);
-  add_test_with_context (suite, authutils, gvm_auth_radius_enabled_returns_one_when_enabled);
-  //add_test_with_context (suite, authutils, digest_hex_returns_correct_hex_string); // TODO
-  add_test_with_context (suite, authutils, digest_hex_returns_null_for_invalid_algorithm);
-  add_test_with_context (suite, authutils, get_md5_hash_from_string_returns_correct_hash);
-  add_test_with_context (suite, authutils, get_md5_hash_from_string_handles_empty_string);
-  add_test_with_context (suite, authutils, get_password_hashes_returns_valid_hash_pair);
-  add_test_with_context (suite, authutils, gvm_authenticate_classic_succeeds_with_correct_password);
-  add_test_with_context (suite, authutils, gvm_authenticate_classic_fails_with_incorrect_password);
-  add_test_with_context (suite, authutils, gvm_authenticate_classic_fails_with_null_hash);
-  add_test_with_context (suite, authutils, gvm_authenticate_classic_returns_error_for_invalid_hash_format);
-  add_test_with_context (suite, authutils, gvm_auth_init_succeeds_on_first_call);
+  add_test_with_context (suite, authutils,
+                         auth_method_name_returns_correct_strings);
+  add_test_with_context (suite, authutils,
+                         auth_method_name_valid_returns_one_for_valid_names);
+  add_test_with_context (suite, authutils,
+                         auth_method_name_valid_returns_zero_for_invalid_names);
+  add_test_with_context (suite, authutils,
+                         gvm_auth_ldap_enabled_returns_one_when_enabled);
+  add_test_with_context (suite, authutils,
+                         gvm_auth_radius_enabled_returns_one_when_enabled);
+  // TODO
+  // add_test_with_context (suite,
+  //                        authutils, digest_hex_returns_correct_hex_string);
+  add_test_with_context (suite, authutils,
+                         digest_hex_returns_null_for_invalid_algorithm);
+  add_test_with_context (suite, authutils,
+                         get_md5_hash_from_string_returns_correct_hash);
+  add_test_with_context (suite, authutils,
+                         get_md5_hash_from_string_handles_empty_string);
+  add_test_with_context (suite, authutils,
+                         get_password_hashes_returns_valid_hash_pair);
+  add_test_with_context (
+    suite, authutils, gvm_authenticate_classic_succeeds_with_correct_password);
+  add_test_with_context (
+    suite, authutils, gvm_authenticate_classic_fails_with_incorrect_password);
+  add_test_with_context (suite, authutils,
+                         gvm_authenticate_classic_fails_with_null_hash);
+  add_test_with_context (
+    suite, authutils,
+    gvm_authenticate_classic_returns_error_for_invalid_hash_format);
+  add_test_with_context (suite, authutils,
+                         gvm_auth_init_succeeds_on_first_call);
   add_test_with_context (suite, authutils, gvm_auth_init_fails_on_second_call);
 
   if (argc > 1)
