@@ -319,6 +319,7 @@ gvm_export_file_name (const char *fname_format, const char *username,
         g_strdup_printf ("%02d%02d%02d", creation_time.tm_hour,
                          creation_time.tm_min, creation_time.tm_sec);
     }
+  g_free (creation_date_short);
 
   if (modification_iso_time && (strlen (modification_iso_time) >= 19))
     modification_date_short = g_strndup (modification_iso_time, 19);
@@ -337,6 +338,7 @@ gvm_export_file_name (const char *fname_format, const char *username,
         g_strdup_printf ("%02d%02d%02d", modification_time.tm_hour,
                          modification_time.tm_min, modification_time.tm_sec);
     }
+  g_free (modification_date_short);
 
   if (creation_date_str == NULL)
     creation_date_str = g_strdup (now_date_str);
@@ -444,8 +446,10 @@ gvm_export_file_name (const char *fname_format, const char *username,
     }
 
   g_free (now_date_str);
+  g_free (now_time_str);
   g_free (creation_date_str);
   g_free (creation_time_str);
   g_free (modification_date_str);
+  g_free (modification_time_str);
   return g_string_free (file_name_buf, FALSE);
 }
