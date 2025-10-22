@@ -23,12 +23,12 @@ AfterEach (fileutils)
 
 /* gvm_file_exists */
 
-Ensure (fileutils, validate_gvm_file_exists_for_nonexistent_file)
+Ensure (fileutils, gvm_file_exists_returns_zero_for_nonexistent_file)
 {
   assert_that (gvm_file_exists ("nonexistent_file"), is_equal_to (0));
 }
 
-Ensure (fileutils, validate_gvm_file_exists_for_existing_file)
+Ensure (fileutils, gvm_file_exists_returns_one_for_existing_file)
 {
   gchar *test_file = "test_file_exists.tmp";
   FILE *file = fopen (test_file, "w");
@@ -42,12 +42,12 @@ Ensure (fileutils, validate_gvm_file_exists_for_existing_file)
 
 /* gvm_file_is_executable */
 
-Ensure (fileutils, validate_gvm_file_is_executable_for_nonexistent_file)
+Ensure (fileutils, gvm_file_is_executable_returns_zero_for_nonexistent_file)
 {
   assert_that (gvm_file_is_executable ("nonexistent_file"), is_equal_to (0));
 }
 
-Ensure (fileutils, validate_gvm_file_is_executable_for_non_executable_file)
+Ensure (fileutils, gvm_file_is_executable_returns_zero_for_non_executable_file)
 {
   gchar *test_file = "test_file_not_executable.tmp";
   FILE *file = fopen (test_file, "w");
@@ -62,12 +62,12 @@ Ensure (fileutils, validate_gvm_file_is_executable_for_non_executable_file)
 
 /* gvm_file_is_readable */
 
-Ensure (fileutils, validate_gvm_file_is_readable_for_nonexistent_file)
+Ensure (fileutils, gvm_file_is_readable_returns_zero_for_nonexistent_file)
 {
   assert_that (gvm_file_is_readable ("nonexistent_file"), is_equal_to (0));
 }
 
-Ensure (fileutils, validate_gvm_file_is_readable_for_existing_file)
+Ensure (fileutils, gvm_file_is_readable_returns_one_for_existing_file)
 {
   gchar *test_file = "test_file_readable.tmp";
   FILE *file = fopen (test_file, "w");
@@ -82,12 +82,12 @@ Ensure (fileutils, validate_gvm_file_is_readable_for_existing_file)
 
 /* gvm_file_check_is_dir */
 
-Ensure (fileutils, validate_gvm_file_check_is_dir_for_nonexistent_path)
+Ensure (fileutils, gvm_file_check_is_dir_returns_minus_one_for_nonexistent_path)
 {
   assert_that (gvm_file_check_is_dir ("nonexistent_dir"), is_equal_to (-1));
 }
 
-Ensure (fileutils, validate_gvm_file_check_is_dir_for_file)
+Ensure (fileutils, gvm_file_check_is_dir_returns_zero_for_file)
 {
   gchar *test_file = "test_file_not_dir.tmp";
   FILE *file = fopen (test_file, "w");
@@ -99,7 +99,7 @@ Ensure (fileutils, validate_gvm_file_check_is_dir_for_file)
   g_remove (test_file);
 }
 
-Ensure (fileutils, validate_gvm_file_check_is_dir_for_directory)
+Ensure (fileutils, gvm_file_check_is_dir_returns_one_for_directory)
 {
   gchar *test_dir = "test_directory";
   assert_that (g_mkdir (test_dir, 0755), is_equal_to (0));
@@ -111,7 +111,7 @@ Ensure (fileutils, validate_gvm_file_check_is_dir_for_directory)
 
 /* gvm_file_copy */
 
-Ensure (fileutils, validate_gvm_file_copy)
+Ensure (fileutils, gvm_file_copy_returns_true_and_copies_file)
 {
   gchar *source_file = "test_source_copy.tmp";
   gchar *dest_file = "test_dest_copy.tmp";
@@ -137,7 +137,7 @@ Ensure (fileutils, validate_gvm_file_copy)
 
 /* gvm_file_move */
 
-Ensure (fileutils, validate_gvm_file_move)
+Ensure (fileutils, gvm_file_move_returns_true_and_moves_file)
 {
   gchar *source_file = "test_source_move.tmp";
   gchar *dest_file = "test_dest_move.tmp";
@@ -164,7 +164,7 @@ Ensure (fileutils, validate_gvm_file_move)
 
 /* gvm_file_as_base64 */
 
-Ensure (fileutils, validate_gvm_file_as_base64)
+Ensure (fileutils, gvm_file_as_base64_returns_correct_base64_for_file)
 {
   gchar *test_file = "test_base64.tmp";
 
@@ -188,7 +188,7 @@ Ensure (fileutils, validate_gvm_file_as_base64)
 
 /* gvm_export_file_name */
 
-Ensure (fileutils, validate_gvm_export_file_name)
+Ensure (fileutils, gvm_export_file_name_returns_formatted_string)
 {
   gchar *file_name = gvm_export_file_name (
     "%N.%F", "user", "task", "12345678-1234-1234-1234-123456789012",
@@ -218,27 +218,33 @@ main (int argc, char **argv)
   suite = create_test_suite ();
 
   add_test_with_context (suite, fileutils,
-                         validate_gvm_file_exists_for_nonexistent_file);
+                         gvm_file_exists_returns_zero_for_nonexistent_file);
   add_test_with_context (suite, fileutils,
-                         validate_gvm_file_exists_for_existing_file);
-  add_test_with_context (suite, fileutils,
-                         validate_gvm_file_is_executable_for_nonexistent_file);
+                         gvm_file_exists_returns_one_for_existing_file);
   add_test_with_context (
-    suite, fileutils, validate_gvm_file_is_executable_for_non_executable_file);
+    suite, fileutils, gvm_file_is_executable_returns_zero_for_nonexistent_file);
+  add_test_with_context (
+    suite, fileutils,
+    gvm_file_is_executable_returns_zero_for_non_executable_file);
+  add_test_with_context (
+    suite, fileutils, gvm_file_is_readable_returns_zero_for_nonexistent_file);
   add_test_with_context (suite, fileutils,
-                         validate_gvm_file_is_readable_for_nonexistent_file);
+                         gvm_file_is_readable_returns_one_for_existing_file);
+  add_test_with_context (
+    suite, fileutils,
+    gvm_file_check_is_dir_returns_minus_one_for_nonexistent_path);
   add_test_with_context (suite, fileutils,
-                         validate_gvm_file_is_readable_for_existing_file);
+                         gvm_file_check_is_dir_returns_zero_for_file);
   add_test_with_context (suite, fileutils,
-                         validate_gvm_file_check_is_dir_for_nonexistent_path);
+                         gvm_file_check_is_dir_returns_one_for_directory);
   add_test_with_context (suite, fileutils,
-                         validate_gvm_file_check_is_dir_for_file);
+                         gvm_file_copy_returns_true_and_copies_file);
   add_test_with_context (suite, fileutils,
-                         validate_gvm_file_check_is_dir_for_directory);
-  add_test_with_context (suite, fileutils, validate_gvm_file_copy);
-  add_test_with_context (suite, fileutils, validate_gvm_file_move);
-  add_test_with_context (suite, fileutils, validate_gvm_file_as_base64);
-  add_test_with_context (suite, fileutils, validate_gvm_export_file_name);
+                         gvm_file_move_returns_true_and_moves_file);
+  add_test_with_context (suite, fileutils,
+                         gvm_file_as_base64_returns_correct_base64_for_file);
+  add_test_with_context (suite, fileutils,
+                         gvm_export_file_name_returns_formatted_string);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
