@@ -46,7 +46,7 @@ Ensure (authutils, auth_method_name_valid_returns_one_for_valid_names)
 Ensure (authutils, auth_method_name_valid_returns_zero_for_invalid_names)
 {
   assert_that (auth_method_name_valid ("invalid_method"), is_equal_to (0));
-  // assert_that (auth_method_name_valid (NULL), is_equal_to (0)); // TODO
+  assert_that (auth_method_name_valid (NULL), is_equal_to (0));
 }
 
 /* gvm_auth_ldap_enabled */

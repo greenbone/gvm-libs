@@ -90,8 +90,9 @@ auth_method_name (auth_method_t method)
 int
 auth_method_name_valid (const gchar *name)
 {
-  int i;
-  for (i = 0; i < 1000; i++)
+  if (name == NULL)
+    return 0;
+  for (int i = 0; i < 1000; i++)
     if (authentication_methods[i] == NULL)
       break;
     else if (strcmp (authentication_methods[i], name) == 0)
