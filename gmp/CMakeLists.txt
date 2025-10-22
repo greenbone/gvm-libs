@@ -47,6 +47,21 @@ if(BUILD_SHARED)
   )
 endif(BUILD_SHARED)
 
+## Tests
+
+if(BUILD_TESTS)
+  add_unit_test(
+    gmp-test
+    gmp_tests.c
+    gvm_gmp_shared
+    gvm_base_shared
+    gvm_util_shared
+    ${GLIB_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+    "-Wl,-wrap,gvm_server_sendf,-wrap,gvm_server_sendf_xml,-wrap,gvm_server_sendf_xml_quiet,-wrap,read_entity,-wrap,try_read_entity,-wrap,gvm_connection_sendf,-wrap,gvm_connection_sendf_xml_quiet,-wrap,read_entity_c,-wrap,try_read_entity_c"
+  )
+endif(BUILD_TESTS)
+
 ## Install
 configure_file(libgvm_gmp.pc.in ${CMAKE_BINARY_DIR}/libgvm_gmp.pc @ONLY)
 
