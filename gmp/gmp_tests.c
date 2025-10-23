@@ -275,8 +275,7 @@ Ensure (gmp, validate_gmp_check_response_gmp_error)
   int result = gmp_check_response (NULL, &entity);
 
   assert_that (result, is_equal_to (400));
-  // TODO
-  // assert_that (entity, is_null);
+  assert_that (entity, is_null);
 }
 
 Ensure (gmp, validate_gmp_check_response_read_error)
@@ -301,8 +300,7 @@ Ensure (gmp, validate_gmp_check_response_no_status)
   int result = gmp_check_response (NULL, &entity);
 
   assert_that (result, is_equal_to (-1));
-  // TODO
-  // assert_that (entity, is_null);
+  assert_that (entity, is_null);
 }
 
 /* gmp_ping */

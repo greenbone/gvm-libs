@@ -61,7 +61,8 @@ gmp_task_status (entity_t response)
  * @brief Read response and convert status of response to a return value.
  *
  * @param[in]  session  Pointer to GNUTLS session.
- * @param[in]  entity   Entity containing response.
+ * @param[in]  entity   Entity containing response when GMP response code
+ *                      is 2xx, else NULL.
  *
  * @return 0 on success, -1 or GMP response code on error.
  */
@@ -83,11 +84,13 @@ gmp_check_response (gnutls_session_t *session, entity_t *entity)
   if (status == NULL)
     {
       free_entity (*entity);
+      *entity = NULL;
       return -1;
     }
   if (strlen (status) == 0)
     {
       free_entity (*entity);
+      *entity = NULL;
       return -1;
     }
   if (status[0] == '2')
@@ -96,6 +99,7 @@ gmp_check_response (gnutls_session_t *session, entity_t *entity)
     }
   ret = (int) strtol (status, NULL, 10);
   free_entity (*entity);
+  *entity = NULL;
   if (errno == ERANGE)
     return -1;
   return ret;
