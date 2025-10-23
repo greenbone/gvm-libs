@@ -75,10 +75,11 @@ Ensure (authutils, gvm_auth_radius_enabled_returns_one_when_enabled)
 
 Ensure (authutils, digest_hex_returns_correct_hex_string)
 {
-  guchar digest[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05};
+  guchar digest[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
   gchar *hex = digest_hex (GCRY_MD_MD5, digest);
   assert_that (hex, is_not_null);
-  assert_that (hex, is_equal_to_string ("000102030405"));
+  assert_that (hex, is_equal_to_string ("000102030405060708090a0b0c0d0e0f"));
   g_free (hex);
 }
 
@@ -215,9 +216,8 @@ main (int argc, char **argv)
                          gvm_auth_ldap_enabled_returns_one_when_enabled);
   add_test_with_context (suite, authutils,
                          gvm_auth_radius_enabled_returns_one_when_enabled);
-  // TODO
-  // add_test_with_context (suite,
-  //                        authutils, digest_hex_returns_correct_hex_string);
+  add_test_with_context (suite, authutils,
+                         digest_hex_returns_correct_hex_string);
   add_test_with_context (suite, authutils,
                          digest_hex_returns_null_for_invalid_algorithm);
   add_test_with_context (suite, authutils,

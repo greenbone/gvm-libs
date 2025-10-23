@@ -162,13 +162,14 @@ gvm_auth_init (void)
 /**
  * @brief Generate a hexadecimal representation of a message digest.
  *
- * @param gcrypt_algorithm The libgcrypt message digest algorithm used to
- * create the digest (e.g. GCRY_MD_MD5; see the enum gcry_md_algos in
- * gcrypt.h).
- * @param digest The binary representation of the digest.
+ * @param gcrypt_algorithm  The libgcrypt message digest algorithm used to
+ *                          create the digest (e.g. GCRY_MD_MD5; see the enum
+ *                          gcry_md_algos in gcrypt.h).
+ * @param digest  The binary representation of the digest. Must be big enough
+ *                for the gcrypt_algorithm.
  *
  * @return A pointer to the hexadecimal representation of the message digest
- * or NULL if an unavailable message digest algorithm was selected.
+ *         or NULL if an unavailable message digest algorithm was selected.
  */
 gchar *
 digest_hex (int gcrypt_algorithm, const guchar *digest)
