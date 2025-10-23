@@ -141,7 +141,7 @@ add_mock_attribute (entity_t entity, const char *name, const char *value)
 
 /* gmp_task_status */
 
-Ensure (gmp, validate_gmp_task_status_with_valid_response)
+Ensure (gmp, gmp_task_status_returns_correct_string_for_valid_response)
 {
   entity_t response = create_mock_entity ("get_tasks_response", "");
   entity_t task = create_mock_entity ("task", "");
@@ -157,7 +157,7 @@ Ensure (gmp, validate_gmp_task_status_with_valid_response)
   free_entity (response);
 }
 
-Ensure (gmp, validate_gmp_task_status_with_no_task)
+Ensure (gmp, gmp_task_status_returns_null_when_no_task)
 {
   entity_t response = create_mock_entity ("get_tasks_response", "");
 
@@ -168,7 +168,7 @@ Ensure (gmp, validate_gmp_task_status_with_no_task)
   free_entity (response);
 }
 
-Ensure (gmp, validate_gmp_task_status_with_no_status)
+Ensure (gmp, gmp_task_status_returns_null_when_no_status)
 {
   entity_t response = create_mock_entity ("get_tasks_response", "");
   entity_t task = create_mock_entity ("task", "");
@@ -183,7 +183,7 @@ Ensure (gmp, validate_gmp_task_status_with_no_status)
 
 /* gmp_read_create_response */
 
-Ensure (gmp, validate_gmp_read_create_response_success_with_uuid)
+Ensure (gmp, gmp_read_create_response_returns_uuid_on_success)
 {
   entity_t mock_entity = create_mock_entity ("create_response", "");
   add_mock_attribute (mock_entity, "status", "201");
@@ -204,7 +204,7 @@ Ensure (gmp, validate_gmp_read_create_response_success_with_uuid)
   g_free (uuid);
 }
 
-Ensure (gmp, validate_gmp_read_create_response_success_without_uuid)
+Ensure (gmp, gmp_read_create_response_succeeds_without_uuid_parameter)
 {
   entity_t mock_entity = create_mock_entity ("create_response", "");
   add_mock_attribute (mock_entity, "status", "201");
@@ -219,7 +219,7 @@ Ensure (gmp, validate_gmp_read_create_response_success_without_uuid)
   assert_that (result, is_equal_to (201));
 }
 
-Ensure (gmp, validate_gmp_read_create_response_error_no_status)
+Ensure (gmp, gmp_read_create_response_returns_error_when_no_status)
 {
   entity_t mock_entity = create_mock_entity ("create_response", "");
 
@@ -233,7 +233,7 @@ Ensure (gmp, validate_gmp_read_create_response_error_no_status)
   assert_that (uuid, is_null);
 }
 
-Ensure (gmp, validate_gmp_read_create_response_read_error)
+Ensure (gmp, gmp_read_create_response_returns_error_on_read_failure)
 {
   expect (__wrap_read_entity, will_return (-1));
 
@@ -246,7 +246,7 @@ Ensure (gmp, validate_gmp_read_create_response_read_error)
 
 /* gmp_check_response */
 
-Ensure (gmp, validate_gmp_check_response_success)
+Ensure (gmp, gmp_check_response_succeeds_with_valid_response)
 {
   entity_t mock_entity = create_mock_entity ("response", "");
   add_mock_attribute (mock_entity, "status", "200");
@@ -263,7 +263,7 @@ Ensure (gmp, validate_gmp_check_response_success)
   free_entity (mock_entity);
 }
 
-Ensure (gmp, validate_gmp_check_response_gmp_error)
+Ensure (gmp, gmp_check_response_returns_gmp_error_code)
 {
   entity_t mock_entity = create_mock_entity ("response", "");
   add_mock_attribute (mock_entity, "status", "400");
@@ -278,7 +278,7 @@ Ensure (gmp, validate_gmp_check_response_gmp_error)
   assert_that (entity, is_null);
 }
 
-Ensure (gmp, validate_gmp_check_response_read_error)
+Ensure (gmp, gmp_check_response_returns_error_on_read_failure)
 {
   expect (__wrap_read_entity, will_return (-1));
 
@@ -289,7 +289,7 @@ Ensure (gmp, validate_gmp_check_response_read_error)
   assert_that (entity, is_null);
 }
 
-Ensure (gmp, validate_gmp_check_response_no_status)
+Ensure (gmp, gmp_check_response_returns_error_when_no_status)
 {
   entity_t mock_entity = create_mock_entity ("response", "");
 
@@ -305,7 +305,7 @@ Ensure (gmp, validate_gmp_check_response_no_status)
 
 /* gmp_ping */
 
-Ensure (gmp, validate_gmp_ping_success)
+Ensure (gmp, gmp_ping_succeeds_with_valid_response)
 {
   expect (__wrap_gvm_server_sendf, will_return (0));
 
@@ -320,7 +320,7 @@ Ensure (gmp, validate_gmp_ping_success)
   assert_that (result, is_equal_to (0));
 }
 
-Ensure (gmp, validate_gmp_ping_send_error)
+Ensure (gmp, gmp_ping_returns_error_on_send_failure)
 {
   expect (__wrap_gvm_server_sendf, will_return (-1));
 
@@ -329,7 +329,7 @@ Ensure (gmp, validate_gmp_ping_send_error)
   assert_that (result, is_equal_to (-1));
 }
 
-Ensure (gmp, validate_gmp_ping_read_error)
+Ensure (gmp, gmp_ping_returns_error_on_read_failure)
 {
   expect (__wrap_gvm_server_sendf, will_return (0));
   expect (__wrap_try_read_entity, will_return (-1));
@@ -339,7 +339,7 @@ Ensure (gmp, validate_gmp_ping_read_error)
   assert_that (result, is_equal_to (-1));
 }
 
-Ensure (gmp, validate_gmp_ping_invalid_status)
+Ensure (gmp, gmp_ping_returns_error_with_invalid_status)
 {
   expect (__wrap_gvm_server_sendf, will_return (0));
 
@@ -364,29 +364,34 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
-  add_test_with_context (suite, gmp,
-                         validate_gmp_task_status_with_valid_response);
-  add_test_with_context (suite, gmp, validate_gmp_task_status_with_no_task);
-  add_test_with_context (suite, gmp, validate_gmp_task_status_with_no_status);
-
-  add_test_with_context (suite, gmp,
-                         validate_gmp_read_create_response_success_with_uuid);
   add_test_with_context (
-    suite, gmp, validate_gmp_read_create_response_success_without_uuid);
+    suite, gmp, gmp_task_status_returns_correct_string_for_valid_response);
+  add_test_with_context (suite, gmp, gmp_task_status_returns_null_when_no_task);
   add_test_with_context (suite, gmp,
-                         validate_gmp_read_create_response_error_no_status);
+                         gmp_task_status_returns_null_when_no_status);
+
   add_test_with_context (suite, gmp,
-                         validate_gmp_read_create_response_read_error);
+                         gmp_read_create_response_returns_uuid_on_success);
+  add_test_with_context (
+    suite, gmp, gmp_read_create_response_succeeds_without_uuid_parameter);
+  add_test_with_context (suite, gmp,
+                         gmp_read_create_response_returns_error_when_no_status);
+  add_test_with_context (
+    suite, gmp, gmp_read_create_response_returns_error_on_read_failure);
 
-  add_test_with_context (suite, gmp, validate_gmp_check_response_success);
-  add_test_with_context (suite, gmp, validate_gmp_check_response_gmp_error);
-  add_test_with_context (suite, gmp, validate_gmp_check_response_read_error);
-  add_test_with_context (suite, gmp, validate_gmp_check_response_no_status);
+  add_test_with_context (suite, gmp,
+                         gmp_check_response_succeeds_with_valid_response);
+  add_test_with_context (suite, gmp, gmp_check_response_returns_gmp_error_code);
+  add_test_with_context (suite, gmp,
+                         gmp_check_response_returns_error_on_read_failure);
+  add_test_with_context (suite, gmp,
+                         gmp_check_response_returns_error_when_no_status);
 
-  add_test_with_context (suite, gmp, validate_gmp_ping_success);
-  add_test_with_context (suite, gmp, validate_gmp_ping_send_error);
-  add_test_with_context (suite, gmp, validate_gmp_ping_read_error);
-  add_test_with_context (suite, gmp, validate_gmp_ping_invalid_status);
+  add_test_with_context (suite, gmp, gmp_ping_succeeds_with_valid_response);
+  add_test_with_context (suite, gmp, gmp_ping_returns_error_on_send_failure);
+  add_test_with_context (suite, gmp, gmp_ping_returns_error_on_read_failure);
+  add_test_with_context (suite, gmp,
+                         gmp_ping_returns_error_with_invalid_status);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
