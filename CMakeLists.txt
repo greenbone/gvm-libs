@@ -24,6 +24,7 @@ option(ENABLE_COVERAGE "Enable support for coverage analysis" OFF)
 option(BUILD_TESTS "Build tests for the libraries" OFF)
 option(OPENVASD "Build openvasd library" ON)
 option(ENABLE_AGENTS "Build agent controller library" ON)
+option(ENABLE_CREDENTIAL_STORES "Build credential store library" ON)
 
 if(NOT BUILD_STATIC)
   set(BUILD_SHARED ON)
@@ -330,6 +331,13 @@ if(NOT SKIP_SRC)
     endif(NOT OPENVASD)
     add_subdirectory(agent_controller)
   endif(ENABLE_AGENTS)
+
+  if(ENABLE_CREDENTIAL_STORES)
+    if(NOT OPENVASD)
+      add_subdirectory(http)
+    endif(NOT OPENVASD)
+    add_subdirectory(cyberark)
+  endif(ENABLE_CREDENTIAL_STORES)
 endif(NOT SKIP_SRC)
 
 ## Documentation
