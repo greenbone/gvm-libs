@@ -22,7 +22,7 @@ typedef enum
 } cyberark_connector_opts_t;
 
 /**
- * @brief Error codes for CyberArk crednetial store.
+ * @brief Error codes for CyberArk credential store.
  */
 typedef enum
 {
@@ -44,11 +44,14 @@ struct cyberark_object
 typedef struct cyberark_object *cyberark_object_t;
 typedef struct cyberark_connector *cyberark_connector_t;
 
-cyberark_object_t cyberark_object_new (void);
+cyberark_object_t
+cyberark_object_new (void);
 
-void cyberark_object_free (cyberark_object_t);
+void
+cyberark_object_free (cyberark_object_t);
 
-cyberark_connector_t cyberark_connector_new (void);
+cyberark_connector_t
+cyberark_connector_new (void);
 
 cyberark_error_t
 cyberark_connector_builder (cyberark_connector_t,
