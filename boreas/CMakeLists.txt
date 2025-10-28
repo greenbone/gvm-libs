@@ -149,6 +149,18 @@ if(BUILD_TESTS)
     ${CMAKE_THREAD_LIBS_INIT}
   )
   add_unit_test(
+    boreas-arp-test
+    arp_tests.c
+    gvm_boreas_shared
+    gvm_base_shared
+    ${GLIB_LDFLAGS}
+    ${PCAP_LDFLAGS}
+    ${LIBNET_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+    ${CMAKE_THREAD_LIBS_INIT}
+    -Wl,-wrap,libnet_name2addr4
+  )
+  add_unit_test(
     boreas-error-test
     boreas_error_tests.c
     ${GLIB_LDFLAGS}
