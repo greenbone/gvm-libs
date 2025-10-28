@@ -269,12 +269,10 @@ static gchar *
 cyberark_build_query_string (cyberark_connector_t conn,
                              gchar *safe, gchar *folder, gchar *object)
 {
-  GString *query = g_string_new ("");
 
   if (!conn)
     {
       g_warning ("%s: Connector is NULL", __func__);
-      g_string_free (query, TRUE);
       return NULL;
     }
 
@@ -284,6 +282,7 @@ cyberark_build_query_string (cyberark_connector_t conn,
       return NULL;
     }
 
+  GString *query = g_string_new ("");
   g_string_append_printf (query, "?AppID=%s", conn->app_id);
 
   if (object && *object)
@@ -360,7 +359,7 @@ parse_cyberark_object (cJSON *object_json)
   cyberark_object->username = g_strdup (username);
   cyberark_object->content = g_strdup (content);
   cyberark_object->password_change_in_process 
-    = strcasecmp(password_change_in_process, "true") == 0 ? 1 : 0;
+    = strcasecmp (password_change_in_process, "true") == 0 ? 1 : 0;
   cyberark_object->object = object ? g_strdup (object) : NULL;
   cyberark_object->safe = safe ? g_strdup (safe) : NULL;
   cyberark_object->folder = folder ? g_strdup (folder) : NULL;
