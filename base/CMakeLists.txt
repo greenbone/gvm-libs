@@ -144,6 +144,13 @@ if(BUILD_TESTS)
     ${NETWORKING_TEST_LINKER_WRAP_OPTIONS}
   )
   add_unit_test(
+    pidfile-test
+    pidfile_tests.c
+    gvm_util_shared
+    ${GLIB_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+  add_unit_test(
     prefs-test
     prefs_tests.c
     gvm_base_shared
