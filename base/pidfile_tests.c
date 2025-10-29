@@ -78,9 +78,9 @@ Ensure (pidfile, pidfile_create_creates_directory_if_needed)
 
 Ensure (pidfile, pidfile_create_returns_error_when_cannot_create_file)
 {
-  gchar *test_pidfile = "/invalid/path/test_pidfile.tmp";
+  gchar *test_pidfile = "/dev/null/invalid/test_pidfile.tmp";
 
-  // This should fail as we can't write to /invalid/path
+  // This should fail as we can't write to /dev/null/invalid
   assert_that (pidfile_create (test_pidfile), is_not_equal_to (0));
 }
 
