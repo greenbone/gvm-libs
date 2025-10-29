@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "pidfile.c"
 #include "../util/fileutils.h"
+#include "pidfile.c"
 
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
