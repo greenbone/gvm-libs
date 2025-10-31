@@ -47,7 +47,7 @@ Install prerequisites on Debian stable:
     apt-get install \
     cmake \
     libcjson-dev \
-    libcurl4-gnutls-dev \
+    libcurl4-openssl-dev \
     libgcrypt-dev \
     libglib2.0-dev \
     libgnutls28-dev \
