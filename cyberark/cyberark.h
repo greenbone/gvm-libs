@@ -63,10 +63,10 @@ cyberark_connector_free (cyberark_connector_t);
 
 int
 cyberark_verify_connection (cyberark_connector_t,
-                            gchar *, gchar *, gchar *);
+                            const gchar *, const gchar *, const gchar *);
 
 cyberark_object_t
 cyberark_get_object (cyberark_connector_t,
-                     gchar *, gchar *, gchar *);
+                     const gchar *, const gchar *, const gchar *);
 
 #endif /* _GVM_CYBERARK_H */
