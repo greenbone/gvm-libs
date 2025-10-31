@@ -266,8 +266,8 @@ cyberark_object_free (cyberark_object_t obj)
  * @return A newly allocated query string. Must be freed by the caller.
  */
 static gchar *
-cyberark_build_query_string (cyberark_connector_t conn,
-                             gchar *safe, gchar *folder, gchar *object)
+cyberark_build_query_string (cyberark_connector_t conn, const gchar *safe,
+                             const gchar *folder, const gchar *object)
 {
 
   if (!conn)
@@ -379,8 +379,8 @@ parse_cyberark_object (cJSON *object_json)
  *         `cyberark_object_free()`.
  */
 cyberark_object_t
-cyberark_get_object (cyberark_connector_t conn, gchar *safe,
-                     gchar *folder, gchar *object)
+cyberark_get_object (cyberark_connector_t conn, const gchar *safe,
+                     const gchar *folder, const gchar *object)
 {
   if (!conn)
     {
@@ -461,8 +461,8 @@ cyberark_get_object (cyberark_connector_t conn, gchar *safe,
  * @return 0 on connection success, 1 on connection failure, -1 on error.
  */
 int
-cyberark_verify_connection (cyberark_connector_t conn, gchar *safe,
-                            gchar *folder, gchar *object)
+cyberark_verify_connection (cyberark_connector_t conn, const gchar *safe,
+                            const gchar *folder, const gchar *object)
 {
   if (!conn)
     {
