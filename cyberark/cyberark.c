@@ -368,6 +368,41 @@ parse_cyberark_object (cJSON *object_json)
 }
 
 /**
+ * @brief Parses a CyberArk error from HTTP response data.
+ *
+ * @param[in] response_data  The HTTP response data containing the error.
+ *
+ * @return Parsed error codr or NULL on failure.
+ */
+static gchar *
+parse_cyberark_error (gchar *response_data)
+{
+  if (!response_data)
+    {
+      g_warning ("%s: Response data is NULL", __func__);
+      return NULL;
+    }
+
+  cJSON *error_json = cJSON_Parse (response_data);
+  if (!error_json || !cJSON_IsObject (error_json))
+    {
+      g_warning ("%s: Failed to parse JSON error", __func__);
+      if (error_json)
+        cJSON_Delete (error_json);
+      return NULL;
+    }
+  const gchar *error_code = gvm_json_obj_str (error_json, "ErrorCode");
+  if (error_code)
+    {
+      gchar *error_msg = g_strdup (error_code);
+      cJSON_Delete (error_json);
+      return error_msg;
+    }
+  cJSON_Delete (error_json);
+  return NULL;
+}
+
+/**
  * @brief Fetches an account object from CyberArk credential store.
  *
  * @param[in] conn   Active connector to CyberArk credential store.
@@ -420,6 +455,12 @@ cyberark_get_object (cyberark_connector_t conn, const gchar *safe,
     {
       g_warning ("%s: Received HTTP status %ld", __func__,
                  response->http_status);
+      gchar *error_code = parse_cyberark_error (response->data);
+      if (error_code)
+        {
+          g_warning ("%s: CyberArk error code: %s", __func__, error_code);
+          g_free (error_code);
+        }
       gvm_http_response_free (response);
       return NULL;
     }
@@ -499,37 +540,23 @@ cyberark_verify_connection (cyberark_connector_t conn, const gchar *safe,
     * with the connection or authentication.
   */
 
+  int ret = 1;
   if (response->http_status == 200)
     {
-      gvm_http_response_free (response);
-      return 0;
+      ret = 0;
     }
-
-  if (response->http_status == 404)
+  else
     {
-      cJSON *error_json = cJSON_Parse (response->data);
-      if (!error_json || !cJSON_IsObject (error_json))
+      g_debug ("%s: Received HTTP status %ld", __func__, response->http_status);
+      gchar *error_code = parse_cyberark_error (response->data);
+      if (error_code)
         {
-          g_warning ("%s: Failed to parse JSON error", __func__);
-          if (error_json)
-            cJSON_Delete (error_json);
-          gvm_http_response_free (response);
-          return -1;
+          g_debug ("%s: CyberArk error code: %s", __func__, error_code);
+          if (response->http_status == 404 && g_strcmp0 (error_code, "APPAP004E") == 0)
+            ret = 0;
+          g_free (error_code);
         }
-      const gchar *error_code = gvm_json_obj_str (error_json, "ErrorCode");
-      if (error_code && g_strcmp0 (error_code, "APPAP004E") == 0)
-        {
-          cJSON_Delete (error_json);
-          gvm_http_response_free (response);
-          return 0;
-        }
-      cJSON_Delete (error_json);
-      gvm_http_response_free (response);
-      return 1;
     }
-
-  g_debug ("%s: Received HTTP status %ld", __func__, response->http_status);
   gvm_http_response_free (response);
-
-  return 1;
+  return ret;
 }
