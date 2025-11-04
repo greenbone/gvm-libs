@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 
+#define GVM_STREAM_VALIDATOR_NO_SIZE ((size_t) - 1)
+
 /**
  * @file
  * @brief Data stream validation headers.
@@ -42,7 +44,11 @@ typedef struct gvm_stream_validator *gvm_stream_validator_t;
 const char *gvm_stream_validator_return_str (gvm_stream_validator_return_t);
 
 gvm_stream_validator_return_t
-gvm_stream_validator_new (const char *, size_t, gvm_stream_validator_t *);
+gvm_stream_validator_new (const char *, gvm_stream_validator_t *);
+
+gvm_stream_validator_return_t
+gvm_stream_validator_with_size_new (const char *, size_t,
+                                    gvm_stream_validator_t *);
 
 void gvm_stream_validator_rewind (gvm_stream_validator_t);
 
