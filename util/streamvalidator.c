@@ -10,6 +10,8 @@
 #include <assert.h>
 #include <gcrypt.h>
 #include <glib.h>
+#include <stdint.h>
+#include <string.h>
 
 /**
  * @file
@@ -26,6 +28,7 @@ struct gvm_stream_validator
   int algorithm;             ///< The hash algorithm used.
   size_t expected_size;      ///< Expected amount of data to validate.
   size_t current_size;       ///< Current total amount of data received.
+  gboolean size_enforced;    ///< TRUE enforce size checks; FALSE hash-only.
   gcry_md_hd_t gcrypt_md_hd; ///< gcrypt message digest handle.
 };
 
@@ -64,49 +67,102 @@ gvm_stream_validator_return_str (gvm_stream_validator_return_t value)
 }
 
 /**
+ * @brief Allocate and initialize a checksum-only stream validator.
+ *
+ * @param[in]  expected_hash_str  Expected hash / checksum string consisting of
+ *                               an algorithm name or OID as recognized by
+ *                               gcrypt, followed by a colon and the
+ *                               hex-encoded hash,
+ *                               e.g. "md5:70165459812a0d38851a4a4c3e4124c9".
+ * @param[out] validator_out      Pointer to output location of the newly
+ * allocated validator.
+ *
+ * @return A gvm_stream_validator_return_t code indicating success or the
+ *         reason of failure.
+ *
+ * @note Size is NOT enforced; callers who need exact-size validation must use
+ *       gvm_stream_validator_with_size_new (..., expected_size, ...).
+ */
+gvm_stream_validator_return_t
+gvm_stream_validator_new (const char *expected_hash_str,
+                          gvm_stream_validator_t *validator_out)
+{
+  return gvm_stream_validator_with_size_new (
+    expected_hash_str, GVM_STREAM_VALIDATOR_NO_SIZE, validator_out);
+}
+
+/**
  * @brief Allocate and initialize a new data stream validator.
  *
  * @param[in]  expected_hash_str  Expected hash / checksum string consisting of
- *                                 an algorithm name or OID as recognized by
- *                                 gcrypt, followed by a colon and the
- *                                 hex-encoded hash,
- *                                 e.g. "md5:70165459812a0d38851a4a4c3e4124c9".
+ *                                an algorithm name or OID as recognized by
+ *                                gcrypt, followed by a colon and the
+ *                                hex-encoded hash,
+ *                                e.g. "md5:70165459812a0d38851a4a4c3e4124c9".
  * @param[in]  expected_size  The number of bytes expected to be sent.
+ *                            Pass (size_t)-1 to disable size enforcement
+ *                            and validate by hash only.
  * @param[out] validator_out  Pointer to output location of the newly allocated
  *                             validator.
  *
- * @return A validator return code, returning a failure if the expeced hash
+ * @return A validator return code, returning a failure if the expected hash
  *         string is invalid or uses an unsupported algorithm.
+ *
+ * @note When size enforcement is enabled (expected_size != (size_t)-1),
+ *       gvm_stream_validator_write() will return DATA_TOO_LONG if the stream
+ *       exceeds the expected size, and gvm_stream_validator_end() will return
+ *       DATA_TOO_SHORT if the stream ends early.
  */
 gvm_stream_validator_return_t
-gvm_stream_validator_new (const char *expected_hash_str, size_t expected_size,
-                          gvm_stream_validator_t *validator_out)
+gvm_stream_validator_with_size_new (const char *expected_hash_str,
+                                    size_t expected_size,
+                                    gvm_stream_validator_t *validator_out)
 {
   assert (validator_out);
 
   static GRegex *hex_regex = NULL;
-  gchar **split_hash_str = g_strsplit (expected_hash_str, ":", 2);
-  const char *algo_str, *hex_str;
+  gchar **parts = NULL;
+  const char *algo_str = NULL;
+  const char *hex_str = NULL;
   int algo;
   unsigned int expected_hex_len;
   gcry_md_hd_t gcrypt_md_hd;
+  gboolean size_enforced = FALSE;
+  size_t final_expected_size = 0;
+
+  if (expected_hash_str == NULL)
+    return GVM_STREAM_VALIDATOR_INVALID_HASH_SYNTAX;
 
   if (hex_regex == NULL)
     hex_regex = g_regex_new ("^(?:[0-9A-Fa-f][0-9A-Fa-f])+$", 0, 0, NULL);
 
   *validator_out = NULL;
-  if (g_strv_length (split_hash_str) != 2)
+
+  parts = g_strsplit (expected_hash_str, ":", 2);
+  guint n = g_strv_length (parts);
+  if (n != 2)
     {
-      g_strfreev (split_hash_str);
+      g_strfreev (parts);
       return GVM_STREAM_VALIDATOR_INVALID_HASH_SYNTAX;
     }
-  algo_str = split_hash_str[0];
-  hex_str = split_hash_str[1];
+  algo_str = parts[0];
+  hex_str = parts[1];
+
+  if (expected_size != GVM_STREAM_VALIDATOR_NO_SIZE)
+    {
+      final_expected_size = expected_size;
+      size_enforced = TRUE;
+    }
+  else
+    {
+      final_expected_size = 0;
+      size_enforced = FALSE;
+    }
 
   algo = gcry_md_map_name (algo_str);
   if (algo == GCRY_MD_NONE || gcry_md_test_algo (algo))
     {
-      g_strfreev (split_hash_str);
+      g_strfreev (parts);
       return GVM_STREAM_VALIDATOR_INVALID_HASH_ALGORITHM;
     }
 
@@ -114,26 +170,27 @@ gvm_stream_validator_new (const char *expected_hash_str, size_t expected_size,
   if (strlen (hex_str) != expected_hex_len
       || g_regex_match (hex_regex, hex_str, 0, NULL) == FALSE)
     {
-      g_strfreev (split_hash_str);
+      g_strfreev (parts);
       return GVM_STREAM_VALIDATOR_INVALID_HASH_VALUE;
     }
 
   gcrypt_md_hd = NULL;
   if (gcry_md_open (&gcrypt_md_hd, algo, 0))
     {
-      g_strfreev (split_hash_str);
+      g_strfreev (parts);
       return GVM_STREAM_VALIDATOR_INTERNAL_ERROR;
     }
 
   *validator_out = g_malloc0 (sizeof (struct gvm_stream_validator));
   (*validator_out)->algorithm = algo;
-  (*validator_out)->expected_size = expected_size;
+  (*validator_out)->expected_size = final_expected_size;
+  (*validator_out)->size_enforced = size_enforced;
   (*validator_out)->expected_hash_str = g_strdup (expected_hash_str);
   (*validator_out)->expected_hash_hex = g_strdup (hex_str);
   (*validator_out)->gcrypt_md_hd = gcrypt_md_hd;
+  (*validator_out)->current_size = 0;
 
-  g_strfreev (split_hash_str);
-
+  g_strfreev (parts);
   return GVM_STREAM_VALIDATOR_OK;
 }
 
@@ -179,8 +236,11 @@ gvm_stream_validator_return_t
 gvm_stream_validator_write (gvm_stream_validator_t validator, const char *data,
                             size_t length)
 {
-  if (length > validator->expected_size - validator->current_size)
-    return GVM_STREAM_VALIDATOR_DATA_TOO_LONG;
+  if (validator->size_enforced)
+    {
+      if (length > validator->expected_size - validator->current_size)
+        return GVM_STREAM_VALIDATOR_DATA_TOO_LONG;
+    }
 
   gcry_md_write (validator->gcrypt_md_hd, data, length);
   validator->current_size += length;
@@ -202,11 +262,14 @@ gvm_stream_validator_end (gvm_stream_validator_t validator)
   unsigned char *actual_hash_bin;
   gchar *actual_hash_hex;
 
-  if (validator->current_size < validator->expected_size)
-    return GVM_STREAM_VALIDATOR_DATA_TOO_SHORT;
+  if (validator->size_enforced)
+    {
+      if (validator->current_size < validator->expected_size)
+        return GVM_STREAM_VALIDATOR_DATA_TOO_SHORT;
 
-  if (validator->current_size > validator->expected_size)
-    return GVM_STREAM_VALIDATOR_DATA_TOO_LONG;
+      if (validator->current_size > validator->expected_size)
+        return GVM_STREAM_VALIDATOR_DATA_TOO_LONG;
+    }
 
   actual_hash_bin =
     gcry_md_read (validator->gcrypt_md_hd, validator->algorithm);
