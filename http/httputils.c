@@ -338,7 +338,7 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
   else
     {
       g_debug ("%s: Error performing CURL request: %s", __func__,
-                 curl_easy_strerror (result));
+               curl_easy_strerror (result));
       http_response->http_status = -1;
       http_response->data =
         g_strdup_printf ("{\"error\": \"CURL request failed: %s\"}",

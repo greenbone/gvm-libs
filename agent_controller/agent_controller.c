@@ -814,8 +814,7 @@ agent_controller_get_agents (agent_controller_connector_t conn)
 
   if (response->http_status != 200)
     {
-      g_debug ("%s: Received HTTP status %ld", __func__,
-                 response->http_status);
+      g_debug ("%s: Received HTTP status %ld", __func__, response->http_status);
       gvm_http_response_free (response);
       return NULL;
     }
