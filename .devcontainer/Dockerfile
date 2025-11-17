@@ -10,7 +10,7 @@ ARG USER_GID=$USER_UID
 RUN --mount=type=bind,source=.github,target=/source/ \
     sh /source/install-dependencies.sh /source/build-dependencies.list
 RUN apt-get install -y --no-install-recommends \
-    clang-format cgreen1
+    clang-format libcgreen1-dev
 
 # add non-root user
 RUN groupadd --gid $USER_GID $USERNAME \
