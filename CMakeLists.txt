@@ -259,8 +259,7 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
 
   if(OPENVASD)
     list(
-      APPEND
-      TESTS
+      APPEND TESTS
       openvasd-test
       http-scanner-test
       container_image_scanner-test
