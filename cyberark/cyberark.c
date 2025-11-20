@@ -282,14 +282,19 @@ cyberark_build_query_string (cyberark_connector_t conn, const gchar *safe,
       return NULL;
     }
 
+  gchar *app_id_escaped = g_uri_escape_string (conn->app_id, NULL, FALSE);
+
   GString *query = g_string_new ("");
-  g_string_append_printf (query, "?AppID=%s", conn->app_id);
+  g_string_append_printf (query, "?AppID=%s", app_id_escaped);
+  g_free (app_id_escaped);
 
   if (object && *object)
     {
+      gchar *object_escaped = g_uri_escape_string (object, NULL, FALSE);
       g_string_append_printf (query,
                               "&Query=object=%s",
-                              object);
+                              object_escaped);
+      g_free (object_escaped);
     }
   else
     {
@@ -300,16 +305,20 @@ cyberark_build_query_string (cyberark_connector_t conn, const gchar *safe,
 
   if (safe && *safe)
     {
+      gchar *safe_escaped = g_uri_escape_string (safe, NULL, FALSE);
       g_string_append_printf (query,
                               ";safe=%s",
-                              safe);
+                              safe_escaped);
+      g_free (safe_escaped);
     }
 
   if (folder && *folder)
     {
+      gchar *folder_escaped = g_uri_escape_string (folder, NULL, FALSE);
       g_string_append_printf (query,
                               ";folder=%s",
-                              folder);
+                              folder_escaped);
+      g_free (folder_escaped);
     }
 
   return g_string_free (query, FALSE);
