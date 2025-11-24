@@ -31,7 +31,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Install build dependencies
       run: sh .github/install-dependencies.sh .github/build-dependencies.list
