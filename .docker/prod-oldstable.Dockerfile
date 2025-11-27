@@ -7,7 +7,7 @@ COPY . /source
 RUN sh /source/.github/install-dependencies.sh \
   /source/.github/build-dependencies.list \
   && rm -rf /var/lib/apt/lists/*
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DOPENVASD=0 -DENABLE_AGENTS=0 -B/build /source \
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_OPENVASD=0 -DENABLE_AGENTS=0 -B/build /source \
   && DESTDIR=/install cmake --build /build -j$(nproc) -- install
 
 FROM debian:oldstable-slim
