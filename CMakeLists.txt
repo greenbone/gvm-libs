@@ -22,7 +22,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 option(BUILD_STATIC "Build static versions of the libraries" OFF)
 option(ENABLE_COVERAGE "Enable support for coverage analysis" OFF)
 option(BUILD_TESTS "Build tests for the libraries" OFF)
-option(OPENVASD "Build openvasd library" ON)
+option(ENABLE_OPENVASD "Build openvasd library" ON)
 option(ENABLE_AGENTS "Build agent controller library" ON)
 option(ENABLE_CREDENTIAL_STORES "Build credential store library" ON)
 
@@ -257,7 +257,7 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     xmlutils-test
   )
 
-  if(OPENVASD)
+  if(ENABLE_OPENVASD)
     list(
       APPEND TESTS
       openvasd-test
@@ -266,7 +266,7 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
       httputils-test
       vtparser-test
     )
-  endif(OPENVASD)
+  endif(ENABLE_OPENVASD)
 
   if(ENABLE_AGENTS)
     list(APPEND TESTS agent-controller-test)
@@ -317,24 +317,24 @@ if(NOT SKIP_SRC)
   add_subdirectory(osp)
   add_subdirectory(gmp)
 
-  if(OPENVASD)
+  if(ENABLE_OPENVASD)
     add_subdirectory(http)
     add_subdirectory(http_scanner)
     add_subdirectory(openvasd)
     add_subdirectory(container_image_scanner)
-  endif(OPENVASD)
+  endif(ENABLE_OPENVASD)
 
   if(ENABLE_AGENTS)
-    if(NOT OPENVASD)
+    if(NOT ENABLE_OPENVASD)
       add_subdirectory(http)
-    endif(NOT OPENVASD)
+    endif(NOT ENABLE_OPENVASD)
     add_subdirectory(agent_controller)
   endif(ENABLE_AGENTS)
 
   if(ENABLE_CREDENTIAL_STORES)
-    if(NOT OPENVASD)
+    if(NOT ENABLE_OPENVASD)
       add_subdirectory(http)
-    endif(NOT OPENVASD)
+    endif(NOT ENABLE_OPENVASD)
     add_subdirectory(cyberark)
   endif(ENABLE_CREDENTIAL_STORES)
 endif(NOT SKIP_SRC)
