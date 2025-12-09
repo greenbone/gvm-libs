@@ -3,7 +3,7 @@ libcurl4t64
 libgcrypt20
 libglib2.0-0
 libgnutls30
-libgpgme11
+libgpgme45
 libhiredis1.1.0
 libldap-common
 libnet9
