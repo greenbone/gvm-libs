@@ -98,3 +98,65 @@ gvm_ssh_public_from_private (const char *private_key, const char *passphrase)
   g_free (pub_key);
   return pub_str;
 }
+
+/**
+ * @brief Gets information from a SSH private key.
+ *
+ * @param[in]   private_key     Private key to get info from.
+ * @param[in]   passphrase      Passphrase for the private key.
+ * @param[out]  type            Static string describing the type of the key.
+ * @param[out]  sha256_hash     The SHA-256 hash of the key.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+gvm_ssh_private_key_info (const char *private_key, const char *passphrase,
+                          const char **type, char **sha256_hash)
+{
+  ssh_key priv;
+  char *decrypted_priv;
+  int ret;
+
+  if (type)
+    *type = NULL;
+  if (sha256_hash)
+    *sha256_hash = NULL;
+
+  if (private_key == NULL)
+    return -1;
+  decrypted_priv = gvm_ssh_pkcs8_decrypt (private_key, passphrase);
+  ret = ssh_pki_import_privkey_base64 (decrypted_priv ? decrypted_priv
+                                                      : private_key,
+                                       passphrase, NULL, NULL, &priv);
+  free (decrypted_priv);
+  if (ret)
+    return -1;
+
+  if (type)
+    {
+      *type = ssh_key_type_to_char (ssh_key_type (priv));
+    }
+
+  if (sha256_hash)
+    {
+      unsigned char *hash = NULL;
+      size_t hash_size = 0;
+      ret = ssh_get_publickey_hash (priv, SSH_PUBLICKEY_HASH_SHA256, &hash,
+                                    &hash_size);
+      if (ret == 0)
+        {
+          gchar *hex = g_malloc0 (hash_size * 2 + 1);
+          for (unsigned int i = 0; i < hash_size; i++)
+            {
+              g_snprintf (hex + i * 2, 3, "%02x", hash[i]);
+            }
+          *sha256_hash = hex;
+        }
+    }
+
+  ssh_key_free (priv);
+
+  if (ret)
+    return -1;
+  return 0;
+}
