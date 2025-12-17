@@ -1068,6 +1068,20 @@ __wrap_g_io_channel_shutdown (GIOChannel *channel, gboolean flush, GError **err)
   return (GIOStatus) mock (channel, flush, err);
 }
 
+__attribute__ ((weak)) void
+__real_g_io_channel_unref (GIOChannel *channel);
+
+void
+__wrap_g_io_channel_unref (GIOChannel *channel);
+void
+__wrap_g_io_channel_unref (GIOChannel *channel)
+{
+  if (g_g_io_channel_shutdown_use_real) {
+    __real_g_io_channel_unref (channel);
+    return;
+  }
+}
+
 Ensure (networking, get_routes)
 {
   int status;
