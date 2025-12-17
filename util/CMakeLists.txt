@@ -313,6 +313,17 @@ if(BUILD_TESTS)
     ${LINKER_HARDENING_FLAGS}
   )
   add_unit_test(
+    sshutils-test
+    sshutils_tests.c
+    gvm_util_shared
+    gvm_base_shared
+    ${GLIB_LDFLAGS}
+    ${GCRYPT_LDFLAGS}
+    ${GNUTLS_LDFLAGS}
+    ${LIBSSH_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+  add_unit_test(
     radiusutils-test
     radiusutils_tests.c
     gvm_util_shared
