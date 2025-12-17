@@ -1076,10 +1076,11 @@ __wrap_g_io_channel_unref (GIOChannel *channel);
 void
 __wrap_g_io_channel_unref (GIOChannel *channel)
 {
-  if (g_g_io_channel_shutdown_use_real) {
-    __real_g_io_channel_unref (channel);
-    return;
-  }
+  if (g_g_io_channel_shutdown_use_real)
+    {
+      __real_g_io_channel_unref (channel);
+      return;
+    }
 }
 
 Ensure (networking, get_routes)
