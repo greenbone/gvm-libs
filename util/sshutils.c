@@ -39,6 +39,9 @@ gvm_ssh_pkcs8_decrypt (const char *pkcs8_key, const char *passphrase)
   int rc;
   size_t size = sizeof (buffer);
 
+  if (pkcs8_key == NULL)
+    return NULL;
+
   rc = gnutls_x509_privkey_init (&key);
   if (rc)
     return NULL;

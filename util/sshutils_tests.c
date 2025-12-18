@@ -460,10 +460,8 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
-  /* TODO segv
   add_test_with_context (suite, sshutils,
                          gvm_ssh_pkcs8_decrypt_returns_null_for_null_pkcs8_key);
-  */
   add_test_with_context (suite, sshutils,
                          gvm_ssh_pkcs8_decrypt_handles_empty_passphrase);
   add_test_with_context (suite, sshutils,
