@@ -46,12 +46,12 @@ gvm_ssh_pkcs8_decrypt (const char *pkcs8_key, const char *passphrase)
   data.data = (void *) g_strdup (pkcs8_key);
   rc = gnutls_x509_privkey_import_pkcs8 (key, &data, GNUTLS_X509_FMT_PEM,
                                          passphrase ? passphrase : "", 0);
+  g_free (data.data);
   if (rc)
     {
       gnutls_x509_privkey_deinit (key);
       return NULL;
     }
-  g_free (data.data);
   rc = gnutls_x509_privkey_export (key, GNUTLS_X509_FMT_PEM, buffer, &size);
   gnutls_x509_privkey_deinit (key);
   if (rc)
