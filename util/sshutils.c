@@ -150,6 +150,7 @@ gvm_ssh_private_key_info (const char *private_key, const char *passphrase,
             {
               g_snprintf (hex + i * 2, 3, "%02x", hash[i]);
             }
+          ssh_clean_pubkey_hash (&hash);
           *sha256_hash = hex;
         }
     }
