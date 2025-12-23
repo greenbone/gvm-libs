@@ -981,7 +981,7 @@ get_routes (void)
 /**
  * @brief Free the list of routes.
  *
- * @param GSList of route_entry structs, or NULL.
+ * @param[in]  routes  GSList of route_entry structs, or NULL.
  */
 static void
 free_routes (GSList *routes)

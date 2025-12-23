@@ -1064,8 +1064,7 @@ transform_for_uri (const char *component)
 /**
  * @brief Pack the sixth component of a URI CPE.
  *
- * @param[in]   component  The CPE struct with the components to pack into the
- *                         sixth component of a URI CPE.
+ * @param[in]  cpe  The CPE struct with the components to pack.
  *
  * @return  The packed component for the URI CPE.
  */
@@ -1184,7 +1183,7 @@ process_quoted_chars (const char *component)
 /**
  * @brief Initialize a CPE struct.
  *
- * @param[in/out]  cpe  The pointer to the CPE to initialize.
+ * @param[in,out]  cpe  The pointer to the CPE to initialize.
  */
 void
 cpe_struct_init (cpe_struct_t *cpe)
@@ -1208,7 +1207,7 @@ cpe_struct_init (cpe_struct_t *cpe)
 /**
  * @brief Free a CPE struct.
  *
- * @param[in/out]  cpe  The CPE to be freed.
+ * @param[in,out]  cpe  The CPE to be freed.
  */
 void
 cpe_struct_free (cpe_struct_t *cpe)
@@ -1242,7 +1241,7 @@ cpe_struct_free (cpe_struct_t *cpe)
 /**
  * @brief Cut of trailing ':' signs.
  *
- * @param[in/out]  str  The string to be processed.
+ * @param[in,out]  str  The string to be processed.
  */
 static void
 trim_pct (char *str)

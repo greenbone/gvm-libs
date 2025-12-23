@@ -353,11 +353,11 @@ is_text (const char *part)
 /**
  * @brief Copy size characters of a string to an newly allocated new string.
  *
- * @param[in]   src   The string the first size characters are to be copied
- *                    from.
- * @param[in]   size  The number of characters to copy.
+ * @param[in]  source  The string the first size characters are to be copied
+ *                     from.
+ * @param[in]  size    The number of characters to copy.
  *
- * @return  The copy of the first size characters of src as a new string.
+ * @return The copy of the first size characters of src as a new string.
  */
 static char *
 str_cpy (char *source, int size)
