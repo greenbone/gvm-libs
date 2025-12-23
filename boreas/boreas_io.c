@@ -47,7 +47,7 @@ set_max_scan_hosts_reached ()
  * @brief Get number of identified alive hosts.
  *
  * @return Number of identified alive hosts.
- * */
+ */
 int
 get_alive_hosts_count ()
 {
