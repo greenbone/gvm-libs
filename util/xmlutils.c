@@ -2604,7 +2604,7 @@ xml_file_iterator_entity_decl (void *ctx, const xmlChar *name, int type,
  * libXML parser context from the iterator struct passed as user data.
  *
  * @param[in] ctx           parser context data / iterator data structure
- * @param[in] name          the name of the element
+ * @param[in] elem          the name of the element
  * @param[in] fullname      the attribute name
  * @param[in] type          the attribute type
  * @param[in] def           the type of default value
@@ -2632,8 +2632,6 @@ xml_file_iterator_attribute_decl (void *ctx, const xmlChar *elem,
  * @param[in] ctx           parser context data / iterator data structure
  * @param[in] name          the element name
  * @param[in] type          the element type
- * @param[in] def           the type of default value
- * @param[in] defaultValue  the attribute default value
  * @param[in] content       the element value tree
  */
 static void
