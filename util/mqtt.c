@@ -158,7 +158,7 @@ mqtt_set_global_client (mqtt_t *mqtt)
  *
  * @param mqtt  mqtt_t
  *
- * @return  0 on success, -1 on error.
+ * @return 0 on success, -1 on error.
  */
 static int
 mqtt_disconnect (mqtt_t *mqtt)

@@ -94,7 +94,7 @@ get_code (char *, const char *);
  *
  * @param[in]  uri_cpe  A CPE v2.2-conformant URI.
  *
- * @return  A formatted string CPE.
+ * @return A formatted string CPE.
  */
 char *
 uri_cpe_to_fs_cpe (const char *uri_cpe)
@@ -114,7 +114,7 @@ uri_cpe_to_fs_cpe (const char *uri_cpe)
  *
  * @param[in]  uri_cpe  A CPE v2.2-conformant URI.
  *
- * @return  A formatted string product.
+ * @return A formatted string product.
  */
 char *
 uri_cpe_to_fs_product (const char *uri_cpe)
@@ -134,7 +134,7 @@ uri_cpe_to_fs_product (const char *uri_cpe)
  *
  * @param[in]  uri_cpe  A CPE v2.2-conformant URI.
  *
- * @return  A CPE v2.2-conformant URI product.
+ * @return A CPE v2.2-conformant URI product.
  */
 char *
 uri_cpe_to_uri_product (const char *uri_cpe)
@@ -154,7 +154,7 @@ uri_cpe_to_uri_product (const char *uri_cpe)
  *
  * @param[in]  fs_cpe  A formatted string CPE.
  *
- * @return  A CPE v2.2-conformant URI.
+ * @return A CPE v2.2-conformant URI.
  */
 char *
 fs_cpe_to_uri_cpe (const char *fs_cpe)
@@ -174,7 +174,7 @@ fs_cpe_to_uri_cpe (const char *fs_cpe)
  *
  * @param[in]  fs_cpe  A formatted string CPE.
  *
- * @return  An URI product.
+ * @return An URI product.
  */
 char *
 fs_cpe_to_uri_product (const char *fs_cpe)
@@ -234,7 +234,7 @@ uri_cpe_to_cpe_struct (const char *uri_cpe, cpe_struct_t *cpe)
  *
  * @param[in]   cpe  A pointer to the CPE struct.
  *
- * @return  A CPE v2.2-conformant URI.
+ * @return A CPE v2.2-conformant URI.
  */
 char *
 cpe_struct_to_uri_cpe (const cpe_struct_t *cpe)
@@ -303,7 +303,7 @@ cpe_struct_to_uri_cpe (const cpe_struct_t *cpe)
  *
  * @param[in]   cpe  A pointer to the CPE struct.
  *
- * @return  A CPE v2.2-conformant URI product.
+ * @return A CPE v2.2-conformant URI product.
  */
 char *
 cpe_struct_to_uri_product (const cpe_struct_t *cpe)
@@ -344,7 +344,7 @@ cpe_struct_to_uri_product (const cpe_struct_t *cpe)
  *
  * @param[in]  uri_cpe  The uri cpe to get the version from.
  *
- * @return  The version of the uri cpe.
+ * @return The version of the uri cpe.
  */
 char *
 get_version_from_uri_cpe (const char *uri_cpe)
@@ -396,7 +396,7 @@ fs_cpe_to_cpe_struct (const char *fs_cpe, cpe_struct_t *cpe)
  *
  * @param[in]   cpe  A pointer to the CPE struct.
  *
- * @return  A formatted string CPE.
+ * @return A formatted string CPE.
  */
 char *
 cpe_struct_to_fs_cpe (const cpe_struct_t *cpe)
@@ -490,7 +490,7 @@ cpe_struct_to_fs_cpe (const cpe_struct_t *cpe)
  *
  * @param[in]   cpe  A pointer to the CPE struct.
  *
- * @return  A formatted string product.
+ * @return A formatted string product.
  */
 char *
 cpe_struct_to_fs_product (const cpe_struct_t *cpe)
@@ -530,7 +530,7 @@ cpe_struct_to_fs_product (const cpe_struct_t *cpe)
  * @param[in]   uri_cpe  The URI CPE.
  * @param[in]   index    The number of the component to get.
  *
- * @return  The indexth component of the URI CPE.
+ * @return The indexth component of the URI CPE.
  */
 static char *
 get_uri_component (const char *uri_cpe, int index)
@@ -580,7 +580,7 @@ get_uri_component (const char *uri_cpe, int index)
  *
  * @param[in]  component  The component to decode.
  *
- * @return  The decoded component of the URI CPE.
+ * @return The decoded component of the URI CPE.
  */
 static char *
 decode_uri_component (const char *component)
@@ -795,7 +795,7 @@ unpack_sixth_uri_component (const char *component, cpe_struct_t *cpe)
  * @param[in]   fs_cpe  The formatted string CPE.
  * @param[in]   index   The number of the component to get.
  *
- * @return  The indexth component of the formatted string CPE.
+ * @return The indexth component of the formatted string CPE.
  */
 static char *
 get_fs_component (const char *fs_cpe, int index)
@@ -863,7 +863,7 @@ get_fs_component (const char *fs_cpe, int index)
  *
  * @param[in]   component  The component to unbind.
  *
- * @return  The unbound component of the formatted string CPE.
+ * @return The unbound component of the formatted string CPE.
  */
 static char *
 unbind_fs_component (char *component)
@@ -891,8 +891,8 @@ unbind_fs_component (char *component)
  *
  * @param[in]   component  The component to add the quotings to.
  *
- * @return  The component of the formatted string CPE with all necessary
- *          quotes added.
+ * @return The component of the formatted string CPE with all necessary
+ *         quotes added.
  */
 static char *
 add_quoting (const char *component)
@@ -983,7 +983,7 @@ add_quoting (const char *component)
  *
  * @param[in]   component  The component to bind.
  *
- * @return  The bound component for the URI CPE.
+ * @return The bound component for the URI CPE.
  */
 static char *
 bind_cpe_component_for_uri (const char *component)
@@ -1004,7 +1004,7 @@ bind_cpe_component_for_uri (const char *component)
  *
  * @param[in]   component  The component to transform.
  *
- * @return  The transformed component for the URI CPE.
+ * @return The transformed component for the URI CPE.
  */
 static char *
 transform_for_uri (const char *component)
@@ -1066,7 +1066,7 @@ transform_for_uri (const char *component)
  *
  * @param[in]  cpe  The CPE struct with the components to pack.
  *
- * @return  The packed component for the URI CPE.
+ * @return The packed component for the URI CPE.
  */
 static char *
 pack_sixth_uri_component (const cpe_struct_t *cpe)
@@ -1117,7 +1117,7 @@ pack_sixth_uri_component (const cpe_struct_t *cpe)
  *
  * @param[in]  component  The component to bind.
  *
- * @return  The bound component for the formatted string CPE.
+ * @return The bound component for the formatted string CPE.
  */
 static char *
 bind_cpe_component_for_fs (const char *component)
@@ -1139,7 +1139,7 @@ bind_cpe_component_for_fs (const char *component)
  *
  * @param[in]  component  The component to process.
  *
- * @return  The processed component for the formatted string CPE.
+ * @return The processed component for the formatted string CPE.
  */
 static char *
 process_quoted_chars (const char *component)
@@ -1288,7 +1288,7 @@ get_code (char *code, const char *str)
  *                     subset of source meaning that it is matched by
  *                     source.
  *
- * @return  Returns if source is a match for target.
+ * @return Returns if source is a match for target.
  */
 gboolean
 cpe_struct_match (cpe_struct_t *source, cpe_struct_t *target)
@@ -1343,7 +1343,7 @@ cpe_struct_match (cpe_struct_t *source, cpe_struct_t *target)
  *                     subset of source meaning that it is matched by
  *                     source.
  *
- * @return  Returns if source is a match for target.
+ * @return Returns if source is a match for target.
  */
 gboolean
 cpe_struct_match_tail (cpe_struct_t *source, cpe_struct_t *target)
@@ -1384,7 +1384,7 @@ cpe_struct_match_tail (cpe_struct_t *source, cpe_struct_t *target)
  *                     is a subset of source meaning that it is matched by
  *                     source.
  *
- * @return  Returns if source is a match for target.
+ * @return Returns if source is a match for target.
  */
 static enum set_relation
 compare_component (const char *source, const char *target)
@@ -1461,7 +1461,7 @@ compare_component (const char *source, const char *target)
  *                     checked if it represents a subset of source meaning
  *                     that it is matched by source.
  *
- * @return  Returns if source is a match for target.
+ * @return Returns if source is a match for target.
  */
 static enum set_relation
 compare_strings (const char *source, const char *target)
@@ -1535,8 +1535,8 @@ compare_strings (const char *source, const char *target)
  * @param[in]  end    The end position in the string where the examination
  *                    ends.
  *
- * @return  Returns the number of unescaped escape signs in the specified
- *          part of the string.
+ * @return Returns the number of unescaped escape signs in the specified
+ *         part of the string.
  */
 static int
 count_escapes (const char *str, int start, int end)
@@ -1560,8 +1560,8 @@ count_escapes (const char *str, int start, int end)
  * @param[in]  str    The string to be examined.
  * @param[in]  index  The index where the examination starts.
  *
- * @return  Returns if an even number of escape characters precede the
- *          character at index "index".
+ * @return Returns if an even number of escape characters precede the
+ *         character at index "index".
  */
 static gboolean
 is_even_wildcards (const char *str, int index)
@@ -1581,7 +1581,7 @@ is_even_wildcards (const char *str, int index)
  *
  * @param[in]  str  The string to be examined.
  *
- * @return  Returns TRUE if the string contains wildcards. FALSE otherwise.
+ * @return Returns TRUE if the string contains wildcards. FALSE otherwise.
  */
 static gboolean
 has_wildcards (const char *str)
@@ -1612,8 +1612,8 @@ has_wildcards (const char *str)
  * @param[in]  sub_str  The string to be searched for in "str".
  * @param[in]  offset   The offset where to start the search in "str".
  *
- * @return  Returns the index where the string "sub_str" starts in "str", if
- *          the string "sub_str" was found, -1 otherwise.
+ * @return Returns the index where the string "sub_str" starts in "str", if
+ *         the string "sub_str" was found, -1 otherwise.
  */
 static int
 index_of (const char *str, const char *sub_str, int offset)
@@ -1637,8 +1637,8 @@ index_of (const char *str, const char *sub_str, int offset)
  *
  * @param[in]  str  The string to be examined.
  *
- * @return  Returns TRUE if the string "str" does not represent one of the
- *          logical values "ANY" or "NA". Returns FALSE otherwise.
+ * @return Returns TRUE if the string "str" does not represent one of the
+ *         logical values "ANY" or "NA". Returns FALSE otherwise.
  */
 static gboolean
 is_string (const char *str)

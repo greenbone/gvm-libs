@@ -1937,7 +1937,7 @@ int
  * @param[in]   find_element      Name of the element to find.
  * @param[in]   find_attributes   GHashTable of attributes to find.
  *
- * @return  1 if element was found, 0 if not.
+ * @return 1 if element was found, 0 if not.
  */
 find_element_in_xml_file (gchar *file_path, gchar *find_element,
                           GHashTable *find_attributes)

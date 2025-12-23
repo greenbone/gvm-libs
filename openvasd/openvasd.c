@@ -680,7 +680,7 @@ openvasd_target_add_credential (openvasd_target_t *target,
  *
  * @param vt_id  The id of the VT.
  *
- * @return  The newly allocated single VT.
+ * @return The newly allocated single VT.
  */
 openvasd_vt_single_t *
 openvasd_vt_single_new (const gchar *vt_id)

@@ -135,7 +135,7 @@ send_limit_msg (int num_not_scanned_hosts)
  * @param alive_hosts_kb  Redis connection for accessing the queue on which the
  * alive detection scanner puts found hosts.
  * @param alive_deteciton_finished  Status of alive detection process.
- * @return  If valid alive host is found return a gvm_host_t. If alive scanner
+ * @return If valid alive host is found return a gvm_host_t. If alive scanner
  * finished NULL is returened and alive_deteciton_finished set. On error or if
  * no host was found return NULL.
  */

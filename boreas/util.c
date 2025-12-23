@@ -540,7 +540,7 @@ set_socket (socket_type_t socket_type, int *scanner_socket)
  * @param scanner     Reference to scanner struct.
  * @param alive_test  Methods of alive detection to use provided as bitflag.
  *
- * @return  0 on success, boreas_error_t on error.
+ * @return 0 on success, boreas_error_t on error.
  */
 boreas_error_t
 set_all_needed_sockets (scanner_t *scanner, alive_test_t alive_test)
