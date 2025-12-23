@@ -18,7 +18,7 @@
  * PBASettings is used by pba_hash to control SALT, HASH function and
  * computional costs.
  *
- * */
+ */
 struct PBASettings
 {
   char pepper[MAX_PEPPER_SIZE]; /* is statically applied to the random salt */
@@ -36,7 +36,7 @@ struct PBASettings
  *
  * Returns a pointer to PBASettings on success or NULL on failure.
  *
- * */
+ */
 struct PBASettings *
 pba_init (const char *pepper, unsigned int pepper_size, unsigned int count,
           char *prefix);
