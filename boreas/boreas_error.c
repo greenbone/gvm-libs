@@ -16,7 +16,7 @@
 /**
  * @brief Transform Boreas error code into human readable error message.
  *
- * @param boreas_error Boreas error code.
+ * @param  boreas_error  Boreas error code.
  *
  * @return String representation of supplied error code.
  */

@@ -78,7 +78,8 @@ inc_alive_hosts_count ()
 /**
  * @brief Send Message about not vuln scanned alive hosts to ospd-openvas.
  *
- * @param num_not_scanned Number of alive hosts which were not vuln scanned.
+ * @param  num_not_scanned  Number of alive hosts which were not vuln scanned.
+ *
  * @return 0 on success, else Error.
  */
 static int
@@ -132,9 +133,10 @@ send_limit_msg (int num_not_scanned_hosts)
  * scanning all hosts, NULL is returned and the status flag
  * alive_detection_finished is set to TRUE.
  *
- * @param alive_hosts_kb  Redis connection for accessing the queue on which the
- * alive detection scanner puts found hosts.
- * @param alive_deteciton_finished  Status of alive detection process.
+ * @param  alive_hosts_kb  Redis connection for accessing the queue on which the
+ *                         alive detection scanner puts found hosts.
+ * @param  alive_deteciton_finished  Status of alive detection process.
+ *
  * @return If valid alive host is found return a gvm_host_t. If alive scanner
  * finished NULL is returened and alive_deteciton_finished set. On error or if
  * no host was found return NULL.
@@ -212,8 +214,8 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
 /**
  * @brief Put host value string on queue of hosts to be considered as alive.
  *
- * @param kb KB to use.
- * @param addr_str IP addr in str representation to put on queue.
+ * @param  kb        KB to use.
+ * @param  addr_str  IP addr in str representation to put on queue.
  */
 void
 put_host_on_queue (kb_t kb, char *addr_str)
@@ -227,7 +229,8 @@ put_host_on_queue (kb_t kb, char *addr_str)
 /**
  * @brief Checks if the finish signal is already set.
  *
- * @param main_kb  kb to use
+ * @param  main_kb  kb to use
+ *
  * @return 1 if it is already set. 0 otherwise.
  */
 int
@@ -263,7 +266,7 @@ finish_signal_on_queue (kb_t main_kb)
  * @brief Reallocate finish signal in last position of the alive detection
  * queue.
  *
- * @param main_kb  kb to use
+ * @param  main_kb  kb to use
  */
 void
 realloc_finish_signal_on_queue (kb_t main_kb)
@@ -288,9 +291,8 @@ realloc_finish_signal_on_queue (kb_t main_kb)
  * If the finish signal (a string) was already put on the queue it is not put on
  * it again.
  *
- * @param error  Set to 0 on success. Is set to -1 if finish signal was already
- * put on queue. Set to -2 if function was no able to push finish string on
- * queue.
+ * @param[out] error  0 success. -1 finish signal was already put on queue.
+ *                    -2 function was not able to push finish string on queue.
  */
 void
 put_finish_signal_on_queue (void *error)
@@ -338,9 +340,9 @@ put_finish_signal_on_queue (void *error)
 /**
  * @brief Init scan restrictions.
  *
- * @param scanner Pointer to scanner struct.
- * @param max_scan_hosts  Maximum number of hosts allowed to scan. 0 equals no
- * scan limit.
+ * @param  scanner         Pointer to scanner struct.
+ * @param  max_scan_hosts  Maximum number of hosts allowed to scan. 0 equals no
+ *                         scan limit.
  */
 void
 init_scan_restrictions (scanner_t *scanner, int max_scan_hosts)
@@ -360,8 +362,8 @@ init_scan_restrictions (scanner_t *scanner, int max_scan_hosts)
  * don't put them on the queue. Put finish signal on queue if max_scan_hosts is
  * reached.
  *
- * @param scanner Scanner struct.
- * @param add_str Host address string to put on queue.
+ * @param  scanner  Scanner struct.
+ * @param  add_str  Host address string to put on queue.
  */
 void
 handle_scan_restrictions (scanner_t *scanner, gchar *addr_str)
@@ -399,8 +401,8 @@ handle_scan_restrictions (scanner_t *scanner, gchar *addr_str)
  * ospd-openvas. The number of dead hosts sent to ospd-openvas may not
  * necessarily reflect the actual number of dead hosts in the target list.
  *
- * @param hosts_data  Includes all data which is needed for calculating the
- * number of dead hosts.
+ * @param  hosts_data  Includes all data which is needed for calculating the
+ *                     number of dead hosts.
  *
  * @return number of dead hosts, or -1 in case of an error.
  */
@@ -432,8 +434,8 @@ send_dead_hosts_to_ospd_openvas (int count_dead_hosts)
 /**
  * @brief Get the openvas scan id of the current task.
  *
- * @param db_address  Address of the Redis db.
- * @param db_id ID of the scan main db.
+ * @param  db_address  Address of the Redis db.
+ * @param  db_id       ID of the scan main db.
  *
  * @return Scan id of current task or NULL on error.
  */
@@ -455,7 +457,7 @@ get_openvas_scan_id (const gchar *db_address, int db_id)
 
 /**
  * @brief Get the bitflag which describes the methods to use for alive
- * deteciton.
+ * detection.
  *
  * @param[out]  alive_test  Bitflag of all specified alive detection methods.
  *
@@ -497,6 +499,7 @@ get_alive_test_ports (void)
 
 /**
  * @brief Get the max time in seconds that boreas waits for replies.
+ *
  * Minimum is 1 second. Max is 20. If a given value is invalid or greather
  * than 20, it is set to WAIT_FOR_REPLIES_TIMEOUT
  *
