@@ -273,7 +273,7 @@ addr6_to_str (const struct in6_addr *addr6, char *str)
  *
  * @param[in]   addr6   IP address.
  *
- * @return      IP as string. NULL otherwise.
+ * @return IP as string. NULL otherwise.
  */
 char *
 addr6_as_str (const struct in6_addr *addr6)
@@ -872,7 +872,7 @@ struct route_entry
 /**
  * @brief Get the entries of /proc/net/route as list of route_entry structs.
  *
- * @return  GSList of route_entry structs. NULL if no routes found or Error.
+ * @return GSList of route_entry structs. NULL if no routes found or Error.
  */
 static GSList *
 get_routes (void)

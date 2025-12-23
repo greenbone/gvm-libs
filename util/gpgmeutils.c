@@ -280,7 +280,7 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx, const char *key_str,
  * @param[in]  ctx        The GPGME context.
  * @param[in]  uid_email  The recipient email address to look for.
  *
- * @return  The key as a gpgme_key_t.
+ * @return The key as a gpgme_key_t.
  */
 static gpgme_key_t
 find_email_encryption_key (gpgme_ctx_t ctx, const char *uid_email)

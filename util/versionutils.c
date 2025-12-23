@@ -47,11 +47,11 @@ str_cpy (char *, int);
  * @param[in]  version1  The first version string to compare.
  * @param[in]  version2  The second version string to compare.
  *
- * @return  Returns a value > 0 if version1 is newer than version2.
- *          Returns 0 if version1 is the same than version2.
- *          Returns a value between -1 and -4 if version2 is newer
- *          than version1.
- *          Returns -5 if the result is undefined.
+ * @return Returns a value > 0 if version1 is newer than version2.
+ *         Returns 0 if version1 is the same than version2.
+ *         Returns a value between -1 and -4 if version2 is newer
+ *         than version1.
+ *         Returns -5 if the result is undefined.
  */
 int
 cmp_versions (const char *version1, const char *version2)
@@ -176,7 +176,7 @@ cmp_versions (const char *version1, const char *version2)
  * @param[in]  version  The version string to generate the prepared
  *                      version string from.
  *
- * @return  Returns a prepared copy of the version string version.
+ * @return Returns a prepared copy of the version string version.
  */
 static gchar *
 prepare_version_string (const char *version)
@@ -271,9 +271,9 @@ prepare_version_string (const char *version)
  * @param[in]  version  The version string to get the release state from.
  * @param[in]  index    The part of the version string to check.
  *
- * @return  Returns 0 if there is no release state, returns 4 if the release
- *          state is "development" (dev), returns 3 if the state is "alpha",
- *          2 if the state is beta and 1 if the state is release candidate (rc).
+ * @return Returns 0 if there is no release state, returns 4 if the release
+ *         state is "development" (dev), returns 3 if the state is "alpha",
+ *         2 if the state is beta and 1 if the state is release candidate (rc).
  */
 static int
 get_release_state (const char *version, int index)
@@ -305,7 +305,7 @@ get_release_state (const char *version, int index)
  * @param[in]  version  The version string to get the part from.
  * @param[in]  index    The part of the version string to return.
  *
- * @return  Returns a copy of the specified part of the version string.
+ * @return Returns a copy of the specified part of the version string.
  */
 static char *
 get_part (const char *version, int index)
@@ -334,7 +334,7 @@ get_part (const char *version, int index)
  *
  * @param[in]  part  The part of the version string to check.
  *
- * @return  Returns TRUE if part contains only plain text, FALSE otherwise.
+ * @return Returns TRUE if part contains only plain text, FALSE otherwise.
  */
 static gboolean
 is_text (const char *part)

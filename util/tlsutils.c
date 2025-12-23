@@ -105,7 +105,7 @@ gvm_x509_privkey_to_pem (gnutls_x509_privkey_t privkey)
  * @param[in]  certs        The array of certificates to export
  * @param[in]  certs_count  The number of certificates to export
  *
- * @return  The certificates as a PEM string, or NULL on error.
+ * @return The certificates as a PEM string, or NULL on error.
  */
 gchar *
 gvm_x509_cert_list_to_pem (gnutls_x509_crt_t *certs, unsigned int certs_count)
@@ -137,7 +137,7 @@ gvm_x509_cert_list_to_pem (gnutls_x509_crt_t *certs, unsigned int certs_count)
  *
  * @param[in]  crl        The certificate revocation list CRL
  *
- * @return  The certificates as a PEM string, or NULL on error.
+ * @return The certificates as a PEM string, or NULL on error.
  */
 gchar *
 gvm_x509_crl_to_pem (gnutls_x509_crl_t crl)

@@ -1784,7 +1784,7 @@ osp_target_add_credential (osp_target_t *target, osp_credential_t *credential)
  *
  * @param[in]  filter  The filter string for the VT group.
  *
- * @return  The newly allocated VT group.
+ * @return The newly allocated VT group.
  */
 osp_vt_group_t *
 osp_vt_group_new (const char *filter)
@@ -1817,7 +1817,7 @@ osp_vt_group_free (osp_vt_group_t *vt_group)
  *
  * @param[in]  vt_id  The id of the VT.
  *
- * @return  The newly allocated single VT.
+ * @return The newly allocated single VT.
  */
 osp_vt_single_t *
 osp_vt_single_new (const char *vt_id)
