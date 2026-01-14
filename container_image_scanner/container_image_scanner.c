@@ -15,9 +15,10 @@
  */
 struct container_image_target
 {
-  gchar *scan_id;      /**  Scan ID */
-  GSList *credentials; /** Credentials to use in the scan */
-  gchar *hosts;        /** String defining one or many hosts to scan */
+  gchar  *scan_id;       /**  Scan ID */
+  GSList *credentials;   /** Credentials to use in the scan */
+  gchar  *hosts;         /** String defining one or many hosts to scan */
+  gchar  *exclude_hosts; /** String defining one or many hosts to exclude */
 };
 
 /**
@@ -94,6 +95,7 @@ container_image_build_scan_config_json (container_image_target_t *target,
   cJSON *scan_obj = NULL;
   cJSON *target_obj = NULL;
   cJSON *hosts_array = NULL;
+  cJSON *exclude_hosts_array = NULL;
   gchar *json_str = NULL;
 
   /* Build the message in json format to be published. */
@@ -116,6 +118,21 @@ container_image_build_scan_config_json (container_image_target_t *target,
     }
   g_strfreev (hosts_list);
   cJSON_AddItemToObject (target_obj, "hosts", hosts_array);
+
+  // exclude hosts
+  if (target->exclude_hosts && target->exclude_hosts[0] != '\0')
+    {
+      exclude_hosts_array = cJSON_CreateArray ();
+      gchar **exclude_hosts_list = g_strsplit (target->exclude_hosts, ",", 0);
+      for (int i = 0; exclude_hosts_list[i] != NULL; i++)
+        {
+          cJSON *exclude_host_item = NULL;
+          exclude_host_item = cJSON_CreateString (exclude_hosts_list[i]);
+          cJSON_AddItemToArray (exclude_hosts_array, exclude_host_item);
+        }
+      g_strfreev (exclude_hosts_list);
+      cJSON_AddItemToObject (target_obj, "excluded_hosts", exclude_hosts_array);
+    }
 
   // credentials
   cJSON *credentials = cJSON_CreateArray ();
@@ -144,11 +161,13 @@ container_image_build_scan_config_json (container_image_target_t *target,
  *
  * @param scanid         Scan ID.
  * @param hosts          The hostnames of the target.
+ * @param exclude_hosts  The excluded hosts of the target.
  *
  * @return The newly allocated container_image_target_t.
  */
 container_image_target_t *
-container_image_target_new (const gchar *scanid, const gchar *hosts)
+container_image_target_new (const gchar *scanid, const gchar *hosts,
+                            const gchar *exclude_hosts)
 {
   container_image_target_t *new_target;
   new_target = g_malloc0 (sizeof (container_image_target_t));
@@ -157,6 +176,7 @@ container_image_target_new (const gchar *scanid, const gchar *hosts)
     new_target->scan_id = g_strdup (scanid);
 
   new_target->hosts = hosts ? g_strdup (hosts) : NULL;
+  new_target->exclude_hosts = exclude_hosts ? g_strdup (exclude_hosts) : NULL;
 
   return new_target;
 }
@@ -175,6 +195,7 @@ container_image_target_free (container_image_target_t *target)
   g_slist_free_full (target->credentials,
                      (GDestroyNotify) container_image_credential_free);
   g_free (target->hosts);
+  g_free (target->exclude_hosts);
   g_free (target->scan_id);
   g_free (target);
   target = NULL;
