@@ -6,6 +6,7 @@ doxygen
 gcovr
 git
 gnupg
+graphviz
 lcov
 libcjson-dev
 libcurl4-openssl-dev
