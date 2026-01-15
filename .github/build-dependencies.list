@@ -2,6 +2,7 @@ build-essential
 ca-certificates
 cmake
 curl
+doxygen
 gcovr
 git
 gnupg
