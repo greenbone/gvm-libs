@@ -9,6 +9,7 @@ gnupg
 graphviz
 lcov
 libcjson-dev
+libcrypt-dev
 libcurl4-openssl-dev
 libgcrypt-dev
 libglib2.0-dev
