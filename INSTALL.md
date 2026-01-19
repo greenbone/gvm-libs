@@ -30,6 +30,7 @@ Specific development libraries:
 * libpcap
 * libssh >= 0.6.0 (util)
 * libuuid >= 2.25.0 (util)
+* libxcrypt (util)
 * libxml2 >= 2.0 (util)
 * zlib >= 1.2.8 (util)
 
@@ -47,6 +48,7 @@ Install prerequisites on Debian stable:
     apt-get install \
     cmake \
     libcjson-dev \
+    libcrypt-dev \
     libcurl4-openssl-dev \
     libgcrypt-dev \
     libglib2.0-dev \
