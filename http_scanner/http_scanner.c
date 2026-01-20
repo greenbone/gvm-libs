@@ -1216,9 +1216,9 @@ http_scanner_get_scan_progress_ext (http_scanner_connector_t conn,
       goto cleanup;
     }
 
-  if ((all + finished - dead) > 0)
+  if ((all + finished - dead - excluded) > 0)
     progress = (running_hosts_progress_sum + 100 * (alive + finished))
-               / (all + finished - dead);
+               / (all + finished - dead - excluded);
   else
     progress = 0;
 
