@@ -159,7 +159,9 @@ typedef struct agent_controller_agent_list *agent_controller_agent_list_t;
  */
 struct agent_controller_agent_update
 {
-  int authorized; ///< Authorization status for update
+  int authorized;       ///< Authorization status for update
+  int update_to_latest; ///< Automatically update the agent
+                        ///  to the latest available version.
   agent_controller_scan_agent_config_t config; ///< The Agent scan configuration
 };
 typedef struct agent_controller_agent_update *agent_controller_agent_update_t;
