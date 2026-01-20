@@ -364,6 +364,7 @@ Ensure (agent_controller, agent_update_new_initializes_defaults_correctly)
   assert_that (update, is_not_null);
 
   assert_that (update->authorized, is_equal_to (-1));
+  assert_that (update->update_to_latest, is_equal_to (-1));
   assert_that (update->config, is_null);
 
   agent_controller_agent_update_free (update);
@@ -727,6 +728,27 @@ Ensure (agent_controller, patch_payload_overrides_only_authorized_field)
   gchar *payload = agent_controller_build_patch_payload (list, update);
 
   assert_that (payload, contains_string ("\"authorized\":true"));
+
+  g_free (payload);
+  agent_controller_agent_update_free (update);
+  agent_controller_agent_list_free (list);
+}
+
+Ensure (agent_controller, patch_payload_overrides_only_update_to_latest_field)
+{
+  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
+  agent_controller_agent_t agent = agent_controller_agent_new ();
+  agent->agent_id = g_strdup ("agentA");
+  agent->update_to_latest = 1;
+
+  list->agents[0] = agent;
+
+  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
+  update->update_to_latest = 1;
+
+  gchar *payload = agent_controller_build_patch_payload (list, update);
+
+  assert_that (payload, contains_string ("\"update_to_latest\":true"));
 
   g_free (payload);
   agent_controller_agent_update_free (update);
@@ -2577,6 +2599,8 @@ main (int argc, char **argv)
                          build_patch_payload_from_single_agent);
   add_test_with_context (suite, agent_controller,
                          patch_payload_overrides_only_authorized_field);
+  add_test_with_context (suite, agent_controller,
+                         patch_payload_overrides_only_update_to_latest_field);
   add_test_with_context (suite, agent_controller,
                          patch_payload_overrides_only_min_interval);
   add_test_with_context (suite, agent_controller,

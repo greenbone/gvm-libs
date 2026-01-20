@@ -438,6 +438,13 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
         use_authorized = update->authorized;
       cJSON_AddBoolToObject (agent_obj, "authorized", use_authorized);
 
+      // update_to_latest
+      int use_update_to_latest = agent->update_to_latest;
+      if (update && update->update_to_latest != -1)
+        use_update_to_latest = update->update_to_latest;
+      cJSON_AddBoolToObject (agent_obj, "update_to_latest",
+                             use_update_to_latest);
+
       /* config: prefer update->config if provided */
       cJSON *cfg_obj = NULL;
       if (update && update->config)
@@ -733,6 +740,7 @@ agent_controller_agent_update_new (void)
     g_malloc0 (sizeof (struct agent_controller_agent_update));
 
   update->authorized = -1;
+  update->update_to_latest = -1;
   update->config = NULL;
 
   return update;
