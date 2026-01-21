@@ -167,7 +167,6 @@ typedef struct
   const char *target_id;      ///< ID of target.
   const char *name;           ///< Name of task.
   const char *comment;        ///< Comment on task.
-  const char *hosts_ordering; ///< Order for scanning target hosts.
   const char *observers;      ///< Comma-separated string of observer users.
   array_t *observer_groups;   ///< IDs of observer groups.
   int schedule_periods;       ///< Number of periods the schedule must run for.
@@ -184,7 +183,7 @@ typedef struct
  * @brief Sensible default values for gmp_get_report_opts_t.
  */
 static const gmp_create_task_opts_t gmp_create_task_opts_defaults = {
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   NULL, NULL, 0,    NULL, NULL, NULL, NULL, 0};
 
 /**
