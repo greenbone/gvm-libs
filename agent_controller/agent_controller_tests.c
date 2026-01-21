@@ -564,7 +564,9 @@ Ensure (agent_controller, parse_agent_with_minimal_fields)
     "\"authorized\": true,"
     "\"last_update\": \"2025-04-29T13:06:00.34994Z\","
     "\"last_updater_heartbeat\": \"2025-04-29T13:06:00.34994Z\","
-    "\"ip_addresses\": [\"192.168.1.1\"]"
+    "\"ip_addresses\": [\"192.168.1.1\"],"
+    "\"agent_update_available\": true,"
+    "\"updater_update_available\": true"
     "}";
 
   cJSON *obj = cJSON_Parse (json);
@@ -579,6 +581,8 @@ Ensure (agent_controller, parse_agent_with_minimal_fields)
   assert_that (agent->ip_addresses[0], is_equal_to_string ("192.168.1.1"));
   assert_that (agent->last_update, is_not_equal_to ((time_t) 0));
   assert_that (agent->last_updater_heartbeat, is_not_equal_to ((time_t) 0));
+  assert_that (agent->agent_update_available, is_equal_to (1));
+  assert_that (agent->updater_update_available, is_equal_to (1));
 
   agent_controller_agent_free (agent);
   cJSON_Delete (obj);

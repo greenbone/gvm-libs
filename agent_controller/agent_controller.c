@@ -387,16 +387,17 @@ agent_controller_parse_agent (cJSON *item)
   const gchar *agt_ver = gvm_json_obj_str (item, "agent_version");
   const gchar *os_str = gvm_json_obj_str (item, "operating_system");
   const gchar *arch = gvm_json_obj_str (item, "architecture");
-  cJSON *update_to_latest_str = cJSON_GetObjectItem (item, "update_to_latest");
 
   agent->updater_version = upd_ver ? g_strdup (upd_ver) : NULL;
   agent->agent_version = agt_ver ? g_strdup (agt_ver) : NULL;
   agent->operating_system = os_str ? g_strdup (os_str) : NULL;
   agent->architecture = arch ? g_strdup (arch) : NULL;
-  if (cJSON_IsBool (update_to_latest_str))
-    agent->update_to_latest = cJSON_IsTrue (update_to_latest_str) ? 1 : 0;
-  else
-    agent->update_to_latest = 0;
+  agent->update_to_latest =
+    cJSON_IsTrue (cJSON_GetObjectItem (item, "update_to_latest"));
+  agent->agent_update_available =
+    cJSON_IsTrue (cJSON_GetObjectItem (item, "agent_update_available"));
+  agent->updater_update_available =
+    cJSON_IsTrue (cJSON_GetObjectItem (item, "updater_update_available"));
 
   /* Config */
   cJSON *config_obj = cJSON_GetObjectItem (item, "config");
