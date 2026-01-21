@@ -140,7 +140,9 @@ struct agent_controller_agent
   gchar *operating_system; ///< OS string (may be empty)
   gchar *architecture; ///< Architecture string (e.g., "amd64", may be empty)
 
-  int update_to_latest; ///< 1: update to latest, 0: do not
+  int update_to_latest;         ///< 1: update to latest, 0: do not
+  int agent_update_available;   ///< 1 agent update available, 0 do not
+  int updater_update_available; ///< 1 updater update available, 0 do not
 };
 typedef struct agent_controller_agent *agent_controller_agent_t;
 
