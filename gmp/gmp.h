@@ -159,17 +159,17 @@ static const gmp_get_task_opts_t gmp_get_task_opts_defaults = {NULL, NULL, 0,
  */
 typedef struct
 {
-  array_t *alert_ids;         ///< Array of alert IDs.
-  const char *config_id;      ///< ID of config.
-  const char *scanner_id;     ///< ID of task scanner.
-  const char *schedule_id;    ///< ID of task schedule.
-  const char *slave_id;       ///< ID of task schedule.
-  const char *target_id;      ///< ID of target.
-  const char *name;           ///< Name of task.
-  const char *comment;        ///< Comment on task.
-  const char *observers;      ///< Comma-separated string of observer users.
-  array_t *observer_groups;   ///< IDs of observer groups.
-  int schedule_periods;       ///< Number of periods the schedule must run for.
+  array_t *alert_ids;       ///< Array of alert IDs.
+  const char *config_id;    ///< ID of config.
+  const char *scanner_id;   ///< ID of task scanner.
+  const char *schedule_id;  ///< ID of task schedule.
+  const char *slave_id;     ///< ID of task schedule.
+  const char *target_id;    ///< ID of target.
+  const char *name;         ///< Name of task.
+  const char *comment;      ///< Comment on task.
+  const char *observers;    ///< Comma-separated string of observer users.
+  array_t *observer_groups; ///< IDs of observer groups.
+  int schedule_periods;     ///< Number of periods the schedule must run for.
   /* Preferences */
   const char *in_assets;    ///< In assets preference.
   const char *max_hosts;    ///< Max hosts preference.
