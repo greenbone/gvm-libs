@@ -8,10 +8,10 @@
  * @brief Headers of an API for Radius authentication.
  */
 
-#ifndef _GVM_RADIUSUTILS_H
-#define _GVM_RADIUSUTILS_H
+#ifndef _GVM_UTIL_RADIUSUTILS_H
+#define _GVM_UTIL_RADIUSUTILS_H
 
 int
 radius_authenticate (const char *, const char *, const char *, const char *);
 
-#endif /* not _GVM_RADIUSUTILS_H */
+#endif /* not _GVM_UTIL_RADIUSUTILS_H */

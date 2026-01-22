@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef _GVM_JSON_H
-#define _GVM_JSON_H
+#ifndef _GVM_UTIL_JSON_H
+#define _GVM_UTIL_JSON_H
 
 #define _GNU_SOURCE
 
@@ -29,4 +29,4 @@ gvm_json_obj_check_str (cJSON *, const gchar *, gchar **);
 gchar *
 gvm_json_obj_str (cJSON *, const gchar *);
 
-#endif /* _GVM_JSON_H */
+#endif /* not _GVM_UTIL_JSON_H */

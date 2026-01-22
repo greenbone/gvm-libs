@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef CLI_H
-#define CLI_H
+#ifndef _GVM_BOREAS_CLI_H
+#define _GVM_BOREAS_CLI_H
 
 #include "alivedetection.h"
 #include "boreas_error.h"
@@ -19,4 +19,4 @@ run_cli (gvm_hosts_t *, alive_test_t, const gchar *);
 boreas_error_t
 is_host_alive (const char *, int *);
 
-#endif /* not CLI_H */
+#endif /* not _GVM_BOREAS_CLI_H */

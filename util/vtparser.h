@@ -8,8 +8,8 @@
  * @brief Simple JSON reader.
  */
 
-#ifndef _GVM_VTPARSER_H
-#define _GVM_VTPARSER_H
+#ifndef _GVM_UTIL_VTPARSER_H
+#define _GVM_UTIL_VTPARSER_H
 
 #define _GNU_SOURCE /* See feature_test_macros(7) */
 #define _FILE_OFFSET_BITS 64
@@ -44,4 +44,4 @@ typedef enum
 int
 parse_vt_json (gvm_json_pull_parser_t *, gvm_json_pull_event_t *, nvti_t **);
 
-#endif /* _GVM_VTPARSER_H */
+#endif /* not _GVM_UTIL_VTPARSER_H */

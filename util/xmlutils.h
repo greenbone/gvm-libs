@@ -8,8 +8,8 @@
  * @brief Headers for simple XML reader.
  */
 
-#ifndef _GVM_XMLUTILS_H
-#define _GVM_XMLUTILS_H
+#ifndef _GVM_UTIL_XMLUTILS_H
+#define _GVM_UTIL_XMLUTILS_H
 
 #include "serverutils.h"
 
@@ -200,4 +200,4 @@ int xml_file_iterator_rewind (xml_file_iterator_t);
 element_t
 xml_file_iterator_next (xml_file_iterator_t, gchar **);
 
-#endif /* not _GVM_XMLUTILS_H */
+#endif /* not _GVM_UTIL_XMLUTILS_H */

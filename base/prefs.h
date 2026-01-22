@@ -10,8 +10,8 @@
  * This file contains the protos for \ref prefs.c
  */
 
-#ifndef _GVM_PREFS_H
-#define _GVM_PREFS_H
+#ifndef _GVM_BASE_PREFS_H
+#define _GVM_BASE_PREFS_H
 
 #include <glib.h> /* for gchar */
 
@@ -31,4 +31,4 @@ prefs_nvt_timeout (const char *);
 GHashTable *
 preferences_get (void);
 
-#endif /* not _GVM_PREFS_H */
+#endif /* not _GVM_BASE_PREFS_H */

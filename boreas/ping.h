@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef BOREAS_PING_H
-#define BOREAS_PING_H
+#ifndef _GVM_BOREAS_PING_H
+#define _GVM_BOREAS_PING_H
 
 #include <glib.h>
 
@@ -14,4 +14,4 @@ void send_tcp (gpointer, gpointer, gpointer);
 
 void send_arp (gpointer, gpointer, gpointer);
 
-#endif /* not BOREAS_PING_H */
+#endif /* not _GVM_BOREAS_PING_H */

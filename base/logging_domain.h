@@ -7,8 +7,8 @@
  * @brief Implementation of logging domain handling.
  */
 
-#ifndef _GVM_LOGGING_DOMAIN_H
-#define _GVM_LOGGING_DOMAIN_H
+#ifndef _GVM_BASE_LOGGING_DOMAIN_H
+#define _GVM_BASE_LOGGING_DOMAIN_H
 
 #include <glib.h>
 
@@ -79,4 +79,4 @@ void
 gvm_logging_domain_set_log_channel (gvm_logging_domain_t *log_domain,
                                     GIOChannel *log_channel);
 
-#endif /* _GVM_LOGGING_DOMAIN_H */
+#endif /* not _GVM_BASE_LOGGING_DOMAIN_H */

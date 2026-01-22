@@ -8,8 +8,8 @@
  * @brief String utilities.
  */
 
-#ifndef _GVM_STRINGS_H
-#define _GVM_STRINGS_H
+#ifndef _GVM_BASE_STRINGS_H
+#define _GVM_BASE_STRINGS_H
 
 #include <glib.h>
 
@@ -23,4 +23,4 @@ gvm_free_string_var (gchar **);
 char *
 gvm_strip_space (char *, char *);
 
-#endif /* not _GVM_STRINGS_H */
+#endif /* not _GVM_BASE_STRINGS_H */

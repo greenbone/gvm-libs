@@ -10,8 +10,8 @@
  * This file contains the protos for \ref settings.c
  */
 
-#ifndef _GVM_SETTINGS_H
-#define _GVM_SETTINGS_H
+#ifndef _GVM_BASE_SETTINGS_H
+#define _GVM_BASE_SETTINGS_H
 
 #include <glib.h>
 
@@ -52,4 +52,4 @@ settings_iterator_name (settings_iterator_t *);
 gchar *
 settings_iterator_value (settings_iterator_t *);
 
-#endif /* not _GVM_SETTINGS_H */
+#endif /* not _GVM_BASE_SETTINGS_H */

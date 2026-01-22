@@ -8,8 +8,8 @@
  * @brief Privilege dropping header file.
  */
 
-#ifndef _GVM_DROP_PRIVILEGES_H
-#define _GVM_DROP_PRIVILEGES_H
+#ifndef _GVM_BASE_DROP_PRIVILEGES_H
+#define _GVM_BASE_DROP_PRIVILEGES_H
 
 #include <glib.h>
 
@@ -57,4 +57,4 @@
 int
 drop_privileges (gchar *username, GError **error);
 
-#endif
+#endif /* not _GVM_BASE_DROP_PRIVILEGES_H */

@@ -8,8 +8,8 @@
  * @brief Header for LDAP-Connect Authentication module.
  */
 
-#ifndef _GVM_LDAPUTILS_H
-#define _GVM_LDAPUTILS_H
+#ifndef _GVM_UTIL_LDAPUTILS_H
+#define _GVM_UTIL_LDAPUTILS_H
 
 #include <glib.h>
 
@@ -65,4 +65,4 @@ ldap_auth_dn_is_good (const gchar *);
 
 #endif /* ENABLE_LDAP_AUTH */
 
-#endif /* not _GVM_LDAPUTILS_H */
+#endif /* not _GVM_UTIL_LDAPUTILS_H */

@@ -12,8 +12,8 @@
  *
  */
 
-#ifndef _GVM_SENTRY_H
-#define _GVM_SENTRY_H
+#ifndef _GVM_BASE_GVM_SENTRY_H
+#define _GVM_BASE_GVM_SENTRY_H
 
 #ifdef HAVE_SENTRY
 #include <sentry.h>
@@ -31,4 +31,4 @@ gvm_close_sentry (void);
 int
 gvm_has_sentry_support (void);
 
-#endif /* not _GVM_SENTRY_H */
+#endif /* not _GVM_BASE_GVM_SENTRY_H */

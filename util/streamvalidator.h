@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef _GVM_STREAMVALIDATOR_H
-#define _GVM_STREAMVALIDATOR_H
+#ifndef _GVM_UTIL_STREAMVALIDATOR_H
+#define _GVM_UTIL_STREAMVALIDATOR_H
 
 #include <stdio.h>
 
@@ -59,4 +59,4 @@ gvm_stream_validator_write (gvm_stream_validator_t, const char *, size_t);
 
 gvm_stream_validator_return_t gvm_stream_validator_end (gvm_stream_validator_t);
 
-#endif /* not _GVM_STREAMVALIDATOR_H */
+#endif /* not _GVM_UTIL_STREAMVALIDATOR_H */

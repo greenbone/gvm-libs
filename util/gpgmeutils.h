@@ -10,8 +10,8 @@
  * This file contains the protos for \ref gpgmeutils.c
  */
 
-#ifndef _GVM_GPGMEUTILS_H
-#define _GVM_GPGMEUTILS_H
+#ifndef _GVM_UTIL_GPGMEUTILS_H
+#define _GVM_UTIL_GPGMEUTILS_H
 
 #include <glib.h>  /* for gchar */
 #include <gpgme.h> /* for gpgme_ctx_t */
@@ -37,4 +37,4 @@ gvm_pgp_pubkey_encrypt_stream (FILE *, FILE *, const char *, const char *,
 int
 gvm_smime_encrypt_stream (FILE *, FILE *, const char *, const char *, ssize_t);
 
-#endif /*_GVM_GPGMEUTILS_H*/
+#endif /* not _GVM_UTIL_GPGMEUTILS_H */

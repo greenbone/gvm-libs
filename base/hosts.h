@@ -11,8 +11,8 @@
  * This file contains the protos for \ref hosts.c
  */
 
-#ifndef _GVM_HOSTS_H
-#define _GVM_HOSTS_H
+#ifndef _GVM_BASE_HOSTS_H
+#define _GVM_BASE_HOSTS_H
 
 /** @brief Flag that indecates that this version includes
  *  the function gvm_hosts_allowed_only()
@@ -208,4 +208,4 @@ gvm_vhost_new (char *, char *);
 int
 gvm_get_host_type (const gchar *);
 
-#endif /* not _GVM_HOSTS_H */
+#endif /* not _GVM_BASE_HOSTS_H */

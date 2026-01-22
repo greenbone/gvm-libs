@@ -8,8 +8,8 @@
  * @brief PID-file management.
  */
 
-#ifndef _GVM_PIDFILE_H
-#define _GVM_PIDFILE_H
+#ifndef _GVM_BASE_PIDFILE_H
+#define _GVM_BASE_PIDFILE_H
 
 #include <glib.h>
 
@@ -18,4 +18,4 @@ pidfile_create (gchar *);
 void
 pidfile_remove (gchar *);
 
-#endif /* not _GVM_PIDFILE_H */
+#endif /* not _GVM_BASE_PIDFILE_H */

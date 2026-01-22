@@ -28,8 +28,8 @@
  * agent
  */
 
-#ifndef AGENT_CONTROLLER_H
-#define AGENT_CONTROLLER_H
+#ifndef _GVM_AGENT_CONTROLLER_AGENT_CONTROLLER_H
+#define _GVM_AGENT_CONTROLLER_AGENT_CONTROLLER_H
 
 #include <glib.h>
 
@@ -247,4 +247,4 @@ agent_controller_build_create_scan_payload (
 gchar *
 agent_controller_get_scan_id (const gchar *body);
 
-#endif // AGENT_CONTROLLER_H
+#endif /* not _GVM_AGENT_CONTROLLER_AGENT_CONTROLLER_H */

@@ -10,12 +10,12 @@
  * This file contains the protos for \ref cvss.c
  */
 
-#ifndef _GVM_CVSS_H
-#define _GVM_CVSS_H
+#ifndef _GVM_BASE_CVSS_H
+#define _GVM_BASE_CVSS_H
 
 #include <glib.h>
 
 double
 get_cvss_score_from_base_metrics (const char *);
 
-#endif /* not _GVM_CVSS_H */
+#endif /* not _GVM_BASE_CVSS_H */

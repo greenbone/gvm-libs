@@ -8,8 +8,8 @@
  * @brief API related to data compression (gzip format.)
  */
 
-#ifndef _GVM_COMPRESSUTILS_H
-#define _GVM_COMPRESSUTILS_H
+#ifndef _GVM_UTIL_COMPRESSUTILS_H
+#define _GVM_UTIL_COMPRESSUTILS_H
 
 #include <stdio.h>
 
@@ -28,4 +28,4 @@ gvm_gzip_open_file_reader (const char *);
 FILE *
 gvm_gzip_open_file_reader_fd (int);
 
-#endif /* not _GVM_COMPRESSUTILS_H */
+#endif /* not _GVM_UTIL_COMPRESSUTILS_H */

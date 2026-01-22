@@ -8,8 +8,8 @@
  * @brief TLS certificate utilities headers.
  */
 
-#ifndef _GVM_TLSUTILS_H
-#define _GVM_TLSUTILS_H
+#ifndef _GVM_UTIL_TLSUTILS_H
+#define _GVM_UTIL_TLSUTILS_H
 
 #include <glib.h>
 #include <gnutls/gnutls.h>
@@ -38,4 +38,4 @@ gvm_pkcs12_to_pem (gnutls_pkcs12_t pkcs12, const char *passphrase,
                    gchar **privkey_out, gchar **cert_chain_out,
                    gchar **extra_certs_out, gchar **crl_out);
 
-#endif /* not _GVM_UUIDUTILS_H */
+#endif /* not _GVM_UTIL_TLSUTILS_H */

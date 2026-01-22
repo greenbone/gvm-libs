@@ -8,8 +8,8 @@
  * @brief API for communication with an HTTP scanner.
  */
 
-#ifndef _GVM_HTTP_SCANNER_H
-#define _GVM_HTTP_SCANNER_H
+#ifndef _GVM_HTTP_SCANNER_HTTP_SCANNER_H
+#define _GVM_HTTP_SCANNER_HTTP_SCANNER_H
 
 #include "../util/jsonpull.h"
 
@@ -251,4 +251,4 @@ http_scanner_resp_t
 http_scanner_send_request (http_scanner_connector_t, http_scanner_method_t,
                            const gchar *, const gchar *, const gchar *);
 
-#endif /* _GVM_HTTP_SCANNER_H */
+#endif /* not _GVM_HTTP_SCANNER_HTTP_SCANNER_H */

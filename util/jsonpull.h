@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef _GVM_JSONPULL_H
-#define _GVM_JSONPULL_H
+#ifndef _GVM_UTIL_JSONPULL_H
+#define _GVM_UTIL_JSONPULL_H
 
 #define _GNU_SOURCE
 
@@ -129,4 +129,4 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *, gchar **);
 gchar *
 gvm_json_path_to_string (GQueue *path);
 
-#endif /* _GVM_JSONPULL_H */
+#endif /* not _GVM_UTIL_JSONPULL_H */

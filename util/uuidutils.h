@@ -8,10 +8,10 @@
  * @brief UUID creation.
  */
 
-#ifndef _GVM_UUIDUTILS_H
-#define _GVM_UUIDUTILS_H
+#ifndef _GVM_UTIL_UUIDUTILS_H
+#define _GVM_UTIL_UUIDUTILS_H
 
 char *
 gvm_uuid_make (void);
 
-#endif /* not _GVM_UUIDUTILS_H */
+#endif /* not _GVM_UTIL_UUIDUTILS_H */

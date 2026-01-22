@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef ALIVE_DETECTION_H
-#define ALIVE_DETECTION_H
+#ifndef _GVM_BOREAS_ALIVEDETECTION_H
+#define _GVM_BOREAS_ALIVEDETECTION_H
 
 #include "../base/hosts.h"
 #include "../util/kb.h"
@@ -126,4 +126,4 @@ typedef enum
   UDPV6,
 } socket_type_t;
 
-#endif /* not ALIVE_DETECTION_H */
+#endif /* not _GVM_BOREAS_ALIVEDETECTION_H */

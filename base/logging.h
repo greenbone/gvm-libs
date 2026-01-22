@@ -8,8 +8,8 @@
  * @brief Implementation of logging methods.
  */
 
-#ifndef _GVM_LOGGING_H
-#define _GVM_LOGGING_H
+#ifndef _GVM_BASE_LOGGING_H
+#define _GVM_BASE_LOGGING_H
 
 #include <glib.h> /* for GSList, gchar, GLogLevelFlags, gpointer */
 
@@ -57,4 +57,4 @@ free_log_reference (void);
 void
 set_log_tz (const gchar *);
 
-#endif /* not _GVM_LOGGING_H */
+#endif /* not _GVM_BASE_LOGGING_H */

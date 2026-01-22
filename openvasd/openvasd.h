@@ -8,8 +8,8 @@
  * @brief API for Openvas Daemon communication.
  */
 
-#ifndef _GVM_OPENVASD_H
-#define _GVM_OPENVASD_H
+#ifndef _GVM_OPENVASD_OPENVASD_H
+#define _GVM_OPENVASD_OPENVASD_H
 
 #include "../base/nvti.h"
 #include "../http_scanner/http_scanner.h"
@@ -87,4 +87,4 @@ http_scanner_resp_t openvasd_get_vt_stream_init (http_scanner_connector_t);
 
 int openvasd_get_vt_stream (http_scanner_connector_t);
 
-#endif
+#endif /* not _GVM_OPENVASD_OPENVASD_H */

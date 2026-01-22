@@ -8,8 +8,8 @@
  * @brief Credential pairs and triples.
  */
 
-#ifndef _GVM_CREDENTIALS_H
-#define _GVM_CREDENTIALS_H
+#ifndef _GVM_BASE_CREDENTIALS_H
+#define _GVM_BASE_CREDENTIALS_H
 
 #include <glib.h>
 
@@ -49,4 +49,4 @@ void
 append_to_credentials_password (credentials_t *credentials, const char *text,
                                 gsize length);
 
-#endif /* _GVM_CREDENTIALS_H */
+#endif /* not _GVM_BASE_CREDENTIALS_H */

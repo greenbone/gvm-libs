@@ -8,8 +8,8 @@
  * @brief API for Greenbone Management Protocol communication.
  */
 
-#ifndef _GVM_GMP_H
-#define _GVM_GMP_H
+#ifndef _GVM_GMP_GMP_H
+#define _GVM_GMP_GMP_H
 
 #include "../base/array.h"       /* for array_t */
 #include "../util/serverutils.h" /* for gvm_connection_t */
@@ -398,4 +398,4 @@ int
 gmp_get_system_reports_ext (gnutls_session_t *, gmp_get_system_reports_opts_t,
                             entity_t *);
 
-#endif /* not _GVM_GMP_H */
+#endif /* not _GVM_GMP_GMP_H */

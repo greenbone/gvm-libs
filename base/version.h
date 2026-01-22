@@ -8,10 +8,10 @@
  * @brief Version utilities.
  */
 
-#ifndef _GVM_VERSION_H
-#define _GVM_VERSION_H
+#ifndef _GVM_BASE_VERSION_H
+#define _GVM_BASE_VERSION_H
 
 const char *
 gvm_libs_version (void);
 
-#endif
+#endif /* not _GVM_BASE_VERSION_H */

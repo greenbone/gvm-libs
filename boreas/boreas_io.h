@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef BOREAS_IO_H
-#define BOREAS_IO_H
+#ifndef _GVM_BOREAS_BOREAS_IO_H
+#define _GVM_BOREAS_BOREAS_IO_H
 
 #include "../base/hosts.h"
 #include "../util/kb.h"
@@ -48,4 +48,4 @@ get_alive_test_wait_timeout (void);
 int
 get_alive_hosts_count (void);
 
-#endif /* not BOREAS_IO_H */
+#endif /* not _GVM_BOREAS_BOREAS_IO_H */
