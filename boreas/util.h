@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef BOREAS_UTIL_H
-#define BOREAS_UTIL_H
+#ifndef _GVM_BOREAS_UTIL_H
+#define _GVM_BOREAS_UTIL_H
 
 #include "alivedetection.h"
 #include "boreas_error.h"
@@ -39,4 +39,4 @@ wait_until_so_sndbuf_empty (int, int);
 int
 count_difference (GHashTable *, GHashTable *);
 
-#endif /* not BOREAS_UTIL_H */
+#endif /* not _GVM_BOREAS_UTIL_H */

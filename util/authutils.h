@@ -8,8 +8,8 @@
  * @brief Authentication mechanism(s).
  */
 
-#ifndef _GVM_AUTHUTILS_H
-#define _GVM_AUTHUTILS_H
+#ifndef _GVM_UTIL_AUTHUTILS_H
+#define _GVM_UTIL_AUTHUTILS_H
 
 #include <glib.h>
 
@@ -56,4 +56,4 @@ gvm_auth_ldap_enabled (void);
 int
 gvm_auth_radius_enabled (void);
 
-#endif /* not _GVM_AUTHUTILS_H */
+#endif /* not _GVM_UTIL_AUTHUTILS_H */

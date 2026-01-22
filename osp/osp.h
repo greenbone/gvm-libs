@@ -8,8 +8,8 @@
  * @brief API for Open Scanner Protocol communication.
  */
 
-#ifndef _GVM_OSP_H
-#define _GVM_OSP_H
+#ifndef _GVM_OSP_OSP_H
+#define _GVM_OSP_OSP_H
 
 #include "../util/xmlutils.h"
 
@@ -230,4 +230,4 @@ osp_vt_single_free (osp_vt_single_t *);
 void
 osp_vt_single_add_value (osp_vt_single_t *, const char *, const char *);
 
-#endif
+#endif /* not _GVM_OSP_OSP_H */

@@ -8,8 +8,8 @@
  * @brief GVM Networking related API.
  */
 
-#ifndef _GVM_NETWORKING_H
-#define _GVM_NETWORKING_H
+#ifndef _GVM_BASE_NETWORKING_H
+#define _GVM_BASE_NETWORKING_H
 
 #include "array.h" /* for array_t */
 
@@ -105,4 +105,4 @@ gvm_routethrough (struct sockaddr_storage *, struct sockaddr_storage *);
 char *
 gvm_get_outgoing_iface (struct sockaddr_storage *);
 
-#endif /* not _GVM_NETWORKING_H */
+#endif /* not _GVM_BASE_NETWORKING_H */

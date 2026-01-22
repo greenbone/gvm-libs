@@ -8,8 +8,8 @@
  * @brief API for Container Image Scanner communication.
  */
 
-#ifndef _GVM_CONTAINER_IMAGE_SCANNER_H
-#define _GVM_CONTAINER_IMAGE_SCANNER_H
+#ifndef _GVM_CONTAINER_IMAGE_SCANNER_CONTAINER_IMAGE_SCANNER_H
+#define _GVM_CONTAINER_IMAGE_SCANNER_CONTAINER_IMAGE_SCANNER_H
 
 #include "../util/jsonpull.h"
 
@@ -44,4 +44,4 @@ char *
 container_image_build_scan_config_json (container_image_target_t *target,
                                         GHashTable *scan_preferences);
 
-#endif
+#endif /* not _GVM_CONTAINER_IMAGE_SCANNER_CONTAINER_IMAGE_SCANNER_H */

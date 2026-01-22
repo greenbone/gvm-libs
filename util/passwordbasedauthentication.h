@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef _GVM_PASSWORDBASEDAUTHENTICATION_H
-#define _GVM_PASSWORDBASEDAUTHENTICATION_H
+#ifndef _GVM_UTIL_PASSWORDBASEDAUTHENTICATION_H
+#define _GVM_UTIL_PASSWORDBASEDAUTHENTICATION_H
 
 /* max amount of applied pepper */
 #define MAX_PEPPER_SIZE 4
@@ -73,4 +73,4 @@ pba_verify_hash (const struct PBASettings *settings, const char *hash,
 void
 pba_finalize (struct PBASettings *settings);
 
-#endif
+#endif /* not _GVM_UTIL_PASSWORDBASEDAUTHENTICATION_H */

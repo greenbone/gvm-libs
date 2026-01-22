@@ -10,12 +10,12 @@
  * This file contains the protos for \ref pwpolicy.c
  */
 
-#ifndef _GVM_PWPOLICY_H
-#define _GVM_PWPOLICY_H
+#ifndef _GVM_BASE_PWPOLICY_H
+#define _GVM_BASE_PWPOLICY_H
 
 char *
 gvm_validate_password (const char *, const char *);
 void
 gvm_disable_password_policy (void);
 
-#endif /*_GVM_PWPOLICY_H*/
+#endif /* not _GVM_BASE_PWPOLICY_H */

@@ -8,8 +8,8 @@
  * @brief API for process title setting.
  */
 
-#ifndef _GVM_PROCTITLE_H
-#define _GVM_PROCTITLE_H
+#ifndef _GVM_BASE_PROCTITLE_H
+#define _GVM_BASE_PROCTITLE_H
 
 void
 proctitle_init (int, char **);
@@ -17,4 +17,4 @@ proctitle_init (int, char **);
 void
 proctitle_set (const char *, ...);
 
-#endif /* not _GVM_PROCTITLE_H */
+#endif /* not _GVM_BASE_PROCTITLE_H */

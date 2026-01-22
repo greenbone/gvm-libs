@@ -10,8 +10,8 @@
  * This file contains the protos for \ref nvti.c
  */
 
-#ifndef _NVTI_H
-#define _NVTI_H
+#ifndef _GVM_BASE_NVTI_H
+#define _GVM_BASE_NVTI_H
 
 #include <glib.h>
 
@@ -263,4 +263,4 @@ nvtis_add (nvtis_t *, nvti_t *);
 nvti_t *
 nvtis_lookup (nvtis_t *, const char *);
 
-#endif /* not _NVTI_H */
+#endif /* not _GVM_BASE_NVTI_H */

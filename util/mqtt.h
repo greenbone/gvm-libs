@@ -8,8 +8,8 @@
  * @brief Protos for MQTT handling.
  */
 
-#ifndef _GVM_MQTT_H
-#define _GVM_MQTT_H
+#ifndef _GVM_UTIL_MQTT_H
+#define _GVM_UTIL_MQTT_H
 
 #include <MQTTClient.h>
 #include <glib.h>
@@ -47,4 +47,4 @@ mqtt_retrieve_message (char **, int *, char **, int *, const unsigned int);
 int
 mqtt_unsubscribe (const char *);
 
-#endif /* _GVM_MQTT_H */
+#endif /* not _GVM_UTIL_MQTT_H */

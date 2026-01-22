@@ -8,8 +8,8 @@
  * @brief Headers for version utils.
  */
 
-#ifndef _GVM_VERSIONUTILS_H
-#define _GVM_VERSIONUTILS_H
+#ifndef _GVM_UTIL_VERSIONUTILS_H
+#define _GVM_UTIL_VERSIONUTILS_H
 
 #include <glib.h>
 #include <stdio.h>
@@ -17,4 +17,4 @@
 int
 cmp_versions (const char *, const char *);
 
-#endif
+#endif /* not _GVM_UTIL_VERSIONUTILS_H */

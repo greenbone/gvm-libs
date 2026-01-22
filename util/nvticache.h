@@ -10,8 +10,8 @@
  * This file contains the protos for \ref nvticache.c
  */
 
-#ifndef _GVM_NVTICACHE_H
-#define _GVM_NVTICACHE_H
+#ifndef _GVM_UTIL_NVTICACHE_H
+#define _GVM_UTIL_NVTICACHE_H
 
 #include "../base/nvti.h" /* for nvti_t */
 #include "kb.h"           /* for kb_t */
@@ -112,4 +112,4 @@ nvticache_feed_version (void);
 int
 nvticache_check_feed (void);
 
-#endif /* not _GVM_NVTICACHE_H */
+#endif /* not _GVM_UTIL_NVTICACHE_H */

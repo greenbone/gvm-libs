@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef BOREAS_ERROR_H
-#define BOREAS_ERROR_H
+#ifndef _GVM_BOREAS_BOREAS_ERROR_H
+#define _GVM_BOREAS_BOREAS_ERROR_H
 
 /**
  * @brief Alive detection error codes.
@@ -21,4 +21,4 @@ typedef enum
 
 const char *str_boreas_error (boreas_error_t);
 
-#endif /* not BOREAS_ERROR_H */
+#endif /* not _GVM_BOREAS_BOREAS_ERROR_H */

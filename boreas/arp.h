@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef ARP_H
-#define ARP_H
+#ifndef _GVM_BOREAS_ARP_H
+#define _GVM_BOREAS_ARP_H
 
 void
 send_arp_v4 (const char *);
 
-#endif /* not ARP_H */
+#endif /* not _GVM_BOREAS_ARP_H */

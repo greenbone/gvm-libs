@@ -29,8 +29,8 @@
  * multi interface
  */
 
-#ifndef HTTPUTILS_H
-#define HTTPUTILS_H
+#ifndef _GVM_HTTP_HTTPUTILS_H
+#define _GVM_HTTP_HTTPUTILS_H
 
 #include <curl/curl.h>
 #include <curl/easy.h>
@@ -164,4 +164,4 @@ gvm_http_response_stream_free (gvm_http_response_stream_t s);
 void
 gvm_http_response_stream_reset (gvm_http_response_stream_t s);
 
-#endif // HTTPUTILS_H
+#endif /* not _GVM_HTTP_HTTPUTILS_H */

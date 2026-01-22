@@ -11,8 +11,8 @@
  * with a server over GnuTLS.
  */
 
-#ifndef _GVM_SERVERUTILS_H
-#define _GVM_SERVERUTILS_H
+#ifndef _GVM_UTIL_SERVERUTILS_H
+#define _GVM_UTIL_SERVERUTILS_H
 
 #include <glib.h>          /* for gchar, gboolean, gint */
 #include <gnutls/gnutls.h> /* for gnutls_session_t, gnutls_certificate_cred... */
@@ -113,4 +113,4 @@ unload_gnutls_file (gnutls_datum_t *);
 int
 set_gnutls_dhparams (gnutls_certificate_credentials_t, const char *);
 
-#endif /* not _GVM_SERVERUTILS_H */
+#endif /* not _GVM_UTIL_SERVERUTILS_H */

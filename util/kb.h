@@ -8,8 +8,8 @@
  * @brief Knowledge base management API - Redis backend.
  */
 
-#ifndef _GVM_KB_H
-#define _GVM_KB_H
+#ifndef _GVM_UTIL_KB_H
+#define _GVM_UTIL_KB_H
 
 #include "../base/nvti.h" /* for nvti_t */
 

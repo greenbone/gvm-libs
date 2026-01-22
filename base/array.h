@@ -8,8 +8,8 @@
  * @brief Array utilities.
  */
 
-#ifndef _GVM_ARRAY_H
-#define _GVM_ARRAY_H
+#ifndef _GVM_BASE_ARRAY_H
+#define _GVM_BASE_ARRAY_H
 
 #include <glib.h>
 
@@ -30,4 +30,4 @@ array_add (array_t *array, gpointer pointer);
 void
 array_terminate (array_t *array);
 
-#endif /* not _GVM_ARRAY_H */
+#endif /* not _GVM_BASE_ARRAY_H */

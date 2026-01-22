@@ -43,4 +43,4 @@ gchar *
 gvm_export_file_name (const char *, const char *, const char *, const char *,
                       const char *, const char *, const char *, const char *);
 
-#endif /* not _GVM_FILEUTILS_H */
+#endif /* not _GVM_UTIL_FILEUTILS_H */

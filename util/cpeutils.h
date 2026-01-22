@@ -8,8 +8,8 @@
  * @brief Headers for CPE utils.
  */
 
-#ifndef _GVM_CPEUTILS_H
-#define _GVM_CPEUTILS_H
+#ifndef _GVM_UTIL_CPEUTILS_H
+#define _GVM_UTIL_CPEUTILS_H
 
 #include <glib.h>
 #include <stdio.h>
@@ -93,4 +93,4 @@ enum set_relation
 
 #define CPE_COMPONENT_IS_ANY(component) (component[0] == 'A')
 
-#endif
+#endif /* not _GVM_UTIL_CPEUTILS_H */

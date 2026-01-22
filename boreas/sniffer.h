@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef BOREAS_SNIFFER_H
-#define BOREAS_SNIFFER_H
+#ifndef _GVM_BOREAS_SNIFFER_H
+#define _GVM_BOREAS_SNIFFER_H
 
 #include "alivedetection.h"
 
@@ -16,4 +16,4 @@ start_sniffer_thread (scanner_t *, pthread_t *);
 int
 stop_sniffer_thread (scanner_t *, pthread_t);
 
-#endif /* not BOREAS_SNIFFER_H */
+#endif /* not _GVM_BOREAS_SNIFFER_H */

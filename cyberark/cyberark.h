@@ -1,5 +1,5 @@
-#ifndef _GVM_CYBERARK_H
-#define _GVM_CYBERARK_H
+#ifndef _GVM_CYBERARK_CYBERARK_H
+#define _GVM_CYBERARK_CYBERARK_H
 
 
 #include <glib.h>
@@ -69,4 +69,4 @@ cyberark_object_t
 cyberark_get_object (cyberark_connector_t,
                      const gchar *, const gchar *, const gchar *);
 
-#endif /* _GVM_CYBERARK_H */
+#endif /* not _GVM_CYBERARK_CYBERARK_H */
