@@ -779,6 +779,33 @@ Ensure (agent_controller, patch_payload_overrides_only_min_interval)
   agent_controller_agent_list_free (list);
 }
 
+Ensure (agent_controller,
+        patch_payload_does_not_include_update_to_latest_when_not_provided)
+{
+  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
+  agent_controller_agent_t agent = agent_controller_agent_new ();
+  agent->agent_id = g_strdup ("agentA");
+  agent->authorized = 1;
+  agent->update_to_latest = 1;
+
+  list->agents[0] = agent;
+
+  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
+  assert_that (update->update_to_latest, is_equal_to (-1));
+
+  gchar *payload = agent_controller_build_patch_payload (list, update);
+
+  assert_that (payload, is_not_null);
+
+  assert_that (payload, contains_string ("\"authorized\":true"));
+
+  assert_that (payload, does_not_contain_string ("\"update_to_latest\""));
+
+  cJSON_free (payload);
+  agent_controller_agent_update_free (update);
+  agent_controller_agent_list_free (list);
+}
+
 Ensure (agent_controller, patch_payload_overrides_only_config)
 {
   agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
@@ -2607,6 +2634,9 @@ main (int argc, char **argv)
                          patch_payload_overrides_only_update_to_latest_field);
   add_test_with_context (suite, agent_controller,
                          patch_payload_overrides_only_min_interval);
+  add_test_with_context (
+    suite, agent_controller,
+    patch_payload_does_not_include_update_to_latest_when_not_provided);
   add_test_with_context (suite, agent_controller,
                          patch_payload_overrides_only_config);
   add_test_with_context (suite, agent_controller,

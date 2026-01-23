@@ -442,9 +442,11 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
       // update_to_latest
       int use_update_to_latest = agent->update_to_latest;
       if (update && update->update_to_latest != -1)
-        use_update_to_latest = update->update_to_latest;
-      cJSON_AddBoolToObject (agent_obj, "update_to_latest",
-                             use_update_to_latest);
+        {
+          use_update_to_latest = update->update_to_latest;
+          cJSON_AddBoolToObject (agent_obj, "update_to_latest",
+                                 use_update_to_latest);
+        }
 
       /* config: prefer update->config if provided */
       cJSON *cfg_obj = NULL;
