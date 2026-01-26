@@ -539,7 +539,7 @@ gmp_create_task_ext (gnutls_session_t *session, gmp_create_task_opts_t opts,
 {
   /* Create the GMP request. */
 
-  gchar *prefs, *start, *hosts_ordering, *scanner, *schedule, *slave;
+  gchar *prefs, *start, *scanner, *schedule, *slave;
   GString *alerts, *observers;
   int ret;
   if ((opts.config_id == NULL) || (opts.target_id == NULL))
@@ -555,12 +555,6 @@ gmp_create_task_ext (gnutls_session_t *session, gmp_create_task_opts_t opts,
     "<alterable>%d</alterable>",
     opts.config_id, opts.target_id, opts.name ? opts.name : "unnamed",
     opts.comment ? opts.comment : "", opts.alterable ? 1 : 0);
-
-  if (opts.hosts_ordering)
-    hosts_ordering = g_strdup_printf ("<hosts_ordering>%s</hosts_ordering>",
-                                      opts.hosts_ordering);
-  else
-    hosts_ordering = NULL;
 
   if (opts.scanner_id)
     scanner = g_strdup_printf ("<scanner id=\"%s\"/>", opts.scanner_id);
@@ -676,13 +670,11 @@ gmp_create_task_ext (gnutls_session_t *session, gmp_create_task_opts_t opts,
 
   /* Send the request. */
   ret = gvm_server_sendf (
-    session, "%s%s%s%s%s%s%s%s</create_task>", start, prefs ? prefs : "",
-    hosts_ordering ? hosts_ordering : "", scanner ? scanner : "",
-    schedule ? schedule : "", slave ? slave : "", alerts ? alerts->str : "",
-    observers ? observers->str : "");
+    session, "%s%s%s%s%s%s%s</create_task>", start, prefs ? prefs : "",
+    scanner ? scanner : "", schedule ? schedule : "", slave ? slave : "",
+    alerts ? alerts->str : "", observers ? observers->str : "");
   g_free (start);
   g_free (prefs);
-  g_free (hosts_ordering);
   g_free (scanner);
   g_free (schedule);
   g_free (slave);
