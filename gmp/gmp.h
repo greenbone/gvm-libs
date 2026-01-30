@@ -167,7 +167,7 @@ typedef struct
   const char *target_id;      ///< ID of target.
   const char *name;           ///< Name of task.
   const char *comment;        ///< Comment on task.
-  const char *hosts_ordering; ///< Order for scanning target hosts.
+  const char *hosts_ordering; ///< Not used, kept for reasons of compatibility.
   const char *observers;      ///< Comma-separated string of observer users.
   array_t *observer_groups;   ///< IDs of observer groups.
   int schedule_periods;       ///< Number of periods the schedule must run for.
