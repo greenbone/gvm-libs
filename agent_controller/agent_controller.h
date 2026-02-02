@@ -135,11 +135,12 @@ struct agent_controller_agent
                                  ///  (seconds since epoch)
   agent_controller_scan_agent_config_t config; ///< agent scan config
 
-  gchar *updater_version;  ///< Updater version string (may be empty)
-  gchar *agent_version;    ///< Agent version string (may be empty)
-  gchar *latest_agent_version;  ///< Latest agent version string (may be empty)
-  gchar *latest_updater_version;    ///< Latest updater version string (may be empty)
-  gchar *operating_system; ///< OS string (may be empty)
+  gchar *updater_version;      ///< Updater version string (may be empty)
+  gchar *agent_version;        ///< Agent version string (may be empty)
+  gchar *latest_agent_version; ///< Latest agent version string (may be empty)
+  gchar
+    *latest_updater_version; ///< Latest updater version string (may be empty)
+  gchar *operating_system;   ///< OS string (may be empty)
   gchar *architecture; ///< Architecture string (e.g., "amd64", may be empty)
 
   int update_to_latest;         ///< 1: update to latest, 0: do not
