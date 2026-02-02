@@ -124,6 +124,6 @@ to empty the build directory before `scan-build` call.
 
 ## License
 
-Copyright (C) 2009-2025 [Greenbone AG](https://www.greenbone.net/)
+Copyright (C) 2009-2026 [Greenbone AG](https://www.greenbone.net/)
 
 Licensed under the [GNU General Public License v2.0 or later](COPYING).

@@ -12,7 +12,7 @@ some supported platforms.
 General build environment:
 
 * a C compiler (e.g. gcc)
-* cmake >= 3.5
+* cmake >= 3.18
 * pkg-config
 
 Specific development libraries:
