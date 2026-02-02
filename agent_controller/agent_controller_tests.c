@@ -586,7 +586,8 @@ Ensure (agent_controller, parse_agent_with_minimal_fields)
   assert_that (agent->agent_update_available, is_equal_to (1));
   assert_that (agent->updater_update_available, is_equal_to (1));
   assert_that (agent->latest_agent_version, is_equal_to_string ("v.1.agent"));
-  assert_that (agent->latest_updater_version, is_equal_to_string ("v.1.updater"));
+  assert_that (agent->latest_updater_version,
+               is_equal_to_string ("v.1.updater"));
 
   agent_controller_agent_free (agent);
   cJSON_Delete (obj);
