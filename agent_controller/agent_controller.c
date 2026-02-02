@@ -385,10 +385,18 @@ agent_controller_parse_agent (cJSON *item)
   /* Versions / platform */
   const gchar *upd_ver = gvm_json_obj_str (item, "updater_version");
   const gchar *agt_ver = gvm_json_obj_str (item, "agent_version");
+  const gchar *latest_agt_ver = gvm_json_obj_str (item, "latest_agent_version");
+  const gchar *latest_updater_ver =
+    gvm_json_obj_str (item, "latest_updater_version");
   const gchar *os_str = gvm_json_obj_str (item, "operating_system");
   const gchar *arch = gvm_json_obj_str (item, "architecture");
 
   agent->updater_version = upd_ver ? g_strdup (upd_ver) : NULL;
+  agent->agent_version = agt_ver ? g_strdup (agt_ver) : NULL;
+  agent->latest_agent_version =
+    latest_agt_ver ? g_strdup (latest_agt_ver) : NULL;
+  agent->latest_updater_version =
+    latest_updater_ver ? g_strdup (latest_updater_ver) : NULL;
   agent->agent_version = agt_ver ? g_strdup (agt_ver) : NULL;
   agent->operating_system = os_str ? g_strdup (os_str) : NULL;
   agent->architecture = arch ? g_strdup (arch) : NULL;
