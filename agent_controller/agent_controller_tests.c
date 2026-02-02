@@ -565,6 +565,8 @@ Ensure (agent_controller, parse_agent_with_minimal_fields)
     "\"last_update\": \"2025-04-29T13:06:00.34994Z\","
     "\"last_updater_heartbeat\": \"2025-04-29T13:06:00.34994Z\","
     "\"ip_addresses\": [\"192.168.1.1\"],"
+    "\"latest_agent_version\": \"v.1.agent\","
+    "\"latest_updater_version\": \"v.1.updater\","
     "\"agent_update_available\": true,"
     "\"updater_update_available\": true"
     "}";
@@ -583,6 +585,8 @@ Ensure (agent_controller, parse_agent_with_minimal_fields)
   assert_that (agent->last_updater_heartbeat, is_not_equal_to ((time_t) 0));
   assert_that (agent->agent_update_available, is_equal_to (1));
   assert_that (agent->updater_update_available, is_equal_to (1));
+  assert_that (agent->latest_agent_version, is_equal_to_string ("v.1.agent"));
+  assert_that (agent->latest_updater_version, is_equal_to_string ("v.1.updater"));
 
   agent_controller_agent_free (agent);
   cJSON_Delete (obj);
