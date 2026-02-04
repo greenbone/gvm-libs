@@ -200,10 +200,10 @@ cyberark_send_request (cyberark_connector_t conn,
   gchar *url;
 
   if (conn->port )
-    url =  g_strdup_printf ("%s://%s:%d%s%s", conn->protocol, conn->host,
+    url =  g_strdup_printf ("%s://%s:%d/%s%s", conn->protocol, conn->host,
                             conn->port, conn->path, request_path);
   else
-    url =  g_strdup_printf ("%s://%s%s%s", conn->protocol, conn->host,
+    url =  g_strdup_printf ("%s://%s/%s%s", conn->protocol, conn->host,
                             conn->path, request_path);
 
   gvm_http_headers_t *headers = init_custom_header (apikey, payload ? TRUE : FALSE);
