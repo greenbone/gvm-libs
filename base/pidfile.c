@@ -37,7 +37,7 @@
  * @return 0 for success, anything else indicates an error.
  */
 int
-pidfile_create (gchar *pid_file_path)
+pidfile_create (const gchar *pid_file_path)
 {
   FILE *pidfile;
   gchar *copy, *dir;
@@ -84,7 +84,7 @@ pidfile_create (gchar *pid_file_path)
  * "/tmp/service1.pid"
  */
 void
-pidfile_remove (gchar *pid_file_path)
+pidfile_remove (const gchar *pid_file_path)
 {
   gchar *pidfile_contents;
 
