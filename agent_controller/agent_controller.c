@@ -397,7 +397,6 @@ agent_controller_parse_agent (cJSON *item)
     latest_agt_ver ? g_strdup (latest_agt_ver) : NULL;
   agent->latest_updater_version =
     latest_updater_ver ? g_strdup (latest_updater_ver) : NULL;
-  agent->agent_version = agt_ver ? g_strdup (agt_ver) : NULL;
   agent->operating_system = os_str ? g_strdup (os_str) : NULL;
   agent->architecture = arch ? g_strdup (arch) : NULL;
   agent->update_to_latest =
