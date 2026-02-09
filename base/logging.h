@@ -20,7 +20,7 @@
 #define LOG_REFERENCES_AVAILABLE
 
 GSList *
-load_log_configuration (gchar *);
+load_log_configuration (const gchar *);
 
 void
 free_log_configuration (GSList *);

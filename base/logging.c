@@ -158,7 +158,7 @@ facility_int_from_string (const gchar *facility)
  *         is returned.
  */
 GSList *
-load_log_configuration (gchar *config_file)
+load_log_configuration (const gchar *config_file)
 {
   GKeyFile *key_file;
   GKeyFileFlags flags;

@@ -14,8 +14,8 @@
 #include <glib.h>
 
 int
-pidfile_create (gchar *);
+pidfile_create (const gchar *);
 void
-pidfile_remove (gchar *);
+pidfile_remove (const gchar *);
 
 #endif /* not _GVM_BASE_PIDFILE_H */
