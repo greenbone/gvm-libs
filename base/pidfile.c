@@ -52,9 +52,9 @@ pidfile_create (gchar *pid_file_path)
 
   if (g_mkdir_with_parents (dir, 0755)) /* "rwxr-xr-x" */
     {
-      g_free (copy);
       g_warning ("Failed to create PID file directory %s: %s", dir,
                  strerror (errno));
+      g_free (copy);
       return 1;
     }
   g_free (copy);
