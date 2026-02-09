@@ -71,6 +71,9 @@ gvm_logging_domain_new (gchar *log_domain)
 void
 gvm_logging_domain_free (gvm_logging_domain_t *log_domain)
 {
+  if (log_domain == NULL)
+    return;
+
   g_free (log_domain->log_domain);
   g_free (log_domain->prepend_string);
   g_free (log_domain->prepend_time_format);
