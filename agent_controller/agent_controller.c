@@ -691,10 +691,12 @@ agent_controller_agent_free (agent_controller_agent_t agent)
     }
 
   agent_controller_scan_agent_config_free (agent->config);
-  g_free (agent->updater_version);
   g_free (agent->agent_version);
-  g_free (agent->operating_system);
   g_free (agent->architecture);
+  g_free (agent->latest_agent_version);
+  g_free (agent->latest_updater_version);
+  g_free (agent->operating_system);
+  g_free (agent->updater_version);
   g_free (agent);
 }
 
