@@ -52,8 +52,8 @@ pidfile_create (gchar *pid_file_path)
 
   if (g_mkdir_with_parents (dir, 0755)) /* "rwxr-xr-x" */
     {
-      g_warning ("Failed to create PID file directory %s: %s", dir,
-                 strerror (errno));
+      g_debug ("Failed to create PID file directory %s: %s", dir,
+               strerror (errno));
       g_free (copy);
       return 1;
     }
@@ -65,8 +65,8 @@ pidfile_create (gchar *pid_file_path)
 
   if (pidfile == NULL)
     {
-      g_critical ("%s: failed to open pidfile %s: %s\n", __func__,
-                  pid_file_path, strerror (errno));
+      g_debug ("%s: failed to open pidfile %s: %s\n", __func__, pid_file_path,
+               strerror (errno));
       return 1;
     }
   else
