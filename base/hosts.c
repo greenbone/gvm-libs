@@ -1379,8 +1379,7 @@ gvm_hosts_free (gvm_hosts_t *hosts)
   if (hosts == NULL)
     return;
 
-  if (hosts->orig_str)
-    g_free (hosts->orig_str);
+  g_free (hosts->orig_str);
   for (i = 0; i < hosts->count; i++)
     gvm_host_free (hosts->hosts[i]);
   g_free (hosts->hosts);
