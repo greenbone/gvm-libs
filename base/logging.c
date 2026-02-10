@@ -383,8 +383,7 @@ static char *reference = NULL;
 void
 set_log_reference (char *ref)
 {
-  if (reference)
-    g_free ((char *) reference);
+  g_free (reference);
   reference = ref;
 }
 
@@ -411,8 +410,7 @@ get_log_reference (void)
 void
 free_log_reference (void)
 {
-  if (reference)
-    g_free ((char *) reference);
+  g_free (reference);
   reference = NULL;
 }
 
