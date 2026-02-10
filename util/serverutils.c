@@ -203,8 +203,7 @@ static char *cert_priv_mem = NULL;
 static void
 set_cert_pub_mem (const char *data)
 {
-  if (cert_pub_mem)
-    g_free (cert_pub_mem);
+  g_free (cert_pub_mem);
   cert_pub_mem = g_strdup (data);
 }
 

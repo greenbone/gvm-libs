@@ -76,8 +76,7 @@ proctitle_init (int argc, char **argv)
   while (envp[i])
     i++;
   environ = g_malloc0 (sizeof (char *) * (i + 1));
-  if (current_environ)
-    g_free (current_environ);
+  g_free (current_environ);
   current_environ = environ;
   for (i = 0; envp[i]; i++)
     environ[i] = g_strdup (envp[i]);

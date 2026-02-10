@@ -1099,16 +1099,11 @@ pack_sixth_uri_component (const cpe_struct_t *cpe)
   else if (edition)
     g_string_append (component, edition);
 
-  if (edition)
-    g_free (edition);
-  if (sw_edition)
-    g_free (sw_edition);
-  if (target_sw)
-    g_free (target_sw);
-  if (target_hw)
-    g_free (target_hw);
-  if (other)
-    g_free (other);
+  g_free (edition);
+  g_free (sw_edition);
+  g_free (target_sw);
+  g_free (target_hw);
+  g_free (other);
   return (g_string_free (component, FALSE));
 }
 
@@ -1214,28 +1209,17 @@ cpe_struct_free (cpe_struct_t *cpe)
 {
   if (!cpe)
     return;
-  if (cpe->part)
-    g_free (cpe->part);
-  if (cpe->vendor)
-    g_free (cpe->vendor);
-  if (cpe->product)
-    g_free (cpe->product);
-  if (cpe->version)
-    g_free (cpe->version);
-  if (cpe->update)
-    g_free (cpe->update);
-  if (cpe->edition)
-    g_free (cpe->edition);
-  if (cpe->sw_edition)
-    g_free (cpe->sw_edition);
-  if (cpe->target_sw)
-    g_free (cpe->target_sw);
-  if (cpe->target_hw)
-    g_free (cpe->target_hw);
-  if (cpe->other)
-    g_free (cpe->other);
-  if (cpe->language)
-    g_free (cpe->language);
+  g_free (cpe->part);
+  g_free (cpe->vendor);
+  g_free (cpe->product);
+  g_free (cpe->version);
+  g_free (cpe->update);
+  g_free (cpe->edition);
+  g_free (cpe->sw_edition);
+  g_free (cpe->target_sw);
+  g_free (cpe->target_hw);
+  g_free (cpe->other);
+  g_free (cpe->language);
 }
 
 /**

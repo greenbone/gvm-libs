@@ -61,8 +61,7 @@ void
 gvm_json_pull_event_cleanup (gvm_json_pull_event_t *event)
 {
   cJSON_Delete (event->value);
-  if (event->error_message)
-    g_free (event->error_message);
+  g_free (event->error_message);
   memset (event, 0, sizeof (gvm_json_pull_event_t));
 }
 
