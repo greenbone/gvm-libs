@@ -246,10 +246,10 @@ err_cleanup:
   return rc;
 }
 
-static inline char *
+static inline const char *
 parse_port_of_addr (const char *addr, int tcp_indicator_len)
 {
-  char *tmp;
+  const char *tmp;
   int is_ip_v6;
   tmp = strrchr (addr + tcp_indicator_len, ':');
   if (tmp == NULL)
@@ -268,7 +268,8 @@ connect_redis (const char *addr, int len)
   const int redis_default_port = 6379;
 
   int port, host_len;
-  char *tmp, *host;
+  const char *tmp;
+  char *host;
   redisContext *result;
   static int warn_flag = 0;
 
