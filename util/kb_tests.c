@@ -26,7 +26,7 @@ AfterEach (kb)
 
 Ensure (kb, parse_port_of_addr)
 {
-  char *addr, *port;
+  const char *addr, *port;
 
   addr = TCP "xxx:5";
   port = parse_port_of_addr (addr, strlen (TCP));
@@ -35,7 +35,7 @@ Ensure (kb, parse_port_of_addr)
 
 Ensure (kb, parse_port_of_addr_missing)
 {
-  char *addr, *port;
+  const char *addr, *port;
 
   addr = TCP "xxx";
   port = parse_port_of_addr (addr, strlen (TCP));
@@ -44,7 +44,7 @@ Ensure (kb, parse_port_of_addr_missing)
 
 Ensure (kb, parse_port_of_addr_v6)
 {
-  char *addr, *port;
+  const char *addr, *port;
 
   addr = TCP "[2001:db8::1]:8080";
   port = parse_port_of_addr (addr, strlen (TCP));
