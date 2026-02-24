@@ -271,6 +271,227 @@ Ensure (http_scanner, http_scanner_connector_free_null_connector)
   assert_that (result, is_equal_to (HTTP_SCANNER_OK));
 }
 
+Ensure (http_scanner, parse_results_invalid_json_returns_minus1)
+{
+  const gchar *str = "{ this is not json ";
+  GSList *results = NULL;
+
+  int ret = parse_results (str, &results);
+
+  assert_that (ret, is_equal_to (-1));
+  assert_that (results, is_null);
+}
+
+Ensure (http_scanner, parse_results_non_array_json_returns_minus1)
+{
+  const gchar *str = "{ \"id\": 1 }";
+  GSList *results = NULL;
+
+  int ret = parse_results (str, &results);
+
+  assert_that (ret, is_equal_to (-1));
+  assert_that (results, is_null);
+}
+
+Ensure (http_scanner, parse_results_empty_array_returns_200_and_no_results)
+{
+  const gchar *str = "[]";
+  GSList *results = NULL;
+
+  int ret = parse_results (str, &results);
+
+  assert_that (ret, is_equal_to (200));
+  assert_that (results, is_null);
+}
+
+Ensure (http_scanner, parse_results_array_with_non_object_item_returns_minus1)
+{
+  const gchar *str = "[ 1 ]";
+  GSList *results = NULL;
+
+  int ret = parse_results (str, &results);
+
+  assert_that (ret, is_equal_to (-1));
+  assert_that (results, is_null);
+}
+
+Ensure (http_scanner,
+        parse_results_missing_detail_appends_result_and_detail_null)
+{
+  const gchar *str = "[ {"
+                     "  \"id\": 1,"
+                     "  \"type\": \"host_detail\","
+                     "  \"ip_address\": \"10.0.0.1\","
+                     "  \"hostname\": \"h1\","
+                     "  \"oid\": \"1.3.6.1.4.1.25623.1.0.1\","
+                     "  \"port\": 80,"
+                     "  \"message\": \"m\""
+                     "} ]";
+
+  GSList *results = NULL;
+
+  int ret = parse_results (str, &results);
+
+  assert_that (ret, is_equal_to (200));
+  assert_that (g_slist_length (results), is_equal_to (1));
+
+  http_scanner_result_t r = results->data;
+
+  assert_that (r->ip_address, is_equal_to_string ("10.0.0.1"));
+  assert_that (r->hostname, is_equal_to_string ("h1"));
+  assert_that (r->oid, is_equal_to_string ("1.3.6.1.4.1.25623.1.0.1"));
+  assert_that (r->message, is_equal_to_string ("m"));
+
+  assert_that (r->detail_name, is_null);
+  assert_that (r->detail_value, is_null);
+  assert_that (r->detail_source_type, is_null);
+  assert_that (r->detail_source_name, is_null);
+  assert_that (r->detail_source_description, is_null);
+
+  g_slist_free_full (results, (GDestroyNotify) http_scanner_result_free);
+}
+
+Ensure (http_scanner, parse_results_detail_not_object_is_ignored)
+{
+  const gchar *str = "[ {"
+                     "  \"id\": 2,"
+                     "  \"type\": \"host_detail\","
+                     "  \"ip_address\": \"10.0.0.1\","
+                     "  \"hostname\": \"h2\","
+                     "  \"oid\": \"oid-2\","
+                     "  \"port\": 443,"
+                     "  \"protocol\": \"tcp\","
+                     "  \"message\": \"m2\","
+                     "  \"detail\": \"not-an-object\""
+                     "} ]";
+
+  GSList *results = NULL;
+  int ret = parse_results (str, &results);
+
+  assert_that (ret, is_equal_to (200));
+  assert_that (g_slist_length (results), is_equal_to (1));
+
+  http_scanner_result_t r = results->data;
+  assert_that (r->detail_name, is_null);
+  assert_that (r->detail_value, is_null);
+  assert_that (r->detail_source_type, is_null);
+  assert_that (r->detail_source_name, is_null);
+  assert_that (r->detail_source_description, is_null);
+
+  g_slist_free_full (results, (GDestroyNotify) http_scanner_result_free);
+}
+
+Ensure (http_scanner, parse_results_detail_source_not_object_is_ignored)
+{
+  const gchar *str = "[ {"
+                     "  \"id\": 3,"
+                     "  \"type\": \"host_detail\","
+                     "  \"ip_address\": \"10.0.0.2\","
+                     "  \"hostname\": \"h3\","
+                     "  \"oid\": \"oid-3\","
+                     "  \"port\": 22,"
+                     "  \"protocol\": \"tcp\","
+                     "  \"message\": \"m3\","
+                     "  \"detail\": {"
+                     "    \"name\": \"MAC\","
+                     "    \"value\": \"AA:BB:CC:DD:EE:FF\","
+                     "    \"source\": 123"
+                     "  }"
+                     "} ]";
+
+  GSList *results = NULL;
+  int ret = parse_results (str, &results);
+
+  assert_that (ret, is_equal_to (200));
+  assert_that (g_slist_length (results), is_equal_to (1));
+
+  http_scanner_result_t r = results->data;
+
+  assert_that (r->detail_name, is_equal_to_string ("MAC"));
+  assert_that (r->detail_value, is_equal_to_string ("AA:BB:CC:DD:EE:FF"));
+
+  assert_that (r->detail_source_type, is_null);
+  assert_that (r->detail_source_name, is_null);
+  assert_that (r->detail_source_description, is_null);
+
+  g_slist_free_full (results, (GDestroyNotify) http_scanner_result_free);
+}
+
+Ensure (http_scanner, parse_results_multiple_items_appended)
+{
+  const gchar *str = "["
+                     " {"
+                     "  \"id\": 10,"
+                     "  \"type\": \"host_detail\","
+                     "  \"ip_address\": \"10.0.0.2\","
+                     "  \"hostname\": \"a\","
+                     "  \"oid\": \"oid-a\","
+                     "  \"port\": 80,"
+                     "  \"protocol\": \"tcp\","
+                     "  \"message\": \"ma\""
+                     " },"
+                     " {"
+                     "  \"id\": 11,"
+                     "  \"type\": \"host_detail\","
+                     "  \"ip_address\": \"10.0.0.3\","
+                     "  \"hostname\": \"b\","
+                     "  \"oid\": \"oid-b\","
+                     "  \"port\": 443,"
+                     "  \"protocol\": \"tcp\","
+                     "  \"message\": \"mb\","
+                     "  \"detail\": {"
+                     "    \"name\": \"OS\","
+                     "    \"value\": \"Linux\""
+                     "  }"
+                     " }"
+                     "]";
+
+  GSList *results = NULL;
+  int ret = parse_results (str, &results);
+
+  assert_that (ret, is_equal_to (200));
+  assert_that (g_slist_length (results), is_equal_to (2));
+
+  http_scanner_result_t r1 = results->data;
+  http_scanner_result_t r2 = results->next->data;
+
+  assert_that (r1->ip_address, is_equal_to_string ("10.0.0.2"));
+  assert_that (r1->hostname, is_equal_to_string ("a"));
+  assert_that (r1->detail_name, is_null);
+
+  assert_that (r2->ip_address, is_equal_to_string ("10.0.0.3"));
+  assert_that (r2->hostname, is_equal_to_string ("b"));
+  assert_that (r2->detail_name, is_equal_to_string ("OS"));
+  assert_that (r2->detail_value, is_equal_to_string ("Linux"));
+
+  g_slist_free_full (results, (GDestroyNotify) http_scanner_result_free);
+}
+
+Ensure (http_scanner, parse_results_port_is_stringified)
+{
+  const gchar *str = "[ {"
+                     "  \"id\": 20,"
+                     "  \"type\": \"host_detail\","
+                     "  \"ip_address\": \"127.0.0.1\","
+                     "  \"hostname\": \"local\","
+                     "  \"oid\": \"oid-port\","
+                     "  \"port\": 8080,"
+                     "  \"message\": \"m\""
+                     "} ]";
+
+  GSList *results = NULL;
+  int ret = parse_results (str, &results);
+
+  assert_that (ret, is_equal_to (200));
+  assert_that (g_slist_length (results), is_equal_to (1));
+
+  http_scanner_result_t r = results->data;
+
+  assert_that (r->port, is_equal_to_string ("general/Host_Details"));
+
+  g_slist_free_full (results, (GDestroyNotify) http_scanner_result_free);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -301,6 +522,27 @@ main (int argc, char **argv)
                          http_scanner_stop_scan_handles_missing_id);
   add_test_with_context (suite, http_scanner,
                          http_scanner_delete_scan_handles_missing_id);
+
+  add_test_with_context (suite, http_scanner,
+                         parse_results_invalid_json_returns_minus1);
+  add_test_with_context (suite, http_scanner,
+                         parse_results_non_array_json_returns_minus1);
+  add_test_with_context (suite, http_scanner,
+                         parse_results_empty_array_returns_200_and_no_results);
+  add_test_with_context (
+    suite, http_scanner,
+    parse_results_array_with_non_object_item_returns_minus1);
+  add_test_with_context (
+    suite, http_scanner,
+    parse_results_missing_detail_appends_result_and_detail_null);
+  add_test_with_context (suite, http_scanner,
+                         parse_results_detail_not_object_is_ignored);
+  add_test_with_context (suite, http_scanner,
+                         parse_results_detail_source_not_object_is_ignored);
+  add_test_with_context (suite, http_scanner,
+                         parse_results_multiple_items_appended);
+  add_test_with_context (suite, http_scanner,
+                         parse_results_port_is_stringified);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
