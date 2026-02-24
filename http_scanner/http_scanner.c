@@ -831,6 +831,12 @@ parse_results (const gchar *body, GSList **results)
       // No results. No information.
       goto res_cleanup;
     }
+  if (cJSON_GetArraySize (parser) == 0)
+    {
+      ret = 200;
+      // No results in the list
+      goto res_cleanup;
+    }
 
   cJSON_ArrayForEach (result_obj, parser)
   {
