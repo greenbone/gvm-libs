@@ -2703,9 +2703,11 @@ Ensure (agent_controller, patch_payload_config_zeros_default_to_agent_values)
   agent_controller_agent_list_free (list);
 }
 
-Ensure (agent_controller, build_config_with_defaults_returns_null_when_agent_is_null)
+Ensure (agent_controller,
+        build_config_with_defaults_returns_null_when_agent_is_null)
 {
-  agent_controller_scan_agent_config_t upd = agent_controller_scan_agent_config_new ();
+  agent_controller_scan_agent_config_t upd =
+    agent_controller_scan_agent_config_new ();
   assert_that (upd, is_not_null);
 
   agent_controller_scan_agent_config_t merged =
@@ -2716,13 +2718,15 @@ Ensure (agent_controller, build_config_with_defaults_returns_null_when_agent_is_
   agent_controller_scan_agent_config_free (upd);
 }
 
-Ensure (agent_controller, build_config_with_defaults_returns_null_when_agent_config_is_null)
+Ensure (agent_controller,
+        build_config_with_defaults_returns_null_when_agent_config_is_null)
 {
   agent_controller_agent_t agent = agent_controller_agent_new ();
   assert_that (agent, is_not_null);
   agent->config = NULL;
 
-  agent_controller_scan_agent_config_t upd = agent_controller_scan_agent_config_new ();
+  agent_controller_scan_agent_config_t upd =
+    agent_controller_scan_agent_config_new ();
   assert_that (upd, is_not_null);
 
   agent_controller_scan_agent_config_t merged =
@@ -2734,7 +2738,8 @@ Ensure (agent_controller, build_config_with_defaults_returns_null_when_agent_con
   agent_controller_agent_free (agent);
 }
 
-Ensure (agent_controller, build_config_with_defaults_uses_agent_defaults_when_update_cfg_is_null)
+Ensure (agent_controller,
+        build_config_with_defaults_uses_agent_defaults_when_update_cfg_is_null)
 {
   agent_controller_agent_t agent = agent_controller_agent_new ();
   assert_that (agent, is_not_null);
@@ -2755,11 +2760,14 @@ Ensure (agent_controller, build_config_with_defaults_uses_agent_defaults_when_up
 
   /* cron list deep-copied */
   assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
-  assert_that (merged->agent_script_executor.scheduler_cron_time,
-               is_not_equal_to (agent->config->agent_script_executor.scheduler_cron_time));
+  assert_that (
+    merged->agent_script_executor.scheduler_cron_time,
+    is_not_equal_to (agent->config->agent_script_executor.scheduler_cron_time));
 
-  const gchar *a0 = g_ptr_array_index (agent->config->agent_script_executor.scheduler_cron_time, 0);
-  const gchar *m0 = g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 0);
+  const gchar *a0 = g_ptr_array_index (
+    agent->config->agent_script_executor.scheduler_cron_time, 0);
+  const gchar *m0 =
+    g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 0);
   assert_that (m0, is_equal_to_string (a0));
   assert_that (m0, is_not_equal_to (a0));
 
@@ -2767,7 +2775,8 @@ Ensure (agent_controller, build_config_with_defaults_uses_agent_defaults_when_up
   agent_controller_agent_free (agent);
 }
 
-Ensure (agent_controller, build_config_with_defaults_starts_from_update_when_provided)
+Ensure (agent_controller,
+        build_config_with_defaults_starts_from_update_when_provided)
 {
   agent_controller_agent_t agent = agent_controller_agent_new ();
   assert_that (agent, is_not_null);
@@ -2776,7 +2785,8 @@ Ensure (agent_controller, build_config_with_defaults_starts_from_update_when_pro
   assert_that (agent->config, is_not_null);
   agent->config->heartbeat.interval_in_seconds = 600;
 
-  agent_controller_scan_agent_config_t upd = agent_controller_scan_agent_config_new ();
+  agent_controller_scan_agent_config_t upd =
+    agent_controller_scan_agent_config_new ();
   assert_that (upd, is_not_null);
   upd->heartbeat.interval_in_seconds = 42;
 
@@ -3075,13 +3085,17 @@ main (int argc, char **argv)
     build_config_with_defaults_deep_copies_agent_cron_when_update_missing);
   add_test_with_context (suite, agent_controller,
                          patch_payload_config_zeros_default_to_agent_values);
-  add_test_with_context (suite, agent_controller,
-  build_config_with_defaults_returns_null_when_agent_is_null);
-  add_test_with_context (suite, agent_controller,
+  add_test_with_context (
+    suite, agent_controller,
+    build_config_with_defaults_returns_null_when_agent_is_null);
+  add_test_with_context (
+    suite, agent_controller,
     build_config_with_defaults_returns_null_when_agent_config_is_null);
-  add_test_with_context (suite, agent_controller,
+  add_test_with_context (
+    suite, agent_controller,
     build_config_with_defaults_uses_agent_defaults_when_update_cfg_is_null);
-  add_test_with_context (suite, agent_controller,
+  add_test_with_context (
+    suite, agent_controller,
     build_config_with_defaults_starts_from_update_when_provided);
 
   if (argc > 1)

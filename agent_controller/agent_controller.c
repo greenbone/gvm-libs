@@ -524,7 +524,8 @@ agent_controller_build_config_with_defaults (
       ? update_cfg->agent_script_executor.scheduler_cron_time
       : agent->config->agent_script_executor.scheduler_cron_time;
 
-  merged->agent_script_executor.scheduler_cron_time = dup_str_ptr_array (src_cron);
+  merged->agent_script_executor.scheduler_cron_time =
+    dup_str_ptr_array (src_cron);
 
   return merged;
 }
