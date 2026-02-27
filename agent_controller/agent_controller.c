@@ -414,6 +414,122 @@ agent_controller_parse_agent (cJSON *item)
 }
 
 /**
+ * @brief Deep-copy a GPtrArray of char*.
+ *
+ * @param[in] src  Source pointer array to duplicate (may be NULL).
+ *
+ * @return A newly allocated #GPtrArray on success; NULL if @p src is NULL
+ *         or if an allocation fails.
+ */
+static GPtrArray *
+dup_str_ptr_array (const GPtrArray *src)
+{
+  if (!src)
+    return NULL;
+
+  GPtrArray *dst = g_ptr_array_sized_new (src->len);
+  if (!dst)
+    return NULL;
+
+  g_ptr_array_set_free_func (dst, g_free);
+
+  for (guint i = 0; i < src->len; ++i)
+    {
+      const char *s = g_ptr_array_index ((GPtrArray *) src, i);
+      char *copy = s ? g_strdup (s) : NULL;
+
+      if (s && !copy)
+        {
+          g_ptr_array_free (dst, TRUE);
+          return NULL;
+        }
+
+      g_ptr_array_add (dst, copy);
+    }
+
+  return dst;
+}
+
+/**
+ * @brief Resolve and merge scan agent configuration.
+ *
+ * The returned configuration is heap-allocated and must be freed
+ * using agent_controller_scan_agent_config_free().
+ *
+ * @param[in] agent       Agent providing the base configuration.
+ * @param[in] update_cfg  Optional configuration overrides. May be NULL.
+ *
+ * @return Newly allocated merged configuration on success,
+ *         or NULL on error.
+ */
+static agent_controller_scan_agent_config_t
+agent_controller_build_config_with_defaults (
+  const agent_controller_agent_t agent,
+  const agent_controller_scan_agent_config_t update_cfg)
+{
+  if (!agent || !agent->config)
+    return NULL;
+
+  agent_controller_scan_agent_config_t merged =
+    agent_controller_scan_agent_config_new ();
+  if (!merged)
+    return NULL;
+
+  /* Start from update if provided, otherwise start from agent defaults */
+  if (update_cfg)
+    *merged = *update_cfg;
+  else
+    *merged = *agent->config;
+
+  merged->agent_script_executor.scheduler_cron_time = NULL;
+
+  /* Fill missing (0) values from agent's config */
+  if (update_cfg)
+    {
+      if (merged->heartbeat.interval_in_seconds == 0)
+        merged->heartbeat.interval_in_seconds =
+          agent->config->heartbeat.interval_in_seconds;
+
+      if (merged->heartbeat.miss_until_inactive == 0)
+        merged->heartbeat.miss_until_inactive =
+          agent->config->heartbeat.miss_until_inactive;
+
+      if (merged->agent_control.retry.attempts == 0)
+        merged->agent_control.retry.attempts =
+          agent->config->agent_control.retry.attempts;
+
+      if (merged->agent_control.retry.delay_in_seconds == 0)
+        merged->agent_control.retry.delay_in_seconds =
+          agent->config->agent_control.retry.delay_in_seconds;
+
+      if (merged->agent_control.retry.max_jitter_in_seconds == 0)
+        merged->agent_control.retry.max_jitter_in_seconds =
+          agent->config->agent_control.retry.max_jitter_in_seconds;
+
+      if (merged->agent_script_executor.bulk_size == 0)
+        merged->agent_script_executor.bulk_size =
+          agent->config->agent_script_executor.bulk_size;
+
+      if (merged->agent_script_executor.bulk_throttle_time_in_ms == 0)
+        merged->agent_script_executor.bulk_throttle_time_in_ms =
+          agent->config->agent_script_executor.bulk_throttle_time_in_ms;
+
+      if (merged->agent_script_executor.indexer_dir_depth == 0)
+        merged->agent_script_executor.indexer_dir_depth =
+          agent->config->agent_script_executor.indexer_dir_depth;
+    }
+
+  const GPtrArray *src_cron =
+    (update_cfg && update_cfg->agent_script_executor.scheduler_cron_time)
+      ? update_cfg->agent_script_executor.scheduler_cron_time
+      : agent->config->agent_script_executor.scheduler_cron_time;
+
+  merged->agent_script_executor.scheduler_cron_time = dup_str_ptr_array (src_cron);
+
+  return merged;
+}
+
+/**
  * @brief Build a JSON payload for updating agents.
  *
  * @param[in] agents List of agents to include in the payload.
@@ -459,9 +575,15 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
       cJSON *cfg_obj = NULL;
       if (update && update->config)
         {
-          cfg_obj =
-            agent_controller_scan_agent_config_struct_to_cjson (update->config);
-          cJSON_AddItemToObject (agent_obj, "config", cfg_obj);
+          agent_controller_scan_agent_config_t merged =
+            agent_controller_build_config_with_defaults (agent, update->config);
+          if (merged)
+            {
+              cfg_obj =
+                agent_controller_scan_agent_config_struct_to_cjson (merged);
+              cJSON_AddItemToObject (agent_obj, "config", cfg_obj);
+              agent_controller_scan_agent_config_free (merged);
+            }
         }
       cJSON_AddItemToObject (patch_body, agent->agent_id, agent_obj);
     }
