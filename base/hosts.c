@@ -654,8 +654,7 @@ cidr6_block_ips (const char *str, struct in6_addr *first, struct in6_addr *last)
 int
 gvm_cidr6_block_ips (const char *str, struct in6_addr *first, struct in6_addr *last)
 {
-  return cidr6_block_ips (const char *str, struct in6_addr *first,
-                          struct in6_addr *last);
+  return cidr6_block_ips (str, first, last);
 }
 
 /**

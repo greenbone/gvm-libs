@@ -41,6 +41,7 @@ init_cli (scanner_t *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
   /* No kb used for cli mode.*/
   scanner->main_kb = NULL;
   scanner->print_results = print_results;
+  scanner->host_discovery = 0;
 
   /* hosts_data */
   scanner->hosts_data = g_malloc0 (sizeof (hosts_data_t));
@@ -76,7 +77,6 @@ init_cli (scanner_t *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
 
 static boreas_error_t
 init_cli_for_host_discovery (scanner_t *scanner, const char *net,
-                             alive_test_t alive_test,
                              const int print_results)
 {
   int error;
@@ -84,10 +84,8 @@ init_cli_for_host_discovery (scanner_t *scanner, const char *net,
   /* No kb used for cli mode.*/
   scanner->main_kb = NULL;
   scanner->print_results = print_results;
+  scanner->host_discovery = 1;
 
-  scanner->ipv6_net = g_malloc0 (sizeof (ipv6_net_data_t));
-  scanner->ipv6_net->net = net;
-  
   /* hosts_data */
   scanner->hosts_data = g_malloc0 (sizeof (hosts_data_t));
   scanner->hosts_data->alivehosts =
@@ -95,10 +93,21 @@ init_cli_for_host_discovery (scanner_t *scanner, const char *net,
   scanner->hosts_data->targethosts =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-  /* Sockets. */
-  error = set_all_needed_sockets (scanner, alive_test);
+  // Create socket for getting the src address
+  error = set_udp6_socket (scanner);
   if (error != 0)
-    return error;
+    {
+      printf ("%s: %s", __func__, str_boreas_error (error));
+      return error;
+    }
+
+  error = init_ipv6_net_data(scanner, net);
+  if (error != 0)
+    {
+      printf ("%s:Not possible to initialize data: %s",
+              __func__, str_boreas_error (error));
+      return error;
+    }
 
   /* No scan restrictions. */
   init_scan_restrictions (scanner, 0);
@@ -136,7 +145,9 @@ run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
   gettimeofday (&start_time, NULL);
   number_of_targets = g_hash_table_size (scanner->hosts_data->targethosts);
 
-  if (scanner->print_results == 1)
+  if (scanner->print_results == 1 && scanner->host_discovery)
+    printf ("Host discovery started for network %s.\n", scanner->ipv6_net->net);
+  else
     printf ("Alive scan started: Target has %d hosts.\n", number_of_targets);
 
   error = start_sniffer_thread (scanner, &sniffer_thread_id);
@@ -145,8 +156,8 @@ run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
 
   if (alive_test & (ALIVE_TEST_IPV6_HOST_DISCOVERY))
     {
-      send_icmp_v6_multicast (&scanner, net);
-      wait_until_so_sndbuf_empty ((&scanner)->icmpv6soc, 10);
+      send_icmp_v6_multicast (scanner);
+      wait_until_so_sndbuf_empty (scanner->icmpv6soc, 10);
       usleep (500000);
     }
   else
@@ -274,7 +285,7 @@ run_cli_for_ipv6_network (const char *net)
     return BOREAS_INVALID_IPV6_NETWORK;
 
   init_err =
-    init_cli_for_host_discovery (&scanner, net, ALIVE_TEST_IPV6_HOST_DISCOVERY,
+    init_cli_for_host_discovery (&scanner, net,
                                  print_results);
   if (init_err)
     {
@@ -282,7 +293,7 @@ run_cli_for_ipv6_network (const char *net)
       return init_err;
     }
 
-  send_icmp_v6_multicast (&scanner, net);
+  send_icmp_v6_multicast (&scanner);
   wait_until_so_sndbuf_empty ((&scanner)->icmpv6soc, 10);
 
   run_err = run_cli_scan (&scanner, ALIVE_TEST_IPV6_HOST_DISCOVERY);
