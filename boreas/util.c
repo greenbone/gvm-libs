@@ -157,7 +157,7 @@ get_source_addr_v6 (int *udpv6soc, struct in6_addr *dst, struct in6_addr *src)
   sock_len = sizeof (storage);
   if (connect (*udpv6soc, (const struct sockaddr *) &storage, sock_len) < 0)
     {
-      g_warning ("%s: connect() on udpv6soc failed: %s %d", __func__,
+      g_warning("%s: connect() on udpv6soc failed: %s %d", __func__,
                  strerror (errno), errno);
       /* State of the socket is unspecified.  Close the socket and create a new
        * one. */
@@ -579,6 +579,17 @@ set_all_needed_sockets (scanner_t *scanner, alive_test_t alive_test)
       if (error != 0)
         return error;
       error = set_socket (ARPV6, &(scanner->arpv6soc));
+      if (error != 0)
+        return error;
+    }
+
+  if ((alive_test & 32))
+    {
+      // Set UDP socket for getting the src address
+      error = set_socket (UDPV6, &(scanner->udpv6soc));
+      if (error != 0)
+        return error;
+      error = set_socket (ICMPV6, &(scanner->icmpv6soc));
       if (error != 0)
         return error;
     }
