@@ -6,6 +6,8 @@
 #include "util.h"
 
 #include "../base/networking.h" /* for range_t */
+#include "alivedetection.h"
+#include "boreas_error.h"
 
 #include <errno.h>
 #include <glib.h>
@@ -534,6 +536,61 @@ set_socket (socket_type_t socket_type, int *scanner_socket)
   return error;
 }
 
+boreas_error_t
+set_udp6_socket (scanner_t *scanner)
+{
+  boreas_error_t error = NO_ERROR;
+  error = set_socket (UDPV6, &(scanner->udpv6soc));
+  return error;
+}
+
+boreas_error_t
+init_ipv6_net_data (scanner_t *scanner, const char *net)
+{
+
+  struct in6_addr first, last;
+  struct sockaddr_in6  socs;
+  int soc;
+  boreas_error_t error = NO_ERROR;
+  // IPv6 net data for host discovery
+  scanner->ipv6_net = g_malloc0 (sizeof (ipv6_net_data_t));
+  scanner->ipv6_net->net = g_strdup(net);
+
+  /* Get source address for IPv6 header. */
+  gvm_cidr6_block_ips (scanner->ipv6_net->net, &first, &last);
+
+  error = get_source_addr_v6 (&(scanner->udpv6soc),
+                              &first, &(scanner->ipv6_net->src));
+  if (error)
+    {
+      char destination_str[INET_ADDRSTRLEN];
+      inet_ntop (AF_INET6, (const void *) &first, destination_str,
+                 INET_ADDRSTRLEN);
+      printf ("%s: Destination: %s. %s", __func__, destination_str,
+              str_boreas_error (error));
+      return BOREAS_INVALID_IPV6_NETWORK;
+    }
+
+  int opt_on = 1;
+  soc = socket (AF_INET6, SOCK_RAW, IPPROTO_RAW);
+  setsockopt (soc, IPPROTO_IPV6, IP_HDRINCL, (char *) &opt_on,
+              sizeof (opt_on));
+
+  // Enable multicast
+  setsockopt (soc, SOL_SOCKET, SO_BROADCAST, &opt_on, sizeof (opt_on));
+
+  // Create source address
+  memset (&socs, 0, sizeof (socs));
+  socs.sin6_family = AF_INET6;
+  socs.sin6_addr = scanner->ipv6_net->src;
+ // and set the source address to the socket
+  bind(soc, (struct sockaddr *) &socs, sizeof(socs));
+  scanner->icmpv6soc = soc;
+
+  return error;
+}
+
+
 /**
  * @brief Set all sockets needed for the chosen detection methods.
  *
@@ -579,17 +636,6 @@ set_all_needed_sockets (scanner_t *scanner, alive_test_t alive_test)
       if (error != 0)
         return error;
       error = set_socket (ARPV6, &(scanner->arpv6soc));
-      if (error != 0)
-        return error;
-    }
-
-  if ((alive_test & 32))
-    {
-      // Set UDP socket for getting the src address
-      error = set_socket (UDPV6, &(scanner->udpv6soc));
-      if (error != 0)
-        return error;
-      error = set_socket (ICMPV6, &(scanner->icmpv6soc));
       if (error != 0)
         return error;
     }
