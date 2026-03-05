@@ -67,6 +67,7 @@ struct scanner
   scan_restrictions_t *scan_restrictions;
   /* 0 do not print in stdout, 1 print in stdout used for cmd line cli. */
   int print_results;
+  int host_discovery;
 };
 
 typedef struct scanner scanner_t;
@@ -74,7 +75,8 @@ typedef struct scanner scanner_t;
 struct ipv6_net_data
 {
   char *net;
-}
+  struct in6_addr src;
+};
   
 /**
  * @brief The hosts_data struct holds the alive hosts and target hosts in

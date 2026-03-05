@@ -313,37 +313,18 @@ send_icmp (gpointer key, gpointer value, gpointer scanner_p)
  * @param dst Destination network address to explore
  */
 void
-send_icmp_v6_multicast (gpointer scanner_p, const char *net)
+send_icmp_v6_multicast (gpointer scanner_p)
 {
-  boreas_error_t error;
-  struct sockaddr_in6 soca, socs;
-  struct in6_addr src;
+  struct sockaddr_in6 soca;
   scanner_t *scanner = scanner_p;
   /* Throttling related variables */
   static int so_sndbuf = -1; // socket send buffer
   static int init = -1;
-  int *udpv6soc = &(scanner->udpv6soc);
-  int soc;
-  struct in6_addr first;
-  struct in6_addr last;
-
   u_char packet[sizeof (struct ip6_hdr) + sizeof (struct icmp6_hdr)];
   struct ip6_hdr *ip = (struct ip6_hdr *) packet;
+  int soc = scanner->icmpv6soc;
   struct icmp6_hdr *icmp =
     (struct icmp6_hdr *) (packet + sizeof (struct ip6_hdr));
-
-  /* Get source address for TCP header. */
-  gvm_cidr6_block_ips(net, &first, &last);
-  error = get_source_addr_v6 (udpv6soc, &first, &src);
-  if (error)
-    {
-      char destination_str[INET_ADDRSTRLEN];
-      inet_ntop (AF_INET6, (const void *) &first, destination_str,
-                 INET_ADDRSTRLEN);
-      g_debug ("%s: Destination: %s. %s", __func__, destination_str,
-               str_boreas_error (error));
-      return;
-    }
 
   memset (packet, 0, sizeof (packet));
   /* IPv6 */
@@ -351,8 +332,8 @@ send_icmp_v6_multicast (gpointer scanner_p, const char *net)
   ip->ip6_plen = htons (8); // ICMP6_HDRLEN
   ip->ip6_nxt= IPPROTO_ICMPV6;
   ip->ip6_hops = 255; // max value
+  ip->ip6_src = scanner->ipv6_net->src;
   inet_pton (AF_INET6, "FF02::1", &ip->ip6_dst);
-   ip->ip6_src = src;
 
   /* ICMP */
   icmp->icmp6_type = ICMP6_ECHO_REQUEST;
@@ -376,12 +357,7 @@ send_icmp_v6_multicast (gpointer scanner_p, const char *net)
       in_cksum((unsigned short *) &pseudoheader, sizeof(packet));
   }
 
-  int opt_on = 1;
-  soc = socket (AF_INET6, SOCK_RAW, IPPROTO_RAW);
-  setsockopt (soc, IPPROTO_IPV6, IP_HDRINCL, (char *) &opt_on,
-              sizeof (opt_on));
-
-  /* Get size of empty SO_SNDBUF */
+   /* Get size of empty SO_SNDBUF */
   if (init == -1)
     {
       if (get_so_sndbuf (soc, &so_sndbuf) == 0)
@@ -391,19 +367,10 @@ send_icmp_v6_multicast (gpointer scanner_p, const char *net)
   /* Throttle speed if needed */
   throttle (soc, so_sndbuf);
 
-  // Enable multicast
-  setsockopt (soc, SOL_SOCKET, SO_BROADCAST, &opt_on, sizeof (opt_on));
-
-  // source
-  memset (&socs, 0, sizeof (socs));
-  socs.sin6_family = AF_INET6;
-  socs.sin6_addr = ip->ip6_src;
   // destination socket
   memset (&soca, 0, sizeof (soca));
   soca.sin6_family = AF_INET6;
   soca.sin6_addr = ip->ip6_dst;
-  // to set the source address
-  bind(soc, (struct sockaddr *) &socs, sizeof(socs));
 
   /*  ICMP6_HDRLEN(8) IP6_HDRLEN(40) */
   if (sendto (soc, (const void *) ip, 40 + 8, 0,

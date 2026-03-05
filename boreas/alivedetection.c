@@ -462,8 +462,9 @@ alive_detection_free (void *error)
    * gvm_host_t are freed by caller of start_alive_detection()! */
   g_hash_table_destroy (scanner.hosts_data->targethosts);
   g_free (scanner.hosts_data);
+  g_free (scanner.ipv6_net->net);
   g_free (scanner.ipv6_net);
-
+  
   /* Set error. */
   *(boreas_error_t *) error = error_out;
 }
