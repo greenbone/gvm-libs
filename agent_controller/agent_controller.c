@@ -939,7 +939,7 @@ agent_controller_agent_update_free (agent_controller_agent_update_t update)
 }
 
 /**
- * @brief Allocate/zero a new scan agent config.
+ * @brief Allocate/zero a new agent config.
  */
 agent_controller_agent_config_t
 agent_controller_agent_config_new (void)
@@ -948,7 +948,7 @@ agent_controller_agent_config_new (void)
 }
 
 /**
- * @brief Free a scan agent config.
+ * @brief Free an agent config.
  *
  * @param[in] cfg to be freed
  */
@@ -968,64 +968,66 @@ agent_controller_agent_config_free (agent_controller_agent_config_t cfg)
 }
 
 /**
- * @brief Allocates and initializes a new scan agent defaults structure.
+ * @brief Allocates and initializes a new scan agent config structure.
  *
- * @return Newly allocated scan agent defaults structure on success, NULL on
+ * @return Newly allocated scan agent config structure on success, NULL on
  *         failure
  */
 agent_controller_scan_agent_config_t
 agent_controller_scan_agent_config_new ()
 {
-  agent_controller_scan_agent_config_t d =
+  agent_controller_scan_agent_config_t scan_agent_cfg =
     g_malloc0 (sizeof (struct agent_controller_scan_agent_config));
-  if (!d)
+  if (!scan_agent_cfg)
     return NULL;
 
-  d->agent_defaults = agent_controller_agent_config_new ();
-  if (!d->agent_defaults)
+  scan_agent_cfg->agent_defaults = agent_controller_agent_config_new ();
+  if (!scan_agent_cfg->agent_defaults)
     {
-      g_free (d);
+      g_free (scan_agent_cfg);
       return NULL;
     }
 
-  d->agent_control_defaults = g_malloc0 (sizeof (*d->agent_control_defaults));
+  scan_agent_cfg->agent_control_defaults =
+    g_malloc0 (sizeof (*scan_agent_cfg->agent_control_defaults));
 
-  d->agent_control_defaults->update_to_latest = -1;
-  return d;
+  scan_agent_cfg->agent_control_defaults->update_to_latest = -1;
+  return scan_agent_cfg;
 }
 
 /**
- * @brief Frees a scan agent defaults structure.
+ * @brief Frees a scan agent config structure.
  *
- * @param[in] d Scan agent defaults structure to free (may be NULL)
+ * @param[in] scan_agent_cfg Scan agent config structure to free (may be NULL)
  */
 void
-agent_controller_scan_agent_config_free (agent_controller_scan_agent_config_t d)
+agent_controller_scan_agent_config_free (
+  agent_controller_scan_agent_config_t scan_agent_cfg)
 {
-  if (!d)
+  if (!scan_agent_cfg)
     return;
 
-  agent_controller_agent_config_free (d->agent_defaults);
-  d->agent_defaults = NULL;
+  agent_controller_agent_config_free (scan_agent_cfg->agent_defaults);
+  scan_agent_cfg->agent_defaults = NULL;
 
-  g_free (d->agent_control_defaults);
-  d->agent_control_defaults = NULL;
+  g_free (scan_agent_cfg->agent_control_defaults);
+  scan_agent_cfg->agent_control_defaults = NULL;
 
-  g_free (d);
+  g_free (scan_agent_cfg);
 }
 
 /**
- * @brief Converts scan agent default configuration into a JSON string.
+ * @brief Converts scan agent configuration into a JSON string.
  *
- * @param[in] d Scan agent defaults structure to serialize
+ * @param[in] scan_agent_cfg Scan agent config structure to serialize
  *
  * @return Newly allocated JSON string on success, NULL on failure
  */
 gchar *
 agent_controller_convert_scan_agent_config_string (
-  agent_controller_scan_agent_config_t d)
+  agent_controller_scan_agent_config_t scan_agent_cfg)
 {
-  if (!d || !d->agent_defaults)
+  if (!scan_agent_cfg || !scan_agent_cfg->agent_defaults)
     return NULL;
 
   cJSON *root = cJSON_CreateObject ();
@@ -1033,8 +1035,8 @@ agent_controller_convert_scan_agent_config_string (
     return NULL;
 
   /* agent_defaults */
-  cJSON *agent_defaults =
-    agent_controller_agent_config_struct_to_cjson (d->agent_defaults);
+  cJSON *agent_defaults = agent_controller_agent_config_struct_to_cjson (
+    scan_agent_cfg->agent_defaults);
   if (!agent_defaults)
     agent_defaults = cJSON_CreateObject ();
 
@@ -1048,9 +1050,10 @@ agent_controller_convert_scan_agent_config_string (
       return NULL;
     }
 
-  if (d->agent_control_defaults->update_to_latest != -1)
-    cJSON_AddBoolToObject (acd, "update_to_latest",
-                           d->agent_control_defaults->update_to_latest ? 1 : 0);
+  if (scan_agent_cfg->agent_control_defaults->update_to_latest != -1)
+    cJSON_AddBoolToObject (
+      acd, "update_to_latest",
+      scan_agent_cfg->agent_control_defaults->update_to_latest ? 1 : 0);
 
   cJSON_AddItemToObject (root, "agent_control_defaults", acd);
 
@@ -1060,7 +1063,7 @@ agent_controller_convert_scan_agent_config_string (
 }
 
 /**
- * @brief Parses scan agent default configuration from a JSON string.
+ * @brief Parses scan agent configuration from a JSON string.
  *
  * @param[in] config JSON string containing scan agent default configuration
  *
@@ -1079,11 +1082,11 @@ agent_controller_parse_scan_agent_config_string (const gchar *config)
       return NULL;
     }
 
-  agent_controller_scan_agent_config_t d =
+  agent_controller_scan_agent_config_t scan_agent_cfg =
     agent_controller_parse_scan_agent_config (root);
 
   cJSON_Delete (root);
-  return d;
+  return scan_agent_cfg;
 }
 
 /**
@@ -1366,7 +1369,6 @@ agent_controller_convert_agent_config_string (
                            cfg->heartbeat.miss_until_inactive);
   cJSON_AddItemToObject (root, "heartbeat", hb);
 
-  /* If nothing set, root returns empty → "{}" */
   gchar *payload = cJSON_PrintUnformatted (root);
   cJSON_Delete (root);
   return payload;
