@@ -8,6 +8,7 @@
 #include "../base/networking.h"
 #include "../base/prefs.h"
 #include "alivedetection.h"
+#include "boreas_error.h"
 #include "boreas_io.h"
 #include "ping.h"
 #include "sniffer.h"
@@ -15,7 +16,9 @@
 
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <netinet/in.h>
 #include <unistd.h>
+#include <netinet/icmp6.h>
 
 #undef G_LOG_DOMAIN
 /**
@@ -72,6 +75,38 @@ init_cli (scanner_t *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
 }
 
 static boreas_error_t
+init_cli_for_host_discovery (scanner_t *scanner, const char *net,
+                             alive_test_t alive_test,
+                             const int print_results)
+{
+  int error;
+
+  /* No kb used for cli mode.*/
+  scanner->main_kb = NULL;
+  scanner->print_results = print_results;
+
+  scanner->ipv6_net = g_malloc0 (sizeof (ipv6_net_data_t));
+  scanner->ipv6_net->net = net;
+  
+  /* hosts_data */
+  scanner->hosts_data = g_malloc0 (sizeof (hosts_data_t));
+  scanner->hosts_data->alivehosts =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  scanner->hosts_data->targethosts =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+  /* Sockets. */
+  error = set_all_needed_sockets (scanner, alive_test);
+  if (error != 0)
+    return error;
+
+  /* No scan restrictions. */
+  init_scan_restrictions (scanner, 0);
+
+  return error;
+}
+
+static boreas_error_t
 free_cli (scanner_t *scanner, alive_test_t alive_test)
 {
   int close_err;
@@ -108,39 +143,48 @@ run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
   if (error)
     return error;
 
-  if (alive_test & (ALIVE_TEST_ICMP))
+  if (alive_test & (ALIVE_TEST_IPV6_HOST_DISCOVERY))
     {
-      g_hash_table_foreach (scanner->hosts_data->targethosts, send_icmp,
-                            scanner);
-      wait_until_so_sndbuf_empty (scanner->icmpv4soc, 10);
-      wait_until_so_sndbuf_empty (scanner->icmpv6soc, 10);
+      send_icmp_v6_multicast (&scanner, net);
+      wait_until_so_sndbuf_empty ((&scanner)->icmpv6soc, 10);
       usleep (500000);
     }
-  if (alive_test & (ALIVE_TEST_TCP_SYN_SERVICE))
+  else
     {
-      scanner->tcp_flag = 0x02; /* SYN */
-      g_hash_table_foreach (scanner->hosts_data->targethosts, send_tcp,
-                            scanner);
-      wait_until_so_sndbuf_empty (scanner->tcpv4soc, 10);
-      wait_until_so_sndbuf_empty (scanner->tcpv6soc, 10);
-      usleep (500000);
-    }
-  if (alive_test & (ALIVE_TEST_TCP_ACK_SERVICE))
-    {
-      scanner->tcp_flag = 0x10; /* ACK */
-      g_hash_table_foreach (scanner->hosts_data->targethosts, send_tcp,
-                            scanner);
-      wait_until_so_sndbuf_empty (scanner->tcpv4soc, 10);
-      wait_until_so_sndbuf_empty (scanner->tcpv6soc, 10);
-      usleep (500000);
-    }
-  if (alive_test & (ALIVE_TEST_ARP))
-    {
-      g_hash_table_foreach (scanner->hosts_data->targethosts, send_arp,
-                            scanner);
-      wait_until_so_sndbuf_empty (scanner->arpv4soc, 10);
-      wait_until_so_sndbuf_empty (scanner->arpv6soc, 10);
-      usleep (500000);
+      if (alive_test & (ALIVE_TEST_ICMP))
+        {
+          g_hash_table_foreach (scanner->hosts_data->targethosts, send_icmp,
+                                scanner);
+          wait_until_so_sndbuf_empty (scanner->icmpv4soc, 10);
+          wait_until_so_sndbuf_empty (scanner->icmpv6soc, 10);
+          usleep (500000);
+        }
+      if (alive_test & (ALIVE_TEST_TCP_SYN_SERVICE))
+        {
+          scanner->tcp_flag = 0x02; /* SYN */
+          g_hash_table_foreach (scanner->hosts_data->targethosts, send_tcp,
+                                scanner);
+          wait_until_so_sndbuf_empty (scanner->tcpv4soc, 10);
+          wait_until_so_sndbuf_empty (scanner->tcpv6soc, 10);
+          usleep (500000);
+        }
+      if (alive_test & (ALIVE_TEST_TCP_ACK_SERVICE))
+        {
+          scanner->tcp_flag = 0x10; /* ACK */
+          g_hash_table_foreach (scanner->hosts_data->targethosts, send_tcp,
+                                scanner);
+          wait_until_so_sndbuf_empty (scanner->tcpv4soc, 10);
+          wait_until_so_sndbuf_empty (scanner->tcpv6soc, 10);
+          usleep (500000);
+        }
+      if (alive_test & (ALIVE_TEST_ARP))
+        {
+          g_hash_table_foreach (scanner->hosts_data->targethosts, send_arp,
+                                scanner);
+          wait_until_so_sndbuf_empty (scanner->arpv4soc, 10);
+          wait_until_so_sndbuf_empty (scanner->arpv6soc, 10);
+          usleep (500000);
+        }
     }
 
   if (wait_timeout > 0 && wait_timeout <= 20)
@@ -201,6 +245,63 @@ run_cli_extended (gvm_hosts_t *hosts, alive_test_t alive_test,
     }
 
   return NO_ERROR;
+}
+
+
+/**
+ * @brief
+ *
+ * @param[in] net IPv6 network
+ *
+ * @return NO_ERROR (0) on success, boreas_error_t on error.
+ */
+boreas_error_t
+run_cli_for_ipv6_network (const char *net)
+{
+  unsigned int block;
+  struct in6_addr target;
+  scanner_t scanner = {0};
+  boreas_error_t init_err;
+  boreas_error_t run_err;
+  boreas_error_t free_err;
+  int print_results = 1;
+
+  if (net == NULL || gvm_get_host_type(net) != HOST_TYPE_CIDR6_BLOCK)
+    return BOREAS_INVALID_IPV6_NETWORK;
+
+  if (gvm_cidr6_get_block (net, &block) < 0 ||
+      gvm_cidr6_get_ip (net, &target) < 0)
+    return BOREAS_INVALID_IPV6_NETWORK;
+
+  init_err =
+    init_cli_for_host_discovery (&scanner, net, ALIVE_TEST_IPV6_HOST_DISCOVERY,
+                                 print_results);
+  if (init_err)
+    {
+      printf ("Error initializing scanner.\n");
+      return init_err;
+    }
+
+  send_icmp_v6_multicast (&scanner, net);
+  wait_until_so_sndbuf_empty ((&scanner)->icmpv6soc, 10);
+
+  run_err = run_cli_scan (&scanner, ALIVE_TEST_IPV6_HOST_DISCOVERY);
+  if (run_err)
+    {
+      printf ("Error while running the scan.\n");
+      return run_err;
+    }
+
+  free_err = free_cli (&scanner, ALIVE_TEST_IPV6_HOST_DISCOVERY);
+  if (free_err)
+    {
+      printf ("Error freeing scan data.\n");
+      return free_err;
+    }
+
+  return NO_ERROR;
+
+  return 0;
 }
 
 /**

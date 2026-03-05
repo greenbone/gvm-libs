@@ -6,6 +6,7 @@
 #include "ping.h"
 
 #include "../base/prefs.h" /* for prefs_get() */
+#include "../base/networking.h"
 #include "arp.h"
 #include "util.h"
 
@@ -31,6 +32,18 @@
  * @brief GLib log domain.
  */
 #define G_LOG_DOMAIN "libgvm boreas"
+
+struct v6pseudo_icmp_hdr
+{
+  struct in6_addr s6addr;
+  struct in6_addr d6addr;
+  u_short length;
+  u_char zero1;
+  u_char zero2;
+  u_char zero3;
+  u_char protocol;
+  struct icmp6_hdr icmpheader;
+};
 
 struct v6pseudohdr
 {
@@ -290,6 +303,114 @@ send_icmp (gpointer key, gpointer value, gpointer scanner_p)
         }
       if (grace_period > 0)
         usleep (grace_period);
+    }
+}
+
+/**
+ * @brief Send icmp ping to multicast address.
+ *
+ * @param soc Socket to use for sending.
+ * @param dst Destination network address to explore
+ */
+void
+send_icmp_v6_multicast (gpointer scanner_p, const char *net)
+{
+  boreas_error_t error;
+  struct sockaddr_in6 soca, socs;
+  struct in6_addr src;
+  scanner_t *scanner = scanner_p;
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
+  int *udpv6soc = &(scanner->udpv6soc);
+  int soc;
+  struct in6_addr first;
+  struct in6_addr last;
+
+  u_char packet[sizeof (struct ip6_hdr) + sizeof (struct icmp6_hdr)];
+  struct ip6_hdr *ip = (struct ip6_hdr *) packet;
+  struct icmp6_hdr *icmp =
+    (struct icmp6_hdr *) (packet + sizeof (struct ip6_hdr));
+
+  /* Get source address for TCP header. */
+  gvm_cidr6_block_ips(net, &first, &last);
+  error = get_source_addr_v6 (udpv6soc, &first, &src);
+  if (error)
+    {
+      char destination_str[INET_ADDRSTRLEN];
+      inet_ntop (AF_INET6, (const void *) &first, destination_str,
+                 INET_ADDRSTRLEN);
+      g_debug ("%s: Destination: %s. %s", __func__, destination_str,
+               str_boreas_error (error));
+      return;
+    }
+
+  memset (packet, 0, sizeof (packet));
+  /* IPv6 */
+  ip->ip6_flow = htonl ((6 << 28) | (0 << 20) | 0);
+  ip->ip6_plen = htons (8); // ICMP6_HDRLEN
+  ip->ip6_nxt= IPPROTO_ICMPV6;
+  ip->ip6_hops = 255; // max value
+  inet_pton (AF_INET6, "FF02::1", &ip->ip6_dst);
+   ip->ip6_src = src;
+
+  /* ICMP */
+  icmp->icmp6_type = ICMP6_ECHO_REQUEST;
+  icmp->icmp6_code = 0;
+  icmp->icmp6_id = get_echo_id ();
+  icmp->icmp6_seq = 0x0100;
+
+  /* CKsum */
+  {
+    struct v6pseudo_icmp_hdr pseudoheader;
+
+    memset (&pseudoheader, 0, sizeof (packet));
+    memcpy (&pseudoheader.s6addr, &ip->ip6_src, sizeof (struct in6_addr));
+    memcpy (&pseudoheader.d6addr, &ip->ip6_dst, sizeof (struct in6_addr));
+
+    pseudoheader.protocol = IPPROTO_ICMPV6;
+    pseudoheader.length = htons(8);
+    memcpy ((char *) &pseudoheader.icmpheader, (char *) icmp,
+            sizeof (struct icmp6_hdr));
+    icmp->icmp6_cksum =
+      in_cksum((unsigned short *) &pseudoheader, sizeof(packet));
+  }
+
+  int opt_on = 1;
+  soc = socket (AF_INET6, SOCK_RAW, IPPROTO_RAW);
+  setsockopt (soc, IPPROTO_IPV6, IP_HDRINCL, (char *) &opt_on,
+              sizeof (opt_on));
+
+  /* Get size of empty SO_SNDBUF */
+  if (init == -1)
+    {
+      if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+        init = 1;
+    }
+
+  /* Throttle speed if needed */
+  throttle (soc, so_sndbuf);
+
+  // Enable multicast
+  setsockopt (soc, SOL_SOCKET, SO_BROADCAST, &opt_on, sizeof (opt_on));
+
+  // source
+  memset (&socs, 0, sizeof (socs));
+  socs.sin6_family = AF_INET6;
+  socs.sin6_addr = ip->ip6_src;
+  // destination socket
+  memset (&soca, 0, sizeof (soca));
+  soca.sin6_family = AF_INET6;
+  soca.sin6_addr = ip->ip6_dst;
+  // to set the source address
+  bind(soc, (struct sockaddr *) &socs, sizeof(socs));
+
+  /*  ICMP6_HDRLEN(8) IP6_HDRLEN(40) */
+  if (sendto (soc, (const void *) ip, 40 + 8, 0,
+              (struct sockaddr *) &soca, sizeof (struct sockaddr_in6))
+      < 0)
+    {
+      g_debug ("%s: sendto():  %s", __func__, strerror (errno));
     }
 }
 
