@@ -174,19 +174,19 @@ parse_datetime (const char *datetime_str)
 }
 
 /**
- * @brief Parse a scan-agent-config JSON object into a newly allocated config
+ * @brief Parse a agent-config JSON object into a newly allocated config
  * struct.
  *
  * @param[in] root  cJSON object representing the full scan-agent-config
  * payload.
  *
- * @return agent_controller_scan_agent_config_t on success; NULL on failure or
+ * @return agent_controller_agent_config_t on success; NULL on failure or
  *         if @p root is NULL / not a JSON object.
  *         Ownership of root remains with the caller; do not free any children
  *         retrieved with cJSON_GetObjectItem() individually.
  */
 static agent_controller_agent_config_t
-agent_controller_parse_scan_agent_config (cJSON *root)
+agent_controller_parse_agent_config (cJSON *root)
 {
   if (!root || !cJSON_IsObject (root))
     return NULL;
@@ -257,25 +257,25 @@ agent_controller_parse_scan_agent_config (cJSON *root)
 }
 
 /**
- * @brief Parse a scan-agent-config JSON node into a newly allocated config
+ * @brief Parse a agent-config JSON node into a newly allocated config
  * struct.
  *
  * @param[in] node  cJSON node representing the scan-agent-config payload.
  *                  May be an object, a JSON string, or NULL.
  *
- * @return agent_controller_scan_agent_config_t on success; NULL if node is
+ * @return agent_controller_agent_config_t on success; NULL if node is
  *         NULL/JSON null/unparsable. Ownership of node remains with the
  *         caller; do not free any children retrieved with cJSON_GetObjectItem()
  *         individually.
  */
 static agent_controller_agent_config_t
-agent_controller_parse_scan_agent_config_node (cJSON *node)
+agent_controller_parse_agent_config_node (cJSON *node)
 {
   if (!node || cJSON_IsNull (node))
     return NULL;
 
   if (cJSON_IsObject (node))
-    return agent_controller_parse_scan_agent_config (node); /*may return NULL*/
+    return agent_controller_parse_agent_config (node); /*may return NULL*/
 
   if (cJSON_IsString (node) && node->valuestring)
     {
@@ -294,14 +294,14 @@ agent_controller_parse_scan_agent_config_node (cJSON *node)
 }
 
 /**
- * @brief Serialize scan-agent-config struct to a minimal JSON string.
+ * @brief Serialize agent-config struct to a minimal JSON string.
  *
  * @param [in] cfg agent config to convert as json object
  *
  * @return cJSON pointer containing scan agent config.
  */
 static cJSON *
-agent_controller_scan_agent_config_struct_to_cjson (
+agent_controller_agent_config_struct_to_cjson (
   agent_controller_agent_config_t cfg)
 {
   if (!cfg)
@@ -407,7 +407,7 @@ agent_controller_parse_agent (cJSON *item)
 
   /* Config */
   cJSON *config_obj = cJSON_GetObjectItem (item, "config");
-  agent->config = agent_controller_parse_scan_agent_config_node (config_obj);
+  agent->config = agent_controller_parse_agent_config_node (config_obj);
 
   return agent;
 }
@@ -453,7 +453,7 @@ dup_str_ptr_array (const GPtrArray *src)
  * @brief Resolve and merge scan agent configuration.
  *
  * The returned configuration is heap-allocated and must be freed
- * using agent_controller_scan_agent_config_free().
+ * using agent_controller_agent_config_free().
  *
  * @param[in] agent       Agent providing the base configuration.
  * @param[in] update_cfg  Optional configuration overrides. May be NULL.
@@ -462,7 +462,7 @@ dup_str_ptr_array (const GPtrArray *src)
  *         or NULL on error.
  */
 static agent_controller_agent_config_t
-agent_controller_build_config_with_defaults (
+agent_controller_build_agent_config_with_defaults (
   const agent_controller_agent_t agent,
   const agent_controller_agent_config_t update_cfg)
 {
@@ -575,11 +575,11 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
       if (update && update->config)
         {
           agent_controller_agent_config_t merged =
-            agent_controller_build_config_with_defaults (agent, update->config);
+            agent_controller_build_agent_config_with_defaults (agent,
+                                                               update->config);
           if (merged)
             {
-              cfg_obj =
-                agent_controller_scan_agent_config_struct_to_cjson (merged);
+              cfg_obj = agent_controller_agent_config_struct_to_cjson (merged);
               cJSON_AddItemToObject (agent_obj, "config", cfg_obj);
               agent_controller_agent_config_free (merged);
             }
@@ -704,7 +704,7 @@ parse_errors_json_into_array (const gchar *body, GPtrArray **errors)
  *         NULL on failure
  */
 static agent_controller_scan_agent_config_t
-agent_controller_parse_scan_agent_defaults (cJSON *root)
+agent_controller_parse_scan_agent_config (cJSON *root)
 {
   if (!root || !cJSON_IsObject (root))
     return NULL;
@@ -717,8 +717,7 @@ agent_controller_parse_scan_agent_defaults (cJSON *root)
   cJSON *agent_defaults = cJSON_GetObjectItem (root, "agent_defaults");
   if (cJSON_IsObject (agent_defaults))
     {
-      d->agent_defaults =
-        agent_controller_parse_scan_agent_config (agent_defaults);
+      d->agent_defaults = agent_controller_parse_agent_config (agent_defaults);
       if (!d->agent_defaults)
         d->agent_defaults = agent_controller_agent_config_new ();
     }
@@ -1035,7 +1034,7 @@ agent_controller_convert_scan_agent_config_string (
 
   /* agent_defaults */
   cJSON *agent_defaults =
-    agent_controller_scan_agent_config_struct_to_cjson (d->agent_defaults);
+    agent_controller_agent_config_struct_to_cjson (d->agent_defaults);
   if (!agent_defaults)
     agent_defaults = cJSON_CreateObject ();
 
@@ -1081,7 +1080,7 @@ agent_controller_parse_scan_agent_config_string (const gchar *config)
     }
 
   agent_controller_scan_agent_config_t d =
-    agent_controller_parse_scan_agent_defaults (root);
+    agent_controller_parse_scan_agent_config (root);
 
   cJSON_Delete (root);
   return d;
@@ -1396,7 +1395,7 @@ agent_controller_parse_agent_config_string (const gchar *config)
       return NULL;
     }
   agent_controller_agent_config_t cfg =
-    agent_controller_parse_scan_agent_config (root);
+    agent_controller_parse_agent_config (root);
   cJSON_Delete (root);
   return cfg;
 }
@@ -1408,7 +1407,7 @@ agent_controller_parse_agent_config_string (const gchar *config)
  *
  * @return Newly allocated agent_controller_scan_agent_config_t on success,
  *         NULL on failure. Caller must free the returned object with
- *         agent_controller_scan_agent_defaults_free().
+ *         agent_controller_scan_agent_config_free().
  */
 agent_controller_scan_agent_config_t
 agent_controller_get_scan_agent_config (agent_controller_connector_t conn)
@@ -1443,7 +1442,7 @@ agent_controller_get_scan_agent_config (agent_controller_connector_t conn)
     }
 
   agent_controller_scan_agent_config_t cfg =
-    agent_controller_parse_scan_agent_defaults (root);
+    agent_controller_parse_scan_agent_config (root);
 
   cJSON_Delete (root);
   gvm_http_response_free (response);

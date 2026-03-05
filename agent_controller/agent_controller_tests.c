@@ -1042,7 +1042,7 @@ Ensure (agent_controller, parse_agent_config_full)
   assert_that (root, is_not_null);
 
   agent_controller_agent_config_t cfg =
-    agent_controller_parse_scan_agent_config (root);
+    agent_controller_parse_agent_config (root);
   assert_that (cfg, is_not_null);
 
   /* retry */
@@ -1081,7 +1081,7 @@ Ensure (agent_controller, parse_agent_config_missing_blocks)
   assert_that (root, is_not_null);
 
   agent_controller_agent_config_t cfg =
-    agent_controller_parse_scan_agent_config (root);
+    agent_controller_parse_agent_config (root);
   assert_that (cfg, is_not_null);
 
   /* All numeric fields default to 0 */
@@ -1131,7 +1131,7 @@ Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
   assert_that (root, is_not_null);
 
   agent_controller_agent_config_t parsed =
-    agent_controller_parse_scan_agent_config (root);
+    agent_controller_parse_agent_config (root);
   assert_that (parsed, is_not_null);
 
   assert_that (parsed->agent_control.retry.attempts, is_equal_to (3));
@@ -2554,7 +2554,7 @@ Ensure (agent_controller, build_config_with_defaults_fills_zeros_from_agent)
   upd->heartbeat.interval_in_seconds = 42;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (agent, upd);
 
   assert_that (merged, is_not_null);
 
@@ -2591,7 +2591,7 @@ Ensure (agent_controller, build_config_with_defaults_deep_copies_update_cron)
                    g_strdup ("0 0 * * *"));
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (agent, upd);
 
   assert_that (merged, is_not_null);
   assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
@@ -2629,7 +2629,7 @@ Ensure (agent_controller,
   assert_that (upd, is_not_null);
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (agent, upd);
 
   assert_that (merged, is_not_null);
   assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
@@ -2690,7 +2690,7 @@ Ensure (agent_controller,
   assert_that (upd, is_not_null);
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_config_with_defaults (NULL, upd);
+    agent_controller_build_agent_config_with_defaults (NULL, upd);
 
   assert_that (merged, is_null);
 
@@ -2708,7 +2708,7 @@ Ensure (agent_controller,
   assert_that (upd, is_not_null);
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (agent, upd);
 
   assert_that (merged, is_null);
 
@@ -2729,7 +2729,7 @@ Ensure (agent_controller,
   agent->config->heartbeat.miss_until_inactive = 3;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_config_with_defaults (agent, NULL);
+    agent_controller_build_agent_config_with_defaults (agent, NULL);
   assert_that (merged, is_not_null);
 
   /* copied from agent */
@@ -2768,7 +2768,7 @@ Ensure (agent_controller,
   upd->heartbeat.interval_in_seconds = 42;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (agent, upd);
 
   assert_that (merged, is_not_null);
   assert_that (merged->heartbeat.interval_in_seconds, is_equal_to (42));
