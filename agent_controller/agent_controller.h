@@ -109,11 +109,33 @@ struct agent_controller_heartbeat_cfg
  *
  * Groups all configuration sections for the scan agent service.
  */
-struct agent_controller_scan_agent_config
+struct agent_controller_agent_config
 {
   struct agent_controller_agent_control_cfg agent_control;
   struct agent_controller_script_exec_cfg agent_script_executor;
   struct agent_controller_heartbeat_cfg heartbeat;
+};
+
+typedef struct agent_controller_agent_config *agent_controller_agent_config_t;
+
+/**
+ * @brief agent_control_defaults
+ */
+struct agent_controller_agent_control_defaults_cfg
+{
+  int update_to_latest; ///< -1 unset, 0 false, 1 true
+};
+
+typedef struct agent_controller_agent_control_defaults_cfg
+  *agent_controller_agent_control_defaults_cfg_t;
+
+/**
+ * @brief Top-level scan-agent-config defaults wrapper for agent controller
+ */
+struct agent_controller_scan_agent_config
+{
+  agent_controller_agent_config_t agent_defaults;
+  agent_controller_agent_control_defaults_cfg_t agent_control_defaults;
 };
 
 typedef struct agent_controller_scan_agent_config
@@ -131,9 +153,9 @@ struct agent_controller_agent
   gchar **ip_addresses;     ///< List of IP addresses
   int ip_address_count;     ///< Number of IP addresses
   time_t last_update; ///< Timestamp of the last update (seconds since epoch)
-  time_t last_updater_heartbeat; ///< Timestamp of the last updater
-                                 ///  (seconds since epoch)
-  agent_controller_scan_agent_config_t config; ///< agent scan config
+  time_t last_updater_heartbeat;          ///< Timestamp of the last updater
+                                          ///  (seconds since epoch)
+  agent_controller_agent_config_t config; ///< agent scan config
 
   gchar *updater_version;      ///< Updater version string (may be empty)
   gchar *agent_version;        ///< Agent version string (may be empty)
@@ -164,10 +186,10 @@ typedef struct agent_controller_agent_list *agent_controller_agent_list_t;
  */
 struct agent_controller_agent_update
 {
-  int authorized;       ///< Authorization status for update
-  int update_to_latest; ///< Automatically update the agent
-                        ///  to the latest available version.
-  agent_controller_scan_agent_config_t config; ///< The Agent scan configuration
+  int authorized;                         ///< Authorization status for update
+  int update_to_latest;                   ///< Automatically update the agent
+                                          ///  to the latest available version.
+  agent_controller_agent_config_t config; ///< The Agent scan configuration
 };
 typedef struct agent_controller_agent_update *agent_controller_agent_update_t;
 
@@ -205,12 +227,11 @@ agent_controller_agent_update_new (void);
 void
 agent_controller_agent_update_free (agent_controller_agent_update_t update);
 
-agent_controller_scan_agent_config_t
-agent_controller_scan_agent_config_new (void);
+agent_controller_agent_config_t
+agent_controller_agent_config_new (void);
 
 void
-agent_controller_scan_agent_config_free (
-  agent_controller_scan_agent_config_t cfg);
+agent_controller_agent_config_free (agent_controller_agent_config_t cfg);
 
 agent_controller_agent_list_t
 agent_controller_get_agents (agent_controller_connector_t conn);
@@ -237,11 +258,11 @@ agent_controller_agent_list_t
 agent_controller_get_agents_with_updates (agent_controller_connector_t conn);
 
 gchar *
-agent_controller_convert_scan_agent_config_string (
-  agent_controller_scan_agent_config_t cfg);
+agent_controller_convert_agent_config_string (
+  agent_controller_agent_config_t cfg);
 
-agent_controller_scan_agent_config_t
-agent_controller_parse_scan_agent_config_string (const gchar *config);
+agent_controller_agent_config_t
+agent_controller_parse_agent_config_string (const gchar *config);
 
 gchar *
 agent_controller_build_create_scan_payload (
@@ -249,5 +270,19 @@ agent_controller_build_create_scan_payload (
 
 gchar *
 agent_controller_get_scan_id (const gchar *body);
+
+agent_controller_scan_agent_config_t
+agent_controller_scan_agent_config_new (void);
+
+void
+agent_controller_scan_agent_config_free (
+  agent_controller_scan_agent_config_t d);
+
+gchar *
+agent_controller_convert_scan_agent_config_string (
+  agent_controller_scan_agent_config_t d);
+
+agent_controller_scan_agent_config_t
+agent_controller_parse_scan_agent_config_string (const gchar *);
 
 #endif /* not _GVM_AGENT_CONTROLLER_AGENT_CONTROLLER_H */
