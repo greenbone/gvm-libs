@@ -77,7 +77,7 @@ struct ipv6_net_data
   char *net;
   struct in6_addr src;
 };
-  
+
 /**
  * @brief The hosts_data struct holds the alive hosts and target hosts in
  * separate hashtables.

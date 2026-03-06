@@ -464,7 +464,7 @@ alive_detection_free (void *error)
   g_free (scanner.hosts_data);
   g_free (scanner.ipv6_net->net);
   g_free (scanner.ipv6_net);
-  
+
   /* Set error. */
   *(boreas_error_t *) error = error_out;
 }
