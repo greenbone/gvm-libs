@@ -5,8 +5,8 @@
 
 #include "ping.h"
 
-#include "../base/prefs.h" /* for prefs_get() */
 #include "../base/networking.h"
+#include "../base/prefs.h" /* for prefs_get() */
 #include "arp.h"
 #include "util.h"
 
@@ -330,7 +330,7 @@ send_icmp_v6_multicast (gpointer scanner_p)
   /* IPv6 */
   ip->ip6_flow = htonl ((6 << 28) | (0 << 20) | 0);
   ip->ip6_plen = htons (8); // ICMP6_HDRLEN
-  ip->ip6_nxt= IPPROTO_ICMPV6;
+  ip->ip6_nxt = IPPROTO_ICMPV6;
   ip->ip6_hops = 255; // max value
   ip->ip6_src = scanner->ipv6_net->src;
   inet_pton (AF_INET6, "FF02::1", &ip->ip6_dst);
@@ -350,14 +350,14 @@ send_icmp_v6_multicast (gpointer scanner_p)
     memcpy (&pseudoheader.d6addr, &ip->ip6_dst, sizeof (struct in6_addr));
 
     pseudoheader.protocol = IPPROTO_ICMPV6;
-    pseudoheader.length = htons(8);
+    pseudoheader.length = htons (8);
     memcpy ((char *) &pseudoheader.icmpheader, (char *) icmp,
             sizeof (struct icmp6_hdr));
     icmp->icmp6_cksum =
-      in_cksum((unsigned short *) &pseudoheader, sizeof(packet));
+      in_cksum ((unsigned short *) &pseudoheader, sizeof (packet));
   }
 
-   /* Get size of empty SO_SNDBUF */
+  /* Get size of empty SO_SNDBUF */
   if (init == -1)
     {
       if (get_so_sndbuf (soc, &so_sndbuf) == 0)
@@ -373,8 +373,8 @@ send_icmp_v6_multicast (gpointer scanner_p)
   soca.sin6_addr = ip->ip6_dst;
 
   /*  ICMP6_HDRLEN(8) IP6_HDRLEN(40) */
-  if (sendto (soc, (const void *) ip, 40 + 8, 0,
-              (struct sockaddr *) &soca, sizeof (struct sockaddr_in6))
+  if (sendto (soc, (const void *) ip, 40 + 8, 0, (struct sockaddr *) &soca,
+              sizeof (struct sockaddr_in6))
       < 0)
     {
       g_debug ("%s: sendto():  %s", __func__, strerror (errno));
