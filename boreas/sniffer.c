@@ -173,15 +173,14 @@ got_packet (u_char *user_data,
                  __func__, strerror (errno));
     }
 
-  
   /* Only put unique hosts on queue and in hash table. Use short circuit
    * evaluation to not add hosts to the hash table which are not in our
    * target list.*/
   if (((scanner->host_discovery == 0)
        && (g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
        && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))))
-      ||
-      (scanner->host_discovery && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str)))))
+      || (scanner->host_discovery
+          && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str)))))
     {
       /* handle max_scan_hosts related restrictions. */
       handle_scan_restrictions (scanner, addr_str);
@@ -290,11 +289,11 @@ start_sniffer_thread (scanner_t *scanner, pthread_t *sniffer_thread_id)
 {
   int err;
 
-  if (0) //scanner->host_discovery)
+  if (0) // scanner->host_discovery)
     {
       char filter[256];
       snprintf (filter, sizeof (filter), "ip6 and ip6[40]=129 and dst %s",
-                addr6_as_str(&(scanner->ipv6_net->src)));
+                addr6_as_str (&(scanner->ipv6_net->src)));
       scanner->pcap_handle = open_live (NULL, filter);
     }
   else

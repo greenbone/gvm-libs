@@ -159,7 +159,7 @@ get_source_addr_v6 (int *udpv6soc, struct in6_addr *dst, struct in6_addr *src)
   sock_len = sizeof (storage);
   if (connect (*udpv6soc, (const struct sockaddr *) &storage, sock_len) < 0)
     {
-      g_warning("%s: connect() on udpv6soc failed: %s %d", __func__,
+      g_warning ("%s: connect() on udpv6soc failed: %s %d", __func__,
                  strerror (errno), errno);
       /* State of the socket is unspecified.  Close the socket and create a new
        * one. */
@@ -547,20 +547,19 @@ set_udp6_socket (scanner_t *scanner)
 boreas_error_t
 init_ipv6_net_data (scanner_t *scanner, const char *net)
 {
-
   struct in6_addr first, last;
-  struct sockaddr_in6  socs;
+  struct sockaddr_in6 socs;
   int soc;
   boreas_error_t error = NO_ERROR;
   // IPv6 net data for host discovery
   scanner->ipv6_net = g_malloc0 (sizeof (ipv6_net_data_t));
-  scanner->ipv6_net->net = g_strdup(net);
+  scanner->ipv6_net->net = g_strdup (net);
 
   /* Get source address for IPv6 header. */
   gvm_cidr6_block_ips (scanner->ipv6_net->net, &first, &last);
 
-  error = get_source_addr_v6 (&(scanner->udpv6soc),
-                              &first, &(scanner->ipv6_net->src));
+  error = get_source_addr_v6 (&(scanner->udpv6soc), &first,
+                              &(scanner->ipv6_net->src));
   if (error)
     {
       char destination_str[INET_ADDRSTRLEN];
@@ -573,8 +572,7 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
 
   int opt_on = 1;
   soc = socket (AF_INET6, SOCK_RAW, IPPROTO_RAW);
-  setsockopt (soc, IPPROTO_IPV6, IP_HDRINCL, (char *) &opt_on,
-              sizeof (opt_on));
+  setsockopt (soc, IPPROTO_IPV6, IP_HDRINCL, (char *) &opt_on, sizeof (opt_on));
 
   // Enable multicast
   setsockopt (soc, SOL_SOCKET, SO_BROADCAST, &opt_on, sizeof (opt_on));
@@ -583,13 +581,12 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
   memset (&socs, 0, sizeof (socs));
   socs.sin6_family = AF_INET6;
   socs.sin6_addr = scanner->ipv6_net->src;
- // and set the source address to the socket
-  bind(soc, (struct sockaddr *) &socs, sizeof(socs));
+  // and set the source address to the socket
+  bind (soc, (struct sockaddr *) &socs, sizeof (socs));
   scanner->icmpv6soc = soc;
 
   return error;
 }
-
 
 /**
  * @brief Set all sockets needed for the chosen detection methods.

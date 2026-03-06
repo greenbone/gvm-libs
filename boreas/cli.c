@@ -16,9 +16,9 @@
 
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <netinet/icmp6.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <netinet/icmp6.h>
 
 #undef G_LOG_DOMAIN
 /**
@@ -101,11 +101,11 @@ init_cli_for_host_discovery (scanner_t *scanner, const char *net,
       return error;
     }
 
-  error = init_ipv6_net_data(scanner, net);
+  error = init_ipv6_net_data (scanner, net);
   if (error != 0)
     {
-      printf ("%s:Not possible to initialize data: %s",
-              __func__, str_boreas_error (error));
+      printf ("%s:Not possible to initialize data: %s", __func__,
+              str_boreas_error (error));
       return error;
     }
 
@@ -258,7 +258,6 @@ run_cli_extended (gvm_hosts_t *hosts, alive_test_t alive_test,
   return NO_ERROR;
 }
 
-
 /**
  * @brief
  *
@@ -277,16 +276,14 @@ run_cli_for_ipv6_network (const char *net)
   boreas_error_t free_err;
   int print_results = 1;
 
-  if (net == NULL || gvm_get_host_type(net) != HOST_TYPE_CIDR6_BLOCK)
+  if (net == NULL || gvm_get_host_type (net) != HOST_TYPE_CIDR6_BLOCK)
     return BOREAS_INVALID_IPV6_NETWORK;
 
-  if (gvm_cidr6_get_block (net, &block) < 0 ||
-      gvm_cidr6_get_ip (net, &target) < 0)
+  if (gvm_cidr6_get_block (net, &block) < 0
+      || gvm_cidr6_get_ip (net, &target) < 0)
     return BOREAS_INVALID_IPV6_NETWORK;
 
-  init_err =
-    init_cli_for_host_discovery (&scanner, net,
-                                 print_results);
+  init_err = init_cli_for_host_discovery (&scanner, net, print_results);
   if (init_err)
     {
       printf ("Error initializing scanner.\n");
