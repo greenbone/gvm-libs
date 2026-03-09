@@ -179,8 +179,9 @@ got_packet (u_char *user_data,
   if (((scanner->host_discovery == 0)
        && (g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
        && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))))
-      || (scanner->host_discovery
-          && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str)))))
+      || ((scanner->host_discovery == 1)
+          && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str)))
+          && (g_hash_table_add (hosts_data->targethosts, g_strdup (addr_str)))          ))
     {
       /* handle max_scan_hosts related restrictions. */
       handle_scan_restrictions (scanner, addr_str);
