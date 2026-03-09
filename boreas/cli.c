@@ -205,8 +205,12 @@ run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
 
   stop_sniffer_thread (scanner, sniffer_thread_id);
 
+  if (scanner->host_discovery)
+    number_of_targets = g_hash_table_size (scanner->hosts_data->targethosts);
+
   number_of_dead_hosts = count_difference (scanner->hosts_data->targethosts,
                                            scanner->hosts_data->alivehosts);
+
   gettimeofday (&end_time, NULL);
   if (scanner->print_results == 1)
     printf ("Alive scan finished in %ld seconds: %d alive hosts of %d.\n",
@@ -289,9 +293,6 @@ run_cli_for_ipv6_network (const char *net)
       printf ("Error initializing scanner.\n");
       return init_err;
     }
-
-  send_icmp_v6_multicast (&scanner);
-  wait_until_so_sndbuf_empty ((&scanner)->icmpv6soc, 10);
 
   run_err = run_cli_scan (&scanner, ALIVE_TEST_IPV6_HOST_DISCOVERY);
   if (run_err)
