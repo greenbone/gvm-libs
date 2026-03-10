@@ -41,13 +41,14 @@
  */
 typedef enum
 {
-  AGENT_CONTROLLER_CA_CERT,  /**< Path to the CA certificate directory */
-  AGENT_CONTROLLER_CERT,     /**< Client certificate file */
-  AGENT_CONTROLLER_KEY,      /**< Client private key file */
-  AGENT_CONTROLLER_API_KEY,  /**< API key for authentication  */
-  AGENT_CONTROLLER_PROTOCOL, /**< "http" or "https" */
-  AGENT_CONTROLLER_HOST,     /**< Hostname or IP address */
-  AGENT_CONTROLLER_PORT      /**< Port number */
+  AGENT_CONTROLLER_CA_CERT,         /**< Path to the CA certificate directory */
+  AGENT_CONTROLLER_CERT,            /**< Client certificate file */
+  AGENT_CONTROLLER_KEY,             /**< Client private key file */
+  AGENT_CONTROLLER_API_KEY,         /**< API key for authentication  */
+  AGENT_CONTROLLER_PROTOCOL,        /**< "http" or "https" */
+  AGENT_CONTROLLER_HOST,            /**< Hostname or IP address */
+  AGENT_CONTROLLER_PORT,            /**< Port number */
+  AGENT_CONTROLLER_UNIX_SOCKET_PATH /**< Unix Socket Path */
 } agent_controller_connector_opts_t;
 
 /**

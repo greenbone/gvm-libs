@@ -47,6 +47,7 @@ struct agent_controller_connector
   gchar *host;     /**< Agent controller hostname or IP. */
   gint port;       /**< Port number of agent controller (default 8080?). */
   gchar *protocol; /**< "http" or "https". */
+  gchar *unix_socket_path; /**< "unix domain socket path". */
 };
 
 /**
@@ -104,27 +105,37 @@ agent_controller_send_request (agent_controller_connector_t conn,
                                gvm_http_method_t method, const gchar *path,
                                const gchar *payload, const gchar *apikey)
 {
+  gchar *url = NULL;
   if (!conn)
     {
       g_warning ("%s: Missing connection", __func__);
       return NULL;
     }
 
-  if (!conn->protocol || !conn->host || !path)
+  if (conn->unix_socket_path && conn->unix_socket_path[0] != '\0')
     {
-      g_warning ("%s: Missing URL components", __func__);
-      return NULL;
+      // ref: https://curl.se/libcurl/c/CURLOPT_UNIX_SOCKET_PATH.html
+      url = g_strdup_printf ("http://127.0.0.1%s", path);
     }
+  else
+    {
+      if (!conn->protocol || !conn->host)
+        {
+          g_warning ("%s: Missing URL components", __func__);
+          return NULL;
+        }
 
-  gchar *url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
-                                conn->port, path);
+      url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
+                             conn->port, path);
+    }
 
   gvm_http_headers_t *headers = init_custom_header (apikey, TRUE);
 
-  gvm_http_response_t *http_response = gvm_http_request (
-    url, method, payload, headers, conn->ca_cert, conn->cert, conn->key,
-    NULL // No manual stream allocation
-  );
+  gvm_http_response_t *http_response =
+    gvm_http_request_unix (url, method, payload, headers, conn->ca_cert,
+                           conn->cert, conn->key, conn->unix_socket_path,
+                           NULL // No manual stream allocation
+    );
 
   g_free (url);
   gvm_http_headers_free (headers);
@@ -761,6 +772,7 @@ agent_controller_connector_free (agent_controller_connector_t connector)
   g_free (connector->host);
   g_free (connector->apikey);
   g_free (connector->protocol);
+  g_free (connector->unix_socket_path);
 
   g_free (connector);
 }
@@ -807,6 +819,9 @@ agent_controller_connector_builder (agent_controller_connector_t conn,
       break;
     case AGENT_CONTROLLER_PORT:
       conn->port = *((const int *) val);
+      break;
+    case AGENT_CONTROLLER_UNIX_SOCKET_PATH:
+      conn->unix_socket_path = g_strdup ((const gchar *) val);
       break;
     default:
       return AGENT_CONTROLLER_INVALID_OPT;
