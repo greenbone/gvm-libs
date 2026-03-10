@@ -55,10 +55,11 @@ gvm_http_add_header (gvm_http_headers_t *headers, const gchar *header)
 }
 
 gvm_http_response_t *
-gvm_http_request (const gchar *url, gvm_http_method_t method,
-                  const gchar *payload, gvm_http_headers_t *headers,
-                  const gchar *ca_cert, const gchar *cert, const gchar *key,
-                  gvm_http_response_stream_t stream)
+gvm_http_request_unix (const gchar *url, gvm_http_method_t method,
+                       const gchar *payload, gvm_http_headers_t *headers,
+                       const gchar *ca_cert, const gchar *cert,
+                       const gchar *key, const gchar *sock_path,
+                       gvm_http_response_stream_t stream)
 {
   (void) headers;
   (void) ca_cert;
@@ -66,6 +67,7 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
   (void) key;
   (void) stream;
   (void) method;
+  (void) sock_path;
 
   last_sent_url = g_strdup (url);
   last_sent_payload = g_strdup (payload);
@@ -202,6 +204,7 @@ Ensure (agent_controller, connector_free_safely)
   const char *apikey = "apikey123";
   const char *protocol = "https";
   const char *host = "localhost";
+  const char *socket_path = "/tmp/test.sock";
   int port = 8443;
 
   agent_controller_connector_builder (conn, AGENT_CONTROLLER_CA_CERT, ca_cert);
@@ -212,6 +215,8 @@ Ensure (agent_controller, connector_free_safely)
                                       protocol);
   agent_controller_connector_builder (conn, AGENT_CONTROLLER_HOST, host);
   agent_controller_connector_builder (conn, AGENT_CONTROLLER_PORT, &port);
+  agent_controller_connector_builder (conn, AGENT_CONTROLLER_UNIX_SOCKET_PATH,
+                                      &socket_path);
 
   agent_controller_connector_free (conn);
   assert_that (true, is_true);
@@ -227,6 +232,7 @@ Ensure (agent_controller, connector_builder_all_valid_fields)
   const char *apikey = "123abc";
   const char *protocol = "https";
   const char *host = "127.0.0.1";
+  const char *socket_path = "/tmp/test.sock";
   int port = 8443;
 
   assert_that (agent_controller_connector_builder (
@@ -263,6 +269,11 @@ Ensure (agent_controller, connector_builder_all_valid_fields)
     agent_controller_connector_builder (conn, AGENT_CONTROLLER_PORT, &port),
     is_equal_to (AGENT_CONTROLLER_OK));
   assert_that (conn->port, is_equal_to (port));
+
+  assert_that (agent_controller_connector_builder (
+                 conn, AGENT_CONTROLLER_UNIX_SOCKET_PATH, socket_path),
+               is_equal_to (AGENT_CONTROLLER_OK));
+  assert_that (conn->unix_socket_path, is_equal_to_string (socket_path));
 
   agent_controller_connector_free (conn);
 }
@@ -486,6 +497,34 @@ Ensure (agent_controller, send_request_returns_null_if_conn_is_null)
   gvm_http_response_t *resp =
     agent_controller_send_request (NULL, POST, "/test", "{}", "token");
   assert_that (resp, is_null);
+}
+
+Ensure (agent_controller,
+        send_request_builds_url_with_socket_and_calls_http_request)
+{
+  agent_controller_connector_t conn = agent_controller_connector_new ();
+  conn->protocol = g_strdup ("https");
+  conn->host = g_strdup ("localhost");
+  conn->port = 8080;
+  conn->ca_cert = g_strdup ("ca.pem");
+  conn->cert = g_strdup ("cert.pem");
+  conn->key = g_strdup ("key.pem");
+  conn->unix_socket_path = g_strdup ("/tmp/test.sock");
+
+  const gchar *path = "/api/v1/test";
+  const gchar *token = "mytoken";
+  const gchar *payload = "{\"key\":\"value\"}";
+
+  gvm_http_response_t *resp =
+    agent_controller_send_request (conn, POST, path, payload, token);
+
+  assert_that (resp, is_not_null);
+  assert_that (last_sent_url,
+               is_equal_to_string ("http://127.0.0.1/api/v1/test"));
+  assert_that (last_sent_payload, is_equal_to_string (payload));
+
+  gvm_http_response_free (resp);
+  agent_controller_connector_free (conn);
 }
 
 Ensure (agent_controller, send_request_returns_null_if_protocol_missing)
@@ -2991,6 +3030,9 @@ main (int argc, char **argv)
                          send_request_builds_url_and_calls_http_request);
   add_test_with_context (suite, agent_controller,
                          send_request_returns_null_if_conn_is_null);
+  add_test_with_context (
+    suite, agent_controller,
+    send_request_builds_url_with_socket_and_calls_http_request);
   add_test_with_context (suite, agent_controller,
                          send_request_returns_null_if_protocol_missing);
   add_test_with_context (suite, agent_controller,
