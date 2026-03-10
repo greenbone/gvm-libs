@@ -503,9 +503,7 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
  * @param ca_cert           Optional CA certificate for server verification.
  * @param client_cert       Optional client certificate for mutual TLS.
  * @param client_key        Optional client private key for mutual TLS.
- * @param unix_socket_path  Optional path to a Unix domain socket used for the
- *                          connection. If NULL, a normal network connection
- *                          is used.
+ * @param unix_socket_path  Path to the Unix domain socket to use.
  * @param response          Optional response stream buffer; if NULL, one will
  *                          be created.
  *
