@@ -119,11 +119,25 @@ gvm_http_new (const gchar *url, gvm_http_method_t method, const gchar *payload,
               const gchar *client_cert, const gchar *client_key,
               gvm_http_response_stream_t res);
 
+gvm_http_t *
+gvm_http_new_unix (const gchar *url, gvm_http_method_t method,
+                   const gchar *payload, gvm_http_headers_t *headers,
+                   const gchar *ca_cert, const gchar *client_cert,
+                   const gchar *client_key, const gchar *unix_socket_path,
+                   gvm_http_response_stream_t res);
+
 gvm_http_response_t *
 gvm_http_request (const gchar *url, gvm_http_method_t method,
                   const gchar *payload, gvm_http_headers_t *headers,
                   const gchar *ca_cert, const gchar *client_cert,
                   const gchar *client_key, gvm_http_response_stream_t response);
+
+gvm_http_response_t *
+gvm_http_request_unix (const gchar *url, gvm_http_method_t method,
+                       const gchar *payload, gvm_http_headers_t *headers,
+                       const gchar *ca_cert, const gchar *client_cert,
+                       const gchar *client_key, const gchar *unix_socket_path,
+                       gvm_http_response_stream_t response);
 
 gvm_http_headers_t *
 gvm_http_headers_new (void);
