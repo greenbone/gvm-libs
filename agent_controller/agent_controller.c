@@ -47,7 +47,7 @@ struct agent_controller_connector
   gchar *host;     /**< Agent controller hostname or IP. */
   gint port;       /**< Port number of agent controller (default 8080?). */
   gchar *protocol; /**< "http" or "https". */
-  gchar *unix_socket_path; /**< "unix domain socket path". */
+  gchar *unix_socket_path; /**< Unix domain socket path. */
 };
 
 /**
