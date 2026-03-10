@@ -88,50 +88,33 @@ gvm_http_t_new (CURL *curl_handler)
 }
 
 /**
- * @brief Frees a gvm_http_t object and its associated CURL handle.
+ * @brief Internal helper to initialize and configure a gvm_http_t object.
  *
- * @param http Pointer to the gvm_http_t structure to free. Safe to pass NULL.
- */
-void
-gvm_http_free (gvm_http_t *http)
-{
-  if (!http)
-    return;
-  if (http->handler)
-    curl_easy_cleanup (http->handler);
-  g_free (http);
-}
-
-/**
- * @brief Initializes and configures a gvm_http_t object for an HTTP(S) request.
+ * This function contains the shared implementation for creating HTTP requests
+ * over either a normal network connection or a Unix domain socket.
  *
- * This function creates and configures a gvm_http_t structure, encapsulating
- * a libcurl easy handle. It sets the target URL, HTTP method, optional headers,
- * payload, and SSL/TLS credentials (CA certificate, client certificate, and
- * private key). It also registers a write callback to store the server's
- * response into a provided response stream buffer.
+ * If @p unix_socket_path is non-NULL and non-empty, libcurl is configured to
+ * connect through the given Unix domain socket path.
  *
- * Note: The returned object must be cleaned up by the caller using
- * `gvm_http_free()` to free all associated resources. The request is not
- * executed by this function — only configured.
- *
- * @param url           The full request URL.
- * @param method        The HTTP method to use (GET, POST, etc.).
- * @param payload       Optional request body for POST or PUT.
- * @param headers       Optional custom headers (gvm_http_headers_t).
- * @param ca_cert       Optional CA certificate for server verification.
- * @param client_cert   Optional client certificate for mutual TLS.
- * @param client_key    Optional client private key for mutual TLS.
- * @param res           Response stream used as the write target during the
- * request.
+ * @param url               The full request URL.
+ * @param method            The HTTP method to use.
+ * @param payload           Optional request body for POST/PUT/PATCH.
+ * @param headers           Optional custom headers.
+ * @param ca_cert           Optional CA certificate for server verification.
+ * @param client_cert       Optional client certificate for mutual TLS.
+ * @param client_key        Optional client private key for mutual TLS.
+ * @param unix_socket_path  Optional Unix domain socket path. If NULL, a normal
+ *                          network connection is used.
+ * @param res               Response stream used as the write target.
  *
  * @return A configured gvm_http_t object on success, or NULL on failure.
  */
-gvm_http_t *
-gvm_http_new (const gchar *url, gvm_http_method_t method, const gchar *payload,
-              gvm_http_headers_t *headers, const gchar *ca_cert,
-              const gchar *client_cert, const gchar *client_key,
-              gvm_http_response_stream_t res)
+static gvm_http_t *
+gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
+                       const gchar *payload, gvm_http_headers_t *headers,
+                       const gchar *ca_cert, const gchar *client_cert,
+                       const gchar *client_key, const gchar *unix_socket_path,
+                       gvm_http_response_stream_t res)
 {
   CURL *curl = curl_easy_init ();
   if (!curl)
@@ -141,6 +124,19 @@ gvm_http_new (const gchar *url, gvm_http_method_t method, const gchar *payload,
   curl_easy_setopt (curl, CURLOPT_URL, url);
   curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, store_response_data);
   curl_easy_setopt (curl, CURLOPT_WRITEDATA, (void *) res);
+
+  /* Use Unix domain socket if configured */
+  if (unix_socket_path && unix_socket_path[0] != '\0')
+    {
+      // ref: https://curl.se/libcurl/c/CURLOPT_UNIX_SOCKET_PATH.html
+      if (curl_easy_setopt (curl, CURLOPT_UNIX_SOCKET_PATH, unix_socket_path)
+          != CURLE_OK)
+        {
+          g_warning ("%s: Failed to set Unix socket path", __func__);
+          curl_easy_cleanup (curl);
+          return NULL;
+        }
+    }
 
   // Set HTTP headers if provided
   if (headers && headers->custom_headers)
@@ -235,6 +231,181 @@ gvm_http_new (const gchar *url, gvm_http_method_t method, const gchar *payload,
   return gvm_http_t_new (curl);
 }
 
+/**
+ * @brief Internal helper to send a synchronous HTTP request and capture
+ * the response.
+ *
+ * If @p unix_socket_path is non-NULL and non-empty, libcurl is configured to
+ * connect through the given Unix domain socket.
+ *
+ * @param url               The URL to send the request to.
+ * @param method            HTTP method to use.
+ * @param payload           Optional request payload.
+ * @param headers           Optional custom headers.
+ * @param ca_cert           Optional CA certificate for server verification.
+ * @param client_cert       Optional client certificate for mutual TLS.
+ * @param client_key        Optional client private key for mutual TLS.
+ * @param unix_socket_path  Optional Unix domain socket path.
+ * @param response          Optional response stream buffer; if NULL, one will
+ *                          be created internally.
+ *
+ * @return A newly allocated gvm_http_response_t on success or failure.
+ */
+static gvm_http_response_t *
+gvm_http_request_internal (const gchar *url, gvm_http_method_t method,
+                           const gchar *payload, gvm_http_headers_t *headers,
+                           const gchar *ca_cert, const gchar *client_cert,
+                           const gchar *client_key,
+                           const gchar *unix_socket_path,
+                           gvm_http_response_stream_t response)
+{
+  gvm_http_response_t *http_response = g_malloc0 (sizeof (gvm_http_response_t));
+  gboolean internal_stream_allocated = FALSE;
+
+  if (response == NULL)
+    {
+      response = g_malloc0 (sizeof (struct gvm_http_response_stream));
+      response->data = NULL;
+      response->length = 0;
+      response->multi_handler = NULL;
+      internal_stream_allocated = TRUE;
+    }
+
+  gvm_http_t *http =
+    gvm_http_new_internal (url, method, payload, headers, ca_cert, client_cert,
+                           client_key, unix_socket_path, response);
+  if (!http)
+    {
+      http_response->http_status = -1;
+      http_response->data =
+        g_strdup ("{\"error\": \"Failed to initialize curl request\"}");
+
+      if (internal_stream_allocated)
+        {
+          g_free (response->data);
+          g_free (response);
+        }
+
+      return http_response;
+    }
+
+  http_response->http = http;
+
+  CURLcode result = curl_easy_perform (http->handler);
+  if (result == CURLE_OK)
+    {
+      curl_easy_getinfo (http->handler, CURLINFO_RESPONSE_CODE,
+                         &http_response->http_status);
+    }
+  else
+    {
+      g_debug ("%s: Error performing CURL request: %s", __func__,
+               curl_easy_strerror (result));
+      http_response->http_status = -1;
+      http_response->data =
+        g_strdup_printf ("{\"error\": \"CURL request failed: %s\"}",
+                         curl_easy_strerror (result));
+    }
+
+  if (response && response->data)
+    {
+      g_free (http_response->data);
+      http_response->data = g_strdup (response->data);
+    }
+  else if (http_response->data == NULL)
+    {
+      http_response->data = g_strdup ("{\"error\": \"Empty response\"}");
+    }
+
+  if (internal_stream_allocated)
+    {
+      g_free (response->data);
+      g_free (response);
+    }
+
+  return http_response;
+}
+
+/**
+ * @brief Frees a gvm_http_t object and its associated CURL handle.
+ *
+ * @param http Pointer to the gvm_http_t structure to free. Safe to pass NULL.
+ */
+void
+gvm_http_free (gvm_http_t *http)
+{
+  if (!http)
+    return;
+  if (http->handler)
+    curl_easy_cleanup (http->handler);
+  g_free (http);
+}
+
+/**
+ * @brief Initializes and configures a gvm_http_t object for an HTTP(S) request.
+ *
+ * This function creates and configures a gvm_http_t structure, encapsulating
+ * a libcurl easy handle. It sets the target URL, HTTP method, optional headers,
+ * payload, and SSL/TLS credentials (CA certificate, client certificate, and
+ * private key). It also registers a write callback to store the server's
+ * response into a provided response stream buffer.
+ *
+ * Note: The returned object must be cleaned up by the caller using
+ * `gvm_http_free()` to free all associated resources. The request is not
+ * executed by this function — only configured.
+ *
+ * @param url           The full request URL.
+ * @param method        The HTTP method to use (GET, POST, etc.).
+ * @param payload       Optional request body for POST or PUT.
+ * @param headers       Optional custom headers (gvm_http_headers_t).
+ * @param ca_cert       Optional CA certificate for server verification.
+ * @param client_cert   Optional client certificate for mutual TLS.
+ * @param client_key    Optional client private key for mutual TLS.
+ * @param res           Response stream used as the write target during the
+ * request.
+ *
+ * @return A configured gvm_http_t object on success, or NULL on failure.
+ */
+gvm_http_t *
+gvm_http_new (const gchar *url, gvm_http_method_t method, const gchar *payload,
+              gvm_http_headers_t *headers, const gchar *ca_cert,
+              const gchar *client_cert, const gchar *client_key,
+              gvm_http_response_stream_t res)
+{
+  return gvm_http_new_internal (url, method, payload, headers, ca_cert,
+                                client_cert, client_key, NULL, res);
+}
+
+/**
+ * @brief Initializes and configures a gvm_http_t object for an HTTP(S) request
+ *        sent through a Unix domain socket.
+ *
+ * This function behaves like gvm_http_new(), but configures libcurl to connect
+ * using the Unix domain socket specified by @p unix_socket_path.
+ *
+ * @param url               The request URL.
+ * @param method            The HTTP method to use.
+ * @param payload           Optional request body.
+ * @param headers           Optional custom headers.
+ * @param ca_cert           Optional CA certificate for server verification.
+ * @param client_cert       Optional client certificate for mutual TLS.
+ * @param client_key        Optional client private key for mutual TLS.
+ * @param unix_socket_path  Path to the Unix domain socket to use.
+ * @param res               Response stream used as the write target.
+ *
+ * @return A configured gvm_http_t object on success, or NULL on failure.
+ */
+gvm_http_t *
+gvm_http_new_unix (const gchar *url, gvm_http_method_t method,
+                   const gchar *payload, gvm_http_headers_t *headers,
+                   const gchar *ca_cert, const gchar *client_cert,
+                   const gchar *client_key, const gchar *unix_socket_path,
+                   gvm_http_response_stream_t res)
+{
+  return gvm_http_new_internal (url, method, payload, headers, ca_cert,
+                                client_cert, client_key, unix_socket_path, res);
+}
+
 /** @brief Allocate the vt stream struct to hold the response
  *  and the curlm handler
  *
@@ -303,63 +474,53 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
                   const gchar *ca_cert, const gchar *client_cert,
                   const gchar *client_key, gvm_http_response_stream_t response)
 {
-  gvm_http_response_t *http_response = g_malloc0 (sizeof (gvm_http_response_t));
-  gboolean internal_stream_allocated = FALSE;
+  return gvm_http_request_internal (url, method, payload, headers, ca_cert,
+                                    client_cert, client_key, NULL, response);
+}
 
-  if (response == NULL)
-    {
-      response = g_malloc0 (sizeof (struct gvm_http_response_stream));
-      response->data = NULL;
-      response->length = 0;
-      response->multi_handler = NULL;
-      internal_stream_allocated = TRUE;
-    }
-
-  gvm_http_t *http = gvm_http_new (url, method, payload, headers, ca_cert,
-                                   client_cert, client_key, response);
-  if (!http)
-    {
-      http_response->http_status = -1;
-      http_response->data =
-        g_strdup ("{\"error\": \"Failed to initialize curl request\"}");
-      if (internal_stream_allocated)
-        gvm_http_response_stream_free (response);
-      return http_response;
-    }
-
-  http_response->http = http;
-
-  CURLcode result = curl_easy_perform (http->handler);
-  if (result == CURLE_OK)
-    {
-      curl_easy_getinfo (http->handler, CURLINFO_RESPONSE_CODE,
-                         &http_response->http_status);
-    }
-  else
-    {
-      g_debug ("%s: Error performing CURL request: %s", __func__,
-               curl_easy_strerror (result));
-      http_response->http_status = -1;
-      http_response->data =
-        g_strdup_printf ("{\"error\": \"CURL request failed: %s\"}",
-                         curl_easy_strerror (result));
-    }
-
-  if (response && response->data)
-    {
-      http_response->data = g_strdup (response->data);
-    }
-  else
-    {
-      http_response->data = g_strdup ("{\"error\": \"Empty response\"}");
-    }
-
-  if (internal_stream_allocated)
-    {
-      gvm_http_response_stream_free (response);
-    }
-
-  return http_response;
+/**
+ * @brief Sends a synchronous HTTP(S) request and captures the response.
+ *
+ * This function performs an HTTP request using libcurl, with the specified
+ * method, headers, SSL/TLS credentials, and optional payload. It encapsulates
+ * the CURL easy handle and configuration into a `gvm_http_t` structure, which
+ * is used to execute the request. The server response is stored in a
+ * `gvm_http_response_t` structure, which includes the HTTP status code and
+ * response data.
+ *
+ * If `unix_socket_path` is provided, the request will be sent through the
+ * specified Unix domain socket instead of a TCP/IP network connection.
+ *
+ * If no response stream is provided, an internal one will be allocated and
+ * automatically cleaned up. If a stream is provided, the caller is responsible
+ * for freeing it.
+ *
+ * @param url               The URL to send the request to.
+ * @param method            HTTP method to use (e.g., GET, POST, PUT, DELETE).
+ * @param payload           Optional request payload for methods like POST or PUT.
+ * @param headers           Optional custom headers (`gvm_http_headers_t`).
+ * @param ca_cert           Optional CA certificate for server verification.
+ * @param client_cert       Optional client certificate for mutual TLS.
+ * @param client_key        Optional client private key for mutual TLS.
+ * @param unix_socket_path  Optional path to a Unix domain socket used for the
+ *                          connection. If NULL, a normal network connection
+ *                          is used.
+ * @param response          Optional response stream buffer; if NULL, one will
+ *                          be created.
+ *
+ * @return A pointer to a `gvm_http_response_t` containing the response data and
+ *         status. Must be freed with `gvm_http_response_free()`.
+ */
+gvm_http_response_t *
+gvm_http_request_unix (const gchar *url, gvm_http_method_t method,
+                       const gchar *payload, gvm_http_headers_t *headers,
+                       const gchar *ca_cert, const gchar *client_cert,
+                       const gchar *client_key, const gchar *unix_socket_path,
+                       gvm_http_response_stream_t response)
+{
+  return gvm_http_request_internal (url, method, payload, headers, ca_cert,
+                                    client_cert, client_key, unix_socket_path,
+                                    response);
 }
 
 /**
