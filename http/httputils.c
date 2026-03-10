@@ -352,7 +352,7 @@ gvm_http_free (gvm_http_t *http)
  *
  * Note: The returned object must be cleaned up by the caller using
  * `gvm_http_free()` to free all associated resources. The request is not
- * executed by this function — only configured.
+ * executed by this function.
  *
  * @param url           The full request URL.
  * @param method        The HTTP method to use (GET, POST, etc.).
@@ -497,7 +497,8 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
  *
  * @param url               The URL to send the request to.
  * @param method            HTTP method to use (e.g., GET, POST, PUT, DELETE).
- * @param payload           Optional request payload for methods like POST or PUT.
+ * @param payload           Optional request payload for methods like POST or
+ *                          PUT.
  * @param headers           Optional custom headers (`gvm_http_headers_t`).
  * @param ca_cert           Optional CA certificate for server verification.
  * @param client_cert       Optional client certificate for mutual TLS.
