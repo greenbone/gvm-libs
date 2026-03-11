@@ -262,15 +262,26 @@ run_cli_extended (gvm_hosts_t *hosts, alive_test_t alive_test,
   return NO_ERROR;
 }
 
+static void
+create_host_list (gpointer key, gpointer value, gpointer *userdata)
+{
+  (void) value;
+  GString *host_str = (GString *) *userdata;
+  g_string_append (host_str, key);
+  g_string_append (host_str, ",");
+  
+    
+}
 /**
  * @brief
  *
  * @param[in] net IPv6 network
+ * @param[out] hosts_found Discovered alive hosts in comma separated list
  *
  * @return NO_ERROR (0) on success, boreas_error_t on error.
  */
 boreas_error_t
-run_cli_for_ipv6_network (const char *net)
+run_cli_for_ipv6_network (const char *net, char **hosts_found )
 {
   unsigned int block;
   struct in6_addr target;
@@ -300,7 +311,13 @@ run_cli_for_ipv6_network (const char *net)
       printf ("Error while running the scan.\n");
       return run_err;
     }
+  
+  GString *host_str = g_string_new("");
+  g_hash_table_foreach (scanner.hosts_data->alivehosts, (GHFunc) create_host_list, (gpointer) &host_str);
 
+  *hosts_found = g_strdup (host_str->str);
+  g_string_free (host_str, TRUE);
+  
   free_err = free_cli (&scanner, ALIVE_TEST_IPV6_HOST_DISCOVERY);
   if (free_err)
     {
