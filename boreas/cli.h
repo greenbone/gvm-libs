@@ -17,7 +17,7 @@ boreas_error_t
 run_cli (gvm_hosts_t *, alive_test_t, const gchar *);
 
 boreas_error_t
-run_cli_for_ipv6_network (const char *);
+run_cli_for_ipv6_network (const char *, char **);
 
 boreas_error_t
 is_host_alive (const char *, int *);
