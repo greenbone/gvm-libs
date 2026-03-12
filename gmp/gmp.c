@@ -450,19 +450,26 @@ gmp_authenticate_info_ext_c (gvm_connection_t *connection,
   char first;
   int ret;
 
+  if (opts.role)
+    *opts.role = NULL;
   if (opts.timezone)
-    *(opts.timezone) = NULL;
+    *opts.timezone = NULL;
+  if (opts.pw_warning)
+    *opts.pw_warning = NULL;
+  if (opts.jwt)
+    *opts.jwt = NULL;
 
   /* Send the auth request. */
 
   ret = gvm_connection_sendf_xml_quiet (connection,
-                                        "<authenticate>"
+                                        "<authenticate token=\"%d\">"
                                         "<credentials>"
                                         "<username>%s</username>"
                                         "<password>%s</password>"
                                         "</credentials>"
                                         "</authenticate>",
-                                        opts.username, opts.password);
+                                        opts.jwt_requested, opts.username,
+                                        opts.password);
   if (ret)
     return ret;
 
@@ -495,7 +502,7 @@ gmp_authenticate_info_ext_c (gvm_connection_t *connection,
   first = status[0];
   if (first == '2')
     {
-      entity_t timezone_entity, role_entity;
+      entity_t timezone_entity, role_entity, token_entity;
       /* Get the extra info. */
       timezone_entity = entity_child (entity, "timezone");
       if (timezone_entity && opts.timezone)
@@ -512,6 +519,9 @@ gmp_authenticate_info_ext_c (gvm_connection_t *connection,
           else
             *(opts.pw_warning) = NULL;
         }
+      token_entity = entity_child (entity, "token");
+      if (token_entity && opts.jwt_requested == 1 && opts.jwt)
+        *opts.jwt = g_strdup (entity_text (token_entity));
 
       free_entity (entity);
       return 0;
