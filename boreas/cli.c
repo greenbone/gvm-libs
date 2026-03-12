@@ -269,8 +269,6 @@ create_host_list (gpointer key, gpointer value, gpointer *userdata)
   GString *host_str = (GString *) *userdata;
   g_string_append (host_str, key);
   g_string_append (host_str, ",");
-  
-    
 }
 /**
  * @brief
@@ -281,7 +279,8 @@ create_host_list (gpointer key, gpointer value, gpointer *userdata)
  * @return NO_ERROR (0) on success, boreas_error_t on error.
  */
 boreas_error_t
-run_cli_for_ipv6_network (const char *net, char **hosts_found )
+run_cli_for_ipv6_network (const char *net, char **hosts_found,
+                          int print_results)
 {
   unsigned int block;
   struct in6_addr target;
@@ -289,7 +288,6 @@ run_cli_for_ipv6_network (const char *net, char **hosts_found )
   boreas_error_t init_err;
   boreas_error_t run_err;
   boreas_error_t free_err;
-  int print_results = 1;
 
   if (net == NULL || gvm_get_host_type (net) != HOST_TYPE_CIDR6_BLOCK)
     return BOREAS_INVALID_IPV6_NETWORK;
@@ -311,13 +309,17 @@ run_cli_for_ipv6_network (const char *net, char **hosts_found )
       printf ("Error while running the scan.\n");
       return run_err;
     }
-  
-  GString *host_str = g_string_new("");
-  g_hash_table_foreach (scanner.hosts_data->alivehosts, (GHFunc) create_host_list, (gpointer) &host_str);
 
-  *hosts_found = g_strdup (host_str->str);
-  g_string_free (host_str, TRUE);
-  
+  if (hosts_found != NULL)
+    {
+      GString *host_str = g_string_new ("");
+      g_hash_table_foreach (scanner.hosts_data->alivehosts,
+                            (GHFunc) create_host_list, (gpointer) &host_str);
+
+      *hosts_found = g_strdup (host_str->str);
+      g_string_free (host_str, TRUE);
+    }
+
   free_err = free_cli (&scanner, ALIVE_TEST_IPV6_HOST_DISCOVERY);
   if (free_err)
     {
@@ -326,8 +328,6 @@ run_cli_for_ipv6_network (const char *net, char **hosts_found )
     }
 
   return NO_ERROR;
-
-  return 0;
 }
 
 /**
