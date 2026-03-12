@@ -5,6 +5,7 @@
 
 #include "sniffer.h"
 
+#include "../base/networking.h" /* for range_t */
 #include "alivedetection.h"
 #include "boreas_io.h"
 
@@ -13,6 +14,7 @@
 #include <glib.h>
 #include <net/if_arp.h>
 #include <netinet/ip.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -170,11 +172,16 @@ got_packet (u_char *user_data,
         g_debug ("%s: Failed to transform IP into string representation: %s",
                  __func__, strerror (errno));
     }
+
   /* Only put unique hosts on queue and in hash table. Use short circuit
    * evaluation to not add hosts to the hash table which are not in our
    * target list.*/
-  if ((g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
-      && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))))
+  if (((scanner->host_discovery == 0)
+       && (g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
+       && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))))
+      || ((scanner->host_discovery == 1)
+          && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str)))
+          && (g_hash_table_add (hosts_data->targethosts, g_strdup (addr_str)))))
     {
       /* handle max_scan_hosts related restrictions. */
       handle_scan_restrictions (scanner, addr_str);
@@ -283,7 +290,18 @@ start_sniffer_thread (scanner_t *scanner, pthread_t *sniffer_thread_id)
 {
   int err;
 
-  scanner->pcap_handle = open_live (NULL, FILTER_STR);
+  if (0) // scanner->host_discovery)
+    {
+      char filter[256];
+      snprintf (filter, sizeof (filter), "ip6 and ip6[40]=129 and dst %s",
+                addr6_as_str (&(scanner->ipv6_net->src)));
+      scanner->pcap_handle = open_live (NULL, filter);
+    }
+  else
+    {
+      scanner->pcap_handle = open_live (NULL, FILTER_STR);
+    }
+
   if (scanner->pcap_handle == NULL)
     {
       g_warning ("%s: Unable to open valid pcap handle.", __func__);

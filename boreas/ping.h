@@ -14,4 +14,6 @@ void send_tcp (gpointer, gpointer, gpointer);
 
 void send_arp (gpointer, gpointer, gpointer);
 
+void send_icmp_v6_multicast (gpointer);
+
 #endif /* not _GVM_BOREAS_PING_H */
