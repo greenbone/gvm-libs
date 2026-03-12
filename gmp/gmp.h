@@ -31,13 +31,15 @@ typedef struct
   char **role;          ///< [out] Role.
   char **timezone;      ///< [out] Timezone if any, else NULL.
   char **pw_warning;    ///< [out] Password warning, NULL if password is okay.
+  int jwt_requested;    ///< Flag for JWT. 0 = false, 1 = true.
+  char **jwt;           ///< [out] JWT token value, NULL if not requested.
 } gmp_authenticate_info_opts_t;
 
 /**
  * @brief Sensible default values for gmp_authenticate_info_opts_t
  */
 static const gmp_authenticate_info_opts_t gmp_authenticate_info_opts_defaults =
-  {0, NULL, NULL, NULL, NULL, NULL};
+  {0, NULL, NULL, NULL, NULL, NULL, 0, NULL};
 
 /**
  * @brief Struct holding options for gmp get_report command.
