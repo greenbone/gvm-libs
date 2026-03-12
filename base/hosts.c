@@ -509,7 +509,6 @@ gvm_is_cidr6_block (const char *str)
   return is_cidr6_block (str);
 }
 
-
 /**
  * @brief Gets the network block value from a CIDR-expressed block string.
  * For "192.168.1.1/24" it is 24.
@@ -652,7 +651,8 @@ cidr6_block_ips (const char *str, struct in6_addr *first, struct in6_addr *last)
 }
 
 int
-gvm_cidr6_block_ips (const char *str, struct in6_addr *first, struct in6_addr *last)
+gvm_cidr6_block_ips (const char *str, struct in6_addr *first,
+                     struct in6_addr *last)
 {
   return cidr6_block_ips (str, first, last);
 }
