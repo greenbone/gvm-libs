@@ -728,6 +728,7 @@ agent_controller_parse_scan_agent_config (cJSON *root)
   cJSON *agent_defaults = cJSON_GetObjectItem (root, "agent_defaults");
   if (cJSON_IsObject (agent_defaults))
     {
+      agent_controller_agent_config_free (d->agent_defaults);
       d->agent_defaults = agent_controller_parse_agent_config (agent_defaults);
       if (!d->agent_defaults)
         d->agent_defaults = agent_controller_agent_config_new ();
