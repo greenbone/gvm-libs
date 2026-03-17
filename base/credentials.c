@@ -36,6 +36,7 @@ free_credentials (credentials_t *credentials)
   g_free (credentials->timezone);
   g_free (credentials->role);
   g_free (credentials->severity_class);
+  g_free (credentials->jwt);
   memset (credentials, '\0', sizeof (*credentials));
 }
 
