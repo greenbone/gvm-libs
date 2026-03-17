@@ -25,6 +25,7 @@ option(BUILD_TESTS "Build tests for the libraries" OFF)
 option(ENABLE_OPENVASD "Build openvasd library" ON)
 option(ENABLE_AGENTS "Build agent controller library" ON)
 option(ENABLE_CREDENTIAL_STORES "Build credential store library" ON)
+option(ENABLE_SECURITY_INTELLIGENCE "Build security intelligence library" ON)
 
 if(NOT BUILD_STATIC)
   set(BUILD_SHARED ON)
@@ -317,9 +318,19 @@ if(NOT SKIP_SRC)
   add_subdirectory(osp)
   add_subdirectory(gmp)
 
-  if(ENABLE_OPENVASD OR ENABLE_AGENTS OR ENABLE_CREDENTIAL_STORES)
+  if(
+    ENABLE_OPENVASD
+    OR ENABLE_AGENTS
+    OR ENABLE_CREDENTIAL_STORES
+    OR ENABLE_SECURITY_INTELLIGENCE
+  )
     add_subdirectory(http)
-  endif(ENABLE_OPENVASD OR ENABLE_AGENTS OR ENABLE_CREDENTIAL_STORES)
+  endif(
+    ENABLE_OPENVASD
+    OR ENABLE_AGENTS
+    OR ENABLE_CREDENTIAL_STORES
+    OR ENABLE_SECURITY_INTELLIGENCE
+  )
 
   if(ENABLE_OPENVASD)
     add_subdirectory(http_scanner)
@@ -334,6 +345,10 @@ if(NOT SKIP_SRC)
   if(ENABLE_CREDENTIAL_STORES)
     add_subdirectory(cyberark)
   endif(ENABLE_CREDENTIAL_STORES)
+
+  if(ENABLE_SECURITY_INTELLIGENCE)
+    add_subdirectory(security_intelligence)
+  endif(ENABLE_SECURITY_INTELLIGENCE)
 endif(NOT SKIP_SRC)
 
 ## Documentation
