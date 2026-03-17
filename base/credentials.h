@@ -36,6 +36,10 @@ typedef struct
   ///< Role of user.
   /*@null@ */ int excerpt_size;
   ///< Note/Override Excerpt Size setting of user.
+  /*@null@ */ int jwt_requested;
+  ///< Whether a JSON web token is requested.
+  /*@null@ */ gchar *jwt;
+  ///< Current JSON web token of user.
 } credentials_t;
 
 void
