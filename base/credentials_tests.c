@@ -32,6 +32,8 @@ Ensure (credentials, free_credentials_frees_all_fields)
   credentials.dynamic_severity = 1;
   credentials.role = g_strdup ("admin");
   credentials.excerpt_size = 100;
+  credentials.jwt_requested = 1;
+  credentials.jwt = g_strdup ("test.token.value");
 
   free_credentials (&credentials);
 
@@ -41,6 +43,7 @@ Ensure (credentials, free_credentials_frees_all_fields)
   assert_that (credentials.timezone, is_null);
   assert_that (credentials.role, is_null);
   assert_that (credentials.severity_class, is_null);
+  assert_that (credentials.jwt, is_null);
 }
 
 /* append_to_credentials_username */
