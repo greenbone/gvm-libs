@@ -295,8 +295,10 @@ start_sniffer_thread (scanner_t *scanner, pthread_t *sniffer_thread_id)
   if (scanner->host_discovery)
     {
       char filter[256];
+      char *addr = addr6_as_str (&(scanner->ipv6_net->src));
       snprintf (filter, sizeof (filter), "ip6 and ip6[40]=129 and dst %s",
-                addr6_as_str (&(scanner->ipv6_net->src)));
+                addr);
+      g_free (addr);
       scanner->pcap_handle = open_live (NULL, filter);
     }
   else
