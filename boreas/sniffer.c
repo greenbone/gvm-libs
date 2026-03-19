@@ -8,6 +8,7 @@
 #include "../base/networking.h" /* for range_t */
 #include "alivedetection.h"
 #include "boreas_io.h"
+#include "util.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -180,6 +181,7 @@ got_packet (u_char *user_data,
        && (g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
        && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))))
       || ((scanner->host_discovery == 1)
+          && (cidr6block_contains (scanner->ipv6_net->net, addr_str) > 0)
           && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str)))
           && (g_hash_table_add (hosts_data->targethosts, g_strdup (addr_str)))))
     {

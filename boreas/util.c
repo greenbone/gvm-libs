@@ -735,3 +735,51 @@ wait_until_so_sndbuf_empty (int soc, int timeout)
       usleep (100000);
     }
 }
+
+/**
+ * @brief Check if the address is contained in the CIDR block
+ *
+ * @param cidr    a valid IPv6 CIDR-expressed block
+ * @param address IPv6 address to check if it is contained.
+ *
+ * @return 1 if it is contained, 0 if not. Boreas error type on error;
+ */
+int
+cidr6block_contains (const char *cidr, const char *address)
+{
+  struct in6_addr net, ip;
+  unsigned int prefix_len = 0;
+
+  if (gvm_cidr6_get_ip (cidr, &net) || gvm_cidr6_get_block (cidr, &prefix_len))
+
+    g_debug ("Checking if %s belongs to the CIDR block %s", address, cidr);
+
+  if (inet_pton (AF_INET6, address, &ip) != 1)
+    return -1;
+
+  const uint8_t *addr_bytes = (const uint8_t *) &ip;
+  const uint8_t *net_bytes = (const uint8_t *) &net;
+
+  int bytes_to_compare = prefix_len / 8;
+  int bits_to_compare = prefix_len % 8;
+
+  if (bytes_to_compare > 0)
+    {
+      if (memcmp (addr_bytes, net_bytes, bytes_to_compare) != 0)
+        {
+          return 0;
+        }
+    }
+
+  if (bits_to_compare > 0)
+    {
+      uint8_t mask = 0xFF << (8 - bits_to_compare);
+      if ((addr_bytes[bytes_to_compare] & mask)
+          != (net_bytes[bytes_to_compare] & mask))
+        {
+          return 0;
+        }
+    }
+
+  return 1; // All network bits match
+}
