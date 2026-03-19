@@ -104,7 +104,7 @@ init_cli_for_host_discovery (scanner_t *scanner, const char *net,
   error = init_ipv6_net_data (scanner, net);
   if (error != 0)
     {
-      printf ("%s:Not possible to initialize data: %s", __func__,
+      printf ("%s: Not possible to initialize data: %s", __func__,
               str_boreas_error (error));
       return error;
     }
@@ -129,6 +129,12 @@ free_cli (scanner_t *scanner, alive_test_t alive_test)
   g_hash_table_destroy (scanner->hosts_data->alivehosts);
   g_hash_table_destroy (scanner->hosts_data->targethosts);
   g_free (scanner->hosts_data);
+
+  if (alive_test & ALIVE_TEST_IPV6_HOST_DISCOVERY)
+    {
+      g_free (scanner->ipv6_net->net);
+      g_free (scanner->ipv6_net);
+    }
 
   return close_err;
 }
@@ -262,6 +268,13 @@ run_cli_extended (gvm_hosts_t *hosts, alive_test_t alive_test,
   return NO_ERROR;
 }
 
+/**
+ * @brief GHFunc helper function to create a comma separated list of host
+ *
+ * @param[in] key host
+ * @param [in] value Not used
+ * @param[in/out] userdata comma separated list where new keys are appended to.
+ */
 static void
 create_host_list (gpointer key, gpointer value, gpointer *userdata)
 {
@@ -270,8 +283,9 @@ create_host_list (gpointer key, gpointer value, gpointer *userdata)
   g_string_append (host_str, key);
   g_string_append (host_str, ",");
 }
+
 /**
- * @brief
+ * @brief Runs a host discovery for large ipv6 network
  *
  * @param[in] net IPv6 network
  * @param[out] hosts_found Discovered alive hosts in comma separated list
@@ -316,14 +330,14 @@ run_cli_for_ipv6_network (const char *net, char **hosts_found,
       g_hash_table_foreach (scanner.hosts_data->alivehosts,
                             (GHFunc) create_host_list, (gpointer) &host_str);
 
-      *hosts_found = g_strdup (host_str->str);
-      g_string_free (host_str, TRUE);
+      *hosts_found = g_string_free (host_str, FALSE);
     }
 
   free_err = free_cli (&scanner, ALIVE_TEST_IPV6_HOST_DISCOVERY);
   if (free_err)
     {
       printf ("Error freeing scan data.\n");
+      g_free (*hosts_found);
       return free_err;
     }
 

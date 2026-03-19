@@ -572,17 +572,41 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
 
   int opt_on = 1;
   soc = socket (AF_INET6, SOCK_RAW, IPPROTO_RAW);
-  setsockopt (soc, IPPROTO_IPV6, IP_HDRINCL, (char *) &opt_on, sizeof (opt_on));
+  if (soc < 0)
+    {
+      g_warning ("%s: failed to open ICPMV6 socket: %s", __func__,
+                 strerror (errno));
+      error = BOREAS_OPENING_SOCKET_FAILED;
+    }
+
+  if (setsockopt (soc, IPPROTO_IPV6, IP_HDRINCL, (char *) &opt_on,
+                  sizeof (opt_on))
+      < 0)
+    {
+      g_warning ("%s: failed to set socket option IP_HDRINCL: %s", __func__,
+                 strerror (errno));
+      error = BOREAS_SETTING_SOCKET_OPTION_FAILED;
+    }
 
   // Enable multicast
-  setsockopt (soc, SOL_SOCKET, SO_BROADCAST, &opt_on, sizeof (opt_on));
+  if (!error)
+    {
+      error = set_broadcast (soc);
+      if (error != 0)
+        return error;
+    }
 
   // Create source address
   memset (&socs, 0, sizeof (socs));
   socs.sin6_family = AF_INET6;
   socs.sin6_addr = scanner->ipv6_net->src;
   // and set the source address to the socket
-  bind (soc, (struct sockaddr *) &socs, sizeof (socs));
+  if (bind (soc, (struct sockaddr *) &socs, sizeof (socs)) < 0)
+    {
+      g_warning ("%s: failed to bind socket to source address: %s", __func__,
+                 strerror (errno));
+      return BOREAS_BIND_SOCKET_FAILED;
+    }
   scanner->icmpv6soc = soc;
 
   return error;
