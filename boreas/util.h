@@ -23,6 +23,9 @@ get_source_addr_v6 (int *, struct in6_addr *, struct in6_addr *);
 boreas_error_t
 get_source_addr_v4 (int *, struct in_addr *, struct in_addr *);
 
+int
+cidr6block_contains (const char *, const char *);
+
 void fill_ports_array (gpointer, gpointer);
 
 boreas_error_t
