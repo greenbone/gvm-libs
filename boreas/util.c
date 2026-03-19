@@ -576,7 +576,7 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
     {
       g_warning ("%s: failed to open ICPMV6 socket: %s", __func__,
                  strerror (errno));
-      error = BOREAS_OPENING_SOCKET_FAILED;
+      return BOREAS_OPENING_SOCKET_FAILED;
     }
 
   if (setsockopt (soc, IPPROTO_IPV6, IP_HDRINCL, (char *) &opt_on,
@@ -585,15 +585,16 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
     {
       g_warning ("%s: failed to set socket option IP_HDRINCL: %s", __func__,
                  strerror (errno));
-      error = BOREAS_SETTING_SOCKET_OPTION_FAILED;
+      close (soc);
+      return BOREAS_SETTING_SOCKET_OPTION_FAILED;
     }
 
   // Enable multicast
-  if (!error)
+  error = set_broadcast (soc);
+  if (error != 0)
     {
-      error = set_broadcast (soc);
-      if (error != 0)
-        return error;
+      close (soc);
+      return error;
     }
 
   // Create source address
@@ -605,6 +606,7 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
     {
       g_warning ("%s: failed to bind socket to source address: %s", __func__,
                  strerror (errno));
+      close (soc);
       return BOREAS_BIND_SOCKET_FAILED;
     }
   scanner->icmpv6soc = soc;

@@ -337,7 +337,8 @@ run_cli_for_ipv6_network (const char *net, char **hosts_found,
   if (free_err)
     {
       printf ("Error freeing scan data.\n");
-      g_free (*hosts_found);
+      if (hosts_found)
+        g_free (*hosts_found);
       return free_err;
     }
 
