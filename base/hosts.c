@@ -466,8 +466,8 @@ is_hostname (const char *str)
  *
  * @return 1 if valid IPv6 CIDR-expressed block, 0 otherwise.
  */
-static int
-is_cidr6_block (const char *str)
+int
+gvm_is_cidr6_block (const char *str)
 {
   long block;
   char *addr6_str, *block_str, *p;
@@ -503,12 +503,6 @@ is_cidr6_block (const char *str)
   return 1;
 }
 
-int
-gvm_is_cidr6_block (const char *str)
-{
-  return is_cidr6_block (str);
-}
-
 /**
  * @brief Gets the network block value from a CIDR-expressed block string.
  * For "192.168.1.1/24" it is 24.
@@ -518,8 +512,8 @@ gvm_is_cidr6_block (const char *str)
  *
  * @return -1 if error, 0 otherwise.
  */
-static int
-cidr6_get_block (const char *str, unsigned int *block)
+int
+gvm_cidr6_get_block (const char *str, unsigned int *block)
 {
   if (str == NULL || block == NULL)
     return -1;
@@ -528,12 +522,6 @@ cidr6_get_block (const char *str, unsigned int *block)
     return -1;
 
   return 0;
-}
-
-int
-gvm_cidr6_get_block (const char *str, unsigned int *block)
-{
-  return cidr6_get_block (str, block);
 }
 
 /**
@@ -545,8 +533,8 @@ gvm_cidr6_get_block (const char *str, unsigned int *block)
  *
  * @return -1 if error, 0 otherwise.
  */
-static int
-cidr6_get_ip (const char *str, struct in6_addr *addr6)
+int
+gvm_cidr6_get_ip (const char *str, struct in6_addr *addr6)
 {
   gchar *addr6_str, *tmp;
 
@@ -569,12 +557,6 @@ cidr6_get_ip (const char *str, struct in6_addr *addr6)
   return 0;
 }
 
-int
-gvm_cidr6_get_ip (const char *str, struct in6_addr *addr6)
-{
-  return cidr6_get_ip (str, addr6);
-}
-
 /**
  * @brief Gets the first and last usable IPv4 addresses from a CIDR-expressed
  * block. eg. "192.168.1.0/24 would give 192.168.1.1 as first and 192.168.1.254
@@ -586,8 +568,9 @@ gvm_cidr6_get_ip (const char *str, struct in6_addr *addr6)
  *
  * @return -1 if error, 0 else.
  */
-static int
-cidr6_block_ips (const char *str, struct in6_addr *first, struct in6_addr *last)
+int
+gvm_cidr6_block_ips (const char *str, struct in6_addr *first,
+                     struct in6_addr *last)
 {
   unsigned int block;
   int i, j;
@@ -596,9 +579,9 @@ cidr6_block_ips (const char *str, struct in6_addr *first, struct in6_addr *last)
     return -1;
 
   /* Get IP and block values. */
-  if (cidr6_get_block (str, &block) == -1)
+  if (gvm_cidr6_get_block (str, &block) == -1)
     return -1;
-  if (cidr6_get_ip (str, first) == -1)
+  if (gvm_cidr6_get_ip (str, first) == -1)
     return -1;
   memcpy (&last->s6_addr, &first->s6_addr, 16);
 
@@ -648,13 +631,6 @@ cidr6_block_ips (const char *str, struct in6_addr *first, struct in6_addr *last)
       last->s6_addr[i] = 0xff;
 
   return 0;
-}
-
-int
-gvm_cidr6_block_ips (const char *str, struct in6_addr *first,
-                     struct in6_addr *last)
-{
-  return cidr6_block_ips (str, first, last);
 }
 
 /**
@@ -869,7 +845,7 @@ gvm_get_host_type (const gchar *str_stripped)
     return HOST_TYPE_RANGE_LONG;
 
   /* Check for regular IPv6 CIDR-expressed block like "2620:0:2d0:200::7/120" */
-  if (is_cidr6_block (str_stripped))
+  if (gvm_is_cidr6_block (str_stripped))
     return HOST_TYPE_CIDR6_BLOCK;
 
   /* Check for short range-expressed networks "::1-ef12" */
@@ -1241,7 +1217,7 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
                              struct in6_addr *);
 
             if (host_type == HOST_TYPE_CIDR6_BLOCK)
-              ips_func = cidr6_block_ips;
+              ips_func = gvm_cidr6_block_ips;
             else if (host_type == HOST_TYPE_RANGE6_SHORT)
               ips_func = short_range6_network_ips;
             else

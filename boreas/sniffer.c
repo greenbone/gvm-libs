@@ -290,7 +290,7 @@ start_sniffer_thread (scanner_t *scanner, pthread_t *sniffer_thread_id)
 {
   int err;
 
-  if (0) // scanner->host_discovery)
+  if (scanner->host_discovery)
     {
       char filter[256];
       snprintf (filter, sizeof (filter), "ip6 and ip6[40]=129 and dst %s",
