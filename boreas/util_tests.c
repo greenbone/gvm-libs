@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "boreas_error.c"
 #include "util.c"
 
 #include <arpa/inet.h>
@@ -232,6 +233,15 @@ Ensure (util, fill_ports_array)
   g_array_free (ports_garray, TRUE);
 }
 
+Ensure (util, cidr6_contains_ip)
+{
+  assert_that (cidr6block_contains ("5858::/64", "5858::1"), is_equal_to (1));
+  assert_that (cidr6block_contains ("5858::/64", "5858::ff"), is_equal_to (1));
+  assert_that (cidr6block_contains ("5858::/120", "5858::ff"), is_equal_to (1));
+  assert_that (cidr6block_contains ("5858::/120", "5858::252"),
+               is_equal_to (0));
+}
+
 int
 main (int argc, char **argv)
 {
@@ -247,6 +257,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, util, set_socket);
   add_test_with_context (suite, util, get_source_addr_v4);
   add_test_with_context (suite, util, get_source_addr_v6);
+  add_test_with_context (suite, util, cidr6_contains_ip);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());

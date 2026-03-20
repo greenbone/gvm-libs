@@ -6,6 +6,8 @@
 #include "util.h"
 
 #include "../base/networking.h" /* for range_t */
+#include "alivedetection.h"
+#include "boreas_error.h"
 
 #include <errno.h>
 #include <glib.h>
@@ -534,6 +536,84 @@ set_socket (socket_type_t socket_type, int *scanner_socket)
   return error;
 }
 
+boreas_error_t
+set_udp6_socket (scanner_t *scanner)
+{
+  boreas_error_t error = NO_ERROR;
+  error = set_socket (UDPV6, &(scanner->udpv6soc));
+  return error;
+}
+
+boreas_error_t
+init_ipv6_net_data (scanner_t *scanner, const char *net)
+{
+  struct in6_addr first, last;
+  struct sockaddr_in6 socs;
+  int soc;
+  boreas_error_t error = NO_ERROR;
+  // IPv6 net data for host discovery
+  scanner->ipv6_net = g_malloc0 (sizeof (ipv6_net_data_t));
+  scanner->ipv6_net->net = g_strdup (net);
+
+  /* Get source address for IPv6 header. */
+  gvm_cidr6_block_ips (scanner->ipv6_net->net, &first, &last);
+
+  error = get_source_addr_v6 (&(scanner->udpv6soc), &first,
+                              &(scanner->ipv6_net->src));
+  if (error)
+    {
+      char destination_str[INET_ADDRSTRLEN];
+      inet_ntop (AF_INET6, (const void *) &first, destination_str,
+                 INET_ADDRSTRLEN);
+      printf ("%s: Destination: %s. %s", __func__, destination_str,
+              str_boreas_error (error));
+      return BOREAS_INVALID_IPV6_NETWORK;
+    }
+
+  int opt_on = 1;
+  soc = socket (AF_INET6, SOCK_RAW, IPPROTO_RAW);
+  if (soc < 0)
+    {
+      g_warning ("%s: failed to open ICPMV6 socket: %s", __func__,
+                 strerror (errno));
+      return BOREAS_OPENING_SOCKET_FAILED;
+    }
+
+  if (setsockopt (soc, IPPROTO_IPV6, IP_HDRINCL, (char *) &opt_on,
+                  sizeof (opt_on))
+      < 0)
+    {
+      g_warning ("%s: failed to set socket option IP_HDRINCL: %s", __func__,
+                 strerror (errno));
+      close (soc);
+      return BOREAS_SETTING_SOCKET_OPTION_FAILED;
+    }
+
+  // Enable multicast
+  error = set_broadcast (soc);
+  if (error != 0)
+    {
+      close (soc);
+      return error;
+    }
+
+  // Create source address
+  memset (&socs, 0, sizeof (socs));
+  socs.sin6_family = AF_INET6;
+  socs.sin6_addr = scanner->ipv6_net->src;
+  // and set the source address to the socket
+  if (bind (soc, (struct sockaddr *) &socs, sizeof (socs)) < 0)
+    {
+      g_warning ("%s: failed to bind socket to source address: %s", __func__,
+                 strerror (errno));
+      close (soc);
+      return BOREAS_BIND_SOCKET_FAILED;
+    }
+  scanner->icmpv6soc = soc;
+
+  return error;
+}
+
 /**
  * @brief Set all sockets needed for the chosen detection methods.
  *
@@ -656,4 +736,52 @@ wait_until_so_sndbuf_empty (int soc, int timeout)
     {
       usleep (100000);
     }
+}
+
+/**
+ * @brief Check if the address is contained in the CIDR block
+ *
+ * @param cidr    a valid IPv6 CIDR-expressed block
+ * @param address IPv6 address to check if it is contained.
+ *
+ * @return 1 if it is contained, 0 if not. Boreas error type on error;
+ */
+int
+cidr6block_contains (const char *cidr, const char *address)
+{
+  struct in6_addr net, ip;
+  unsigned int prefix_len = 0;
+
+  if (gvm_cidr6_get_ip (cidr, &net) || gvm_cidr6_get_block (cidr, &prefix_len))
+
+    g_debug ("Checking if %s belongs to the CIDR block %s", address, cidr);
+
+  if (inet_pton (AF_INET6, address, &ip) != 1)
+    return -1;
+
+  const uint8_t *addr_bytes = (const uint8_t *) &ip;
+  const uint8_t *net_bytes = (const uint8_t *) &net;
+
+  int bytes_to_compare = prefix_len / 8;
+  int bits_to_compare = prefix_len % 8;
+
+  if (bytes_to_compare > 0)
+    {
+      if (memcmp (addr_bytes, net_bytes, bytes_to_compare) != 0)
+        {
+          return 0;
+        }
+    }
+
+  if (bits_to_compare > 0)
+    {
+      uint8_t mask = 0xFF << (8 - bits_to_compare);
+      if ((addr_bytes[bytes_to_compare] & mask)
+          != (net_bytes[bytes_to_compare] & mask))
+        {
+          return 0;
+        }
+    }
+
+  return 1; // All network bits match
 }

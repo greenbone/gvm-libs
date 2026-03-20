@@ -36,6 +36,7 @@ start_alive_detection (void *);
 
 typedef struct hosts_data hosts_data_t;
 typedef struct scan_restrictions scan_restrictions_t;
+typedef struct ipv6_net_data ipv6_net_data_t;
 
 /**
  * @brief The scanner struct holds data which is used frequently by the alive
@@ -62,12 +63,20 @@ struct scanner
   /* pcap handle */
   pcap_t *pcap_handle;
   hosts_data_t *hosts_data;
+  ipv6_net_data_t *ipv6_net;
   scan_restrictions_t *scan_restrictions;
   /* 0 do not print in stdout, 1 print in stdout used for cmd line cli. */
   int print_results;
+  int host_discovery;
 };
 
 typedef struct scanner scanner_t;
+
+struct ipv6_net_data
+{
+  char *net;
+  struct in6_addr src;
+};
 
 /**
  * @brief The hosts_data struct holds the alive hosts and target hosts in
@@ -108,7 +117,8 @@ typedef enum
   ALIVE_TEST_ICMP = 2,
   ALIVE_TEST_ARP = 4,
   ALIVE_TEST_CONSIDER_ALIVE = 8,
-  ALIVE_TEST_TCP_SYN_SERVICE = 16
+  ALIVE_TEST_TCP_SYN_SERVICE = 16,
+  ALIVE_TEST_IPV6_HOST_DISCOVERY = 32
 } alive_test_t;
 
 /**

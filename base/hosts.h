@@ -208,4 +208,17 @@ gvm_vhost_new (char *, char *);
 int
 gvm_get_host_type (const gchar *);
 
+int
+gvm_is_cidr6_block (const char *);
+
+int
+gvm_cidr6_get_block (const char *, unsigned int *);
+
+int
+gvm_cidr6_get_ip (const char *, struct in6_addr *);
+
+int
+gvm_cidr6_block_ips (const char *str, struct in6_addr *first,
+                     struct in6_addr *last);
+
 #endif /* not _GVM_BASE_HOSTS_H */
