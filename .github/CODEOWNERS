@@ -1,6 +1,6 @@
 # default reviewers
-*                 @greenbone/scanner-maintainers @greenbone/gea
+*                 @greenbone/scanner-maintainers @greenbone/gea @greenbone/team-matt
 
 # dev ops
-.github/          @greenbone/scanner-maintainers @greenbone/gea @greenbone/devops
-.docker/          @greenbone/scanner-maintainers @greenbone/gea @greenbone/devops
+.github/          @greenbone/scanner-maintainers @greenbone/gea @greenbone/devops @greenbone/team-matt
+.docker/          @greenbone/scanner-maintainers @greenbone/gea @greenbone/devops @greenbone/team-matt
