@@ -23,10 +23,19 @@ get_source_addr_v6 (int *, struct in6_addr *, struct in6_addr *);
 boreas_error_t
 get_source_addr_v4 (int *, struct in_addr *, struct in_addr *);
 
+int
+cidr6block_contains (const char *, const char *);
+
 void fill_ports_array (gpointer, gpointer);
 
 boreas_error_t
 set_all_needed_sockets (scanner_t *, alive_test_t);
+
+boreas_error_t
+set_udp6_socket (scanner_t *);
+
+boreas_error_t
+init_ipv6_net_data (scanner_t *, const char *);
 
 boreas_error_t
 close_all_needed_sockets (scanner_t *, alive_test_t);

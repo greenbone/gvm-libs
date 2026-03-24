@@ -45,6 +45,9 @@ str_boreas_error (boreas_error_t boreas_error)
       msg = "Boreas was not able to determine a source address for the given "
             "destination.";
       break;
+    case BOREAS_INVALID_IPV6_NETWORK:
+      msg = "Invalid IPv6 Network. Not possible to run an Host Discovery";
+      break;
     case NO_ERROR:
       msg = "No error was encountered by Boreas";
       break;
