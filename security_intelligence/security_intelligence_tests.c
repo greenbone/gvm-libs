@@ -62,7 +62,7 @@ AfterEach (security_intelligence)
 gvm_http_headers_t *
 gvm_http_headers_new (void)
 {
-  return g_malloc0 (1);
+  return g_malloc0 (8);
 }
 
 void
