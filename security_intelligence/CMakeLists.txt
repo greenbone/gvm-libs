@@ -57,19 +57,19 @@ endif()
 
 ## Tests
 
-#if(BUILD_TESTS)
-#  add_unit_test(
-#    security-intelligence-test
-#    agent_controller_tests.c
-#    gvm_base_shared
-#    gvm_util_shared
-#    gvm_http_shared
-#    ${GLIB_LDFLAGS}
-#    ${CJSON_LDFLAGS}
-#    ${CURL_LDFLAGS}
-#    ${LINKER_HARDENING_FLAGS}
-#  )
-#endif()
+if(BUILD_TESTS)
+  add_unit_test(
+    security-intelligence-test
+    security_intelligence_tests.c
+    gvm_base_shared
+    gvm_util_shared
+    gvm_http_shared
+    ${GLIB_LDFLAGS}
+    ${CJSON_LDFLAGS}
+    ${CURL_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+endif()
 
 ## Install
 

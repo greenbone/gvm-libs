@@ -273,6 +273,10 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     list(APPEND TESTS agent-controller-test)
   endif(ENABLE_AGENTS)
 
+  if(ENABLE_SECURITY_INTELLIGENCE)
+    list(APPEND TESTS security-intelligence-test)
+  endif(ENABLE_SECURITY_INTELLIGENCE)
+
   add_custom_target(tests DEPENDS ${TESTS})
 
   # Code coverage
