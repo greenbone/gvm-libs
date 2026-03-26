@@ -78,9 +78,8 @@ typedef struct security_intelligence_connector
  */
 struct security_intelligence_managed_appliance
 {
-  gchar *appliance_id; ///< OIDC provider client id
-  gchar *ip;           ///< IP address
-  gchar *gsf_key;      ///< GSF key e.g: gsf<number>@feed.greenbone.net
+  gchar *appliance_id;                  ///< OIDC provider client id
+  gchar *ip;                            ///< IP address
   gchar *https_certificate_fingerprint; ///< TLS certificate fingerprint
 };
 typedef struct security_intelligence_managed_appliance
@@ -213,17 +212,14 @@ security_intelligence_create_managed_appliance (
 
 int
 security_intelligence_delete_managed_appliance (
-  security_intelligence_connector_t conn, const gchar *appliance_id,
-  GPtrArray **errors);
+  security_intelligence_connector_t conn, const gchar *appliance_id);
 
 security_intelligence_managed_report_list_t
-security_intelligence_list_reports (security_intelligence_connector_t conn,
-                                    const gchar *appliance_id);
+security_intelligence_list_reports (security_intelligence_connector_t conn);
 
 security_intelligence_managed_report_t
 security_intelligence_get_report (security_intelligence_connector_t conn,
-                                  const gchar *appliance_id,
-                                  const gchar *report_id);
+                                  const gchar *report_id, GPtrArray **errors);
 
 int
 security_intelligence_create_report (
@@ -243,6 +239,7 @@ security_intelligence_update_report_status (
 
 security_intelligence_managed_report_page_list_t
 security_intelligence_get_report_pages (security_intelligence_connector_t conn,
-                                        const gchar *report_id);
+                                        const gchar *report_id,
+                                        GPtrArray **errors);
 
 #endif /* _GVM_SECURITY_INTELLIGENCE_SECURITY_INTELLIGENCE_H */
