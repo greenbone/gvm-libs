@@ -134,60 +134,53 @@ security_intelligence_connector_t
 security_intelligence_connector_new (void);
 
 security_intelligence_error_t
-security_intelligence_connector_builder (
-  security_intelligence_connector_t conn,
-  security_intelligence_connector_opts_t opt, const void *val);
+security_intelligence_connector_builder (security_intelligence_connector_t,
+                                         security_intelligence_connector_opts_t,
+                                         const void *);
 
-void
-security_intelligence_connector_free (security_intelligence_connector_t conn);
+void security_intelligence_connector_free (security_intelligence_connector_t);
 
 /* managed appliance objects */
 
 security_intelligence_managed_appliance_t
 security_intelligence_managed_appliance_new (void);
 
-void
-security_intelligence_managed_appliance_free (
-  security_intelligence_managed_appliance_t appliance);
+void security_intelligence_managed_appliance_free (
+  security_intelligence_managed_appliance_t);
 
 /* managed report objects */
 
 security_intelligence_managed_report_t
 security_intelligence_managed_report_new (void);
 
-void
-security_intelligence_managed_report_free (
-  security_intelligence_managed_report_t report);
+void security_intelligence_managed_report_free (
+  security_intelligence_managed_report_t);
 
 security_intelligence_managed_report_list_t
-security_intelligence_managed_report_list_new (int count);
+security_intelligence_managed_report_list_new (int);
 
-void
-security_intelligence_managed_report_list_free (
-  security_intelligence_managed_report_list_t list);
+void security_intelligence_managed_report_list_free (
+  security_intelligence_managed_report_list_t);
 
 security_intelligence_managed_report_page_t
 security_intelligence_managed_report_page_new (void);
 
-void
-security_intelligence_managed_report_page_free (
-  security_intelligence_managed_report_page_t page);
+void security_intelligence_managed_report_page_free (
+  security_intelligence_managed_report_page_t);
 
 security_intelligence_managed_report_page_list_t
-security_intelligence_managed_report_page_list_new (int count);
+security_intelligence_managed_report_page_list_new (int);
 
-void
-security_intelligence_managed_report_page_list_free (
-  security_intelligence_managed_report_page_list_t list);
+void security_intelligence_managed_report_page_list_free (
+  security_intelligence_managed_report_page_list_t);
 
 /* enum/string helpers */
 
-const gchar *
-security_intelligence_report_upload_status_to_string (
-  security_intelligence_report_upload_status_t status);
+const gchar *security_intelligence_report_upload_status_to_string (
+  security_intelligence_report_upload_status_t);
 
 security_intelligence_report_upload_status_t
-security_intelligence_report_upload_status_from_string (const gchar *status);
+security_intelligence_report_upload_status_from_string (const gchar *);
 
 /* serialization helpers */
 
@@ -196,50 +189,47 @@ security_intelligence_build_create_managed_appliance_payload (
   security_intelligence_managed_appliance_t appliance);
 
 gchar *
-security_intelligence_build_create_report_payload (const gchar *ref_id);
+security_intelligence_build_create_report_payload (const gchar *);
 
-gchar *
-security_intelligence_build_update_report_status_payload (
-  security_intelligence_report_upload_status_t status);
+gchar *security_intelligence_build_update_report_status_payload (
+  security_intelligence_report_upload_status_t);
 
 /* REST operations */
 
 int
 security_intelligence_create_managed_appliance (
-  security_intelligence_connector_t conn,
-  security_intelligence_managed_appliance_t appliance,
-  security_intelligence_managed_appliance_t *created, GPtrArray **errors);
+  security_intelligence_connector_t, security_intelligence_managed_appliance_t,
+  security_intelligence_managed_appliance_t *, GPtrArray **);
 
 int
 security_intelligence_delete_managed_appliance (
-  security_intelligence_connector_t conn, const gchar *appliance_id);
+  security_intelligence_connector_t, const gchar *);
 
 security_intelligence_managed_report_list_t
-security_intelligence_list_reports (security_intelligence_connector_t conn);
+  security_intelligence_list_reports (security_intelligence_connector_t);
 
 security_intelligence_managed_report_t
-security_intelligence_get_report (security_intelligence_connector_t conn,
-                                  const gchar *report_id, GPtrArray **errors);
+security_intelligence_get_report (security_intelligence_connector_t,
+                                  const gchar *, GPtrArray **);
 
 int
-security_intelligence_create_report (
-  security_intelligence_connector_t conn, const gchar *report_id,
-  security_intelligence_managed_report_t *created, GPtrArray **errors);
+security_intelligence_create_report (security_intelligence_connector_t,
+                                     const gchar *,
+                                     security_intelligence_managed_report_t *,
+                                     GPtrArray **);
 
 int
-security_intelligence_add_report_page (security_intelligence_connector_t conn,
-                                       const gchar *report_id, int index,
-                                       const guint8 *xml, gsize xml_len,
-                                       GPtrArray **errors);
+security_intelligence_add_report_page (security_intelligence_connector_t,
+                                       const gchar *, int, const guint8 *,
+                                       gsize, GPtrArray **);
 
 int
 security_intelligence_update_report_status (
-  security_intelligence_connector_t conn, const gchar *report_id,
-  security_intelligence_report_upload_status_t status, GPtrArray **errors);
+  security_intelligence_connector_t, const gchar *,
+  security_intelligence_report_upload_status_t, GPtrArray **);
 
 security_intelligence_managed_report_page_list_t
-security_intelligence_get_report_pages (security_intelligence_connector_t conn,
-                                        const gchar *report_id,
-                                        GPtrArray **errors);
+security_intelligence_get_report_pages (security_intelligence_connector_t,
+                                        const gchar *, GPtrArray **);
 
 #endif /* _GVM_SECURITY_INTELLIGENCE_SECURITY_INTELLIGENCE_H */

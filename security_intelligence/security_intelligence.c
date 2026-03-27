@@ -1122,17 +1122,6 @@ security_intelligence_get_report (security_intelligence_connector_t conn,
  * @return SECURITY_INTELLIGENCE_RESP_OK on success,
  *         SECURITY_INTELLIGENCE_RESP_ERR on failure.
  */
-/**
- * @brief Creates a report for a managed appliance.
- *
- * @param[in] conn Connector.
- * @param[in] report_id Reference UUID string (Report UUID).
- * @param[out] created Created report output.
- * @param[out] errors Optional list of error strings.
- *
- * @return SECURITY_INTELLIGENCE_RESP_OK on success,
- *         SECURITY_INTELLIGENCE_RESP_ERR on failure.
- */
 int
 security_intelligence_create_report (
   security_intelligence_connector_t conn, const gchar *report_id,
