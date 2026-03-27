@@ -982,6 +982,8 @@ security_intelligence_delete_managed_appliance (
       return SECURITY_INTELLIGENCE_RESP_ERR;
     }
 
+  gvm_http_response_free (response);
+
   return SECURITY_INTELLIGENCE_RESP_OK;
 }
 

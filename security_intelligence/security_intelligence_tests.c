@@ -1388,6 +1388,7 @@ Ensure (security_intelligence,
   security_intelligence_managed_appliance_t appliance = make_appliance ();
   security_intelligence_managed_appliance_t created =
     security_intelligence_managed_appliance_new ();
+  security_intelligence_managed_appliance_t old_created = created;
   created->appliance_id = g_strdup ("old");
 
   GPtrArray *errs = NULL;
@@ -1403,6 +1404,7 @@ Ensure (security_intelligence,
 
   g_ptr_array_free (errs, TRUE);
   security_intelligence_managed_appliance_free (appliance);
+  security_intelligence_managed_appliance_free (old_created);
   security_intelligence_connector_free (conn);
 }
 
@@ -1428,6 +1430,7 @@ Ensure (security_intelligence,
 
   g_ptr_array_free (errs, TRUE);
   security_intelligence_managed_appliance_free (appliance);
+  security_intelligence_managed_appliance_free (created);
   security_intelligence_connector_free (conn);
 }
 
@@ -2315,6 +2318,7 @@ Ensure (security_intelligence, create_report_sets_created_to_null_on_entry)
   security_intelligence_connector_t conn = make_conn ();
   security_intelligence_managed_report_t created =
     security_intelligence_managed_report_new ();
+  security_intelligence_managed_report_t old_created = created;
   GPtrArray *errs = NULL;
 
   created->ref_id = g_strdup ("old-value");
@@ -2325,6 +2329,7 @@ Ensure (security_intelligence, create_report_sets_created_to_null_on_entry)
   assert_that (created, is_null);
 
   security_intelligence_connector_free (conn);
+  security_intelligence_managed_report_free (old_created);
 }
 
 Ensure (security_intelligence, create_report_fails_when_no_http_response)
