@@ -40,8 +40,7 @@ struct security_intelligence_connector
  * @brief Initialize custom HTTP headers for Security Intelligence requests.
  *
  * @param[in] token The JWT to use for Authorization.
- * @param[in] content_type Whether to add "Content-Type: application/json"
- * (TRUE/FALSE).
+ * @param[in] content_type Value to add "Content-Type: application/json"
  *
  * @return A newly allocated `gvm_http_headers_t *` containing the headers.
  *         Must be freed with `gvm_http_headers_free()`.
@@ -83,7 +82,7 @@ init_custom_header (const gchar *token, const gchar *content_type)
  * @param[in] conn          The `security_intelligence_connector_t` containing
  *                          server and certificate details.
  * @param[in] method        The HTTP method (GET, POST, PUT, etc.).
- * @param[in] path          The request path (e.g., "/api/v1/admin/agents").
+ * @param[in] path          The request path (e.g., "/api/asset-management").
  * @param[in] payload       Optional request body payload.
  * @param[in] content_type  Content type for header.
  *
