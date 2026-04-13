@@ -34,6 +34,7 @@ struct http_scanner_connector
   gchar *scan_id;     /**< Scan ID. */
   int port;           /**< server port. */
   gchar *protocol;    /**< server protocol (http or https). */
+  gchar *unix_socket_path; /**< Unix domain socket path. */
   gvm_http_response_stream_t stream_resp; /** For response. */
 };
 
@@ -72,7 +73,7 @@ http_scanner_connector_builder (http_scanner_connector_t conn,
   if (conn == NULL)
     return HTTP_SCANNER_NOT_INITIALIZED;
 
-  if (opt < HTTP_SCANNER_CA_CERT || opt > HTTP_SCANNER_SCAN_PREFIX)
+  if (opt < HTTP_SCANNER_CA_CERT || opt > HTTP_SCANNER_UNIX_SOCKET_PATH)
     return HTTP_SCANNER_INVALID_OPT;
 
   if (val == NULL)
@@ -108,9 +109,13 @@ http_scanner_connector_builder (http_scanner_connector_t conn,
       conn->scan_prefix = g_strdup ((char *) val);
       break;
     case HTTP_SCANNER_PORT:
-    default:
       conn->port = *((int *) val);
       break;
+    case HTTP_SCANNER_UNIX_SOCKET_PATH:
+      conn->unix_socket_path = g_strdup ((char *) val);
+      break;
+    default:
+      return HTTP_SCANNER_INVALID_OPT;
     };
 
   return HTTP_SCANNER_OK;
@@ -138,6 +143,7 @@ http_scanner_connector_free (http_scanner_connector_t conn)
   g_free (conn->host);
   g_free (conn->scan_id);
   g_free (conn->scan_prefix);
+  g_free (conn->unix_socket_path);
   gvm_http_response_stream_free (conn->stream_resp);
   g_free (conn);
   conn = NULL;
@@ -369,7 +375,6 @@ get_http_method (http_scanner_method_t method)
  * @param method The HTTP method (GET, POST, etc.).
  * @param path The resource path (e.g., `/scans`).
  * @param data The request payload (if applicable).
- * @param custom_headers Additional request headers.
  * @param header_name The header key to extract from the response.
  *
  * @return `http_scanner_resp_t` containing response status, body, and header
@@ -394,8 +399,23 @@ http_scanner_send_request (http_scanner_connector_t conn,
       return response;
     }
 
-  gchar *url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
-                                conn->port, path);
+  gchar *url = NULL;
+  if (conn->unix_socket_path && conn->unix_socket_path[0] != '\0')
+    {
+      url = g_strdup_printf ("http://127.0.0.1%s", path);
+    }
+  else
+    {
+      if (!conn->protocol || !conn->host || !conn->port)
+        {
+          g_warning ("%s: Missing URL components", __func__);
+          response->body =
+            g_strdup ("{\"error\": \"Missing URL components in connector\"}");
+          return response;
+        }
+      url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
+                             conn->port, path);
+    }
 
   if (!conn->stream_resp)
     {
@@ -407,8 +427,9 @@ http_scanner_send_request (http_scanner_connector_t conn,
 
   // Send request
   gvm_http_response_t *http_response =
-    gvm_http_request (url, get_http_method (method), data, custom_headers,
-                      conn->ca_cert, conn->cert, conn->key, conn->stream_resp);
+    gvm_http_request_unix (url, get_http_method (method), data, custom_headers,
+                           conn->ca_cert, conn->cert, conn->key,
+                           conn->unix_socket_path, conn->stream_resp);
 
   // Check for request errors
   if (http_response->http_status == -1)

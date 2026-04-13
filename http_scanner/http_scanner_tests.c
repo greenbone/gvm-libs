@@ -11,13 +11,47 @@
 #include <cgreen/internal/c_assertions.h>
 #include <cgreen/mocks.h>
 
+static gchar *last_sent_url = NULL;
+static gchar *last_sent_socket_path = NULL;
+
 Describe (http_scanner);
 BeforeEach (http_scanner)
 {
+  g_clear_pointer (&last_sent_url, g_free);
+  g_clear_pointer (&last_sent_socket_path, g_free);
 }
 
 AfterEach (http_scanner)
 {
+  g_clear_pointer (&last_sent_url, g_free);
+  g_clear_pointer (&last_sent_socket_path, g_free);
+}
+
+/* Mocks */
+gvm_http_response_t *
+gvm_http_request_unix (const gchar *url, gvm_http_method_t method,
+                       const gchar *payload, gvm_http_headers_t *headers,
+                       const gchar *ca_cert, const gchar *cert,
+                       const gchar *key, const gchar *sock_path,
+                       gvm_http_response_stream_t stream)
+{
+  (void) method;
+  (void) payload;
+  (void) headers;
+  (void) ca_cert;
+  (void) cert;
+  (void) key;
+  (void) stream;
+
+  last_sent_url = g_strdup (url);
+  last_sent_socket_path = g_strdup (sock_path);
+
+  gvm_http_response_t *response = g_malloc0 (sizeof (gvm_http_response_t));
+  response->http_status = 200;
+  response->data = g_strdup ("{}");
+  response->size = strlen (response->data);
+
+  return response;
 }
 
 /* http_scanner_delete_scan */
@@ -168,6 +202,7 @@ Ensure (http_scanner, http_scanner_connector_builder_all_valid_fields)
   const char *host = "localhost";
   const char *scan_id = "scan-uuid-123";
   const char *scan_prefix = "scan-prefix";
+  const char *unix_socket_path = "/temp/test.sock";
   int port = 9390;
 
   assert_that (
@@ -210,6 +245,11 @@ Ensure (http_scanner, http_scanner_connector_builder_all_valid_fields)
                                                scan_prefix),
                is_equal_to (HTTP_SCANNER_OK));
   assert_that (conn->scan_prefix, is_equal_to_string (scan_prefix));
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_UNIX_SOCKET_PATH,
+                                               unix_socket_path),
+               is_equal_to (HTTP_SCANNER_OK));
+  assert_that (conn->unix_socket_path, is_equal_to_string (unix_socket_path));
 
   http_scanner_connector_free (conn);
 }
@@ -257,6 +297,8 @@ Ensure (http_scanner, http_scanner_connector_free)
   conn->protocol = g_strdup ("https");
   conn->host = g_strdup ("localhost");
   conn->scan_id = g_strdup ("scan-uuid");
+  conn->scan_prefix = g_strdup ("scan-prefix");
+  conn->unix_socket_path = g_strdup ("/temp/test.sock");
 
   http_scanner_error_t result = http_scanner_connector_free (conn);
 
@@ -492,6 +534,33 @@ Ensure (http_scanner, parse_results_port_is_stringified)
   g_slist_free_full (results, (GDestroyNotify) http_scanner_result_free);
 }
 
+Ensure (http_scanner, send_request_builds_url_with_socket_path)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  conn->ca_cert = g_strdup ("ca.pem");
+  conn->cert = g_strdup ("cert.pem");
+  conn->key = g_strdup ("key.pem");
+  conn->apikey = g_strdup ("api-key");
+  conn->protocol = g_strdup ("https");
+  conn->host = g_strdup ("localhost");
+  conn->scan_id = g_strdup ("scan-uuid");
+  conn->scan_prefix = g_strdup ("scan-prefix");
+  conn->unix_socket_path = g_strdup ("/temp/test.sock");
+
+  http_scanner_connector_builder (conn, HTTP_SCANNER_UNIX_SOCKET_PATH,
+                                  conn->unix_socket_path);
+
+  http_scanner_resp_t resp = http_scanner_send_request (conn, HTTP_SCANNER_GET, "/test/url", NULL, NULL);
+
+
+  assert_that (last_sent_socket_path, is_equal_to_string ("/temp/test.sock"));
+  assert_that (last_sent_url, is_equal_to_string ("http://127.0.0.1/test/url"));
+
+  http_scanner_response_cleanup (resp);
+  http_scanner_connector_free (conn);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -543,6 +612,9 @@ main (int argc, char **argv)
                          parse_results_multiple_items_appended);
   add_test_with_context (suite, http_scanner,
                          parse_results_port_is_stringified);
+
+  add_test_with_context (suite, http_scanner,
+                         send_request_builds_url_with_socket_path);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
