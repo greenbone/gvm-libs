@@ -34,7 +34,7 @@ struct http_scanner_connector
   gchar *scan_id;     /**< Scan ID. */
   int port;           /**< server port. */
   gchar *protocol;    /**< server protocol (http or https). */
-  gchar *unix_socket_path; /**< Unix domain socket path. */
+  gchar *unix_socket_path;                /**< Unix domain socket path. */
   gvm_http_response_stream_t stream_resp; /** For response. */
 };
 
@@ -426,10 +426,9 @@ http_scanner_send_request (http_scanner_connector_t conn,
     init_customheader (conn->apikey, data ? TRUE : FALSE);
 
   // Send request
-  gvm_http_response_t *http_response =
-    gvm_http_request_unix (url, get_http_method (method), data, custom_headers,
-                           conn->ca_cert, conn->cert, conn->key,
-                           conn->unix_socket_path, conn->stream_resp);
+  gvm_http_response_t *http_response = gvm_http_request_unix (
+    url, get_http_method (method), data, custom_headers, conn->ca_cert,
+    conn->cert, conn->key, conn->unix_socket_path, conn->stream_resp);
 
   // Check for request errors
   if (http_response->http_status == -1)

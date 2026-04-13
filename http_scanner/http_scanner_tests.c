@@ -246,8 +246,8 @@ Ensure (http_scanner, http_scanner_connector_builder_all_valid_fields)
                is_equal_to (HTTP_SCANNER_OK));
   assert_that (conn->scan_prefix, is_equal_to_string (scan_prefix));
 
-  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_UNIX_SOCKET_PATH,
-                                               unix_socket_path),
+  assert_that (http_scanner_connector_builder (
+                 conn, HTTP_SCANNER_UNIX_SOCKET_PATH, unix_socket_path),
                is_equal_to (HTTP_SCANNER_OK));
   assert_that (conn->unix_socket_path, is_equal_to_string (unix_socket_path));
 
@@ -551,8 +551,8 @@ Ensure (http_scanner, send_request_builds_url_with_socket_path)
   http_scanner_connector_builder (conn, HTTP_SCANNER_UNIX_SOCKET_PATH,
                                   conn->unix_socket_path);
 
-  http_scanner_resp_t resp = http_scanner_send_request (conn, HTTP_SCANNER_GET, "/test/url", NULL, NULL);
-
+  http_scanner_resp_t resp =
+    http_scanner_send_request (conn, HTTP_SCANNER_GET, "/test/url", NULL, NULL);
 
   assert_that (last_sent_socket_path, is_equal_to_string ("/temp/test.sock"));
   assert_that (last_sent_url, is_equal_to_string ("http://127.0.0.1/test/url"));

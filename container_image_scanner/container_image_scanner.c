@@ -256,7 +256,8 @@ container_image_credential_set_auth_data (
   if (credential == NULL || name == NULL)
     return;
 
-  if (g_regex_match_simple ("^[[:alpha:]][[:alnum:]_]*$", name, 0, 0))
+  if (g_utf8_validate (name, -1, NULL)
+      && g_regex_match_simple ("^[[:alpha:]][[:alnum:]_]*$", name, 0, 0))
     {
       if (value)
         g_hash_table_replace (credential->auth_data, g_strdup (name),
