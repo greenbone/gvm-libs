@@ -11,6 +11,7 @@
 #ifndef _GVM_OSP_OSP_H
 #define _GVM_OSP_OSP_H
 
+#include "../util/credentialutils.h"
 #include "../util/xmlutils.h"
 
 #include <glib.h> /* for GHashTable, GSList */
@@ -18,8 +19,6 @@
 /* Type definitions */
 
 typedef struct osp_connection osp_connection_t;
-
-typedef struct osp_credential osp_credential_t;
 
 typedef struct osp_target osp_target_t;
 
@@ -179,20 +178,6 @@ osp_param_mandatory (const osp_param_t *);
 void
 osp_param_free (osp_param_t *);
 
-/* OSP credential handling */
-
-osp_credential_t *
-osp_credential_new (const char *, const char *, const char *);
-
-void
-osp_credential_free (osp_credential_t *);
-
-const gchar *
-osp_credential_get_auth_data (osp_credential_t *, const char *);
-
-void
-osp_credential_set_auth_data (osp_credential_t *, const char *, const char *);
-
 /* OSP targets handling */
 
 osp_target_t *
@@ -209,7 +194,7 @@ osp_target_add_alive_test_methods (osp_target_t *, gboolean, gboolean, gboolean,
                                    gboolean, gboolean);
 
 void
-osp_target_add_credential (osp_target_t *, osp_credential_t *);
+osp_target_add_credential (osp_target_t *, scan_credential_t *);
 
 /* OSP VT group handling */
 

@@ -22,13 +22,13 @@ AfterEach (openvasd)
 
 Ensure (openvasd, openvasd_add_credential_to_scan_json)
 {
-  openvasd_credential_t *credential;
+  scan_credential_t *credential;
   cJSON *credentials = cJSON_CreateArray ();
 
-  credential = openvasd_credential_new ("up", "generic", "0");
+  credential = scan_credential_new ("up", "generic", "0");
 
-  openvasd_credential_set_auth_data (credential, "username", "admin");
-  openvasd_credential_set_auth_data (credential, "password", "admin");
+  scan_credential_set_auth_data (credential, "username", "admin");
+  scan_credential_set_auth_data (credential, "password", "admin");
 
   add_credential_to_scan_json (credential, credentials);
 
@@ -53,7 +53,7 @@ Ensure (openvasd, openvasd_add_credential_to_scan_json)
   assert_that (username, is_equal_to_string ("admin"));
   assert_that (password, is_equal_to_string ("admin"));
 
-  openvasd_credential_free (credential);
+  scan_credential_free (credential);
   cJSON_Delete (credentials);
 }
 

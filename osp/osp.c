@@ -54,17 +54,6 @@ struct osp_param
 };
 
 /**
- * @brief Struct credential information for OSP.
- */
-struct osp_credential
-{
-  gchar *type;           /**< Credential type */
-  gchar *service;        /**< Service the credential is for */
-  gchar *port;           /**< Port the credential is for */
-  GHashTable *auth_data; /**< Authentication data (username, password, etc.)*/
-};
-
-/**
  * @brief Struct holding target information.
  */
 struct osp_target
@@ -1100,6 +1089,22 @@ osp_start_scan (osp_connection_t *connection, const char *target,
 }
 
 /**
+ * @brief Add authentication data key value as XML.
+ *
+ * @param key         Key string.
+ * @param value       Value string.
+ * @param xml_string  XML string buffer to append to.
+ */
+static void
+add_auth_data_key_value_as_xml (const char *key, const char *value,
+                                void *xml_string)
+{
+  if (!key || !value || !xml_string)
+    return;
+  xml_string_append ((GString *) xml_string, "<%s>%s</%s>", key, value, key);
+}
+
+/**
  * @brief Concatenate a credential as XML.
  *
  * @param[in]     credential  Credential data.
@@ -1107,25 +1112,19 @@ osp_start_scan (osp_connection_t *connection, const char *target,
  *
  */
 static void
-credential_append_as_xml (osp_credential_t *credential, GString *xml_string)
+credential_append_as_xml (scan_credential_t *credential, GString *xml_string)
 
 {
-  GHashTableIter auth_data_iter;
-  gchar *auth_data_name, *auth_data_value;
+  const gchar *type = scan_credential_get_type (credential);
+  const gchar *service = scan_credential_get_service (credential);
+  const gchar *port = scan_credential_get_port (credential);
 
-  xml_string_append (xml_string,
-                     "<credential type=\"%s\" service=\"%s\" port=\"%s\">",
-                     credential->type ? credential->type : "",
-                     credential->service ? credential->service : "",
-                     credential->port ? credential->port : "");
+  xml_string_append (
+    xml_string, "<credential type=\"%s\" service=\"%s\" port=\"%s\">",
+    type ? type : "", service ? service : "", port ? port : "");
 
-  g_hash_table_iter_init (&auth_data_iter, credential->auth_data);
-  while (g_hash_table_iter_next (&auth_data_iter, (gpointer *) &auth_data_name,
-                                 (gpointer *) &auth_data_value))
-    {
-      xml_string_append (xml_string, "<%s>%s</%s>", auth_data_name,
-                         auth_data_value, auth_data_name);
-    }
+  scan_credential_foreach_auth_data (credential, add_auth_data_key_value_as_xml,
+                                     xml_string);
 
   xml_string_append (xml_string, "</credential>");
 }
@@ -1589,93 +1588,6 @@ osp_param_free (osp_param_t *param)
 }
 
 /**
- * @brief Allocate and initialize a new OSP credential.
- *
- * @param[in]   type      The credential type.
- * @param[in]   service   The service the credential is for.
- * @param[in]   port      The port.
- *
- * @return New osp credential.
- */
-osp_credential_t *
-osp_credential_new (const char *type, const char *service, const char *port)
-{
-  osp_credential_t *new_credential;
-
-  new_credential = g_malloc0 (sizeof (osp_credential_t));
-
-  new_credential->type = type ? g_strdup (type) : NULL;
-  new_credential->service = service ? g_strdup (service) : NULL;
-  new_credential->port = port ? g_strdup (port) : NULL;
-  new_credential->auth_data =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-
-  return new_credential;
-}
-
-/**
- * @brief Free an OSP credential.
- *
- * @param[in]   credential  The credential to free.
- */
-void
-osp_credential_free (osp_credential_t *credential)
-{
-  if (!credential)
-    return;
-
-  g_free (credential->type);
-  g_free (credential->service);
-  g_free (credential->port);
-  g_hash_table_destroy (credential->auth_data);
-  g_free (credential);
-}
-
-/**
- * @brief Get authentication data from an OSP credential.
- *
- * @param[in]  credential  The credential to get the data from.
- * @param[in]  name        The name of the data item to get.
- *
- * @return The requested authentication data or NULL if not available.
- */
-const gchar *
-osp_credential_get_auth_data (osp_credential_t *credential, const char *name)
-{
-  if (credential == NULL || name == NULL)
-    return NULL;
-  return g_hash_table_lookup (credential->auth_data, name);
-}
-
-/**
- * @brief Get authentication data from an OSP credential.
- *
- * @param[in]  credential  The credential to get the data from.
- * @param[in]  name        The name of the data item to get.
- * @param[in]  value       The authentication data or NULL to unset.
- */
-void
-osp_credential_set_auth_data (osp_credential_t *credential, const char *name,
-                              const char *value)
-{
-  if (credential == NULL || name == NULL)
-    return;
-
-  if (g_regex_match_simple ("^[[:alpha:]][[:alnum:]_]*$", name, 0, 0))
-    {
-      if (value)
-        g_hash_table_replace (credential->auth_data, g_strdup (name),
-                              g_strdup (value));
-      else
-        g_hash_table_remove (credential->auth_data, name);
-    }
-  else
-    {
-      g_warning ("%s: Invalid auth data name: %s", __func__, name);
-    }
-}
-
-/**
  * @brief Create a new OSP target.
  *
  * @param[in]  hosts          The hostnames of the target.
@@ -1732,7 +1644,8 @@ osp_target_free (osp_target_t *target)
   if (!target)
     return;
 
-  g_slist_free_full (target->credentials, (GDestroyNotify) osp_credential_free);
+  g_slist_free_full (target->credentials,
+                     (GDestroyNotify) scan_credential_free);
   g_free (target->exclude_hosts);
   g_free (target->hosts);
   g_free (target->ports);
@@ -1771,7 +1684,7 @@ osp_target_add_alive_test_methods (osp_target_t *target, gboolean icmp,
  * @param[in]  credential   The credential to add. Will be freed with target.
  */
 void
-osp_target_add_credential (osp_target_t *target, osp_credential_t *credential)
+osp_target_add_credential (osp_target_t *target, scan_credential_t *credential)
 {
   if (!target || !credential)
     return;

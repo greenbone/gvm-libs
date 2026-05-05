@@ -33,17 +33,6 @@
 #define RESP_CODE_OK 0
 
 /**
- * @brief Struct credential information for openvasd.
- */
-struct openvasd_credential
-{
-  gchar *type;           /**< Credential type */
-  gchar *service;        /**< Service the credential is for */
-  gchar *port;           /**< Port the credential is for */
-  GHashTable *auth_data; /**< Authentication data (username, password, etc.)*/
-};
-
-/**
  * @brief Struct holding target information.
  */
 struct openvasd_target
@@ -267,6 +256,22 @@ add_port_to_scan_json (gpointer range, gpointer p_array)
 }
 
 /**
+ * @brief Add authentication data key value to a JSON object.
+ *
+ * @param key       Key string.
+ * @param value     Value string.
+ * @param json_obj  JSON object to add the key-value pair to.
+ */
+static void
+add_auth_data_key_value_as_json (const char *key, const char *value,
+                                 void *json_obj)
+{
+  if (!key || !value || !json_obj)
+    return;
+  cJSON_AddStringToObject ((cJSON *) json_obj, key, value);
+}
+
+/**
  * @brief Add a credential to the scan json object.
  *
  * @param credentials Credential to add.
@@ -275,26 +280,26 @@ add_port_to_scan_json (gpointer range, gpointer p_array)
 static void
 add_credential_to_scan_json (gpointer credentials, gpointer cred_array)
 {
-  GHashTableIter auth_data_iter;
-  gchar *auth_data_name, *auth_data_value;
   cJSON *cred_obj = NULL;
 
-  openvasd_credential_t *cred = credentials;
+  scan_credential_t *cred = credentials;
+
+  const gchar *type = scan_credential_get_type (cred);
+  const gchar *service = scan_credential_get_service (cred);
+  const gchar *port = scan_credential_get_port (cred);
 
   cred_obj = cJSON_CreateObject ();
-  cJSON_AddStringToObject (cred_obj, "service", cred->service);
+  cJSON_AddStringToObject (cred_obj, "service", service ? service : "");
 
-  if (cred->port)
+  if (port)
     {
-      cJSON_AddNumberToObject (cred_obj, "port", atoi (cred->port));
+      cJSON_AddNumberToObject (cred_obj, "port", atoi (port));
     }
 
   cJSON *cred_type_obj = cJSON_CreateObject ();
-  g_hash_table_iter_init (&auth_data_iter, cred->auth_data);
-  while (g_hash_table_iter_next (&auth_data_iter, (gpointer *) &auth_data_name,
-                                 (gpointer *) &auth_data_value))
-    cJSON_AddStringToObject (cred_type_obj, auth_data_name, auth_data_value);
-  cJSON_AddItemToObject (cred_obj, cred->type, cred_type_obj);
+  scan_credential_foreach_auth_data (cred, add_auth_data_key_value_as_json,
+                                     cred_type_obj);
+  cJSON_AddItemToObject (cred_obj, type ? type : "", cred_type_obj);
 
   cJSON_AddItemToArray ((cJSON *) cred_array, cred_obj);
 }
@@ -491,78 +496,6 @@ openvasd_build_scan_config_json (openvasd_target_t *target,
 }
 
 /**
- * @brief Allocate and initialize a new openvasd credential.
- *
- * @param type      The credential type.
- * @param service   The service the credential is for.
- * @param port      The port.
- *
- * @return New openvasd credential.
- */
-openvasd_credential_t *
-openvasd_credential_new (const gchar *type, const gchar *service,
-                         const gchar *port)
-{
-  openvasd_credential_t *new_credential;
-
-  new_credential = g_malloc0 (sizeof (openvasd_credential_t));
-
-  new_credential->type = type ? g_strdup (type) : NULL;
-  new_credential->service = service ? g_strdup (service) : NULL;
-  new_credential->port = port ? g_strdup (port) : NULL;
-  new_credential->auth_data =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-
-  return new_credential;
-}
-
-/**
- * @brief Free an openvasd credential.
- *
- * @param credential  The credential to free.
- */
-void
-openvasd_credential_free (openvasd_credential_t *credential)
-{
-  if (!credential)
-    return;
-
-  g_free (credential->type);
-  g_free (credential->service);
-  g_free (credential->port);
-  g_hash_table_destroy (credential->auth_data);
-  g_free (credential);
-}
-
-/**
- * @brief Get authentication data from an openvasd credential.
- *
- * @param  credential  The credential to get the data from.
- * @param  name        The name of the data item to get.
- * @param  value       The authentication data or NULL to unset.
- */
-void
-openvasd_credential_set_auth_data (openvasd_credential_t *credential,
-                                   const gchar *name, const gchar *value)
-{
-  if (credential == NULL || name == NULL)
-    return;
-
-  if (g_regex_match_simple ("^[[:alpha:]][[:alnum:]_]*$", name, 0, 0))
-    {
-      if (value)
-        g_hash_table_replace (credential->auth_data, g_strdup (name),
-                              g_strdup (value));
-      else
-        g_hash_table_remove (credential->auth_data, name);
-    }
-  else
-    {
-      g_warning ("%s: Invalid auth data name: %s", __func__, name);
-    }
-}
-
-/**
  * @brief Create a new openvasd target.
  *
  * @param scanid         Scan ID.
@@ -623,7 +556,7 @@ openvasd_target_free (openvasd_target_t *target)
     return;
 
   g_slist_free_full (target->credentials,
-                     (GDestroyNotify) openvasd_credential_free);
+                     (GDestroyNotify) scan_credential_free);
   g_free (target->exclude_hosts);
   g_free (target->finished_hosts);
   g_free (target->scan_id);
@@ -667,7 +600,7 @@ openvasd_target_add_alive_test_methods (openvasd_target_t *target,
  */
 void
 openvasd_target_add_credential (openvasd_target_t *target,
-                                openvasd_credential_t *credential)
+                                scan_credential_t *credential)
 {
   if (!target || !credential)
     return;

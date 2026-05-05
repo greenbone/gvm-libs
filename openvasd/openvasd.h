@@ -13,6 +13,7 @@
 
 #include "../base/nvti.h"
 #include "../http_scanner/http_scanner.h"
+#include "../util/credentialutils.h"
 #include "../util/jsonpull.h"
 
 #include <glib.h>
@@ -41,8 +42,6 @@ typedef struct openvasd_target openvasd_target_t;
 
 typedef struct openvasd_vt_single openvasd_vt_single_t;
 
-typedef struct openvasd_credential openvasd_credential_t;
-
 openvasd_target_t *
 openvasd_target_new (const gchar *, const gchar *, const gchar *, const gchar *,
                      int, int);
@@ -57,17 +56,8 @@ openvasd_target_add_alive_test_methods (openvasd_target_t *, gboolean, gboolean,
 void
 openvasd_target_free (openvasd_target_t *);
 
-openvasd_credential_t *
-openvasd_credential_new (const gchar *, const gchar *, const gchar *);
-
 void
-openvasd_credential_set_auth_data (openvasd_credential_t *, const gchar *,
-                                   const gchar *);
-void
-openvasd_credential_free (openvasd_credential_t *);
-
-void
-openvasd_target_add_credential (openvasd_target_t *, openvasd_credential_t *);
+openvasd_target_add_credential (openvasd_target_t *, scan_credential_t *);
 
 openvasd_vt_single_t *
 openvasd_vt_single_new (const gchar *);
