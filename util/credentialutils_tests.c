@@ -70,7 +70,7 @@ Ensure (credentialutils, credentialutils_set_and_unset_auth_data)
   scan_credential_free (credential);
 }
 
-Ensure (credentialutils, credentialutils_set_auth_data_invalid_name)
+Ensure (credentialutils, credentialutils_set_auth_data_rejects_invalid_name)
 {
   scan_credential_t *credential;
 
@@ -124,7 +124,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, credentialutils,
                          credentialutils_set_and_unset_auth_data);
   add_test_with_context (suite, credentialutils,
-                         credentialutils_set_auth_data_invalid_name);
+                         credentialutils_set_auth_data_rejects_invalid_name);
   add_test_with_context (suite, credentialutils,
                          credentialutils_foreach_auth_data);
 
