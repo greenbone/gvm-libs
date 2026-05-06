@@ -124,6 +124,7 @@ set(
   cpeutils.c
   passwordbasedauthentication.c
   compressutils.c
+  credentialutils.c
   fileutils.c
   gpgmeutils.c
   json.c
@@ -149,6 +150,7 @@ set(
   passwordbasedauthentication.h
   authutils.h
   compressutils.h
+  credentialutils.h
   fileutils.h
   gpgmeutils.h
   json.h
@@ -210,6 +212,7 @@ if(BUILD_SHARED)
       ${CRYPT_LDFLAGS}
       ${CJSON_LDFLAGS}
       ${VTPARSER_LDFLAGS}
+      ${CREDENTIALUTILS_LDFLAGS}
   )
 endif(BUILD_SHARED)
 
@@ -410,6 +413,15 @@ if(BUILD_TESTS)
     ${GLIB_LDFLAGS}
     ${CJSON_LDFLAGS}
     ${VTPARSER_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+  add_unit_test(
+    credentialutils-test
+    credentialutils_tests.c
+    gvm_base_shared
+    gvm_util_shared
+    ${GLIB_LDFLAGS}
+    ${CREDENTIALUTILS_LDFLAGS}
     ${LINKER_HARDENING_FLAGS}
   )
 endif(BUILD_TESTS)
