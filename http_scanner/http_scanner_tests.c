@@ -546,10 +546,9 @@ Ensure (http_scanner, send_request_builds_url_with_socket_path)
   conn->host = g_strdup ("localhost");
   conn->scan_id = g_strdup ("scan-uuid");
   conn->scan_prefix = g_strdup ("scan-prefix");
-  conn->unix_socket_path = g_strdup ("/temp/test.sock");
 
   http_scanner_connector_builder (conn, HTTP_SCANNER_UNIX_SOCKET_PATH,
-                                  conn->unix_socket_path);
+                                  "/temp/test.sock");
 
   http_scanner_resp_t resp =
     http_scanner_send_request (conn, HTTP_SCANNER_GET, "/test/url", NULL, NULL);
