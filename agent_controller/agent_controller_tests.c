@@ -407,8 +407,20 @@ Ensure (agent_controller, agent_update_new_initializes_defaults_correctly)
   assert_that (update->authorized, is_equal_to (-1));
   assert_that (update->update_to_latest, is_equal_to (-1));
   assert_that (update->config, is_null);
+  assert_that (update->prev_scheduler_cron_time, is_null);
 
   agent_controller_agent_update_free (update);
+}
+
+Ensure (agent_controller, agent_update_free_handles_prev_scheduler_cron_time)
+{
+  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
+  assert_that (update, is_not_null);
+
+  update->prev_scheduler_cron_time = g_strdup ("0 */2 * * *");
+
+  agent_controller_agent_update_free (update);
+  assert_that (true, is_true);
 }
 
 Ensure (agent_controller, agent_update_free_handles_nested_schedule)
@@ -2593,7 +2605,7 @@ Ensure (agent_controller, build_config_with_defaults_fills_zeros_from_agent)
   upd->heartbeat.interval_in_seconds = 42;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (agent, upd, NULL);
 
   assert_that (merged, is_not_null);
 
@@ -2630,12 +2642,12 @@ Ensure (agent_controller, build_config_with_defaults_deep_copies_update_cron)
                    g_strdup ("0 0 * * *"));
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (agent, upd, NULL);
 
   assert_that (merged, is_not_null);
   assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
   assert_that ((int) merged->agent_script_executor.scheduler_cron_time->len,
-               is_equal_to (1));
+               is_equal_to (2));
 
   /* Not the same pointer as update */
   assert_that (
@@ -2646,7 +2658,7 @@ Ensure (agent_controller, build_config_with_defaults_deep_copies_update_cron)
   const gchar *u0 =
     g_ptr_array_index (upd->agent_script_executor.scheduler_cron_time, 0);
   const gchar *m0 =
-    g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 0);
+    g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 1);
   assert_that (m0, is_equal_to_string ("0 0 * * *"));
   assert_that (m0, is_not_equal_to (u0));
 
@@ -2668,7 +2680,7 @@ Ensure (agent_controller,
   assert_that (upd, is_not_null);
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (agent, upd, NULL);
 
   assert_that (merged, is_not_null);
   assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
@@ -2729,7 +2741,7 @@ Ensure (agent_controller,
   assert_that (upd, is_not_null);
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (NULL, upd);
+    agent_controller_build_agent_config_with_defaults (NULL, upd, NULL);
 
   assert_that (merged, is_null);
 
@@ -2747,7 +2759,7 @@ Ensure (agent_controller,
   assert_that (upd, is_not_null);
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (agent, upd, NULL);
 
   assert_that (merged, is_null);
 
@@ -2768,7 +2780,7 @@ Ensure (agent_controller,
   agent->config->heartbeat.miss_until_inactive = 3;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, NULL);
+    agent_controller_build_agent_config_with_defaults (agent, NULL, NULL);
   assert_that (merged, is_not_null);
 
   /* copied from agent */
@@ -2807,7 +2819,7 @@ Ensure (agent_controller,
   upd->heartbeat.interval_in_seconds = 42;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (agent, upd, NULL);
 
   assert_that (merged, is_not_null);
   assert_that (merged->heartbeat.interval_in_seconds, is_equal_to (42));
@@ -2815,6 +2827,95 @@ Ensure (agent_controller,
   agent_controller_agent_config_free (merged);
   agent_controller_agent_config_free (upd);
   agent_controller_agent_free (agent);
+}
+
+Ensure (agent_controller, build_config_with_defaults_merges_update_cron)
+{
+  agent_controller_agent_t agent = agent_controller_agent_new ();
+  assert_that (agent, is_not_null);
+
+  agent->config = make_agent_config ();
+  assert_that (agent->config, is_not_null);
+
+  agent_controller_agent_config_t upd = agent_controller_agent_config_new ();
+  assert_that (upd, is_not_null);
+
+  upd->agent_script_executor.scheduler_cron_time =
+    g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (upd->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("0 0 * * *"));
+
+  agent_controller_agent_config_t merged =
+    agent_controller_build_agent_config_with_defaults (agent, upd, NULL);
+
+  assert_that (merged, is_not_null);
+  assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
+  assert_that ((int) merged->agent_script_executor.scheduler_cron_time->len,
+               is_equal_to (2));
+
+  assert_that (
+    merged->agent_script_executor.scheduler_cron_time,
+    is_not_equal_to (agent->config->agent_script_executor.scheduler_cron_time));
+  assert_that (
+    merged->agent_script_executor.scheduler_cron_time,
+    is_not_equal_to (upd->agent_script_executor.scheduler_cron_time));
+
+  const gchar *m0 =
+    g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 0);
+  const gchar *m1 =
+    g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 1);
+
+  assert_that (m0, is_equal_to_string ("* * * * *"));
+  assert_that (m1, is_equal_to_string ("0 0 * * *"));
+
+  agent_controller_agent_config_free (merged);
+  agent_controller_agent_config_free (upd);
+  agent_controller_agent_free (agent);
+}
+
+Ensure (agent_controller, build_config_with_defaults_allows_duplicate_crons)
+{
+  agent_controller_agent_t agent = agent_controller_agent_new ();
+  assert_that (agent, is_not_null);
+
+  agent->config = make_agent_config ();
+  assert_that (agent->config, is_not_null);
+
+  agent_controller_agent_config_t upd = agent_controller_agent_config_new ();
+  assert_that (upd, is_not_null);
+
+  upd->agent_script_executor.scheduler_cron_time =
+    g_ptr_array_new_with_free_func (g_free);
+
+  g_ptr_array_add (upd->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("* * * * *"));
+  g_ptr_array_add (upd->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("* * * * *"));
+
+  gchar *removed_cron = g_strdup ("* * * * *");
+
+  agent_controller_agent_config_t merged =
+    agent_controller_build_agent_config_with_defaults (agent, upd,
+                                                       removed_cron);
+
+  assert_that (merged, is_not_null);
+  assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
+
+  assert_that ((int) merged->agent_script_executor.scheduler_cron_time->len,
+               is_equal_to (2));
+
+  assert_that ((const gchar *) g_ptr_array_index (
+                 merged->agent_script_executor.scheduler_cron_time, 0),
+               is_equal_to_string ("* * * * *"));
+
+  assert_that ((const gchar *) g_ptr_array_index (
+                 merged->agent_script_executor.scheduler_cron_time, 1),
+               is_equal_to_string ("* * * * *"));
+
+  agent_controller_agent_config_free (merged);
+  agent_controller_agent_config_free (upd);
+  agent_controller_agent_free (agent);
+  g_free (removed_cron);
 }
 
 Ensure (agent_controller, scan_agent_config_new_initializes_members)
@@ -3018,6 +3119,8 @@ main (int argc, char **argv)
                          agent_list_free_handles_null_list);
   add_test_with_context (suite, agent_controller,
                          agent_update_new_initializes_defaults_correctly);
+  add_test_with_context (suite, agent_controller,
+                         agent_update_free_handles_prev_scheduler_cron_time);
   add_test_with_context (suite, agent_controller,
                          agent_update_free_handles_nested_schedule);
   add_test_with_context (suite, agent_controller,
@@ -3284,6 +3387,10 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, agent_controller,
     build_config_with_defaults_starts_from_update_when_provided);
+  add_test_with_context (suite, agent_controller,
+                         build_config_with_defaults_merges_update_cron);
+  add_test_with_context (suite, agent_controller,
+                         build_config_with_defaults_allows_duplicate_crons);
   add_test_with_context (suite, agent_controller,
                          scan_agent_config_new_initializes_members);
   add_test_with_context (suite, agent_controller,

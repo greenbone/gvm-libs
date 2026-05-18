@@ -436,8 +436,7 @@ agent_controller_parse_agent (cJSON *item)
  * @return Newly allocated cron list. Must be freed with g_ptr_array_free().
  */
 static GPtrArray *
-dup_str_ptr_array_merge_crons (const GPtrArray *base,
-                               const GPtrArray *to_add,
+dup_str_ptr_array_merge_crons (const GPtrArray *base, const GPtrArray *to_add,
                                const gchar *to_remove)
 {
   GPtrArray *merged;
@@ -530,8 +529,7 @@ dup_str_ptr_array (const GPtrArray *src)
 static agent_controller_agent_config_t
 agent_controller_build_agent_config_with_defaults (
   const agent_controller_agent_t agent,
-  const agent_controller_agent_config_t update_cfg,
-  const gchar *cron_time)
+  const agent_controller_agent_config_t update_cfg, const gchar *cron_time)
 {
   if (!agent || !agent->config)
     return NULL;
@@ -589,14 +587,12 @@ agent_controller_build_agent_config_with_defaults (
       merged->agent_script_executor.scheduler_cron_time =
         dup_str_ptr_array_merge_crons (
           agent->config->agent_script_executor.scheduler_cron_time,
-          update_cfg->agent_script_executor.scheduler_cron_time,
-          cron_time);
+          update_cfg->agent_script_executor.scheduler_cron_time, cron_time);
     }
   else
     {
-      merged->agent_script_executor.scheduler_cron_time =
-        dup_str_ptr_array (
-          agent->config->agent_script_executor.scheduler_cron_time);
+      merged->agent_script_executor.scheduler_cron_time = dup_str_ptr_array (
+        agent->config->agent_script_executor.scheduler_cron_time);
     }
 
   return merged;
@@ -649,9 +645,8 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
       if (update && update->config)
         {
           agent_controller_agent_config_t merged =
-            agent_controller_build_agent_config_with_defaults (agent,
-                                                               update->config,
-                                                               update->prev_scheduler_cron_time);
+            agent_controller_build_agent_config_with_defaults (
+              agent, update->config, update->prev_scheduler_cron_time);
           if (merged)
             {
               cfg_obj = agent_controller_agent_config_struct_to_cjson (merged);
