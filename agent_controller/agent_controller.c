@@ -521,7 +521,7 @@ dup_str_ptr_array (const GPtrArray *src)
  *
  * @param[in] agent       Agent providing the base configuration.
  * @param[in] update_cfg  Optional configuration overrides. May be NULL.
- * @param[in] cron_time   Optional old cron time to remove. May be NULL.
+ * @param[in] prev_cron_time   Optional old cron time to remove. May be NULL.
  *
  * @return Newly allocated merged configuration on success,
  *         or NULL on error.
@@ -529,7 +529,7 @@ dup_str_ptr_array (const GPtrArray *src)
 static agent_controller_agent_config_t
 agent_controller_build_agent_config_with_defaults (
   const agent_controller_agent_t agent,
-  const agent_controller_agent_config_t update_cfg, const gchar *cron_time)
+  const agent_controller_agent_config_t update_cfg, const gchar *prev_cron_time)
 {
   if (!agent || !agent->config)
     return NULL;
@@ -582,12 +582,13 @@ agent_controller_build_agent_config_with_defaults (
           agent->config->agent_script_executor.indexer_dir_depth;
     }
 
-  if (update_cfg)
+  if (update_cfg && update_cfg->agent_script_executor.scheduler_cron_time)
     {
       merged->agent_script_executor.scheduler_cron_time =
         dup_str_ptr_array_merge_crons (
           agent->config->agent_script_executor.scheduler_cron_time,
-          update_cfg->agent_script_executor.scheduler_cron_time, cron_time);
+          update_cfg->agent_script_executor.scheduler_cron_time,
+          prev_cron_time);
     }
   else
     {
