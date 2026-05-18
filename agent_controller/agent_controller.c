@@ -424,6 +424,60 @@ agent_controller_parse_agent (cJSON *item)
 }
 
 /**
+ * @brief Merge cron lists while replacing a previous cron value.
+ *
+ * Copies cron entries from @p base, skips @p to_remove if set, then appends
+ * entries from @p to_add that are not already present.
+ *
+ * @param[in] base       Existing cron list, usually from the agent config.
+ * @param[in] to_add     New cron values to add, usually from the update config.
+ * @param[in] to_remove  Previous cron value to remove, or NULL.
+ *
+ * @return Newly allocated cron list. Must be freed with g_ptr_array_free().
+ */
+static GPtrArray *
+dup_str_ptr_array_merge_crons (const GPtrArray *base,
+                               const GPtrArray *to_add,
+                               const gchar *to_remove)
+{
+  GPtrArray *merged;
+
+  merged = g_ptr_array_new_with_free_func (g_free);
+
+  if (base)
+    {
+      for (guint i = 0; i < base->len; i++)
+        {
+          const gchar *item = g_ptr_array_index (base, i);
+
+          if (!item || item[0] == '\0')
+            continue;
+
+          if (to_remove && to_remove[0] != '\0'
+              && strcmp (item, to_remove) == 0)
+            continue;
+
+          g_ptr_array_add (merged, g_strdup (item));
+        }
+    }
+
+  if (to_add)
+    {
+      for (guint i = 0; i < to_add->len; i++)
+        {
+          const gchar *item = g_ptr_array_index (to_add, i);
+
+          if (!item || item[0] == '\0')
+            continue;
+
+          g_ptr_array_add (merged, g_strdup (item));
+        }
+    }
+
+  return merged;
+}
+
+/**
  * @brief Deep-copy a GPtrArray of char*.
  *
  * @param[in] src  Source pointer array to duplicate (may be NULL).
@@ -468,6 +522,7 @@ dup_str_ptr_array (const GPtrArray *src)
  *
  * @param[in] agent       Agent providing the base configuration.
  * @param[in] update_cfg  Optional configuration overrides. May be NULL.
+ * @param[in] cron_time   Optional old cron time to remove. May be NULL.
  *
  * @return Newly allocated merged configuration on success,
  *         or NULL on error.
@@ -475,7 +530,8 @@ dup_str_ptr_array (const GPtrArray *src)
 static agent_controller_agent_config_t
 agent_controller_build_agent_config_with_defaults (
   const agent_controller_agent_t agent,
-  const agent_controller_agent_config_t update_cfg)
+  const agent_controller_agent_config_t update_cfg,
+  const gchar *cron_time)
 {
   if (!agent || !agent->config)
     return NULL;
@@ -528,13 +584,20 @@ agent_controller_build_agent_config_with_defaults (
           agent->config->agent_script_executor.indexer_dir_depth;
     }
 
-  const GPtrArray *src_cron =
-    (update_cfg && update_cfg->agent_script_executor.scheduler_cron_time)
-      ? update_cfg->agent_script_executor.scheduler_cron_time
-      : agent->config->agent_script_executor.scheduler_cron_time;
-
-  merged->agent_script_executor.scheduler_cron_time =
-    dup_str_ptr_array (src_cron);
+  if (update_cfg)
+    {
+      merged->agent_script_executor.scheduler_cron_time =
+        dup_str_ptr_array_merge_crons (
+          agent->config->agent_script_executor.scheduler_cron_time,
+          update_cfg->agent_script_executor.scheduler_cron_time,
+          cron_time);
+    }
+  else
+    {
+      merged->agent_script_executor.scheduler_cron_time =
+        dup_str_ptr_array (
+          agent->config->agent_script_executor.scheduler_cron_time);
+    }
 
   return merged;
 }
@@ -587,7 +650,8 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
         {
           agent_controller_agent_config_t merged =
             agent_controller_build_agent_config_with_defaults (agent,
-                                                               update->config);
+                                                               update->config,
+                                                               update->prev_scheduler_cron_time);
           if (merged)
             {
               cfg_obj = agent_controller_agent_config_struct_to_cjson (merged);
@@ -949,6 +1013,11 @@ agent_controller_agent_update_free (agent_controller_agent_update_t update)
   if (update->config)
     {
       agent_controller_agent_config_free (update->config);
+    }
+
+  if (update->prev_scheduler_cron_time)
+    {
+      g_free (update->prev_scheduler_cron_time);
     }
 
   g_free (update);
