@@ -466,8 +466,8 @@ dup_str_ptr_array (const GPtrArray *src)
  * The returned configuration is heap-allocated and must be freed
  * using agent_controller_agent_config_free().
  *
- * @param[in] agent       Agent providing the base configuration.
- * @param[in] update_cfg  Optional configuration overrides. May be NULL.
+ * @param[in] base_cfg       Agent providing the base configuration.
+ * @param[in] update_cfg     Optional configuration overrides. May be NULL.
  *
  * @return Newly allocated merged configuration on success,
  *         or NULL on error.
@@ -542,7 +542,7 @@ agent_controller_build_agent_config_with_defaults (
 /**
  * @brief Build a JSON payload for updating agents.
  *
- * @param[in] updates Optional update template list to override agent fields.
+ * @param[in] updates Update template list to override agent fields.
  *
  * @return A newly allocated JSON string (unformatted) representing the update
  * payload. The caller is responsible for freeing the returned string using
@@ -1223,7 +1223,7 @@ agent_controller_get_agents (agent_controller_connector_t conn)
  * @brief Updates properties of a list of agents.
  *
  * @param[in] conn Active connector
- * @param[in] updates Update information
+ * @param[in] updates Update information lists to apply to agents.
  * @param[out] errors  If non-NULL and an HTTP 4xx occurs, will be set to a
  * GPtrArray* of gchar* error messages (caller takes ownership and must free)
  *
