@@ -450,14 +450,14 @@ openvasd_build_scan_config_json (openvasd_target_t *target,
 
   // reverse lookup
   if (target->reverse_lookup_unify)
-    cJSON_AddBoolToObject (target_obj, "reverse_lookup_unify", cJSON_True);
+    cJSON_AddBoolToObject (target_obj, "reverse_lookup_unify", 1);
   else
-    cJSON_AddBoolToObject (target_obj, "reverse_lookup_unify", cJSON_False);
+    cJSON_AddBoolToObject (target_obj, "reverse_lookup_unify", 0);
 
   if (target->reverse_lookup_only)
-    cJSON_AddBoolToObject (target_obj, "reverse_lookup_only", cJSON_True);
+    cJSON_AddBoolToObject (target_obj, "reverse_lookup_only", 1);
   else
-    cJSON_AddBoolToObject (target_obj, "reverse_lookup_only", cJSON_False);
+    cJSON_AddBoolToObject (target_obj, "reverse_lookup_only", 0);
 
   // alive test methods
   cJSON *alive_test_methods = cJSON_CreateArray ();
