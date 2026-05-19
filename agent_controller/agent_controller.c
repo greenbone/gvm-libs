@@ -466,18 +466,18 @@ dup_str_ptr_array (const GPtrArray *src)
  * The returned configuration is heap-allocated and must be freed
  * using agent_controller_agent_config_free().
  *
- * @param[in] base_cfg       Agent providing the base configuration.
- * @param[in] update_cfg     Optional configuration overrides. May be NULL.
+ * @param[in] base_config       The configuration to create a modified copy of.
+ * @param[in] update_config     The configuration containing updated values.
  *
  * @return Newly allocated merged configuration on success,
  *         or NULL on error.
  */
 static agent_controller_agent_config_t
-agent_controller_build_agent_config_with_defaults (
-  const agent_controller_agent_config_t base_cfg,
-  const agent_controller_agent_config_t update_cfg)
+agent_controller_build_updated_agent_config (
+  const agent_controller_agent_config_t base_config,
+  const agent_controller_agent_config_t update_config)
 {
-  if (!base_cfg)
+  if (!base_config)
     return NULL;
 
   agent_controller_agent_config_t merged = agent_controller_agent_config_new ();
@@ -485,53 +485,53 @@ agent_controller_build_agent_config_with_defaults (
     return NULL;
 
   /* Start from update if provided, otherwise start from agent defaults */
-  if (update_cfg)
-    *merged = *update_cfg;
+  if (update_config)
+    *merged = *update_config;
   else
-    *merged = *base_cfg;
+    *merged = *base_config;
 
   merged->agent_script_executor.scheduler_cron_time = NULL;
 
   /* Fill missing (0) values from agent's config */
-  if (update_cfg)
+  if (update_config)
     {
       if (merged->heartbeat.interval_in_seconds == 0)
         merged->heartbeat.interval_in_seconds =
-          base_cfg->heartbeat.interval_in_seconds;
+          base_config->heartbeat.interval_in_seconds;
 
       if (merged->heartbeat.miss_until_inactive == 0)
         merged->heartbeat.miss_until_inactive =
-          base_cfg->heartbeat.miss_until_inactive;
+          base_config->heartbeat.miss_until_inactive;
 
       if (merged->agent_control.retry.attempts == 0)
         merged->agent_control.retry.attempts =
-          base_cfg->agent_control.retry.attempts;
+          base_config->agent_control.retry.attempts;
 
       if (merged->agent_control.retry.delay_in_seconds == 0)
         merged->agent_control.retry.delay_in_seconds =
-          base_cfg->agent_control.retry.delay_in_seconds;
+          base_config->agent_control.retry.delay_in_seconds;
 
       if (merged->agent_control.retry.max_jitter_in_seconds == 0)
         merged->agent_control.retry.max_jitter_in_seconds =
-          base_cfg->agent_control.retry.max_jitter_in_seconds;
+          base_config->agent_control.retry.max_jitter_in_seconds;
 
       if (merged->agent_script_executor.bulk_size == 0)
         merged->agent_script_executor.bulk_size =
-          base_cfg->agent_script_executor.bulk_size;
+          base_config->agent_script_executor.bulk_size;
 
       if (merged->agent_script_executor.bulk_throttle_time_in_ms == 0)
         merged->agent_script_executor.bulk_throttle_time_in_ms =
-          base_cfg->agent_script_executor.bulk_throttle_time_in_ms;
+          base_config->agent_script_executor.bulk_throttle_time_in_ms;
 
       if (merged->agent_script_executor.indexer_dir_depth == 0)
         merged->agent_script_executor.indexer_dir_depth =
-          base_cfg->agent_script_executor.indexer_dir_depth;
+          base_config->agent_script_executor.indexer_dir_depth;
     }
 
   const GPtrArray *src_cron =
-    (update_cfg && update_cfg->agent_script_executor.scheduler_cron_time)
-      ? update_cfg->agent_script_executor.scheduler_cron_time
-      : base_cfg->agent_script_executor.scheduler_cron_time;
+    (update_config && update_config->agent_script_executor.scheduler_cron_time)
+      ? update_config->agent_script_executor.scheduler_cron_time
+      : base_config->agent_script_executor.scheduler_cron_time;
 
   merged->agent_script_executor.scheduler_cron_time =
     dup_str_ptr_array (src_cron);
@@ -581,11 +581,11 @@ agent_controller_build_patch_payload (
 
       /* config: prefer update->config if provided */
       cJSON *cfg_obj = NULL;
-      if (agent_update && agent_update->config)
+      if (agent_update && agent_update->update_config)
         {
           agent_controller_agent_config_t merged =
-            agent_controller_build_agent_config_with_defaults (
-              agent_update->base, agent_update->config);
+            agent_controller_build_updated_agent_config (
+              agent_update->base_config, agent_update->update_config);
           if (merged)
             {
               cfg_obj = agent_controller_agent_config_struct_to_cjson (merged);
@@ -971,7 +971,7 @@ agent_controller_agent_update_new (void)
 
   update->authorized = -1;
   update->update_to_latest = -1;
-  update->config = NULL;
+  update->update_config = NULL;
 
   return update;
 }
@@ -987,11 +987,11 @@ agent_controller_agent_update_free (agent_controller_agent_update_t update)
   if (!update)
     return;
 
-  if (update->config)
-    agent_controller_agent_config_free (update->config);
+  if (update->update_config)
+    agent_controller_agent_config_free (update->update_config);
 
-  if (update->base)
-    agent_controller_agent_config_free (update->base);
+  if (update->base_config)
+    agent_controller_agent_config_free (update->base_config);
 
   if (update->agent_id)
     g_free (update->agent_id);

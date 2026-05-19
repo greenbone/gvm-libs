@@ -430,7 +430,7 @@ Ensure (agent_controller, agent_update_new_initializes_defaults_correctly)
 
   assert_that (update->authorized, is_equal_to (-1));
   assert_that (update->update_to_latest, is_equal_to (-1));
-  assert_that (update->config, is_null);
+  assert_that (update->update_config, is_null);
 
   agent_controller_agent_update_free (update);
 }
@@ -440,7 +440,7 @@ Ensure (agent_controller, agent_update_free_handles_nested_schedule)
   agent_controller_agent_update_t update = agent_controller_agent_update_new ();
   assert_that (update, is_not_null);
 
-  update->config = agent_controller_agent_config_new ();
+  update->update_config = agent_controller_agent_config_new ();
 
   agent_controller_agent_update_free (update);
   assert_that (true, is_true);
@@ -972,12 +972,12 @@ Ensure (agent_controller, patch_payload_includes_config_with_defaults_from_base)
   agent_controller_agent_update_list_t updates =
     make_update_list_with_ids (ids, 1);
 
-  updates->updates[0]->base = make_agent_config ();
-  updates->updates[0]->base->heartbeat.interval_in_seconds = 600;
-  updates->updates[0]->base->heartbeat.miss_until_inactive = 9;
+  updates->updates[0]->base_config = make_agent_config ();
+  updates->updates[0]->base_config->heartbeat.interval_in_seconds = 600;
+  updates->updates[0]->base_config->heartbeat.miss_until_inactive = 9;
 
-  updates->updates[0]->config = agent_controller_agent_config_new ();
-  updates->updates[0]->config->heartbeat.interval_in_seconds = 42;
+  updates->updates[0]->update_config = agent_controller_agent_config_new ();
+  updates->updates[0]->update_config->heartbeat.interval_in_seconds = 42;
 
   gchar *payload = agent_controller_build_patch_payload (updates);
 
@@ -997,8 +997,8 @@ Ensure (agent_controller, patch_payload_omits_config_when_base_missing)
   agent_controller_agent_update_list_t updates =
     make_update_list_with_ids (ids, 1);
 
-  updates->updates[0]->config = agent_controller_agent_config_new ();
-  updates->updates[0]->config->heartbeat.interval_in_seconds = 42;
+  updates->updates[0]->update_config = agent_controller_agent_config_new ();
+  updates->updates[0]->update_config->heartbeat.interval_in_seconds = 42;
 
   gchar *payload = agent_controller_build_patch_payload (updates);
 
@@ -2687,7 +2687,7 @@ Ensure (agent_controller, get_scan_id_returns_dup_string_on_success)
   g_free (sid);
 }
 
-Ensure (agent_controller, build_config_with_defaults_fills_zeros_from_base)
+Ensure (agent_controller, build_updated_agent_config_fills_zeros_from_base)
 {
   agent_controller_agent_config_t base = make_agent_config ();
   assert_that (base, is_not_null);
@@ -2698,7 +2698,7 @@ Ensure (agent_controller, build_config_with_defaults_fills_zeros_from_base)
   upd->heartbeat.interval_in_seconds = 42;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (base, upd);
+    agent_controller_build_updated_agent_config (base, upd);
 
   assert_that (merged, is_not_null);
 
@@ -2718,7 +2718,7 @@ Ensure (agent_controller, build_config_with_defaults_fills_zeros_from_base)
   agent_controller_agent_config_free (base);
 }
 
-Ensure (agent_controller, build_config_with_defaults_deep_copies_update_cron)
+Ensure (agent_controller, build_updated_agent_config_deep_copies_update_cron)
 {
   agent_controller_agent_config_t base = make_agent_config ();
   assert_that (base, is_not_null);
@@ -2732,7 +2732,7 @@ Ensure (agent_controller, build_config_with_defaults_deep_copies_update_cron)
                    g_strdup ("0 0 * * *"));
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (base, upd);
+    agent_controller_build_updated_agent_config (base, upd);
 
   assert_that (merged, is_not_null);
   assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
@@ -2759,7 +2759,7 @@ Ensure (agent_controller, build_config_with_defaults_deep_copies_update_cron)
 }
 
 Ensure (agent_controller,
-        build_config_with_defaults_deep_copies_base_cron_when_update_missing)
+        build_updated_agent_config_deep_copies_base_cron_when_update_missing)
 {
   agent_controller_agent_config_t base = make_agent_config ();
   assert_that (base, is_not_null);
@@ -2768,7 +2768,7 @@ Ensure (agent_controller,
   assert_that (upd, is_not_null);
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (base, upd);
+    agent_controller_build_updated_agent_config (base, upd);
 
   assert_that (merged, is_not_null);
   assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
@@ -2801,15 +2801,15 @@ Ensure (agent_controller, patch_payload_config_zeros_default_to_base_values)
 
   updates->updates[0]->authorized = 1;
 
-  updates->updates[0]->base = make_agent_config ();
-  assert_that (updates->updates[0]->base, is_not_null);
+  updates->updates[0]->base_config = make_agent_config ();
+  assert_that (updates->updates[0]->base_config, is_not_null);
 
   /* Set base heartbeat to different values */
-  updates->updates[0]->base->heartbeat.interval_in_seconds = 600;
-  updates->updates[0]->base->heartbeat.miss_until_inactive = 9;
+  updates->updates[0]->base_config->heartbeat.interval_in_seconds = 600;
+  updates->updates[0]->base_config->heartbeat.miss_until_inactive = 9;
 
-  updates->updates[0]->config = agent_controller_agent_config_new ();
-  assert_that (updates->updates[0]->config, is_not_null);
+  updates->updates[0]->update_config = agent_controller_agent_config_new ();
+  assert_that (updates->updates[0]->update_config, is_not_null);
 
   gchar *payload = agent_controller_build_patch_payload (updates);
 
@@ -2831,7 +2831,7 @@ Ensure (agent_controller,
   assert_that (upd, is_not_null);
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (NULL, upd);
+    agent_controller_build_updated_agent_config (NULL, upd);
 
   assert_that (merged, is_null);
 
@@ -2848,7 +2848,7 @@ Ensure (agent_controller,
   base->heartbeat.miss_until_inactive = 3;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (base, NULL);
+    agent_controller_build_updated_agent_config (base, NULL);
 
   assert_that (merged, is_not_null);
 
@@ -2888,7 +2888,7 @@ Ensure (agent_controller,
   upd->heartbeat.interval_in_seconds = 42;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (base, upd);
+    agent_controller_build_updated_agent_config (base, upd);
 
   assert_that (merged, is_not_null);
   assert_that (merged->heartbeat.interval_in_seconds, is_equal_to (42));
@@ -3360,12 +3360,12 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          get_scan_id_returns_dup_string_on_success);
   add_test_with_context (suite, agent_controller,
-                         build_config_with_defaults_fills_zeros_from_base);
+                         build_updated_agent_config_fills_zeros_from_base);
   add_test_with_context (suite, agent_controller,
-                         build_config_with_defaults_deep_copies_update_cron);
+                         build_updated_agent_config_deep_copies_update_cron);
   add_test_with_context (
     suite, agent_controller,
-    build_config_with_defaults_deep_copies_base_cron_when_update_missing);
+    build_updated_agent_config_deep_copies_base_cron_when_update_missing);
   add_test_with_context (suite, agent_controller,
                          patch_payload_config_zeros_default_to_base_values);
   add_test_with_context (
