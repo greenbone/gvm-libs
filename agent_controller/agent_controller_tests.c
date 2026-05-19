@@ -170,6 +170,30 @@ make_agent_list_with_ids (const char *const *ids, int n)
   return list;
 }
 
+static agent_controller_agent_update_list_t
+make_update_list_with_ids (const char *const *ids, int n)
+{
+  agent_controller_agent_update_list_t list =
+    agent_controller_agent_update_list_new (n);
+  assert_that (list, is_not_null);
+
+  for (int i = 0; i < n; ++i)
+    {
+      if (ids[i] == NULL)
+        {
+          list->updates[i] = NULL;
+          continue;
+        }
+
+      agent_controller_agent_update_t update =
+        agent_controller_agent_update_new ();
+      update->agent_id = g_strdup (ids[i]);
+      list->updates[i] = update;
+    }
+
+  return list;
+}
+
 Ensure (agent_controller, connector_new_returns_valid_connector)
 {
   agent_controller_connector_t conn = agent_controller_connector_new ();
@@ -769,171 +793,221 @@ Ensure (agent_controller, parse_agent_returns_null_on_null_input)
   assert_that (agent, is_null);
 }
 
-Ensure (agent_controller, build_patch_payload_from_single_agent)
+Ensure (agent_controller, build_patch_payload_returns_null_for_null_updates)
 {
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  agent_controller_agent_t agent = agent_controller_agent_new ();
+  gchar *payload = agent_controller_build_patch_payload (NULL);
+  assert_that (payload, is_null);
+}
 
-  agent->agent_id = g_strdup ("agent1");
-  agent->authorized = 1;
+Ensure (agent_controller, build_patch_payload_returns_null_for_empty_updates)
+{
+  agent_controller_agent_update_list_t updates =
+    agent_controller_agent_update_list_new (0);
 
-  agent->config = agent_controller_agent_config_new ();
+  gchar *payload = agent_controller_build_patch_payload (updates);
+  assert_that (payload, is_null);
 
-  list->agents[0] = agent;
+  agent_controller_agent_update_list_free (updates);
+}
 
-  gchar *payload = agent_controller_build_patch_payload (list, NULL);
+Ensure (agent_controller, build_patch_payload_from_single_update)
+{
+  const char *ids[] = {"agent1"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
 
+  updates->updates[0]->authorized = 1;
+
+  gchar *payload = agent_controller_build_patch_payload (updates);
+
+  assert_that (payload, is_not_null);
   assert_that (payload, contains_string ("\"agent1\""));
   assert_that (payload, contains_string ("\"authorized\":true"));
-  assert_that (agent->config, is_not_null);
 
-  g_free (payload);
-  agent_controller_agent_list_free (list);
+  cJSON_free (payload);
+  agent_controller_agent_update_list_free (updates);
 }
 
-Ensure (agent_controller, patch_payload_overrides_only_authorized_field)
+Ensure (agent_controller, patch_payload_sets_authorized_false)
 {
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  agent->agent_id = g_strdup ("agentA");
-  agent->authorized = 0;
+  const char *ids[] = {"agentA"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
 
-  list->agents[0] = agent;
+  updates->updates[0]->authorized = 0;
 
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  update->authorized = 1;
+  gchar *payload = agent_controller_build_patch_payload (updates);
 
-  gchar *payload = agent_controller_build_patch_payload (list, update);
+  assert_that (payload, is_not_null);
+  assert_that (payload, contains_string ("\"agentA\""));
+  assert_that (payload, contains_string ("\"authorized\":false"));
 
-  assert_that (payload, contains_string ("\"authorized\":true"));
-
-  g_free (payload);
-  agent_controller_agent_update_free (update);
-  agent_controller_agent_list_free (list);
+  cJSON_free (payload);
+  agent_controller_agent_update_list_free (updates);
 }
 
-Ensure (agent_controller, patch_payload_overrides_only_update_to_latest_field)
+Ensure (agent_controller, patch_payload_sets_update_to_latest_true)
 {
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  agent->agent_id = g_strdup ("agentA");
-  agent->update_to_latest = 1;
+  const char *ids[] = {"agentA"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
 
-  list->agents[0] = agent;
+  updates->updates[0]->update_to_latest = 1;
 
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  update->update_to_latest = 1;
+  gchar *payload = agent_controller_build_patch_payload (updates);
 
-  gchar *payload = agent_controller_build_patch_payload (list, update);
-
+  assert_that (payload, is_not_null);
+  assert_that (payload, contains_string ("\"agentA\""));
   assert_that (payload, contains_string ("\"update_to_latest\":true"));
 
-  g_free (payload);
-  agent_controller_agent_update_free (update);
-  agent_controller_agent_list_free (list);
+  cJSON_free (payload);
+  agent_controller_agent_update_list_free (updates);
 }
 
-Ensure (agent_controller, patch_payload_overrides_only_min_interval)
+Ensure (agent_controller, patch_payload_sets_update_to_latest_false)
 {
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  agent->agent_id = g_strdup ("agentB");
-  agent->authorized = 1;
+  const char *ids[] = {"agentA"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
 
-  list->agents[0] = agent;
+  updates->updates[0]->update_to_latest = 0;
 
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-
-  gchar *payload = agent_controller_build_patch_payload (list, update);
-
-  assert_that (payload, contains_string ("\"authorized\":true"));
-
-  g_free (payload);
-  agent_controller_agent_update_free (update);
-  agent_controller_agent_list_free (list);
-}
-
-Ensure (agent_controller,
-        patch_payload_does_not_include_update_to_latest_when_not_provided)
-{
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  agent->agent_id = g_strdup ("agentA");
-  agent->authorized = 1;
-  agent->update_to_latest = 1;
-
-  list->agents[0] = agent;
-
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  assert_that (update->update_to_latest, is_equal_to (-1));
-
-  gchar *payload = agent_controller_build_patch_payload (list, update);
+  gchar *payload = agent_controller_build_patch_payload (updates);
 
   assert_that (payload, is_not_null);
-
-  assert_that (payload, contains_string ("\"authorized\":true"));
-
-  assert_that (payload, does_not_contain_string ("\"update_to_latest\""));
+  assert_that (payload, contains_string ("\"agentA\""));
+  assert_that (payload, contains_string ("\"update_to_latest\":false"));
 
   cJSON_free (payload);
-  agent_controller_agent_update_free (update);
-  agent_controller_agent_list_free (list);
+  agent_controller_agent_update_list_free (updates);
 }
 
-Ensure (agent_controller, patch_payload_overrides_only_config)
+Ensure (agent_controller, patch_payload_omits_unset_fields)
 {
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  assert_that (list, is_not_null);
-  assert_that (agent, is_not_null);
+  const char *ids[] = {"agentA"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
 
-  agent->agent_id = g_strdup ("agentC");
-  agent->authorized = 0;
+  assert_that (updates->updates[0]->authorized, is_equal_to (-1));
+  assert_that (updates->updates[0]->update_to_latest, is_equal_to (-1));
 
-  agent->config = agent_controller_agent_config_new ();
-  assert_that (agent->config, is_not_null);
-  agent->config->heartbeat.interval_in_seconds = 99; /* old */
+  gchar *payload = agent_controller_build_patch_payload (updates);
 
-  list->agents[0] = agent;
-
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  assert_that (update, is_not_null);
-  update->authorized = -1;
-
-  /* Provide a fully valid config */
-  update->config = agent_controller_agent_config_new ();
-  assert_that (update->config, is_not_null);
-
-  /* agent_control.retry > 0 */
-  update->config->agent_control.retry.attempts = 1;
-  update->config->agent_control.retry.delay_in_seconds = 1;
-  update->config->agent_control.retry.max_jitter_in_seconds = 1;
-
-  /* agent_script_executor > 0 and cron present */
-  update->config->agent_script_executor.bulk_size = 1;
-  update->config->agent_script_executor.bulk_throttle_time_in_ms = 1;
-  update->config->agent_script_executor.indexer_dir_depth = 1;
-  update->config->agent_script_executor.scheduler_cron_time =
-    g_ptr_array_new_with_free_func (g_free);
-  g_ptr_array_add (update->config->agent_script_executor.scheduler_cron_time,
-                   g_strdup ("* * * * *"));
-
-  /* heartbeat > 0 with the override value */
-  update->config->heartbeat.interval_in_seconds = 42; /* override */
-  update->config->heartbeat.miss_until_inactive = 1;
-
-  gchar *payload = agent_controller_build_patch_payload (list, update);
-
-  /* Assert */
   assert_that (payload, is_not_null);
+  assert_that (payload, contains_string ("\"agentA\""));
+  assert_that (payload, does_not_contain_string ("\"authorized\""));
+  assert_that (payload, does_not_contain_string ("\"update_to_latest\""));
+  assert_that (payload, does_not_contain_string ("\"config\""));
+
+  cJSON_free (payload);
+  agent_controller_agent_update_list_free (updates);
+}
+
+Ensure (agent_controller, patch_payload_skips_null_update)
+{
+  const char *ids[] = {"agentA", NULL, "agentC"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 3);
+
+  updates->updates[0]->authorized = 1;
+  updates->updates[2]->authorized = 0;
+
+  gchar *payload = agent_controller_build_patch_payload (updates);
+
+  assert_that (payload, is_not_null);
+  assert_that (payload, contains_string ("\"agentA\""));
+  assert_that (payload, contains_string ("\"agentC\""));
+
+  cJSON_free (payload);
+  agent_controller_agent_update_list_free (updates);
+}
+
+Ensure (agent_controller, patch_payload_skips_update_without_agent_id)
+{
+  agent_controller_agent_update_list_t updates =
+    agent_controller_agent_update_list_new (2);
+
+  updates->updates[0] = agent_controller_agent_update_new ();
+  updates->updates[0]->authorized = 1;
+
+  updates->updates[1] = agent_controller_agent_update_new ();
+  updates->updates[1]->agent_id = g_strdup ("agentB");
+  updates->updates[1]->authorized = 0;
+
+  gchar *payload = agent_controller_build_patch_payload (updates);
+
+  assert_that (payload, is_not_null);
+  assert_that (payload, does_not_contain_string ("\"authorized\":true"));
+  assert_that (payload, contains_string ("\"agentB\""));
+  assert_that (payload, contains_string ("\"authorized\":false"));
+
+  cJSON_free (payload);
+  agent_controller_agent_update_list_free (updates);
+}
+
+Ensure (agent_controller, patch_payload_builds_multiple_updates)
+{
+  const char *ids[] = {"agent1", "agent2"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 2);
+
+  updates->updates[0]->authorized = 1;
+  updates->updates[1]->update_to_latest = 1;
+
+  gchar *payload = agent_controller_build_patch_payload (updates);
+
+  assert_that (payload, is_not_null);
+  assert_that (payload, contains_string ("\"agent1\""));
+  assert_that (payload, contains_string ("\"authorized\":true"));
+  assert_that (payload, contains_string ("\"agent2\""));
+  assert_that (payload, contains_string ("\"update_to_latest\":true"));
+
+  cJSON_free (payload);
+  agent_controller_agent_update_list_free (updates);
+}
+
+Ensure (agent_controller, patch_payload_includes_config_with_defaults_from_base)
+{
+  const char *ids[] = {"agentC"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
+
+  updates->updates[0]->base = make_agent_config ();
+  updates->updates[0]->base->heartbeat.interval_in_seconds = 600;
+  updates->updates[0]->base->heartbeat.miss_until_inactive = 9;
+
+  updates->updates[0]->config = agent_controller_agent_config_new ();
+  updates->updates[0]->config->heartbeat.interval_in_seconds = 42;
+
+  gchar *payload = agent_controller_build_patch_payload (updates);
+
+  assert_that (payload, is_not_null);
+  assert_that (payload, contains_string ("\"agentC\""));
   assert_that (payload, contains_string ("\"config\""));
   assert_that (payload, contains_string ("\"interval_in_seconds\":42"));
-  assert_that (payload, does_not_contain_string ("\"interval_in_seconds\":99"));
+  assert_that (payload, contains_string ("\"miss_until_inactive\":9"));
 
-  /* Cleanup */
   cJSON_free (payload);
-  agent_controller_agent_update_free (update);
-  agent_controller_agent_list_free (list);
+  agent_controller_agent_update_list_free (updates);
+}
+
+Ensure (agent_controller, patch_payload_omits_config_when_base_missing)
+{
+  const char *ids[] = {"agentC"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
+
+  updates->updates[0]->config = agent_controller_agent_config_new ();
+  updates->updates[0]->config->heartbeat.interval_in_seconds = 42;
+
+  gchar *payload = agent_controller_build_patch_payload (updates);
+
+  assert_that (payload, is_not_null);
+  assert_that (payload, contains_string ("\"agentC\""));
+  assert_that (payload, does_not_contain_string ("\"config\""));
+
+  cJSON_free (payload);
+  agent_controller_agent_update_list_free (updates);
 }
 
 Ensure (agent_controller, agent_config_new_initializes_defaults)
@@ -1274,6 +1348,61 @@ Ensure (agent_controller, json_has_update_ignores_numbers)
   cJSON_Delete (obj);
 }
 
+Ensure (agent_controller,
+        agent_update_list_new_allocates_list_and_updates_array)
+{
+  agent_controller_agent_update_list_t list =
+    agent_controller_agent_update_list_new (3);
+
+  assert_that (list, is_not_null);
+  assert_that (list->count, is_equal_to (3));
+  assert_that (list->updates, is_not_null);
+
+  for (int i = 0; i < 3; ++i)
+    assert_that (list->updates[i], is_null);
+
+  agent_controller_agent_update_list_free (list);
+}
+
+Ensure (agent_controller, agent_update_list_new_returns_null_for_invalid_count)
+{
+  agent_controller_agent_update_list_t list =
+    agent_controller_agent_update_list_new (-1);
+
+  assert_that (list, is_null);
+}
+
+Ensure (agent_controller, agent_update_list_new_returns_array_for_0_count)
+{
+  agent_controller_agent_update_list_t list =
+    agent_controller_agent_update_list_new (0);
+
+  assert_that (list, is_not_null);
+  assert_that (list->count, is_equal_to (0));
+  assert_that (list->updates, is_not_null);
+
+  agent_controller_agent_update_list_free (list);
+}
+
+Ensure (agent_controller, agent_update_list_free_handles_populated_list)
+{
+  const char *ids[] = {"agent-1", "agent-2"};
+  agent_controller_agent_update_list_t list =
+    make_update_list_with_ids (ids, 2);
+
+  list->updates[0]->authorized = 1;
+  list->updates[1]->update_to_latest = 0;
+
+  agent_controller_agent_update_list_free (list);
+  assert_that (true, is_true);
+}
+
+Ensure (agent_controller, agent_update_list_free_handles_null)
+{
+  agent_controller_agent_update_list_free (NULL);
+  assert_that (true, is_true);
+}
+
 Ensure (agent_controller, get_agents_returns_list_on_successful_response)
 {
   mock_response_data = "[{"
@@ -1371,64 +1500,59 @@ Ensure (agent_controller, update_agents_returns_zero_on_success)
 {
   mock_http_status = 200;
   g_clear_pointer (&mock_response_data, g_free);
-  mock_response_data = g_strdup ("");
+  mock_response_data = g_strdup ("{}");
 
   agent_controller_connector_t conn = make_conn ();
 
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  agent->agent_id = g_strdup ("agent1");
-  list->agents[0] = agent;
+  const char *ids[] = {"agent1"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
+  updates->updates[0]->authorized = 1;
 
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
+  int result = agent_controller_update_agents (conn, updates, NULL);
 
-  int result = agent_controller_update_agents (conn, list, update, NULL);
   assert_that (result, is_equal_to (0));
+  assert_that (last_sent_url, contains_string ("/api/v1/admin/agents"));
+  assert_that (last_sent_payload, contains_string ("\"agent1\""));
+  assert_that (last_sent_payload, contains_string ("\"authorized\":true"));
 
-  agent_controller_agent_list_free (list);
-  agent_controller_agent_update_free (update);
+  agent_controller_agent_update_list_free (updates);
   agent_controller_connector_free (conn);
 }
 
 Ensure (agent_controller, update_agents_fails_with_null_connection)
 {
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  list->agents[0] = agent_controller_agent_new ();
-  list->agents[0]->agent_id = g_strdup ("agent");
+  const char *ids[] = {"agent"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
+  updates->updates[0]->authorized = 1;
 
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  update->authorized = 1;
-
-  int result = agent_controller_update_agents (NULL, list, update, NULL);
+  int result = agent_controller_update_agents (NULL, updates, NULL);
   assert_that (result, is_equal_to (-1));
 
-  agent_controller_agent_list_free (list);
-  agent_controller_agent_update_free (update);
+  agent_controller_agent_update_list_free (updates);
 }
 
-Ensure (agent_controller, update_agents_fails_with_null_agents)
+Ensure (agent_controller, update_agents_fails_with_null_updates)
 {
   agent_controller_connector_t conn = agent_controller_connector_new ();
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
 
-  int result = agent_controller_update_agents (conn, NULL, update, NULL);
+  int result = agent_controller_update_agents (conn, NULL, NULL);
   assert_that (result, is_equal_to (-1));
 
-  agent_controller_agent_update_free (update);
   agent_controller_connector_free (conn);
 }
 
-Ensure (agent_controller, update_agents_fails_with_null_update)
+Ensure (agent_controller, update_agents_fails_with_empty_updates)
 {
-  agent_controller_connector_t conn = agent_controller_connector_new ();
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  list->agents[0] = agent_controller_agent_new ();
-  list->agents[0]->agent_id = g_strdup ("agent");
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_agent_update_list_t updates =
+    agent_controller_agent_update_list_new (0);
 
-  int result = agent_controller_update_agents (conn, list, NULL, NULL);
+  int result = agent_controller_update_agents (conn, updates, NULL);
   assert_that (result, is_equal_to (-1));
 
-  agent_controller_agent_list_free (list);
+  agent_controller_agent_update_list_free (updates);
   agent_controller_connector_free (conn);
 }
 
@@ -1439,18 +1563,15 @@ Ensure (agent_controller, update_agents_fails_on_http_error_status)
 
   agent_controller_connector_t conn = make_conn ();
 
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  list->agents[0] = agent_controller_agent_new ();
-  list->agents[0]->agent_id = g_strdup ("agent");
+  const char *ids[] = {"agent"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
+  updates->updates[0]->authorized = 1;
 
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  update->authorized = 1;
-
-  int result = agent_controller_update_agents (conn, list, update, NULL);
+  int result = agent_controller_update_agents (conn, updates, NULL);
   assert_that (result, is_equal_to (-1));
 
-  agent_controller_agent_list_free (list);
-  agent_controller_agent_update_free (update);
+  agent_controller_agent_update_list_free (updates);
   agent_controller_connector_free (conn);
 }
 
@@ -1462,15 +1583,13 @@ Ensure (agent_controller, update_agents_400_populates_errors_from_json)
 
   agent_controller_connector_t conn = make_conn ();
 
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  list->agents[0] = agent_controller_agent_new ();
-  list->agents[0]->agent_id = g_strdup ("agent1");
-
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  update->authorized = 1;
+  const char *ids[] = {"agent1"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
+  updates->updates[0]->authorized = 1;
 
   GPtrArray *errs = NULL;
-  int rc = agent_controller_update_agents (conn, list, update, &errs);
+  int rc = agent_controller_update_agents (conn, updates, &errs);
 
   assert_that (rc, is_equal_to (-1));
   assert_that (errs, is_not_null);
@@ -1482,8 +1601,7 @@ Ensure (agent_controller, update_agents_400_populates_errors_from_json)
   assert_that (last_sent_url, contains_string ("/api/v1/admin/agents"));
 
   g_ptr_array_free (errs, TRUE);
-  agent_controller_agent_list_free (list);
-  agent_controller_agent_update_free (update);
+  agent_controller_agent_update_list_free (updates);
   agent_controller_connector_free (conn);
 }
 
@@ -1495,15 +1613,13 @@ Ensure (agent_controller, update_agents_422_populates_errors_from_json)
 
   agent_controller_connector_t conn = make_conn ();
 
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  list->agents[0] = agent_controller_agent_new ();
-  list->agents[0]->agent_id = g_strdup ("agent1");
-
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  update->authorized = 1;
+  const char *ids[] = {"agent1"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
+  updates->updates[0]->authorized = 1;
 
   GPtrArray *errs = NULL;
-  int rc = agent_controller_update_agents (conn, list, update, &errs);
+  int rc = agent_controller_update_agents (conn, updates, &errs);
 
   assert_that (rc, is_equal_to (-1));
   assert_that (errs, is_not_null);
@@ -1512,11 +1628,9 @@ Ensure (agent_controller, update_agents_422_populates_errors_from_json)
                is_equal_to_string ("e1"));
   assert_that ((const gchar *) g_ptr_array_index (errs, 1),
                is_equal_to_string ("e2"));
-  assert_that (last_sent_url, contains_string ("/api/v1/admin/agents"));
 
   g_ptr_array_free (errs, TRUE);
-  agent_controller_agent_list_free (list);
-  agent_controller_agent_update_free (update);
+  agent_controller_agent_update_list_free (updates);
   agent_controller_connector_free (conn);
 }
 
@@ -1527,14 +1641,13 @@ Ensure (agent_controller, update_agents_400_invalid_json_adds_invalid_payload)
 
   agent_controller_connector_t conn = make_conn ();
 
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  list->agents[0] = agent_controller_agent_new ();
-  list->agents[0]->agent_id = g_strdup ("agent1");
-
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
+  const char *ids[] = {"agent1"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
+  updates->updates[0]->authorized = 1;
 
   GPtrArray *errs = NULL;
-  int rc = agent_controller_update_agents (conn, list, update, &errs);
+  int rc = agent_controller_update_agents (conn, updates, &errs);
 
   assert_that (rc, is_equal_to (-1));
   assert_that (errs, is_not_null);
@@ -1543,8 +1656,7 @@ Ensure (agent_controller, update_agents_400_invalid_json_adds_invalid_payload)
                contains_string ("invalid JSON payload"));
 
   g_ptr_array_free (errs, TRUE);
-  agent_controller_agent_list_free (list);
-  agent_controller_agent_update_free (update);
+  agent_controller_agent_update_list_free (updates);
   agent_controller_connector_free (conn);
 }
 
@@ -1555,20 +1667,18 @@ Ensure (agent_controller, update_agents_500_does_not_allocate_errors)
 
   agent_controller_connector_t conn = make_conn ();
 
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  list->agents[0] = agent_controller_agent_new ();
-  list->agents[0]->agent_id = g_strdup ("agent1");
-
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
+  const char *ids[] = {"agent1"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
+  updates->updates[0]->authorized = 1;
 
   GPtrArray *errs = NULL;
-  int rc = agent_controller_update_agents (conn, list, update, &errs);
+  int rc = agent_controller_update_agents (conn, updates, &errs);
 
   assert_that (rc, is_equal_to (-1));
   assert_that (errs, is_null);
 
-  agent_controller_agent_list_free (list);
-  agent_controller_agent_update_free (update);
+  agent_controller_agent_update_list_free (updates);
   agent_controller_connector_free (conn);
 }
 
@@ -1579,17 +1689,15 @@ Ensure (agent_controller, update_agents_no_response_returns_error)
 
   agent_controller_connector_t conn = make_conn ();
 
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  list->agents[0] = agent_controller_agent_new ();
-  list->agents[0]->agent_id = g_strdup ("agent1");
+  const char *ids[] = {"agent1"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
+  updates->updates[0]->authorized = 1;
 
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-
-  int rc = agent_controller_update_agents (conn, list, update, NULL);
+  int rc = agent_controller_update_agents (conn, updates, NULL);
   assert_that (rc, is_equal_to (-1));
 
-  agent_controller_agent_list_free (list);
-  agent_controller_agent_update_free (update);
+  agent_controller_agent_update_list_free (updates);
   agent_controller_connector_free (conn);
 }
 
@@ -2579,13 +2687,10 @@ Ensure (agent_controller, get_scan_id_returns_dup_string_on_success)
   g_free (sid);
 }
 
-Ensure (agent_controller, build_config_with_defaults_fills_zeros_from_agent)
+Ensure (agent_controller, build_config_with_defaults_fills_zeros_from_base)
 {
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  assert_that (agent, is_not_null);
-
-  agent->config = make_agent_config ();
-  assert_that (agent->config, is_not_null);
+  agent_controller_agent_config_t base = make_agent_config ();
+  assert_that (base, is_not_null);
 
   agent_controller_agent_config_t upd = agent_controller_agent_config_new ();
   assert_that (upd, is_not_null);
@@ -2593,33 +2698,30 @@ Ensure (agent_controller, build_config_with_defaults_fills_zeros_from_agent)
   upd->heartbeat.interval_in_seconds = 42;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (base, upd);
 
   assert_that (merged, is_not_null);
 
   /* overridden */
   assert_that (merged->heartbeat.interval_in_seconds, is_equal_to (42));
 
-  /* defaulted from agent */
+  /* defaulted from base */
   assert_that (merged->heartbeat.miss_until_inactive,
-               is_equal_to (agent->config->heartbeat.miss_until_inactive));
+               is_equal_to (base->heartbeat.miss_until_inactive));
   assert_that (merged->agent_control.retry.attempts,
-               is_equal_to (agent->config->agent_control.retry.attempts));
+               is_equal_to (base->agent_control.retry.attempts));
   assert_that (merged->agent_script_executor.bulk_size,
-               is_equal_to (agent->config->agent_script_executor.bulk_size));
+               is_equal_to (base->agent_script_executor.bulk_size));
 
   agent_controller_agent_config_free (merged);
   agent_controller_agent_config_free (upd);
-  agent_controller_agent_free (agent);
+  agent_controller_agent_config_free (base);
 }
 
 Ensure (agent_controller, build_config_with_defaults_deep_copies_update_cron)
 {
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  assert_that (agent, is_not_null);
-
-  agent->config = make_agent_config ();
-  assert_that (agent->config, is_not_null);
+  agent_controller_agent_config_t base = make_agent_config ();
+  assert_that (base, is_not_null);
 
   agent_controller_agent_config_t upd = agent_controller_agent_config_new ();
   assert_that (upd, is_not_null);
@@ -2630,7 +2732,7 @@ Ensure (agent_controller, build_config_with_defaults_deep_copies_update_cron)
                    g_strdup ("0 0 * * *"));
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (base, upd);
 
   assert_that (merged, is_not_null);
   assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
@@ -2647,83 +2749,83 @@ Ensure (agent_controller, build_config_with_defaults_deep_copies_update_cron)
     g_ptr_array_index (upd->agent_script_executor.scheduler_cron_time, 0);
   const gchar *m0 =
     g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 0);
+
   assert_that (m0, is_equal_to_string ("0 0 * * *"));
   assert_that (m0, is_not_equal_to (u0));
 
   agent_controller_agent_config_free (merged);
   agent_controller_agent_config_free (upd);
-  agent_controller_agent_free (agent);
+  agent_controller_agent_config_free (base);
 }
 
 Ensure (agent_controller,
-        build_config_with_defaults_deep_copies_agent_cron_when_update_missing)
+        build_config_with_defaults_deep_copies_base_cron_when_update_missing)
 {
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  assert_that (agent, is_not_null);
-
-  agent->config = make_agent_config ();
-  assert_that (agent->config, is_not_null);
+  agent_controller_agent_config_t base = make_agent_config ();
+  assert_that (base, is_not_null);
 
   agent_controller_agent_config_t upd = agent_controller_agent_config_new ();
   assert_that (upd, is_not_null);
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (base, upd);
 
   assert_that (merged, is_not_null);
   assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
 
   assert_that (
     merged->agent_script_executor.scheduler_cron_time,
-    is_not_equal_to (agent->config->agent_script_executor.scheduler_cron_time));
+    is_not_equal_to (base->agent_script_executor.scheduler_cron_time));
 
-  const gchar *a0 = g_ptr_array_index (
-    agent->config->agent_script_executor.scheduler_cron_time, 0);
+  const gchar *b0 =
+    g_ptr_array_index (base->agent_script_executor.scheduler_cron_time, 0);
   const gchar *m0 =
     g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 0);
 
-  assert_that (m0, is_equal_to_string (a0));
-  assert_that (m0, is_not_equal_to (a0));
+  assert_that (m0, is_equal_to_string (b0));
+  assert_that (m0, is_not_equal_to (b0));
 
   agent_controller_agent_config_free (merged);
   agent_controller_agent_config_free (upd);
-  agent_controller_agent_free (agent);
+  agent_controller_agent_config_free (base);
 }
 
-Ensure (agent_controller, patch_payload_config_zeros_default_to_agent_values)
+Ensure (agent_controller, patch_payload_config_zeros_default_to_base_values)
 {
-  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  assert_that (list, is_not_null);
-  assert_that (agent, is_not_null);
+  const char *ids[] = {"agentZ"};
+  agent_controller_agent_update_list_t updates =
+    make_update_list_with_ids (ids, 1);
 
-  agent->agent_id = g_strdup ("agentZ");
-  agent->authorized = 1;
+  assert_that (updates, is_not_null);
+  assert_that (updates->updates[0], is_not_null);
 
-  agent->config = make_agent_config ();
-  /* Set agent heartbeat to different values */
-  agent->config->heartbeat.interval_in_seconds = 600;
-  agent->config->heartbeat.miss_until_inactive = 9;
+  updates->updates[0]->authorized = 1;
 
-  list->agents[0] = agent;
+  updates->updates[0]->base = make_agent_config ();
+  assert_that (updates->updates[0]->base, is_not_null);
 
-  agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  update->config = agent_controller_agent_config_new ();
+  /* Set base heartbeat to different values */
+  updates->updates[0]->base->heartbeat.interval_in_seconds = 600;
+  updates->updates[0]->base->heartbeat.miss_until_inactive = 9;
 
-  gchar *payload = agent_controller_build_patch_payload (list, update);
+  updates->updates[0]->config = agent_controller_agent_config_new ();
+  assert_that (updates->updates[0]->config, is_not_null);
+
+  gchar *payload = agent_controller_build_patch_payload (updates);
 
   assert_that (payload, is_not_null);
+  assert_that (payload, contains_string ("\"agentZ\""));
+  assert_that (payload, contains_string ("\"authorized\":true"));
   assert_that (payload, contains_string ("\"config\""));
   assert_that (payload, contains_string ("\"interval_in_seconds\":600"));
   assert_that (payload, contains_string ("\"miss_until_inactive\":9"));
 
-  g_free (payload);
-  agent_controller_agent_update_free (update);
-  agent_controller_agent_list_free (list);
+  cJSON_free (payload);
+  agent_controller_agent_update_list_free (updates);
 }
 
 Ensure (agent_controller,
-        build_config_with_defaults_returns_null_when_agent_is_null)
+        build_config_with_defaults_returns_null_when_base_is_null)
 {
   agent_controller_agent_config_t upd = agent_controller_agent_config_new ();
   assert_that (upd, is_not_null);
@@ -2737,41 +2839,20 @@ Ensure (agent_controller,
 }
 
 Ensure (agent_controller,
-        build_config_with_defaults_returns_null_when_agent_config_is_null)
+        build_config_with_defaults_uses_base_when_update_cfg_is_null)
 {
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  assert_that (agent, is_not_null);
-  agent->config = NULL;
+  agent_controller_agent_config_t base = make_agent_config ();
+  assert_that (base, is_not_null);
 
-  agent_controller_agent_config_t upd = agent_controller_agent_config_new ();
-  assert_that (upd, is_not_null);
+  base->heartbeat.interval_in_seconds = 777;
+  base->heartbeat.miss_until_inactive = 3;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (base, NULL);
 
-  assert_that (merged, is_null);
-
-  agent_controller_agent_config_free (upd);
-  agent_controller_agent_free (agent);
-}
-
-Ensure (agent_controller,
-        build_config_with_defaults_uses_agent_defaults_when_update_cfg_is_null)
-{
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  assert_that (agent, is_not_null);
-
-  agent->config = make_agent_config ();
-  assert_that (agent->config, is_not_null);
-
-  agent->config->heartbeat.interval_in_seconds = 777;
-  agent->config->heartbeat.miss_until_inactive = 3;
-
-  agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, NULL);
   assert_that (merged, is_not_null);
 
-  /* copied from agent */
+  /* copied from base */
   assert_that (merged->heartbeat.interval_in_seconds, is_equal_to (777));
   assert_that (merged->heartbeat.miss_until_inactive, is_equal_to (3));
 
@@ -2779,42 +2860,42 @@ Ensure (agent_controller,
   assert_that (merged->agent_script_executor.scheduler_cron_time, is_not_null);
   assert_that (
     merged->agent_script_executor.scheduler_cron_time,
-    is_not_equal_to (agent->config->agent_script_executor.scheduler_cron_time));
+    is_not_equal_to (base->agent_script_executor.scheduler_cron_time));
 
-  const gchar *a0 = g_ptr_array_index (
-    agent->config->agent_script_executor.scheduler_cron_time, 0);
+  const gchar *b0 =
+    g_ptr_array_index (base->agent_script_executor.scheduler_cron_time, 0);
   const gchar *m0 =
     g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 0);
-  assert_that (m0, is_equal_to_string (a0));
-  assert_that (m0, is_not_equal_to (a0));
+
+  assert_that (m0, is_equal_to_string (b0));
+  assert_that (m0, is_not_equal_to (b0));
 
   agent_controller_agent_config_free (merged);
-  agent_controller_agent_free (agent);
+  agent_controller_agent_config_free (base);
 }
 
 Ensure (agent_controller,
         build_config_with_defaults_starts_from_update_when_provided)
 {
-  agent_controller_agent_t agent = agent_controller_agent_new ();
-  assert_that (agent, is_not_null);
+  agent_controller_agent_config_t base = make_agent_config ();
+  assert_that (base, is_not_null);
 
-  agent->config = make_agent_config ();
-  assert_that (agent->config, is_not_null);
-  agent->config->heartbeat.interval_in_seconds = 600;
+  base->heartbeat.interval_in_seconds = 600;
 
   agent_controller_agent_config_t upd = agent_controller_agent_config_new ();
   assert_that (upd, is_not_null);
+
   upd->heartbeat.interval_in_seconds = 42;
 
   agent_controller_agent_config_t merged =
-    agent_controller_build_agent_config_with_defaults (agent, upd);
+    agent_controller_build_agent_config_with_defaults (base, upd);
 
   assert_that (merged, is_not_null);
   assert_that (merged->heartbeat.interval_in_seconds, is_equal_to (42));
 
   agent_controller_agent_config_free (merged);
   agent_controller_agent_config_free (upd);
-  agent_controller_agent_free (agent);
+  agent_controller_agent_config_free (base);
 }
 
 Ensure (agent_controller, scan_agent_config_new_initializes_members)
@@ -3062,18 +3143,29 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          parse_agent_returns_null_on_null_input);
   add_test_with_context (suite, agent_controller,
-                         build_patch_payload_from_single_agent);
+                         build_patch_payload_returns_null_for_null_updates);
   add_test_with_context (suite, agent_controller,
-                         patch_payload_overrides_only_authorized_field);
+                         build_patch_payload_returns_null_for_empty_updates);
   add_test_with_context (suite, agent_controller,
-                         patch_payload_overrides_only_update_to_latest_field);
+                         build_patch_payload_from_single_update);
   add_test_with_context (suite, agent_controller,
-                         patch_payload_overrides_only_min_interval);
-  add_test_with_context (
-    suite, agent_controller,
-    patch_payload_does_not_include_update_to_latest_when_not_provided);
+                         patch_payload_sets_authorized_false);
   add_test_with_context (suite, agent_controller,
-                         patch_payload_overrides_only_config);
+                         patch_payload_sets_update_to_latest_true);
+  add_test_with_context (suite, agent_controller,
+                         patch_payload_sets_update_to_latest_false);
+  add_test_with_context (suite, agent_controller,
+                         patch_payload_omits_unset_fields);
+  add_test_with_context (suite, agent_controller,
+                         patch_payload_skips_null_update);
+  add_test_with_context (suite, agent_controller,
+                         patch_payload_skips_update_without_agent_id);
+  add_test_with_context (suite, agent_controller,
+                         patch_payload_builds_multiple_updates);
+  add_test_with_context (suite, agent_controller,
+                         patch_payload_includes_config_with_defaults_from_base);
+  add_test_with_context (suite, agent_controller,
+                         patch_payload_omits_config_when_base_missing);
   add_test_with_context (suite, agent_controller,
                          agent_config_new_initializes_defaults);
   add_test_with_context (suite, agent_controller,
@@ -3112,6 +3204,17 @@ main (int argc, char **argv)
                          json_has_update_ignores_numbers);
   add_test_with_context (
     suite, agent_controller,
+    agent_update_list_new_allocates_list_and_updates_array);
+  add_test_with_context (suite, agent_controller,
+                         agent_update_list_new_returns_null_for_invalid_count);
+  add_test_with_context (suite, agent_controller,
+                         agent_update_list_new_returns_array_for_0_count);
+  add_test_with_context (suite, agent_controller,
+                         agent_update_list_free_handles_populated_list);
+  add_test_with_context (suite, agent_controller,
+                         agent_update_list_free_handles_null);
+  add_test_with_context (
+    suite, agent_controller,
     get_agents_returns_list_on_successful_response_with_extended_fields);
   add_test_with_context (suite, agent_controller,
                          get_agents_returns_null_on_non_200_status);
@@ -3121,10 +3224,6 @@ main (int argc, char **argv)
                          update_agents_returns_zero_on_success);
   add_test_with_context (suite, agent_controller,
                          update_agents_fails_with_null_connection);
-  add_test_with_context (suite, agent_controller,
-                         update_agents_fails_with_null_agents);
-  add_test_with_context (suite, agent_controller,
-                         update_agents_fails_with_null_update);
   add_test_with_context (suite, agent_controller,
                          update_agents_fails_on_http_error_status);
   add_test_with_context (suite, agent_controller,
@@ -3173,9 +3272,6 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, agent_controller,
     update_scan_agent_config_422_populates_errors_from_json);
-  add_test_with_context (
-    suite, agent_controller,
-    update_scan_agent_config_400_invalid_json_adds_invalid_payload);
   add_test_with_context (
     suite, agent_controller,
     update_scan_agent_config_400_invalid_json_adds_invalid_payload);
@@ -3264,23 +3360,23 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          get_scan_id_returns_dup_string_on_success);
   add_test_with_context (suite, agent_controller,
-                         build_config_with_defaults_fills_zeros_from_agent);
+                         build_config_with_defaults_fills_zeros_from_base);
   add_test_with_context (suite, agent_controller,
                          build_config_with_defaults_deep_copies_update_cron);
   add_test_with_context (
     suite, agent_controller,
-    build_config_with_defaults_deep_copies_agent_cron_when_update_missing);
+    build_config_with_defaults_deep_copies_base_cron_when_update_missing);
   add_test_with_context (suite, agent_controller,
-                         patch_payload_config_zeros_default_to_agent_values);
+                         patch_payload_config_zeros_default_to_base_values);
   add_test_with_context (
     suite, agent_controller,
-    build_config_with_defaults_returns_null_when_agent_is_null);
+    build_config_with_defaults_returns_null_when_base_is_null);
   add_test_with_context (
     suite, agent_controller,
-    build_config_with_defaults_returns_null_when_agent_config_is_null);
+    build_config_with_defaults_uses_base_when_update_cfg_is_null);
   add_test_with_context (
     suite, agent_controller,
-    build_config_with_defaults_uses_agent_defaults_when_update_cfg_is_null);
+    build_config_with_defaults_starts_from_update_when_provided);
   add_test_with_context (
     suite, agent_controller,
     build_config_with_defaults_starts_from_update_when_provided);
@@ -3296,6 +3392,10 @@ main (int argc, char **argv)
                          parse_config_string_null_returns_null);
   add_test_with_context (suite, agent_controller,
                          parse_config_string_missing_blocks_keeps_defaults);
+  add_test_with_context (suite, agent_controller,
+                         parse_defaults_string_invalid_json_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         convert_scan_agent_config_string_builds_wrapper_json);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
