@@ -190,9 +190,22 @@ struct agent_controller_agent_update
   int authorized;                         ///< Authorization status for update
   int update_to_latest;                   ///< Automatically update the agent
                                           ///  to the latest available version.
-  agent_controller_agent_config_t config; ///< The Agent scan configuration
+  agent_controller_agent_config_t config; ///< The Agent scan configuration.
+  agent_controller_agent_config_t base;   ///< The Agent scan configuration.
+  gchar *agent_id;
 };
 typedef struct agent_controller_agent_update *agent_controller_agent_update_t;
+
+/**
+ * @brief Struct representing a list of updates per agent.
+ */
+struct agent_controller_agent_update_list
+{
+  int count;                                ///< Number of agents in the list
+  agent_controller_agent_update_t *updates; ///< Array of pointers to updates
+};
+typedef struct agent_controller_agent_update_list
+  *agent_controller_agent_update_list_t;
 
 /**
  * @brief The struct representing a connector to the Agent Controller service.
@@ -222,6 +235,13 @@ agent_controller_agent_list_new (int count);
 void
 agent_controller_agent_list_free (agent_controller_agent_list_t list);
 
+agent_controller_agent_update_list_t
+agent_controller_agent_update_list_new (int count);
+
+void
+agent_controller_agent_update_list_free (
+  agent_controller_agent_update_list_t list);
+
 agent_controller_agent_update_t
 agent_controller_agent_update_new (void);
 
@@ -239,8 +259,7 @@ agent_controller_get_agents (agent_controller_connector_t conn);
 
 int
 agent_controller_update_agents (agent_controller_connector_t conn,
-                                agent_controller_agent_list_t agents,
-                                agent_controller_agent_update_t update,
+                                agent_controller_agent_update_list_t updates,
                                 GPtrArray **errors);
 
 int

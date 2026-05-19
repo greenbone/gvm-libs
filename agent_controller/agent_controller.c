@@ -474,10 +474,10 @@ dup_str_ptr_array (const GPtrArray *src)
  */
 static agent_controller_agent_config_t
 agent_controller_build_agent_config_with_defaults (
-  const agent_controller_agent_t agent,
+  const agent_controller_agent_config_t base_cfg,
   const agent_controller_agent_config_t update_cfg)
 {
-  if (!agent || !agent->config)
+  if (!base_cfg)
     return NULL;
 
   agent_controller_agent_config_t merged = agent_controller_agent_config_new ();
@@ -488,7 +488,7 @@ agent_controller_build_agent_config_with_defaults (
   if (update_cfg)
     *merged = *update_cfg;
   else
-    *merged = *agent->config;
+    *merged = *base_cfg;
 
   merged->agent_script_executor.scheduler_cron_time = NULL;
 
@@ -497,41 +497,41 @@ agent_controller_build_agent_config_with_defaults (
     {
       if (merged->heartbeat.interval_in_seconds == 0)
         merged->heartbeat.interval_in_seconds =
-          agent->config->heartbeat.interval_in_seconds;
+          base_cfg->heartbeat.interval_in_seconds;
 
       if (merged->heartbeat.miss_until_inactive == 0)
         merged->heartbeat.miss_until_inactive =
-          agent->config->heartbeat.miss_until_inactive;
+          base_cfg->heartbeat.miss_until_inactive;
 
       if (merged->agent_control.retry.attempts == 0)
         merged->agent_control.retry.attempts =
-          agent->config->agent_control.retry.attempts;
+          base_cfg->agent_control.retry.attempts;
 
       if (merged->agent_control.retry.delay_in_seconds == 0)
         merged->agent_control.retry.delay_in_seconds =
-          agent->config->agent_control.retry.delay_in_seconds;
+          base_cfg->agent_control.retry.delay_in_seconds;
 
       if (merged->agent_control.retry.max_jitter_in_seconds == 0)
         merged->agent_control.retry.max_jitter_in_seconds =
-          agent->config->agent_control.retry.max_jitter_in_seconds;
+          base_cfg->agent_control.retry.max_jitter_in_seconds;
 
       if (merged->agent_script_executor.bulk_size == 0)
         merged->agent_script_executor.bulk_size =
-          agent->config->agent_script_executor.bulk_size;
+          base_cfg->agent_script_executor.bulk_size;
 
       if (merged->agent_script_executor.bulk_throttle_time_in_ms == 0)
         merged->agent_script_executor.bulk_throttle_time_in_ms =
-          agent->config->agent_script_executor.bulk_throttle_time_in_ms;
+          base_cfg->agent_script_executor.bulk_throttle_time_in_ms;
 
       if (merged->agent_script_executor.indexer_dir_depth == 0)
         merged->agent_script_executor.indexer_dir_depth =
-          agent->config->agent_script_executor.indexer_dir_depth;
+          base_cfg->agent_script_executor.indexer_dir_depth;
     }
 
   const GPtrArray *src_cron =
     (update_cfg && update_cfg->agent_script_executor.scheduler_cron_time)
       ? update_cfg->agent_script_executor.scheduler_cron_time
-      : agent->config->agent_script_executor.scheduler_cron_time;
+      : base_cfg->agent_script_executor.scheduler_cron_time;
 
   merged->agent_script_executor.scheduler_cron_time =
     dup_str_ptr_array (src_cron);
@@ -542,52 +542,50 @@ agent_controller_build_agent_config_with_defaults (
 /**
  * @brief Build a JSON payload for updating agents.
  *
- * @param[in] agents List of agents to include in the payload.
- * @param[in] update Optional update template to override agent fields.
+ * @param[in] updates Optional update template list to override agent fields.
  *
  * @return A newly allocated JSON string (unformatted) representing the update
  * payload. The caller is responsible for freeing the returned string using
  * `g_free()`.
  */
 static gchar *
-agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
-                                      agent_controller_agent_update_t update)
+agent_controller_build_patch_payload (
+  agent_controller_agent_update_list_t updates)
 {
-  if (!agents || agents->count <= 0)
+  if (!updates || updates->count <= 0)
     return NULL;
 
   cJSON *patch_body = cJSON_CreateObject ();
 
-  for (int i = 0; i < agents->count; ++i)
+  for (int i = 0; i < updates->count; ++i)
     {
-      agent_controller_agent_t agent = agents->agents[i];
-      if (!agent || !agent->agent_id)
+      agent_controller_agent_update_t agent_update = updates->updates[i];
+      if (!agent_update || !agent_update->agent_id)
         continue;
 
       cJSON *agent_obj = cJSON_CreateObject ();
 
       // authorized
-      int use_authorized = agent->authorized;
-      if (update && update->authorized != -1)
-        use_authorized = update->authorized;
-      cJSON_AddBoolToObject (agent_obj, "authorized", use_authorized);
+      if (agent_update->authorized != -1)
+        cJSON_AddBoolToObject (agent_obj, "authorized",
+                               agent_update->authorized ? 1 : 0);
 
       // update_to_latest
-      int use_update_to_latest = agent->update_to_latest;
-      if (update && update->update_to_latest != -1)
+      int use_update_to_latest = agent_update->update_to_latest;
+      if (agent_update && agent_update->update_to_latest != -1)
         {
-          use_update_to_latest = update->update_to_latest;
+          use_update_to_latest = agent_update->update_to_latest;
           cJSON_AddBoolToObject (agent_obj, "update_to_latest",
                                  use_update_to_latest);
         }
 
       /* config: prefer update->config if provided */
       cJSON *cfg_obj = NULL;
-      if (update && update->config)
+      if (agent_update && agent_update->config)
         {
           agent_controller_agent_config_t merged =
-            agent_controller_build_agent_config_with_defaults (agent,
-                                                               update->config);
+            agent_controller_build_agent_config_with_defaults (
+              agent_update->base, agent_update->config);
           if (merged)
             {
               cfg_obj = agent_controller_agent_config_struct_to_cjson (merged);
@@ -595,7 +593,7 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
               agent_controller_agent_config_free (merged);
             }
         }
-      cJSON_AddItemToObject (patch_body, agent->agent_id, agent_obj);
+      cJSON_AddItemToObject (patch_body, agent_update->agent_id, agent_obj);
     }
 
   gchar *payload = cJSON_PrintUnformatted (patch_body);
@@ -918,6 +916,49 @@ agent_controller_agent_list_free (agent_controller_agent_list_t list)
 }
 
 /**
+ * @brief Allocates a new list to hold a specified number of agent updates.
+ *
+ * @param[in] count Number of agent updates the list should hold
+ *
+ * @return agent_controller_agent_list_t
+ */
+agent_controller_agent_update_list_t
+agent_controller_agent_update_list_new (int count)
+{
+  if (count < 0)
+    return NULL;
+
+  agent_controller_agent_update_list_t list =
+    g_malloc0 (sizeof (struct agent_controller_agent_update_list));
+  list->count = count;
+  list->updates =
+    g_malloc0 (sizeof (agent_controller_agent_update_t) * (count + 1));
+  return list;
+}
+
+/**
+ * @brief Frees an agent list structure.
+ *
+ * @param[in] list to be freed
+ */
+void
+agent_controller_agent_update_list_free (
+  agent_controller_agent_update_list_t list)
+{
+  if (!list)
+    return;
+
+  if (list->updates)
+    {
+      for (int i = 0; i < list->count; ++i)
+        agent_controller_agent_update_free (list->updates[i]);
+      g_free (list->updates);
+    }
+
+  g_free (list);
+}
+
+/**
  * @brief Allocates and initializes a new agent update structure.
  *
  * @return agent_controller_agent_update_t pointer
@@ -947,9 +988,13 @@ agent_controller_agent_update_free (agent_controller_agent_update_t update)
     return;
 
   if (update->config)
-    {
-      agent_controller_agent_config_free (update->config);
-    }
+    agent_controller_agent_config_free (update->config);
+
+  if (update->base)
+    agent_controller_agent_config_free (update->base);
+
+  if (update->agent_id)
+    g_free (update->agent_id);
 
   g_free (update);
 }
@@ -1178,8 +1223,7 @@ agent_controller_get_agents (agent_controller_connector_t conn)
  * @brief Updates properties of a list of agents.
  *
  * @param[in] conn Active connector
- * @param[in] agents List of agents to update
- * @param[in] update Update information
+ * @param[in] updates Update information
  * @param[out] errors  If non-NULL and an HTTP 4xx occurs, will be set to a
  * GPtrArray* of gchar* error messages (caller takes ownership and must free)
  *
@@ -1187,18 +1231,17 @@ agent_controller_get_agents (agent_controller_connector_t conn)
  */
 int
 agent_controller_update_agents (agent_controller_connector_t conn,
-                                agent_controller_agent_list_t agents,
-                                agent_controller_agent_update_t update,
+                                agent_controller_agent_update_list_t updates,
                                 GPtrArray **errors)
 {
-  if (!conn || !agents || !update)
+  if (!conn || !updates)
     {
       g_warning ("%s: Invalid connection, agent list, or update override",
                  __func__);
       return AGENT_RESP_ERR;
     }
 
-  gchar *payload = agent_controller_build_patch_payload (agents, update);
+  gchar *payload = agent_controller_build_patch_payload (updates);
   if (!payload)
     {
       g_warning ("%s: Failed to build PATCH payload", __func__);
