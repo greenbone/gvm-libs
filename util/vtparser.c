@@ -272,7 +272,12 @@ parse_vt_json (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event,
   vt_obj = gvm_json_pull_expand_container (parser, &error_message);
   if (!cJSON_IsObject (vt_obj))
     {
-      g_free (error_message);
+      if (error_message)
+        {
+          g_warning ("%s: Error reading VT object: %s", __func__,
+                     error_message);
+          g_free (error_message);
+        }
       cJSON_Delete (vt_obj);
       return -1;
     }
