@@ -88,6 +88,146 @@ init_custom_header (const gchar *apikey, gboolean content_type)
 }
 
 /**
+ * @brief Add a custom header to an existing headers object.
+ *
+ * @param headers Existing headers object to add to (must not be NULL).
+ * @param key Key of the header (e.g., "Accept").
+ * @param value Value of the header (e.g., "application/json").
+ *
+ * @return Updated headers object on success,
+ *         or NULL if headers is NULL or if adding the header fails.
+ */
+static gboolean
+add_custom_header (gvm_http_headers_t *headers, const gchar *key,
+                   const gchar *value)
+{
+  if (!headers)
+    {
+      g_warning ("%s: Headers object is NULL", __func__);
+      return FALSE;
+    }
+
+  if (!key || !*key || !value)
+    {
+      g_warning ("%s: Invalid header key or value", __func__);
+      return FALSE;
+    }
+
+  gchar *header_str = g_strdup_printf ("%s: %s", key, value);
+
+  gboolean ok = gvm_http_add_header (headers, header_str);
+  if (!ok)
+    g_warning ("%s: Failed to add header: %s", __func__, header_str);
+
+  g_free (header_str);
+  return ok;
+}
+
+/**
+ * @brief Construct the full URL for an Agent Controller request based on the
+ * connector configuration and request path.
+ *
+ * @param[in] conn The `agent_controller_connector_t` containing connection
+ * details.
+ * @param[in] path The request path (e.g., "/api/v1/admin/agents").
+ * @param[out] url Pointer to a gchar* that will be allocated with the full URL.
+ *
+ * @return AGENT_CONTROLLER_OK on success, or an appropriate error code on
+ * failure (e.g., missing connection, missing URL components).
+ *
+ * The caller is responsible for freeing the allocated URL string with g_free().
+ */
+static agent_controller_error_t
+agent_controller_build_url (agent_controller_connector_t conn,
+                            const gchar *path, gchar **url)
+{
+  if (!conn)
+    {
+      g_warning ("%s: Missing connection", __func__);
+      return AGENT_CONTROLLER_INVALID_VALUE;
+    }
+
+  if (!url)
+    {
+      g_warning ("%s: Missing output URL pointer", __func__);
+      return AGENT_CONTROLLER_INVALID_VALUE;
+    }
+
+  if (conn->unix_socket_path && conn->unix_socket_path[0] != '\0')
+    {
+      *url = g_strdup_printf ("http://127.0.0.1%s", path);
+    }
+  else
+    {
+      if (!conn->protocol || !conn->host)
+        {
+          g_warning ("%s: Missing URL components", __func__);
+          return AGENT_CONTROLLER_INVALID_VALUE;
+        }
+
+      *url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
+                              conn->port, path);
+    }
+
+  return AGENT_CONTROLLER_OK;
+}
+
+/**
+ * @brief Send an HTTP(S) request to the agent-control server with optional
+ * custom headers.
+ *
+ * @param[in] conn          The `agent_controller_connector_t` containing server
+ * and certificate details.
+ * @param[in] method        The HTTP method (GET, POST, PUT, etc.).
+ * @param[in] path          The request path (e.g., "/api/v1/admin/agents").
+ * @param[in] payload       Optional request body payload.
+ * @param[in] headers       Optional custom headers to include in the request.
+ *
+ * @return Pointer to a `gvm_http_response_t` containing status code and body.
+ *         Must be freed using `gvm_http_response_free()`.
+ */
+static gvm_http_response_t *
+agent_controller_send_request_with_headers (agent_controller_connector_t conn,
+                                            gvm_http_method_t method,
+                                            const gchar *path,
+                                            const gchar *payload,
+                                            gvm_http_headers_t *headers)
+{
+  gchar *url = NULL;
+  gvm_http_response_t *http_response = NULL;
+  gboolean free_headers = FALSE;
+
+  agent_controller_error_t resp = agent_controller_build_url (conn, path, &url);
+  if (resp != AGENT_CONTROLLER_OK)
+    {
+      g_warning ("%s: Failed to set URL for request", __func__);
+      return NULL;
+    }
+
+  if (!headers)
+    {
+      headers = init_custom_header (conn->apikey, TRUE);
+      free_headers = TRUE;
+    }
+
+  http_response =
+    gvm_http_request_unix (url, method, payload, headers, conn->ca_cert,
+                           conn->cert, conn->key, conn->unix_socket_path,
+                           NULL // No manual stream allocation
+    );
+  g_free (url);
+  if (free_headers)
+    gvm_http_headers_free (headers);
+
+  if (!http_response)
+    {
+      g_warning ("%s: HTTP request failed", __func__);
+      return NULL;
+    }
+  return http_response;
+}
+
+/**
  * @brief Sends an HTTP(S) request to the agent-control server.
  *
  * @param[in] conn          The `agent_controller_connector_t` containing server
@@ -95,7 +235,6 @@ init_custom_header (const gchar *apikey, gboolean content_type)
  * @param[in] method        The HTTP method (GET, POST, PUT, etc.).
  * @param[in] path          The request path (e.g., "/api/v1/admin/agents").
  * @param[in] payload       Optional request body payload.
- * @param[in] apikey        Optional Api key for Authorization header.
  *
  * @return Pointer to a `gvm_http_response_t` containing status code and body.
  *         Must be freed using `gvm_http_response_free()`.
@@ -103,50 +242,39 @@ init_custom_header (const gchar *apikey, gboolean content_type)
 static gvm_http_response_t *
 agent_controller_send_request (agent_controller_connector_t conn,
                                gvm_http_method_t method, const gchar *path,
-                               const gchar *payload, const gchar *apikey)
+                               const gchar *payload)
 {
-  gchar *url = NULL;
-  if (!conn)
-    {
-      g_warning ("%s: Missing connection", __func__);
-      return NULL;
-    }
+  gvm_http_response_t *http_response = NULL;
 
-  if (conn->unix_socket_path && conn->unix_socket_path[0] != '\0')
-    {
-      // ref: https://curl.se/libcurl/c/CURLOPT_UNIX_SOCKET_PATH.html
-      url = g_strdup_printf ("http://127.0.0.1%s", path);
-    }
-  else
-    {
-      if (!conn->protocol || !conn->host)
-        {
-          g_warning ("%s: Missing URL components", __func__);
-          return NULL;
-        }
-
-      url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
-                             conn->port, path);
-    }
-
-  gvm_http_headers_t *headers = init_custom_header (apikey, TRUE);
-
-  gvm_http_response_t *http_response =
-    gvm_http_request_unix (url, method, payload, headers, conn->ca_cert,
-                           conn->cert, conn->key, conn->unix_socket_path,
-                           NULL // No manual stream allocation
+  http_response =
+    agent_controller_send_request_with_headers (conn, method, path, payload,
+                                                NULL // No custom headers
     );
 
-  g_free (url);
-  gvm_http_headers_free (headers);
-
-  if (!http_response)
-    {
-      g_warning ("%s: HTTP request failed", __func__);
-      return NULL;
-    }
-
   return http_response;
+}
+
+/**
+ * @brief Get the language code string for a given instructions_lang_type_t.
+ *
+ * @param[in] lang_type The language type enum value.
+ *
+ * @return A string representing the language code (e.g., "en" for EN, "de" for
+ * DE). Defaults to "en" if the language type is unknown.
+ */
+static const gchar *
+instructions_lang_type_to_str (instructions_lang_type_t lang_type)
+{
+  switch (lang_type)
+    {
+    case EN:
+      return "en";
+    case DE:
+      return "de";
+    default:
+      g_warning ("%s: Unknown language type %d", __func__, lang_type);
+      return "en"; // Default to English
+    }
 }
 
 /**
@@ -1029,6 +1157,33 @@ agent_controller_agent_config_free (agent_controller_agent_config_t cfg)
 }
 
 /**
+ * @brief Allocate/zero a new installer instruction struct.
+ *
+ * @return Newly allocated installer instruction struct
+ */
+agent_controller_installer_instruction_t
+agent_controller_installer_instruction_new (void)
+{
+  return g_malloc0 (sizeof (struct agent_controller_installer_instruction));
+}
+
+/**
+ * @brief Free an installer instruction struct.
+ *
+ * @param[in] instr to be freed
+ */
+void
+agent_controller_installer_instruction_free (
+  agent_controller_installer_instruction_t instr)
+{
+  if (!instr)
+    return;
+
+  g_free (instr->instruction);
+  g_free (instr);
+}
+
+/**
  * @brief Allocates and initializes a new scan agent config structure.
  *
  * @return Newly allocated scan agent config structure on success, NULL on
@@ -1166,8 +1321,8 @@ agent_controller_get_agents (agent_controller_connector_t conn)
       return NULL;
     }
 
-  gvm_http_response_t *response = agent_controller_send_request (
-    conn, GET, "/api/v1/admin/agents", NULL, conn->apikey);
+  gvm_http_response_t *response =
+    agent_controller_send_request (conn, GET, "/api/v1/admin/agents", NULL);
 
   if (!response)
     {
@@ -1249,7 +1404,7 @@ agent_controller_update_agents (agent_controller_connector_t conn,
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
-    conn, PATCH, "/api/v1/admin/agents", payload, conn->apikey);
+    conn, PATCH, "/api/v1/admin/agents", payload);
 
   g_free (payload);
 
@@ -1336,7 +1491,7 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
-    conn, POST, "/api/v1/admin/agents/delete", payload, conn->apikey);
+    conn, POST, "/api/v1/admin/agents/delete", payload);
 
   g_free (payload);
 
@@ -1480,7 +1635,7 @@ agent_controller_get_scan_agent_config (agent_controller_connector_t conn)
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
-    conn, GET, "/api/v1/admin/scan-agent-config", NULL, conn->apikey);
+    conn, GET, "/api/v1/admin/scan-agent-config", NULL);
   if (!response)
     {
       g_warning ("%s: No response", __func__);
@@ -1540,7 +1695,7 @@ agent_controller_update_scan_agent_config (
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
-    conn, PUT, "/api/v1/admin/scan-agent-config", payload, conn->apikey);
+    conn, PUT, "/api/v1/admin/scan-agent-config", payload);
 
   cJSON_free (payload);
 
@@ -1598,7 +1753,7 @@ agent_controller_get_agents_with_updates (agent_controller_connector_t conn)
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
-    conn, GET, "/api/v1/admin/agents/updates", NULL, conn->apikey);
+    conn, GET, "/api/v1/admin/agents/updates", NULL);
 
   if (!response)
     {
@@ -1715,4 +1870,74 @@ agent_controller_get_scan_id (const gchar *body)
 
   cJSON_Delete (root);
   return result;
+}
+
+/**
+ * @brief Retrieves installer instructions for agents.
+ *
+ * @param[in] conn Active connector to the Agent Controller
+ * @param[in] lang_type Language type for the instructions
+ *
+ * @return Newly allocated installer instruction struct on success, NULL on
+ *         failure. Caller must free with
+ * agent_controller_installer_instruction_free().
+ */
+agent_controller_installer_instruction_t
+agent_controller_get_installer_instruction (agent_controller_connector_t conn,
+                                            instructions_lang_type_t lang_type)
+{
+  if (!conn)
+    {
+      g_warning ("%s: Connector is NULL", __func__);
+      return NULL;
+    }
+
+  gvm_http_headers_t *headers = init_custom_header (conn->apikey, FALSE);
+  if (!headers)
+    return NULL;
+
+  if (!add_custom_header (headers, "Accept", "application/json"))
+    {
+      gvm_http_headers_free (headers);
+      return NULL;
+    }
+
+  gchar *path = g_strdup_printf (
+    "/agent-control/public/v2/api/installers/instructions?lang=%s",
+    instructions_lang_type_to_str (lang_type));
+
+  gvm_http_response_t *response =
+    agent_controller_send_request_with_headers (conn, GET, path, NULL, headers);
+
+  gvm_http_headers_free (headers);
+  g_free (path);
+
+  if (!response)
+    {
+      g_warning ("%s: Failed to get response", __func__);
+      return NULL;
+    }
+
+  if (response->http_status != 200)
+    {
+      g_warning ("%s: Received HTTP status %ld", __func__,
+                 response->http_status);
+      gvm_http_response_free (response);
+      return NULL;
+    }
+
+  agent_controller_installer_instruction_t instr =
+    agent_controller_installer_instruction_new ();
+
+  if (!instr)
+    {
+      gvm_http_response_free (response);
+      return NULL;
+    }
+
+  instr->lang_type = lang_type;
+  instr->instruction = response->data ? g_strdup (response->data) : NULL;
+
+  gvm_http_response_free (response);
+  return instr;
 }

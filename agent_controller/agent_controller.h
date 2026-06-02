@@ -214,6 +214,29 @@ typedef struct agent_controller_agent_update_list
  */
 typedef struct agent_controller_connector *agent_controller_connector_t;
 
+/**
+ * @brief Enum for supported instruction languages.
+ */
+typedef enum instruction_lang_type
+{
+  EN = 0,
+  DE = 1,
+} instructions_lang_type_t;
+
+/**
+ * @brief Struct representing an installer instruction for agents.
+ */
+struct agent_controller_installer_instruction
+{
+  instructions_lang_type_t
+    lang_type;        ///< Language of the instruction (e.g., EN, DE)
+  gchar *instruction; ///< The installation instruction JSON in the specified
+                      ///< language
+};
+
+typedef struct agent_controller_installer_instruction
+  *agent_controller_installer_instruction_t;
+
 agent_controller_connector_t
 agent_controller_connector_new (void);
 
@@ -255,6 +278,13 @@ agent_controller_agent_config_new (void);
 
 void
 agent_controller_agent_config_free (agent_controller_agent_config_t cfg);
+
+agent_controller_installer_instruction_t
+agent_controller_installer_instruction_new (void);
+
+void
+agent_controller_installer_instruction_free (
+  agent_controller_installer_instruction_t instr);
 
 agent_controller_agent_list_t
 agent_controller_get_agents (agent_controller_connector_t conn);
@@ -306,5 +336,9 @@ agent_controller_convert_scan_agent_config_string (
 
 agent_controller_scan_agent_config_t
 agent_controller_parse_scan_agent_config_string (const gchar *);
+
+agent_controller_installer_instruction_t
+agent_controller_get_installer_instruction (agent_controller_connector_t conn,
+                                            instructions_lang_type_t lang_type);
 
 #endif /* not _GVM_AGENT_CONTROLLER_AGENT_CONTROLLER_H */

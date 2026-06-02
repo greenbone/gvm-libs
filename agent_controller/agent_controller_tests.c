@@ -501,11 +501,10 @@ Ensure (agent_controller, send_request_builds_url_and_calls_http_request)
   conn->key = g_strdup ("key.pem");
 
   const gchar *path = "/api/v1/test";
-  const gchar *token = "mytoken";
   const gchar *payload = "{\"key\":\"value\"}";
 
   gvm_http_response_t *resp =
-    agent_controller_send_request (conn, POST, path, payload, token);
+    agent_controller_send_request (conn, POST, path, payload);
 
   assert_that (resp, is_not_null);
   assert_that (last_sent_url,
@@ -519,7 +518,7 @@ Ensure (agent_controller, send_request_builds_url_and_calls_http_request)
 Ensure (agent_controller, send_request_returns_null_if_conn_is_null)
 {
   gvm_http_response_t *resp =
-    agent_controller_send_request (NULL, POST, "/test", "{}", "token");
+    agent_controller_send_request (NULL, POST, "/test", "{}");
   assert_that (resp, is_null);
 }
 
@@ -536,11 +535,10 @@ Ensure (agent_controller,
   conn->unix_socket_path = g_strdup ("/tmp/test.sock");
 
   const gchar *path = "/api/v1/test";
-  const gchar *token = "mytoken";
   const gchar *payload = "{\"key\":\"value\"}";
 
   gvm_http_response_t *resp =
-    agent_controller_send_request (conn, POST, path, payload, token);
+    agent_controller_send_request (conn, POST, path, payload);
 
   assert_that (resp, is_not_null);
   assert_that (last_sent_url,
@@ -558,7 +556,7 @@ Ensure (agent_controller, send_request_returns_null_if_protocol_missing)
   conn->port = 8080;
 
   gvm_http_response_t *resp =
-    agent_controller_send_request (conn, GET, "/test", NULL, NULL);
+    agent_controller_send_request (conn, GET, "/test", NULL);
   assert_that (resp, is_null);
 
   agent_controller_connector_free (conn);
@@ -571,7 +569,7 @@ Ensure (agent_controller, send_request_returns_null_if_host_missing)
   conn->port = 8080;
 
   gvm_http_response_t *resp =
-    agent_controller_send_request (conn, GET, "/test", NULL, NULL);
+    agent_controller_send_request (conn, GET, "/test", NULL);
   assert_that (resp, is_null);
 
   agent_controller_connector_free (conn);
@@ -585,7 +583,7 @@ Ensure (agent_controller, send_request_works_without_bearer_token)
   conn->port = 8080;
 
   gvm_http_response_t *resp =
-    agent_controller_send_request (conn, GET, "/test", NULL, "");
+    agent_controller_send_request (conn, GET, "/test", NULL);
 
   assert_that (resp, is_not_null);
   assert_that (last_sent_url,
@@ -3065,6 +3063,327 @@ Ensure (agent_controller, parse_config_string_missing_blocks_keeps_defaults)
   agent_controller_scan_agent_config_free (d);
 }
 
+Ensure (agent_controller, add_custom_header_returns_null_when_headers_null)
+{
+  gboolean result = add_custom_header (NULL, "Accept", "application/json");
+
+  assert_that (result, is_false);
+}
+
+Ensure (agent_controller, add_custom_header_adds_accept_header)
+{
+  called_headers = NULL;
+
+  gvm_http_headers_t *headers = gvm_http_headers_new ();
+  assert_that (headers, is_not_null);
+
+  gboolean result = add_custom_header (headers, "Accept", "application/json");
+
+  assert_that (result, is_true);
+  assert_that (called_headers, is_not_null);
+  assert_that ((int) called_headers->len, is_equal_to (1));
+
+  const gchar *header = g_ptr_array_index (called_headers, 0);
+  assert_that (header, is_equal_to_string ("Accept: application/json"));
+
+  gvm_http_headers_free (headers);
+
+  g_ptr_array_free (called_headers, TRUE);
+  called_headers = NULL;
+}
+
+Ensure (agent_controller, set_url_returns_error_when_conn_is_null)
+{
+  gchar *url = NULL;
+
+  agent_controller_error_t rc =
+    agent_controller_build_url (NULL, "/api/v1/test", &url);
+
+  assert_that (rc, is_equal_to (AGENT_CONTROLLER_INVALID_VALUE));
+  assert_that (url, is_null);
+}
+
+Ensure (agent_controller, set_url_returns_error_when_output_url_is_null)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_error_t rc =
+    agent_controller_build_url (conn, "/api/v1/test", NULL);
+
+  assert_that (rc, is_equal_to (AGENT_CONTROLLER_INVALID_VALUE));
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, set_url_returns_error_when_protocol_is_missing)
+{
+  agent_controller_connector_t conn = agent_controller_connector_new ();
+  conn->host = g_strdup ("localhost");
+  conn->port = 8080;
+
+  gchar *url = NULL;
+
+  agent_controller_error_t rc =
+    agent_controller_build_url (conn, "/api/v1/test", &url);
+
+  assert_that (rc, is_equal_to (AGENT_CONTROLLER_INVALID_VALUE));
+  assert_that (url, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, set_url_returns_error_when_host_is_missing)
+{
+  agent_controller_connector_t conn = agent_controller_connector_new ();
+  conn->protocol = g_strdup ("http");
+  conn->port = 8080;
+
+  gchar *url = NULL;
+
+  agent_controller_error_t rc =
+    agent_controller_build_url (conn, "/api/v1/test", &url);
+
+  assert_that (rc, is_equal_to (AGENT_CONTROLLER_INVALID_VALUE));
+  assert_that (url, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, set_url_builds_http_url)
+{
+  agent_controller_connector_t conn = agent_controller_connector_new ();
+  conn->protocol = g_strdup ("http");
+  conn->host = g_strdup ("localhost");
+  conn->port = 8080;
+
+  gchar *url = NULL;
+
+  agent_controller_error_t rc =
+    agent_controller_build_url (conn, "/api/v1/test", &url);
+
+  assert_that (rc, is_equal_to (AGENT_CONTROLLER_OK));
+  assert_that (url, is_equal_to_string ("http://localhost:8080/api/v1/test"));
+
+  g_free (url);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, set_url_builds_https_url)
+{
+  agent_controller_connector_t conn = agent_controller_connector_new ();
+  conn->protocol = g_strdup ("https");
+  conn->host = g_strdup ("example.com");
+  conn->port = 443;
+
+  gchar *url = NULL;
+
+  agent_controller_error_t rc =
+    agent_controller_build_url (conn, "/api/v1/test", &url);
+
+  assert_that (rc, is_equal_to (AGENT_CONTROLLER_OK));
+  assert_that (url, is_equal_to_string ("https://example.com:443/api/v1/test"));
+
+  g_free (url);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, set_url_uses_unix_socket_url_when_socket_path_exists)
+{
+  agent_controller_connector_t conn = agent_controller_connector_new ();
+  conn->protocol = g_strdup ("https");
+  conn->host = g_strdup ("localhost");
+  conn->port = 8443;
+  conn->unix_socket_path = g_strdup ("/tmp/agent-controller.sock");
+
+  gchar *url = NULL;
+
+  agent_controller_error_t rc =
+    agent_controller_build_url (conn, "/api/v1/test", &url);
+
+  assert_that (rc, is_equal_to (AGENT_CONTROLLER_OK));
+  assert_that (url, is_equal_to_string ("http://127.0.0.1/api/v1/test"));
+
+  g_free (url);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (
+  agent_controller,
+  send_request_with_headers_uses_custom_headers_and_does_not_create_default_headers)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  gvm_http_headers_t *headers = init_custom_header (conn->apikey, FALSE);
+  assert_that (headers, is_not_null);
+
+  add_custom_header (headers, "Accept", "application/json");
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup ("{}");
+
+  gvm_http_response_t *response = agent_controller_send_request_with_headers (
+    conn, GET, "/api/v1/admin/installer-instructions?lang=en", NULL, headers);
+
+  assert_that (response, is_not_null);
+  assert_that (
+    last_sent_url,
+    is_equal_to_string (
+      "http://localhost:8081/api/v1/admin/installer-instructions?lang=en"));
+
+  assert_that (called_headers, is_not_null);
+  assert_that ((int) called_headers->len, is_equal_to (2));
+
+  assert_that ((const gchar *) g_ptr_array_index (called_headers, 0),
+               is_equal_to_string ("X-API-KEY: token"));
+  assert_that ((const gchar *) g_ptr_array_index (called_headers, 1),
+               is_equal_to_string ("Accept: application/json"));
+
+  gvm_http_response_free (response);
+  gvm_http_headers_free (headers);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        send_request_with_headers_creates_default_headers_when_headers_are_null)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup ("{}");
+
+  gvm_http_response_t *response = agent_controller_send_request_with_headers (
+    conn, GET, "/api/v1/test", NULL, NULL);
+
+  assert_that (response, is_not_null);
+  assert_that (last_sent_url,
+               is_equal_to_string ("http://localhost:8081/api/v1/test"));
+
+  assert_that (called_headers, is_not_null);
+  assert_that ((int) called_headers->len, is_equal_to (2));
+
+  assert_that ((const gchar *) g_ptr_array_index (called_headers, 0),
+               is_equal_to_string ("X-API-KEY: token"));
+  assert_that ((const gchar *) g_ptr_array_index (called_headers, 1),
+               is_equal_to_string ("Content-Type: application/json"));
+
+  gvm_http_response_free (response);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        send_request_with_headers_returns_null_when_set_url_fails)
+{
+  agent_controller_connector_t conn = agent_controller_connector_new ();
+  conn->protocol = g_strdup ("http");
+  conn->port = 8080;
+
+  gvm_http_response_t *response = agent_controller_send_request_with_headers (
+    conn, GET, "/api/v1/test", NULL, NULL);
+
+  assert_that (response, is_null);
+  assert_that (last_sent_url, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, instructions_lang_type_to_str_returns_en_for_en)
+{
+  const gchar *lang = instructions_lang_type_to_str (EN);
+
+  assert_that (lang, is_equal_to_string ("en"));
+}
+
+Ensure (agent_controller, instructions_lang_type_to_str_returns_de_for_de)
+{
+  const gchar *lang = instructions_lang_type_to_str (DE);
+
+  assert_that (lang, is_equal_to_string ("de"));
+}
+
+Ensure (agent_controller,
+        instructions_lang_type_to_str_defaults_to_en_for_unknown)
+{
+  const gchar *lang =
+    instructions_lang_type_to_str ((instructions_lang_type_t) 99);
+
+  assert_that (lang, is_equal_to_string ("en"));
+}
+
+Ensure (agent_controller,
+        get_installer_instruction_returns_instruction_on_success_en)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup ("{\"instruction\":\"install agent\"}");
+
+  agent_controller_installer_instruction_t instr =
+    agent_controller_get_installer_instruction (conn, EN);
+
+  assert_that (instr, is_not_null);
+  assert_that (instr->lang_type, is_equal_to (EN));
+  assert_that (instr->instruction,
+               is_equal_to_string ("{\"instruction\":\"install agent\"}"));
+
+  assert_that (last_sent_url,
+               is_equal_to_string ("http://localhost:8081/agent-control/public/"
+                                   "v2/api/installers/instructions?lang=en"));
+
+  assert_that (called_headers, is_not_null);
+  assert_that ((int) called_headers->len, is_equal_to (2));
+
+  assert_that ((const gchar *) g_ptr_array_index (called_headers, 0),
+               is_equal_to_string ("X-API-KEY: token"));
+  assert_that ((const gchar *) g_ptr_array_index (called_headers, 1),
+               is_equal_to_string ("Accept: application/json"));
+
+  agent_controller_installer_instruction_free (instr);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        get_installer_instruction_returns_instruction_on_success_de)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup ("{\"instruction\":\"agent installieren\"}");
+
+  agent_controller_installer_instruction_t instr =
+    agent_controller_get_installer_instruction (conn, DE);
+
+  assert_that (instr, is_not_null);
+  assert_that (instr->lang_type, is_equal_to (DE));
+  assert_that (instr->instruction,
+               is_equal_to_string ("{\"instruction\":\"agent installieren\"}"));
+
+  assert_that (last_sent_url,
+               is_equal_to_string ("http://localhost:8081/agent-control/public/"
+                                   "v2/api/installers/instructions?lang=de"));
+
+  agent_controller_installer_instruction_free (instr);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        get_installer_instruction_returns_null_when_request_fails)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 500;
+  g_clear_pointer (&mock_response_data, g_free);
+
+  agent_controller_installer_instruction_t instr =
+    agent_controller_get_installer_instruction (conn, EN);
+
+  assert_that (instr, is_null);
+  assert_that (last_sent_url,
+               is_equal_to_string ("http://localhost:8081/agent-control/public/"
+                                   "v2/api/installers/instructions?lang=en"));
+
+  agent_controller_connector_free (conn);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -3396,6 +3715,51 @@ main (int argc, char **argv)
                          parse_defaults_string_invalid_json_returns_null);
   add_test_with_context (suite, agent_controller,
                          convert_scan_agent_config_string_builds_wrapper_json);
+  add_test_with_context (suite, agent_controller,
+                         add_custom_header_returns_null_when_headers_null);
+  add_test_with_context (suite, agent_controller,
+                         add_custom_header_adds_accept_header);
+
+  add_test_with_context (suite, agent_controller,
+                         set_url_returns_error_when_conn_is_null);
+  add_test_with_context (suite, agent_controller,
+                         set_url_returns_error_when_output_url_is_null);
+  add_test_with_context (suite, agent_controller,
+                         set_url_returns_error_when_protocol_is_missing);
+  add_test_with_context (suite, agent_controller,
+                         set_url_returns_error_when_host_is_missing);
+  add_test_with_context (suite, agent_controller, set_url_builds_http_url);
+  add_test_with_context (suite, agent_controller, set_url_builds_https_url);
+  add_test_with_context (suite, agent_controller,
+                         set_url_uses_unix_socket_url_when_socket_path_exists);
+
+  add_test_with_context (
+    suite, agent_controller,
+    send_request_with_headers_uses_custom_headers_and_does_not_create_default_headers);
+  add_test_with_context (
+    suite, agent_controller,
+    send_request_with_headers_creates_default_headers_when_headers_are_null);
+  add_test_with_context (
+    suite, agent_controller,
+    send_request_with_headers_returns_null_when_set_url_fails);
+
+  add_test_with_context (suite, agent_controller,
+                         instructions_lang_type_to_str_returns_en_for_en);
+  add_test_with_context (suite, agent_controller,
+                         instructions_lang_type_to_str_returns_de_for_de);
+  add_test_with_context (
+    suite, agent_controller,
+    instructions_lang_type_to_str_defaults_to_en_for_unknown);
+
+  add_test_with_context (
+    suite, agent_controller,
+    get_installer_instruction_returns_instruction_on_success_en);
+  add_test_with_context (
+    suite, agent_controller,
+    get_installer_instruction_returns_instruction_on_success_de);
+  add_test_with_context (
+    suite, agent_controller,
+    get_installer_instruction_returns_null_when_request_fails);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
