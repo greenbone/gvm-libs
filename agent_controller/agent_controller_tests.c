@@ -3097,7 +3097,7 @@ Ensure (agent_controller, set_url_returns_error_when_conn_is_null)
   gchar *url = NULL;
 
   agent_controller_error_t rc =
-    agent_controller_set_url (NULL, "/api/v1/test", &url);
+    agent_controller_build_url (NULL, "/api/v1/test", &url);
 
   assert_that (rc, is_equal_to (AGENT_CONTROLLER_INVALID_VALUE));
   assert_that (url, is_null);
@@ -3108,7 +3108,7 @@ Ensure (agent_controller, set_url_returns_error_when_output_url_is_null)
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_error_t rc =
-    agent_controller_set_url (conn, "/api/v1/test", NULL);
+    agent_controller_build_url (conn, "/api/v1/test", NULL);
 
   assert_that (rc, is_equal_to (AGENT_CONTROLLER_INVALID_VALUE));
 
@@ -3124,7 +3124,7 @@ Ensure (agent_controller, set_url_returns_error_when_protocol_is_missing)
   gchar *url = NULL;
 
   agent_controller_error_t rc =
-    agent_controller_set_url (conn, "/api/v1/test", &url);
+    agent_controller_build_url (conn, "/api/v1/test", &url);
 
   assert_that (rc, is_equal_to (AGENT_CONTROLLER_INVALID_VALUE));
   assert_that (url, is_null);
@@ -3141,7 +3141,7 @@ Ensure (agent_controller, set_url_returns_error_when_host_is_missing)
   gchar *url = NULL;
 
   agent_controller_error_t rc =
-    agent_controller_set_url (conn, "/api/v1/test", &url);
+    agent_controller_build_url (conn, "/api/v1/test", &url);
 
   assert_that (rc, is_equal_to (AGENT_CONTROLLER_INVALID_VALUE));
   assert_that (url, is_null);
@@ -3159,7 +3159,7 @@ Ensure (agent_controller, set_url_builds_http_url)
   gchar *url = NULL;
 
   agent_controller_error_t rc =
-    agent_controller_set_url (conn, "/api/v1/test", &url);
+    agent_controller_build_url (conn, "/api/v1/test", &url);
 
   assert_that (rc, is_equal_to (AGENT_CONTROLLER_OK));
   assert_that (url, is_equal_to_string ("http://localhost:8080/api/v1/test"));
@@ -3178,7 +3178,7 @@ Ensure (agent_controller, set_url_builds_https_url)
   gchar *url = NULL;
 
   agent_controller_error_t rc =
-    agent_controller_set_url (conn, "/api/v1/test", &url);
+    agent_controller_build_url (conn, "/api/v1/test", &url);
 
   assert_that (rc, is_equal_to (AGENT_CONTROLLER_OK));
   assert_that (url, is_equal_to_string ("https://example.com:443/api/v1/test"));
@@ -3198,7 +3198,7 @@ Ensure (agent_controller, set_url_uses_unix_socket_url_when_socket_path_exists)
   gchar *url = NULL;
 
   agent_controller_error_t rc =
-    agent_controller_set_url (conn, "/api/v1/test", &url);
+    agent_controller_build_url (conn, "/api/v1/test", &url);
 
   assert_that (rc, is_equal_to (AGENT_CONTROLLER_OK));
   assert_that (url, is_equal_to_string ("http://127.0.0.1/api/v1/test"));

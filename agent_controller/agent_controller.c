@@ -138,8 +138,8 @@ add_custom_header (gvm_http_headers_t *headers, const gchar *key,
  * The caller is responsible for freeing the allocated URL string with g_free().
  */
 static agent_controller_error_t
-agent_controller_set_url (agent_controller_connector_t conn, const gchar *path,
-                          gchar **url)
+agent_controller_build_url (agent_controller_connector_t conn,
+                            const gchar *path, gchar **url)
 {
   if (!conn)
     {
@@ -197,7 +197,7 @@ agent_controller_send_request_with_headers (agent_controller_connector_t conn,
   gvm_http_response_t *http_response = NULL;
   gboolean free_headers = FALSE;
 
-  agent_controller_error_t resp = agent_controller_set_url (conn, path, &url);
+  agent_controller_error_t resp = agent_controller_build_url (conn, path, &url);
   if (resp != AGENT_CONTROLLER_OK)
     {
       g_warning ("%s: Failed to set URL for request", __func__);
@@ -250,12 +250,6 @@ agent_controller_send_request (agent_controller_connector_t conn,
     agent_controller_send_request_with_headers (conn, method, path, payload,
                                                 NULL // No custom headers
     );
-
-  if (!http_response)
-    {
-      g_warning ("%s: HTTP request failed", __func__);
-      return NULL;
-    }
 
   return http_response;
 }
