@@ -1576,8 +1576,18 @@ Ensure (agent_controller, update_agents_fails_on_http_error_status)
 Ensure (agent_controller, update_agents_400_populates_errors_from_json)
 {
   mock_http_status = 400;
-  mock_response_data =
-    g_strdup ("{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
+  mock_response_data = g_strdup (
+    "{"
+    "  \"validation\": ["
+    "    {"
+    "      \"agent_id\": \"GAT-29::2d61a736\","
+    "      \"errors\": ["
+    "        \"agent_control.retry.attempts must be >= 0\","
+    "        \"agent_script_executor.scheduler_cron_time[0] is invalid\""
+    "      ]"
+    "    }"
+    "  ]"
+    "}");
 
   agent_controller_connector_t conn = make_conn ();
 
@@ -1592,10 +1602,17 @@ Ensure (agent_controller, update_agents_400_populates_errors_from_json)
   assert_that (rc, is_equal_to (-1));
   assert_that (errs, is_not_null);
   assert_that ((int) errs->len, is_equal_to (2));
-  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
-               is_equal_to_string ("e1"));
+
+  assert_that (
+    (const gchar *) g_ptr_array_index (errs, 0),
+    is_equal_to_string ("GAT-29::2d61a736: "
+                        "agent_control.retry.attempts must be >= 0"));
+
   assert_that ((const gchar *) g_ptr_array_index (errs, 1),
-               is_equal_to_string ("e2"));
+               is_equal_to_string (
+                 "GAT-29::2d61a736: "
+                 "agent_script_executor.scheduler_cron_time[0] is invalid"));
+
   assert_that (last_sent_url, contains_string ("/api/v1/admin/agents"));
 
   g_ptr_array_free (errs, TRUE);
@@ -1606,8 +1623,18 @@ Ensure (agent_controller, update_agents_400_populates_errors_from_json)
 Ensure (agent_controller, update_agents_422_populates_errors_from_json)
 {
   mock_http_status = 422;
-  mock_response_data =
-    g_strdup ("{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
+  mock_response_data = g_strdup (
+    "{"
+    "  \"validation\": ["
+    "    {"
+    "      \"agent_id\": \"GAT-29::2d61a736\","
+    "      \"errors\": ["
+    "        \"agent_control.retry.attempts must be >= 0\","
+    "        \"agent_script_executor.scheduler_cron_time[0] is invalid\""
+    "      ]"
+    "    }"
+    "  ]"
+    "}");
 
   agent_controller_connector_t conn = make_conn ();
 
@@ -1622,10 +1649,16 @@ Ensure (agent_controller, update_agents_422_populates_errors_from_json)
   assert_that (rc, is_equal_to (-1));
   assert_that (errs, is_not_null);
   assert_that ((int) errs->len, is_equal_to (2));
-  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
-               is_equal_to_string ("e1"));
+
+  assert_that (
+    (const gchar *) g_ptr_array_index (errs, 0),
+    is_equal_to_string ("GAT-29::2d61a736: "
+                        "agent_control.retry.attempts must be >= 0"));
+
   assert_that ((const gchar *) g_ptr_array_index (errs, 1),
-               is_equal_to_string ("e2"));
+               is_equal_to_string (
+                 "GAT-29::2d61a736: "
+                 "agent_script_executor.scheduler_cron_time[0] is invalid"));
 
   g_ptr_array_free (errs, TRUE);
   agent_controller_agent_update_list_free (updates);
@@ -1987,8 +2020,18 @@ Ensure (agent_controller,
         update_scan_agent_config_400_populates_errors_from_json)
 {
   mock_http_status = 400;
-  mock_response_data =
-    g_strdup ("{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
+  mock_response_data = g_strdup (
+    "{"
+    "  \"validation\": ["
+    "    {"
+    "      \"agent_id\": \"GAT-29::2d61a736\","
+    "      \"errors\": ["
+    "        \"agent_control.retry.attempts must be >= 0\","
+    "        \"agent_script_executor.scheduler_cron_time[0] is invalid\""
+    "      ]"
+    "    }"
+    "  ]"
+    "}");
 
   agent_controller_connector_t conn = make_conn ();
   agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
@@ -1999,10 +2042,16 @@ Ensure (agent_controller,
   assert_that (rc, is_equal_to (-1));
   assert_that (errs, is_not_null);
   assert_that ((int) errs->len, is_equal_to (2));
-  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
-               is_equal_to_string ("e1"));
+
+  assert_that (
+    (const gchar *) g_ptr_array_index (errs, 0),
+    is_equal_to_string ("GAT-29::2d61a736: "
+                        "agent_control.retry.attempts must be >= 0"));
+
   assert_that ((const gchar *) g_ptr_array_index (errs, 1),
-               is_equal_to_string ("e2"));
+               is_equal_to_string (
+                 "GAT-29::2d61a736: "
+                 "agent_script_executor.scheduler_cron_time[0] is invalid"));
 
   g_ptr_array_free (errs, TRUE);
   agent_controller_scan_agent_config_free (cfg);
@@ -2013,8 +2062,18 @@ Ensure (agent_controller,
         update_scan_agent_config_422_populates_errors_from_json)
 {
   mock_http_status = 422;
-  mock_response_data =
-    g_strdup ("{ \"errors\": [\"e1\", \"e2\"], \"warnings\": null }");
+  mock_response_data = g_strdup (
+    "{"
+    "  \"validation\": ["
+    "    {"
+    "      \"agent_id\": \"GAT-29::2d61a736\","
+    "      \"errors\": ["
+    "        \"agent_control.retry.attempts must be >= 0\","
+    "        \"agent_script_executor.scheduler_cron_time[0] is invalid\""
+    "      ]"
+    "    }"
+    "  ]"
+    "}");
 
   agent_controller_connector_t conn = make_conn ();
   agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
@@ -2025,10 +2084,16 @@ Ensure (agent_controller,
   assert_that (rc, is_equal_to (-1));
   assert_that (errs, is_not_null);
   assert_that ((int) errs->len, is_equal_to (2));
-  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
-               is_equal_to_string ("e1"));
+
+  assert_that (
+    (const gchar *) g_ptr_array_index (errs, 0),
+    is_equal_to_string ("GAT-29::2d61a736: "
+                        "agent_control.retry.attempts must be >= 0"));
+
   assert_that ((const gchar *) g_ptr_array_index (errs, 1),
-               is_equal_to_string ("e2"));
+               is_equal_to_string (
+                 "GAT-29::2d61a736: "
+                 "agent_script_executor.scheduler_cron_time[0] is invalid"));
 
   g_ptr_array_free (errs, TRUE);
   agent_controller_scan_agent_config_free (cfg);
