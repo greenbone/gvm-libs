@@ -793,33 +793,71 @@ push_error (GPtrArray **errors, const gchar *msg)
 static void
 parse_errors_json_into_array (const gchar *body, GPtrArray **errors)
 {
+  cJSON *root;
+  const cJSON *validation_node;
+  gboolean any_added = FALSE;
+
   if (!errors)
     return;
 
-  /* cJSON requires NUL-terminated input; make a safe copy. */
-  cJSON *root = cJSON_Parse (body);
+  if (!body || *body == '\0')
+    {
+      push_error (errors, "Request rejected (400): empty response body.");
+      return;
+    }
 
+  root = cJSON_Parse (body);
   if (!root)
     {
       push_error (errors, "Request rejected (400): invalid JSON payload.");
       return;
     }
 
-  const cJSON *errors_node = cJSON_GetObjectItemCaseSensitive (root, "errors");
-  gboolean any_added = FALSE;
-
-  if (cJSON_IsArray (errors_node))
+  validation_node = cJSON_GetObjectItemCaseSensitive (root, "validation");
+  if (cJSON_IsArray (validation_node))
     {
-      int n = cJSON_GetArraySize (errors_node);
-      for (int i = 0; i < n; ++i)
+      const cJSON *validation_item;
+
+      cJSON_ArrayForEach (validation_item, validation_node)
+      {
+        const cJSON *agent_id_node;
+        const cJSON *errors_node;
+        const cJSON *error_item;
+        const gchar *agent_id = NULL;
+
+        if (!cJSON_IsObject (validation_item))
+          continue;
+
+        agent_id_node =
+          cJSON_GetObjectItemCaseSensitive (validation_item, "agent_id");
+        if (cJSON_IsString (agent_id_node) && agent_id_node->valuestring)
+          agent_id = agent_id_node->valuestring;
+
+        errors_node =
+          cJSON_GetObjectItemCaseSensitive (validation_item, "errors");
+        if (!cJSON_IsArray (errors_node))
+          continue;
+
+        cJSON_ArrayForEach (error_item, errors_node)
         {
-          const cJSON *it = cJSON_GetArrayItem (errors_node, i);
-          if (cJSON_IsString (it) && it->valuestring && *it->valuestring)
-            {
-              push_error (errors, it->valuestring);
-              any_added = TRUE;
-            }
+          gchar *message;
+
+          if (!cJSON_IsString (error_item) || !error_item->valuestring
+              || *error_item->valuestring == '\0')
+            continue;
+
+          if (agent_id && *agent_id)
+            message =
+              g_strdup_printf ("%s: %s", agent_id, error_item->valuestring);
+          else
+            message = g_strdup (error_item->valuestring);
+
+          push_error (errors, message);
+          g_free (message);
+
+          any_added = TRUE;
         }
+      }
     }
 
   if (!any_added)
