@@ -2467,20 +2467,52 @@ Ensure (agent_controller, push_error_does_not_change_existing_on_null_or_empty)
 
 Ensure (agent_controller, parse_errors_collects_messages_from_array)
 {
-  const char *json = "{"
-                     "  \"errors\":[\"e1\",\"e2\"],"
-                     "  \"warnings\":null"
-                     "}";
+  const char *json =
+    "{"
+    "  \"validation\": ["
+    "    {"
+    "      \"agent_id\": \"GAT-29::2d61a736\","
+    "      \"errors\": ["
+    "        \"agent_control.retry.attempts must be >= 0\","
+    "        \"agent_script_executor.scheduler_cron_time[0] is invalid\""
+    "      ]"
+    "    },"
+    "    {"
+    "      \"agent_id\": \"GAT-29::7f91bc22\","
+    "      \"errors\": ["
+    "        \"agent_control.retry.delay_seconds must be >= 0\","
+    "        \"agent_script_executor.scheduler_cron_time[1] is invalid\""
+    "      ]"
+    "    }"
+    "  ]"
+    "}";
+
   GPtrArray *errs = NULL;
 
   parse_errors_json_into_array (json, &errs);
 
   assert_that (errs, is_not_null);
-  assert_that ((int) errs->len, is_equal_to (2));
-  assert_that ((const gchar *) g_ptr_array_index (errs, 0),
-               is_equal_to_string ("e1"));
+  assert_that ((int) errs->len, is_equal_to (4));
+
+  assert_that (
+    (const gchar *) g_ptr_array_index (errs, 0),
+    is_equal_to_string ("GAT-29::2d61a736: "
+                        "agent_control.retry.attempts must be >= 0"));
+
   assert_that ((const gchar *) g_ptr_array_index (errs, 1),
-               is_equal_to_string ("e2"));
+               is_equal_to_string (
+                 "GAT-29::2d61a736: "
+                 "agent_script_executor.scheduler_cron_time[0] is invalid"));
+
+  assert_that (
+    (const gchar *) g_ptr_array_index (errs, 2),
+    is_equal_to_string ("GAT-29::7f91bc22: "
+                        "agent_control.retry.delay_seconds must be >= 0"));
+
+  assert_that ((const gchar *) g_ptr_array_index (errs, 3),
+               is_equal_to_string (
+                 "GAT-29::7f91bc22: "
+                 "agent_script_executor.scheduler_cron_time[1] is invalid"));
 
   g_ptr_array_free (errs, TRUE);
 }
