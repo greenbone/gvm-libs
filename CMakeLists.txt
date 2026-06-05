@@ -26,6 +26,11 @@ option(ENABLE_OPENVASD "Build openvasd library" ON)
 option(ENABLE_AGENTS "Build agent controller library" ON)
 option(ENABLE_CREDENTIAL_STORES "Build credential store library" ON)
 option(ENABLE_SECURITY_INTELLIGENCE "Build security intelligence library" ON)
+option(
+  ENABLE_WEB_APPLICATION_SCANNER
+  "Build web application scanner library"
+  ON
+)
 
 if(NOT BUILD_STATIC)
   set(BUILD_SHARED ON)
@@ -277,6 +282,10 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     list(APPEND TESTS security-intelligence-test)
   endif(ENABLE_SECURITY_INTELLIGENCE)
 
+  if(ENABLE_WEB_APPLICATION_SCANNER)
+    list(APPEND TESTS web-application-scanner-test)
+  endif(ENABLE_WEB_APPLICATION_SCANNER)
+
   add_custom_target(tests DEPENDS ${TESTS})
 
   # Code coverage
@@ -327,6 +336,7 @@ if(NOT SKIP_SRC)
     OR ENABLE_AGENTS
     OR ENABLE_CREDENTIAL_STORES
     OR ENABLE_SECURITY_INTELLIGENCE
+    OR ENABLE_WEB_APPLICATION_SCANNER
   )
     add_subdirectory(http)
   endif(
@@ -334,6 +344,7 @@ if(NOT SKIP_SRC)
     OR ENABLE_AGENTS
     OR ENABLE_CREDENTIAL_STORES
     OR ENABLE_SECURITY_INTELLIGENCE
+    OR ENABLE_WEB_APPLICATION_SCANNER
   )
 
   if(ENABLE_OPENVASD)
@@ -345,6 +356,13 @@ if(NOT SKIP_SRC)
   if(ENABLE_AGENTS)
     add_subdirectory(agent_controller)
   endif(ENABLE_AGENTS)
+
+  if(ENABLE_WEB_APPLICATION_SCANNER)
+    if(NOT ENABLE_OPENVASD)
+      add_subdirectory(http_scanner)
+    endif(NOT ENABLE_OPENVASD)
+    add_subdirectory(web_application_scanner)
+  endif(ENABLE_WEB_APPLICATION_SCANNER)
 
   if(ENABLE_CREDENTIAL_STORES)
     add_subdirectory(cyberark)
