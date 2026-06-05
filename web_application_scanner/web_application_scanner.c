@@ -76,7 +76,7 @@ add_credential_to_scan_json (gpointer credentials, gpointer cred_array)
 
   if (port)
     {
-      cJSON_AddNumberToObject (cred_obj, "port", atoi (port));
+      cJSON_AddNumberToObject (cred_obj, "port", strtol (port, NULL, 10));
     }
 
   cJSON *cred_type_obj = cJSON_CreateObject ();
@@ -121,6 +121,12 @@ web_application_build_scan_config_json (web_application_target_t *target,
   cJSON *urls_array = NULL;
   cJSON *exclude_urls_array = NULL;
   gchar *json_str = NULL;
+
+  if (!target || !scan_preferences)
+    {
+      g_warning ("%s: Target and scan preferences cannot be NULL.", __func__);
+      return NULL;
+    }
 
   scan_obj = cJSON_CreateObject ();
 
@@ -186,20 +192,26 @@ web_application_build_scan_config_json (web_application_target_t *target,
  * @param urls           The URLs of the target.
  * @param exclude_urls   The excluded URLs of the target.
  *
- * @return The newly allocated web_application_target_t.
+ * @return The newly allocated web_application_target_t. Null on error.
  */
 web_application_target_t *
 web_application_target_new (const gchar *scanid, const gchar *urls,
                             const gchar *exclude_urls)
 {
+  if (!urls || urls[0] == '\0')
+    {
+      g_warning ("%s: URLs cannot be NULL or empty.", __func__);
+      return NULL;
+    }
+
   web_application_target_t *new_target;
   new_target = g_malloc0 (sizeof (web_application_target_t));
 
   if (scanid && *scanid)
     new_target->scan_id = g_strdup (scanid);
 
+  new_target->urls = g_strdup (urls);
   new_target->exclude_urls = exclude_urls ? g_strdup (exclude_urls) : NULL;
-  new_target->urls = urls ? g_strdup (urls) : NULL;
 
   return new_target;
 }

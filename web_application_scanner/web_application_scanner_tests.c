@@ -25,10 +25,7 @@ Ensure (web_application_scanner, new_web_application_scanner_target_has_urls)
   web_application_target_t *target =
     web_application_target_new (NULL, NULL, NULL);
 
-  assert_that (target, is_not_equal_to (NULL));
-  assert_that (target->scan_id, is_equal_to (NULL));
-  assert_that (target->urls, is_equal_to (NULL));
-  assert_that (target->exclude_urls, is_equal_to (NULL));
+  assert_that (target, is_equal_to (NULL));
   web_application_target_free (target);
 
   const gchar *scanid = "TEST-SCAN-ID";
@@ -49,7 +46,7 @@ Ensure (web_application_scanner,
   scan_credential_t *credential;
   cJSON *credentials = cJSON_CreateArray ();
 
-  credential = scan_credential_new ("up", "generic", "0");
+  credential = scan_credential_new ("up", "generic", "123");
 
   scan_credential_set_auth_data (credential, "username", "admin");
   scan_credential_set_auth_data (credential, "password", "admin");
@@ -65,7 +62,7 @@ Ensure (web_application_scanner,
 
   int port =
     cJSON_GetNumberValue (cJSON_GetObjectItem (credential_obj, "port"));
-  assert_that (port, is_equal_to (0));
+  assert_that (port, is_equal_to (123));
 
   cJSON *auth_data = cJSON_GetObjectItem (credential_obj, "up");
   const char *username =
@@ -76,6 +73,7 @@ Ensure (web_application_scanner,
   assert_that (cJSON_IsObject (auth_data), is_true);
   assert_that (username, is_equal_to_string ("admin"));
   assert_that (password, is_equal_to_string ("admin"));
+  assert_that (port, is_equal_to (123));
 
   scan_credential_free (credential);
   cJSON_Delete (credentials);
