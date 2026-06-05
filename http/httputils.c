@@ -117,6 +117,8 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
                        gvm_http_response_stream_t res)
 {
   CURL *curl = curl_easy_init ();
+  CURLcode ret = CURLE_OK;
+
   if (!curl)
     return NULL;
 
@@ -151,9 +153,11 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
                                   CURL_BLOB_COPY};
       curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, 1L);
       curl_easy_setopt (curl, CURLOPT_SSL_VERIFYHOST, 1L);
-      if (curl_easy_setopt (curl, CURLOPT_CAINFO_BLOB, &ca_blob) != CURLE_OK)
+      ret = curl_easy_setopt (curl, CURLOPT_CAINFO_BLOB, &ca_blob);
+      if (ret != CURLE_OK)
         {
-          g_warning ("%s: Failed to set CA certificate", __func__);
+          g_warning ("%s: Failed to set CA certificate: %s", __func__,
+                     curl_easy_strerror (ret));
           curl_easy_cleanup (curl);
           return NULL;
         }
@@ -174,17 +178,21 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
                                     CURL_BLOB_COPY};
       struct curl_blob key_blob = {(void *) client_key, strlen (client_key),
                                    CURL_BLOB_COPY};
-
-      if (curl_easy_setopt (curl, CURLOPT_SSLCERT_BLOB, &cert_blob) != CURLE_OK)
+      ret = curl_easy_setopt (curl, CURLOPT_SSLCERT_BLOB, &cert_blob);
+      if (ret != CURLE_OK)
         {
-          g_warning ("%s: Failed to set client certificate", __func__);
+          g_warning ("%s: Failed to set client certificate: %s", __func__,
+                     curl_easy_strerror (ret));
           curl_easy_cleanup (curl);
           return NULL;
         }
 
-      if (curl_easy_setopt (curl, CURLOPT_SSLKEY_BLOB, &key_blob) != CURLE_OK)
+      ret = curl_easy_setopt (curl, CURLOPT_SSLKEY_BLOB, &key_blob);
+
+      if (ret != CURLE_OK)
         {
-          g_warning ("%s: Failed to set client private key", __func__);
+          g_warning ("%s: Failed to set client private key: %s", __func__,
+                     curl_easy_strerror (ret));
           curl_easy_cleanup (curl);
           return NULL;
         }
