@@ -37,17 +37,13 @@
  */
 struct openvasd_target
 {
-  gchar *scan_id;           /**  Scan ID */
-  GSList *credentials;      /** Credentials to use in the scan */
-  gchar *exclude_hosts;     /** String defining one or many hosts to exclude */
-  gchar *hosts;             /** String defining one or many hosts to scan */
-  gchar *ports;             /** String defining the ports to scan */
-  gchar *finished_hosts;    /** String defining hosts to exclude as finished */
-  gboolean icmp;            /** Alive test method icmp */
-  gboolean tcp_syn;         /** Alive test method tcp_syn */
-  gboolean tcp_ack;         /** Alive test method tcp_ack */
-  gboolean arp;             /** Alive test method arp */
-  gboolean consider_alive;  /** Alive test method consider alive */
+  gchar *scan_id;        /**  Scan ID */
+  GSList *credentials;   /** Credentials to use in the scan */
+  gchar *exclude_hosts;  /** String defining one or many hosts to exclude */
+  gchar *hosts;          /** String defining one or many hosts to scan */
+  gchar *ports;          /** String defining the ports to scan */
+  gchar *finished_hosts; /** String defining hosts to exclude as finished */
+  openvasd_alive_test_methods_t alive_test_methods; /** Alive test methods */
   int reverse_lookup_unify; /** Value defining reverse_lookup_unify opt */
   int reverse_lookup_only;  /** Value defining reverse_lookup_only opt */
 };
@@ -461,17 +457,21 @@ openvasd_build_scan_config_json (openvasd_target_t *target,
 
   // alive test methods
   cJSON *alive_test_methods = cJSON_CreateArray ();
-  if (target->arp)
+  if (target->alive_test_methods.arp)
     cJSON_AddItemToArray (alive_test_methods, cJSON_CreateString ("arp"));
-  if (target->tcp_ack)
+  if (target->alive_test_methods.tcp_ack)
     cJSON_AddItemToArray (alive_test_methods, cJSON_CreateString ("tcp_ack"));
-  if (target->tcp_syn)
+  if (target->alive_test_methods.tcp_syn)
     cJSON_AddItemToArray (alive_test_methods, cJSON_CreateString ("tcp_syn"));
-  if (target->consider_alive)
+  if (target->alive_test_methods.consider_alive)
     cJSON_AddItemToArray (alive_test_methods,
                           cJSON_CreateString ("consider_alive"));
-  if (target->icmp)
+  if (target->alive_test_methods.icmp)
     cJSON_AddItemToArray (alive_test_methods, cJSON_CreateString ("icmp"));
+  if (target->alive_test_methods.host_discovery_ipv6)
+    cJSON_AddItemToArray (alive_test_methods,
+                          cJSON_CreateString ("host_discovery_ipv6"));
+
   cJSON_AddItemToObject (target_obj, "alive_test_methods", alive_test_methods);
 
   cJSON_AddItemToObject (scan_obj, "target", target_obj);
@@ -570,26 +570,23 @@ openvasd_target_free (openvasd_target_t *target)
  * @brief Add alive test methods to openvasd target.
  *
  * @param target           The openvasd target to add the methods to.
- * @param icmp             Use ICMP ping.
- * @param tcp_syn          Use TCP-SYN ping.
- * @param tcp_ack          Use TCP-ACK ping.
- * @param arp              Use ARP ping.
- * @param consider_alive   Consider host to be alive.
+ * @param methods          The alive test methods to add.
  */
 void
-openvasd_target_add_alive_test_methods (openvasd_target_t *target,
-                                        gboolean icmp, gboolean tcp_syn,
-                                        gboolean tcp_ack, gboolean arp,
-                                        gboolean consider_alive)
+openvasd_target_set_alive_test_methods (
+  openvasd_target_t *target, const openvasd_alive_test_methods_t *methods)
 {
-  if (!target)
+  if (!target || !methods)
     return;
 
-  target->icmp = icmp;
-  target->tcp_syn = tcp_syn;
-  target->tcp_ack = tcp_ack;
-  target->arp = arp;
-  target->consider_alive = consider_alive;
+  if (methods->host_discovery_ipv6)
+    {
+      target->alive_test_methods =
+        (openvasd_alive_test_methods_t){.host_discovery_ipv6 = TRUE};
+      return;
+    }
+
+  target->alive_test_methods = *methods;
 }
 
 /**

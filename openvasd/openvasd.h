@@ -27,6 +27,19 @@ typedef struct
   const gchar *titles; /**< Graph title. */
 } openvasd_get_performance_opts_t;
 
+/**
+ * @brief Struct holding alive test method options.
+ */
+typedef struct openvasd_alive_test_methods
+{
+  gboolean icmp;                /** Use ICMP ping. */
+  gboolean tcp_syn;             /** Use TCP-SYN ping. */
+  gboolean tcp_ack;             /** Use TCP-ACK ping. */
+  gboolean arp;                 /** Use ARP ping. */
+  gboolean consider_alive;      /** Consider host to be alive. */
+  gboolean host_discovery_ipv6; /** Use IPv6 host discovery. */
+} openvasd_alive_test_methods_t;
+
 // Requests
 http_scanner_resp_t openvasd_get_vts (http_scanner_connector_t);
 
@@ -50,8 +63,8 @@ void
 openvasd_target_set_finished_hosts (openvasd_target_t *, const gchar *);
 
 void
-openvasd_target_add_alive_test_methods (openvasd_target_t *, gboolean, gboolean,
-                                        gboolean, gboolean, gboolean);
+openvasd_target_set_alive_test_methods (
+  openvasd_target_t *target, const openvasd_alive_test_methods_t *methods);
 
 void
 openvasd_target_free (openvasd_target_t *);
