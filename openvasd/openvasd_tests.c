@@ -11,6 +11,27 @@
 #include <cgreen/internal/c_assertions.h>
 #include <cgreen/mocks.h>
 
+static gboolean
+json_array_contains_string (cJSON *array, const char *value)
+{
+  int size;
+
+  if (!cJSON_IsArray (array) || !value)
+    return FALSE;
+
+  size = cJSON_GetArraySize (array);
+
+  for (int i = 0; i < size; i++)
+    {
+      const char *item = cJSON_GetStringValue (cJSON_GetArrayItem (array, i));
+
+      if (item && strcmp (item, value) == 0)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 Describe (openvasd);
 BeforeEach (openvasd)
 {
@@ -135,6 +156,232 @@ Ensure (openvasd, openvasd_add_vts_to_scan_json)
   cJSON_Delete (vts_array);
 }
 
+Ensure (openvasd, openvasd_set_alive_test_methods)
+{
+  openvasd_target_t *target;
+  openvasd_alive_test_methods_t methods;
+
+  target = openvasd_target_new ("scan-1", "127.0.0.1", "T:22", NULL, 0, 0);
+
+  methods = (openvasd_alive_test_methods_t){
+    .icmp = TRUE,
+    .tcp_syn = TRUE,
+    .tcp_ack = TRUE,
+    .arp = TRUE,
+    .consider_alive = FALSE,
+    .host_discovery_ipv6 = FALSE,
+  };
+
+  openvasd_target_set_alive_test_methods (target, &methods);
+
+  assert_that (target->alive_test_methods.icmp, is_true);
+  assert_that (target->alive_test_methods.tcp_syn, is_true);
+  assert_that (target->alive_test_methods.tcp_ack, is_true);
+  assert_that (target->alive_test_methods.arp, is_true);
+  assert_that (target->alive_test_methods.consider_alive, is_false);
+  assert_that (target->alive_test_methods.host_discovery_ipv6, is_false);
+
+  openvasd_target_free (target);
+}
+
+Ensure (openvasd, openvasd_set_host_discovery_ipv6_alive_test_method)
+{
+  openvasd_target_t *target;
+  openvasd_alive_test_methods_t methods;
+
+  target = openvasd_target_new ("scan-1", "127.0.0.1", "T:22", NULL, 0, 0);
+
+  methods = (openvasd_alive_test_methods_t){
+    .icmp = TRUE,
+    .tcp_syn = TRUE,
+    .tcp_ack = TRUE,
+    .arp = TRUE,
+    .consider_alive = TRUE,
+    .host_discovery_ipv6 = TRUE,
+  };
+
+  openvasd_target_set_alive_test_methods (target, &methods);
+
+  assert_that (target->alive_test_methods.icmp, is_false);
+  assert_that (target->alive_test_methods.tcp_syn, is_false);
+  assert_that (target->alive_test_methods.tcp_ack, is_false);
+  assert_that (target->alive_test_methods.arp, is_false);
+  assert_that (target->alive_test_methods.consider_alive, is_false);
+  assert_that (target->alive_test_methods.host_discovery_ipv6, is_true);
+
+  openvasd_target_free (target);
+}
+
+Ensure (openvasd, openvasd_build_scan_config_json_with_host_discovery_ipv6)
+{
+  openvasd_target_t *target;
+  openvasd_alive_test_methods_t methods;
+  GHashTable *scan_preferences;
+  gchar *json_str;
+  cJSON *json;
+  cJSON *target_obj;
+  cJSON *alive_test_methods;
+
+  target = openvasd_target_new ("scan-1", "2001:db8::/64", "T:22", NULL, 0, 0);
+
+  methods = (openvasd_alive_test_methods_t){
+    .icmp = TRUE,
+    .tcp_syn = TRUE,
+    .tcp_ack = TRUE,
+    .arp = TRUE,
+    .consider_alive = TRUE,
+    .host_discovery_ipv6 = TRUE,
+  };
+
+  openvasd_target_set_alive_test_methods (target, &methods);
+
+  scan_preferences =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  json_str = openvasd_build_scan_config_json (target, scan_preferences, NULL);
+
+  json = cJSON_Parse (json_str);
+  assert_that (cJSON_IsObject (json), is_true);
+
+  target_obj = cJSON_GetObjectItem (json, "target");
+  assert_that (cJSON_IsObject (target_obj), is_true);
+
+  alive_test_methods = cJSON_GetObjectItem (target_obj, "alive_test_methods");
+  assert_that (cJSON_IsArray (alive_test_methods), is_true);
+
+  assert_that (cJSON_GetArraySize (alive_test_methods), is_equal_to (1));
+
+  const char *method =
+    cJSON_GetStringValue (cJSON_GetArrayItem (alive_test_methods, 0));
+
+  assert_that (method, is_equal_to_string ("host_discovery_ipv6"));
+
+  cJSON_Delete (json);
+  g_free (json_str);
+  g_hash_table_destroy (scan_preferences);
+  openvasd_target_free (target);
+}
+
+Ensure (openvasd, openvasd_build_scan_config_json_with_alive_tests)
+{
+  openvasd_target_t *target;
+  openvasd_alive_test_methods_t methods;
+  GHashTable *scan_preferences;
+  gchar *json_str;
+  cJSON *json;
+  cJSON *target_obj;
+  cJSON *alive_test_methods;
+
+  target = openvasd_target_new ("scan-1", "127.0.0.1", "T:22", NULL, 0, 0);
+
+  methods = (openvasd_alive_test_methods_t){
+    .icmp = TRUE,
+    .tcp_syn = TRUE,
+    .tcp_ack = TRUE,
+    .arp = TRUE,
+    .consider_alive = TRUE,
+    .host_discovery_ipv6 = FALSE,
+  };
+
+  openvasd_target_set_alive_test_methods (target, &methods);
+
+  scan_preferences =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  json_str = openvasd_build_scan_config_json (target, scan_preferences, NULL);
+
+  json = cJSON_Parse (json_str);
+  assert_that (cJSON_IsObject (json), is_true);
+
+  target_obj = cJSON_GetObjectItem (json, "target");
+  assert_that (cJSON_IsObject (target_obj), is_true);
+
+  alive_test_methods = cJSON_GetObjectItem (target_obj, "alive_test_methods");
+  assert_that (cJSON_IsArray (alive_test_methods), is_true);
+
+  assert_that (cJSON_GetArraySize (alive_test_methods), is_equal_to (5));
+
+  assert_that (json_array_contains_string (alive_test_methods, "icmp"),
+               is_true);
+  assert_that (json_array_contains_string (alive_test_methods, "tcp_syn"),
+               is_true);
+  assert_that (json_array_contains_string (alive_test_methods, "tcp_ack"),
+               is_true);
+  assert_that (json_array_contains_string (alive_test_methods, "arp"), is_true);
+  assert_that (
+    json_array_contains_string (alive_test_methods, "consider_alive"), is_true);
+
+  assert_that (
+    json_array_contains_string (alive_test_methods, "host_discovery_ipv6"),
+    is_false);
+
+  cJSON_Delete (json);
+  g_free (json_str);
+  g_hash_table_destroy (scan_preferences);
+  openvasd_target_free (target);
+}
+
+Ensure (openvasd, openvasd_build_scan_config_json_with_host_discovery_ipv6_only)
+{
+  openvasd_target_t *target;
+  openvasd_alive_test_methods_t methods;
+  GHashTable *scan_preferences;
+  gchar *json_str;
+  cJSON *json;
+  cJSON *target_obj;
+  cJSON *alive_test_methods;
+
+  target = openvasd_target_new ("scan-1", "2001:db8::/64", "T:22", NULL, 0, 0);
+
+  methods = (openvasd_alive_test_methods_t){
+    .icmp = TRUE,
+    .tcp_syn = TRUE,
+    .tcp_ack = TRUE,
+    .arp = TRUE,
+    .consider_alive = TRUE,
+    .host_discovery_ipv6 = TRUE,
+  };
+
+  openvasd_target_set_alive_test_methods (target, &methods);
+
+  scan_preferences =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  json_str = openvasd_build_scan_config_json (target, scan_preferences, NULL);
+
+  json = cJSON_Parse (json_str);
+  assert_that (cJSON_IsObject (json), is_true);
+
+  target_obj = cJSON_GetObjectItem (json, "target");
+  assert_that (cJSON_IsObject (target_obj), is_true);
+
+  alive_test_methods = cJSON_GetObjectItem (target_obj, "alive_test_methods");
+  assert_that (cJSON_IsArray (alive_test_methods), is_true);
+
+  assert_that (cJSON_GetArraySize (alive_test_methods), is_equal_to (1));
+
+  assert_that (
+    json_array_contains_string (alive_test_methods, "host_discovery_ipv6"),
+    is_true);
+
+  assert_that (json_array_contains_string (alive_test_methods, "icmp"),
+               is_false);
+  assert_that (json_array_contains_string (alive_test_methods, "tcp_syn"),
+               is_false);
+  assert_that (json_array_contains_string (alive_test_methods, "tcp_ack"),
+               is_false);
+  assert_that (json_array_contains_string (alive_test_methods, "arp"),
+               is_false);
+  assert_that (
+    json_array_contains_string (alive_test_methods, "consider_alive"),
+    is_false);
+
+  cJSON_Delete (json);
+  g_free (json_str);
+  g_hash_table_destroy (scan_preferences);
+  openvasd_target_free (target);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -147,6 +394,17 @@ main (int argc, char **argv)
   add_test_with_context (suite, openvasd, openvasd_add_credential_to_scan_json);
   add_test_with_context (suite, openvasd, openvasd_add_port_to_scan_json);
   add_test_with_context (suite, openvasd, openvasd_add_vts_to_scan_json);
+
+  add_test_with_context (suite, openvasd, openvasd_set_alive_test_methods);
+  add_test_with_context (suite, openvasd,
+                         openvasd_set_host_discovery_ipv6_alive_test_method);
+  add_test_with_context (
+    suite, openvasd, openvasd_build_scan_config_json_with_host_discovery_ipv6);
+  add_test_with_context (suite, openvasd,
+                         openvasd_build_scan_config_json_with_alive_tests);
+  add_test_with_context (
+    suite, openvasd,
+    openvasd_build_scan_config_json_with_host_discovery_ipv6_only);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
