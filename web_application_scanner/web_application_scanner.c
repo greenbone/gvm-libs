@@ -28,12 +28,21 @@
 /**
  * @brief Struct holding target information.
  */
-struct web_application_target
+struct web_scanner_target
 {
   gchar *scan_id;      /**  Scan ID */
   gchar *urls;         /** String defining one or many URLs to scan */
   gchar *exclude_urls; /** String defining one or many URLs to exclude */
   GSList *credentials; /** Credentials to use in the scan */
+};
+
+/**
+ * @brief Struct holding vt information
+ */
+struct web_scanner_vt_single
+{
+  gchar *vt_id;
+  GHashTable *vt_values;
 };
 
 // Scan config builder.
@@ -105,16 +114,53 @@ add_scan_preferences_to_scan_json (gpointer key, gpointer val,
 }
 
 /**
+ * @brief Add a VT to the scan json object.
+ *
+ * @param single_vt VT to add.
+ * @param vts_array JSON array to add the VT to.
+ */
+static void
+add_vts_to_scan_json (gpointer single_vt, gpointer vts_array)
+{
+  GHashTableIter vt_data_iter;
+  gchar *vt_param_id, *vt_param_value;
+
+  web_scanner_vt_single_t *vt = single_vt;
+
+  cJSON *vt_obj = cJSON_CreateObject ();
+
+  cJSON_AddStringToObject (vt_obj, "oid", vt->vt_id);
+
+  if (g_hash_table_size (vt->vt_values))
+    {
+      cJSON *params_array = cJSON_CreateArray ();
+
+      g_hash_table_iter_init (&vt_data_iter, vt->vt_values);
+      while (g_hash_table_iter_next (&vt_data_iter, (gpointer *) &vt_param_id,
+                                     (gpointer *) &vt_param_value))
+        {
+          cJSON *param_obj = cJSON_CreateObject ();
+          cJSON_AddNumberToObject (param_obj, "id", atoi (vt_param_id));
+          cJSON_AddStringToObject (param_obj, "value", vt_param_value);
+          cJSON_AddItemToArray (params_array, param_obj);
+        }
+      cJSON_AddItemToObject (vt_obj, "parameters", params_array);
+    }
+  cJSON_AddItemToArray (vts_array, vt_obj);
+}
+
+/**
  * @brief Build a json object with data necessary to start a scan
  *
- * @param target      target
+ * @param target           target
  * @param scan_preferences Scan preferences to be added to the scan config
+ * @param vts              VTS collection to be added to the scan config.
  *
  * @return JSON string on success. Must be freed by caller. NULL on error.
  */
 char *
-web_application_build_scan_config_json (web_application_target_t *target,
-                                        GHashTable *scan_preferences)
+web_scanner_build_scan_config_json (web_scanner_target_t *target,
+                                    GHashTable *scan_preferences, GSList *vts)
 {
   cJSON *scan_obj = NULL;
   cJSON *target_obj = NULL;
@@ -146,7 +192,7 @@ web_application_build_scan_config_json (web_application_target_t *target,
       cJSON_AddItemToArray (urls_array, url_item);
     }
   g_strfreev (urls_list);
-  cJSON_AddItemToObject (target_obj, "urls", urls_array);
+  cJSON_AddItemToObject (target_obj, "hosts", urls_array);
 
   // exclude urls
   if (target->exclude_urls && target->exclude_urls[0] != '\0')
@@ -160,7 +206,7 @@ web_application_build_scan_config_json (web_application_target_t *target,
           cJSON_AddItemToArray (exclude_urls_array, exclude_url_item);
         }
       g_strfreev (exclude_urls_list);
-      cJSON_AddItemToObject (target_obj, "excluded_urls", exclude_urls_array);
+      cJSON_AddItemToObject (target_obj, "excluded_hosts", exclude_urls_array);
     }
 
   // Credentials
@@ -177,6 +223,11 @@ web_application_build_scan_config_json (web_application_target_t *target,
                         scan_prefs_array);
   cJSON_AddItemToObject (scan_obj, "scan_preferences", scan_prefs_array);
 
+  // VTs
+  cJSON *vts_array = cJSON_CreateArray ();
+  g_slist_foreach (vts, add_vts_to_scan_json, vts_array);
+  cJSON_AddItemToObject (scan_obj, "vts", vts_array);
+
   json_str = cJSON_Print (scan_obj);
   cJSON_Delete (scan_obj);
   if (json_str == NULL)
@@ -186,17 +237,17 @@ web_application_build_scan_config_json (web_application_target_t *target,
 }
 
 /**
- * @brief Create a new web application target.
+ * @brief Create a new web scanner target.
  *
  * @param scanid         Scan ID.
  * @param urls           The URLs of the target.
  * @param exclude_urls   The excluded URLs of the target.
  *
- * @return The newly allocated web_application_target_t. Null on error.
+ * @return The newly allocated web_scanner_target_t. Null on error.
  */
-web_application_target_t *
-web_application_target_new (const gchar *scanid, const gchar *urls,
-                            const gchar *exclude_urls)
+web_scanner_target_t *
+web_scanner_target_new (const gchar *scanid, const gchar *urls,
+                        const gchar *exclude_urls)
 {
   if (!urls || urls[0] == '\0')
     {
@@ -204,8 +255,8 @@ web_application_target_new (const gchar *scanid, const gchar *urls,
       return NULL;
     }
 
-  web_application_target_t *new_target;
-  new_target = g_malloc0 (sizeof (web_application_target_t));
+  web_scanner_target_t *new_target;
+  new_target = g_malloc0 (sizeof (web_scanner_target_t));
 
   if (scanid && *scanid)
     new_target->scan_id = g_strdup (scanid);
@@ -217,12 +268,12 @@ web_application_target_new (const gchar *scanid, const gchar *urls,
 }
 
 /**
- * @brief Free a web application target, including all added credentials.
+ * @brief Free a web scanner target, including all added credentials.
  *
- * @param target  The web application target to free.
+ * @param target  The web scanner target to free.
  */
 void
-web_application_target_free (web_application_target_t *target)
+web_scanner_target_free (web_scanner_target_t *target)
 {
   if (!target)
     return;
@@ -237,14 +288,14 @@ web_application_target_free (web_application_target_t *target)
 }
 
 /**
- * @brief Add a credential to a web application target.
+ * @brief Add a credential to a web scanner target.
  *
- * @param target       The web application target to add the credential to.
+ * @param target       The web scanner target to add the credential to.
  * @param credential   The credential to add. Will be freed with target.
  */
 void
-web_application_target_add_credential (web_application_target_t *target,
-                                       scan_credential_t *credential)
+web_scanner_target_add_credential (web_scanner_target_t *target,
+                                   scan_credential_t *credential)
 {
   if (!target || !credential)
     return;
