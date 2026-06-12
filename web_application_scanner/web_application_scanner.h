@@ -16,20 +16,21 @@
 #include <glib.h>
 
 /* Target builder */
-typedef struct web_application_target web_application_target_t;
+typedef struct web_scanner_target web_scanner_target_t;
 
-web_application_target_t *
-web_application_target_new (const gchar *, const gchar *, const gchar *);
+typedef struct web_scanner_vt_single web_scanner_vt_single_t;
+
+web_scanner_target_t *
+web_scanner_target_new (const gchar *, const gchar *, const gchar *);
 
 void
-web_application_target_free (web_application_target_t *);
+web_scanner_target_free (web_scanner_target_t *);
 
 void
-web_application_target_add_credential (web_application_target_t *,
-                                       scan_credential_t *);
+web_scanner_target_add_credential (web_scanner_target_t *, scan_credential_t *);
 
 char *
-web_application_build_scan_config_json (web_application_target_t *target,
-                                        GHashTable *scan_preferences);
+web_scanner_build_scan_config_json (web_scanner_target_t *target,
+                                    GHashTable *scan_preferences, GSList *vts);
 
 #endif /* not _GVM_WEB_APPLICATION_SCANNER_H */
