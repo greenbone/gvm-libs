@@ -22,22 +22,21 @@ AfterEach (web_application_scanner)
 
 Ensure (web_application_scanner, new_web_application_scanner_target_has_urls)
 {
-  web_application_target_t *target =
-    web_application_target_new (NULL, NULL, NULL);
+  web_scanner_target_t *target = web_scanner_target_new (NULL, NULL, NULL);
 
   assert_that (target, is_equal_to (NULL));
-  web_application_target_free (target);
+  web_scanner_target_free (target);
 
   const gchar *scanid = "TEST-SCAN-ID";
   const gchar *urls = "http://example.com1,http://example.com2";
   const gchar *exclude_urls = "http://exclude.example.com";
-  target = web_application_target_new (scanid, urls, exclude_urls);
+  target = web_scanner_target_new (scanid, urls, exclude_urls);
 
   assert_that (target, is_not_equal_to (NULL));
   assert_that (target->scan_id, is_equal_to_string (scanid));
   assert_that (target->urls, is_equal_to_string (urls));
   assert_that (target->exclude_urls, is_equal_to_string (exclude_urls));
-  web_application_target_free (target);
+  web_scanner_target_free (target);
 }
 
 Ensure (web_application_scanner,
@@ -116,48 +115,47 @@ Ensure (web_application_scanner,
 
 Ensure (web_application_scanner, web_application_scanner_target_add_credentials)
 {
-  web_application_target_t *target =
-    web_application_target_new (NULL, "hosts", NULL);
+  web_scanner_target_t *target = web_scanner_target_new (NULL, "hosts", NULL);
 
   scan_credential_t *credential = scan_credential_new ("test", "generic", "0");
 
   // Invalid calls, no credentials added
-  web_application_target_add_credential (NULL, NULL);
-  web_application_target_add_credential (target, NULL);
-  web_application_target_add_credential (NULL, credential);
+  web_scanner_target_add_credential (NULL, NULL);
+  web_scanner_target_add_credential (target, NULL);
+  web_scanner_target_add_credential (NULL, credential);
 
   scan_credential_free (credential);
 
   // Add valid credentials
-  web_application_target_add_credential (
-    target, scan_credential_new (NULL, NULL, NULL));
-  web_application_target_add_credential (
+  web_scanner_target_add_credential (target,
+                                     scan_credential_new (NULL, NULL, NULL));
+  web_scanner_target_add_credential (
     target, scan_credential_new ("up", "generic", "0"));
-  web_application_target_add_credential (
-    target, scan_credential_new ("ssh", NULL, NULL));
-  web_application_target_add_credential (
-    target, scan_credential_new (NULL, "docker", "0"));
+  web_scanner_target_add_credential (target,
+                                     scan_credential_new ("ssh", NULL, NULL));
+  web_scanner_target_add_credential (target,
+                                     scan_credential_new (NULL, "docker", "0"));
 
   assert_that (g_slist_length (target->credentials), is_equal_to (4));
 
-  web_application_target_free (target);
+  web_scanner_target_free (target);
 }
 
 Ensure (web_application_scanner, emit_simple_scan_json)
 {
-  web_application_target_t *target = web_application_target_new (
+  web_scanner_target_t *target = web_scanner_target_new (
     "TEST-ID", "http://example1.com,http://example2.com",
     "http://exclude.example.com");
 
   scan_credential_t *credential = scan_credential_new ("up", "generic", NULL);
   scan_credential_set_auth_data (credential, "username", "password");
 
-  web_application_target_add_credential (target, credential);
+  web_scanner_target_add_credential (target, credential);
 
   GHashTable *preferences = g_hash_table_new (g_str_hash, g_str_equal);
   g_hash_table_insert (preferences, "key1", "true");
 
-  gchar *json = web_application_build_scan_config_json (target, preferences);
+  gchar *json = web_scanner_build_scan_config_json (target, preferences, NULL);
 
   assert_that (
     json,
@@ -165,8 +163,8 @@ Ensure (web_application_scanner, emit_simple_scan_json)
       "{\n"
       "\t\"scan_id\":\t\"TEST-ID\",\n"
       "\t\"target\":\t{\n"
-      "\t\t\"urls\":\t[\"http://example1.com\", \"http://example2.com\"],\n"
-      "\t\t\"excluded_urls\":\t[\"http://exclude.example.com\"],\n"
+      "\t\t\"hosts\":\t[\"http://example1.com\", \"http://example2.com\"],\n"
+      "\t\t\"excluded_hosts\":\t[\"http://exclude.example.com\"],\n"
       "\t\t\"credentials\":\t[{\n"
       "\t\t\t\t\"service\":\t\"generic\",\n"
       "\t\t\t\t\"up\":\t{\n"
@@ -177,12 +175,13 @@ Ensure (web_application_scanner, emit_simple_scan_json)
       "\t\"scan_preferences\":\t[{\n"
       "\t\t\t\"id\":\t\"key1\",\n"
       "\t\t\t\"value\":\t\"true\"\n"
-      "\t\t}]\n"
+      "\t\t}],\n"
+      "\t\"vts\":\t[]\n"
       "}"));
 
   g_free (json);
   g_hash_table_destroy (preferences);
-  web_application_target_free (target);
+  web_scanner_target_free (target);
 }
 
 /* Test suite. */
