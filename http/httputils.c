@@ -318,7 +318,12 @@ gvm_http_request_internal (const gchar *url, gvm_http_method_t method,
   if (response && response->data)
     {
       g_free (http_response->data);
-      http_response->data = g_strdup (response->data);
+
+      http_response->data = g_malloc (response->length + 1);
+      memcpy (http_response->data, response->data, response->length);
+      http_response->data[response->length] = '\0';
+
+      http_response->size = response->length;
     }
   else if (http_response->data == NULL)
     {
