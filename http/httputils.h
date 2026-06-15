@@ -107,6 +107,9 @@ typedef struct
 
   glong http_status; ///< HTTP status code returned by the server.
 
+  gchar *content_disposition; ///< The value of the Content-Disposition header,
+                              ///< if present.
+
   gvm_http_t *http; ///< The HTTP request (easy handle wrapper).
 } gvm_http_response_t;
 

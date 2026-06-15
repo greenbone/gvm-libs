@@ -240,6 +240,43 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
 }
 
 /**
+ * @brief Capture selected HTTP response headers.
+ *
+ * @param buffer Header data received from libcurl.
+ * @param size Size of one data element.
+ * @param nitems Number of data elements.
+ * @param userdata HTTP response object to update.
+ *
+ * @return Number of bytes processed.
+ */
+static size_t
+store_response_header (char *buffer, size_t size, size_t nitems, void *userdata)
+{
+  static const gchar header_name[] = "Content-Disposition:";
+  gvm_http_response_t *response = userdata;
+  size_t length = size * nitems;
+  gchar *line;
+  gchar *value;
+
+  if (!response || length == 0)
+    return length;
+
+  line = g_strndup (buffer, length);
+
+  if (g_ascii_strncasecmp (line, header_name, sizeof (header_name) - 1) == 0)
+    {
+      value = g_strstrip (line + sizeof (header_name) - 1);
+
+      g_free (response->content_disposition);
+      response->content_disposition = g_strdup (value);
+    }
+
+  g_free (line);
+
+  return length;
+}
+
+/**
  * @brief Internal helper to send a synchronous HTTP request and capture
  * the response.
  *
@@ -287,6 +324,7 @@ gvm_http_request_internal (const gchar *url, gvm_http_method_t method,
       http_response->http_status = -1;
       http_response->data =
         g_strdup ("{\"error\": \"Failed to initialize curl request\"}");
+      http_response->size = strlen (http_response->data);
 
       if (internal_stream_allocated)
         {
@@ -298,6 +336,11 @@ gvm_http_request_internal (const gchar *url, gvm_http_method_t method,
     }
 
   http_response->http = http;
+
+  /* Capture selected response headers. */
+  curl_easy_setopt (http->handler, CURLOPT_HEADERFUNCTION,
+                    store_response_header);
+  curl_easy_setopt (http->handler, CURLOPT_HEADERDATA, http_response);
 
   CURLcode result = curl_easy_perform (http->handler);
   if (result == CURLE_OK)
@@ -549,6 +592,7 @@ gvm_http_response_free (gvm_http_response_t *response)
 
   gvm_http_free (response->http);
   g_free (response->data);
+  g_free (response->content_disposition);
   g_free (response);
 }
 

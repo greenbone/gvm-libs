@@ -168,6 +168,57 @@ Ensure (gvm_http, response_stream_reset_frees_and_resets_data)
   gvm_http_response_stream_free (stream);
 }
 
+Ensure (gvm_http, store_response_header_captures_content_disposition)
+{
+  gvm_http_response_t response = {0};
+
+  gchar header[] = "Content-Disposition: attachment; "
+                   "filename=\"support-bundle-agent-123.tar.gz.enc\"\r\n";
+
+  size_t processed =
+    store_response_header (header, 1, strlen (header), &response);
+
+  assert_that (processed, is_equal_to (strlen (header)));
+  assert_that (response.content_disposition, is_not_null);
+  assert_that (
+    response.content_disposition,
+    is_equal_to_string (
+      "attachment; filename=\"support-bundle-agent-123.tar.gz.enc\""));
+
+  g_free (response.content_disposition);
+}
+
+Ensure (gvm_http, store_response_header_matches_case_insensitively)
+{
+  gvm_http_response_t response = {0};
+
+  gchar header[] =
+    "content-disposition: attachment; filename=\"bundle.enc\"\r\n";
+
+  store_response_header (header, 1, strlen (header), &response);
+
+  assert_that (response.content_disposition, is_not_null);
+  assert_that (response.content_disposition,
+               is_equal_to_string ("attachment; filename=\"bundle.enc\""));
+
+  g_free (response.content_disposition);
+}
+
+Ensure (gvm_http, store_response_header_trims_value)
+{
+  gvm_http_response_t response = {0};
+
+  gchar header[] =
+    "Content-Disposition:   attachment; filename=\"bundle.enc\"   \r\n";
+
+  store_response_header (header, 1, strlen (header), &response);
+
+  assert_that (response.content_disposition,
+               is_equal_to_string ("attachment; filename=\"bundle.enc\""));
+
+  g_free (response.content_disposition);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -199,6 +250,11 @@ main (int argc, char **argv)
   add_test_with_context (suite, gvm_http, http_free_frees_allocated_struct);
   add_test_with_context (suite, gvm_http,
                          response_stream_reset_frees_and_resets_data);
+  add_test_with_context (suite, gvm_http,
+                         store_response_header_captures_content_disposition);
+  add_test_with_context (suite, gvm_http,
+                         store_response_header_matches_case_insensitively);
+  add_test_with_context (suite, gvm_http, store_response_header_trims_value);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
