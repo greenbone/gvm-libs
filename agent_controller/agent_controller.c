@@ -912,6 +912,37 @@ agent_controller_parse_scan_agent_config (cJSON *root)
 }
 
 /**
+ * @brief Extract the filename from a Content-Disposition header value.
+ *
+ * @param[in] content_disposition The Content-Disposition header value to parse.
+ *
+ * @return A newly allocated string containing the filename, or NULL if not
+ *         found. The caller is responsible for freeing the returned string
+ *         with g_free().
+ */
+static gchar *
+content_disposition_filename (const gchar *content_disposition)
+{
+  const gchar *start;
+  const gchar *end;
+
+  if (!content_disposition)
+    return NULL;
+
+  start = strstr (content_disposition, "filename=\"");
+  if (!start)
+    return NULL;
+
+  start += strlen ("filename=\"");
+  end = strchr (start, '"');
+
+  if (!end || end == start)
+    return NULL;
+
+  return g_strndup (start, end - start);
+}
+
+/**
  * @brief Creates a new Agent Controller connector.
  */
 agent_controller_connector_t
@@ -1219,6 +1250,33 @@ agent_controller_installer_instruction_free (
 
   g_free (instr->instruction);
   g_free (instr);
+}
+
+/**
+ * @brief Allocate/zero a new support bundle struct.
+ *
+ * @return Newly allocated support bundle struct
+ */
+agent_controller_support_bundle_t
+agent_controller_support_bundle_new (void)
+{
+  return g_malloc0 (sizeof (struct agent_controller_support_bundle));
+}
+
+/**
+ * @brief Free a support bundle struct.
+ *
+ * @param[in] bundle to be freed
+ */
+void
+agent_controller_support_bundle_free (agent_controller_support_bundle_t bundle)
+{
+  if (!bundle)
+    return;
+
+  g_free (bundle->data);
+  g_free (bundle->filename);
+  g_free (bundle);
 }
 
 /**
@@ -1978,4 +2036,104 @@ agent_controller_get_installer_instruction (agent_controller_connector_t conn,
 
   gvm_http_response_free (response);
   return instr;
+}
+
+/**
+ * @brief Downloads a support bundle for a specific agent.
+ *
+ * @param[in] conn Active connector to the Agent Controller.
+ * @param[in] agent_id ID of the agent.
+ * @param[in] days Number of days of logs to include. A value of 0 uses the
+ *                 Agent Controller's configured default.
+ *
+ * @return Newly allocated support bundle on success, NULL on failure.
+ *         Free with agent_controller_support_bundle_free().
+ */
+agent_controller_support_bundle_t
+agent_controller_download_support_bundle (agent_controller_connector_t conn,
+                                          const gchar *agent_id, int days)
+{
+  gvm_http_headers_t *headers;
+  gvm_http_response_t *response;
+  agent_controller_support_bundle_t bundle;
+  gchar *escaped_agent_id;
+  gchar *path;
+
+  if (!conn || !agent_id || *agent_id == '\0' || days < 0)
+    return NULL;
+
+  escaped_agent_id = g_uri_escape_string (agent_id, NULL, TRUE);
+  if (!escaped_agent_id)
+    return NULL;
+
+  if (days > 0)
+    path =
+      g_strdup_printf ("/agent-control/v2/api/agents/%s/support-bundle?days=%d",
+                       escaped_agent_id, days);
+  else
+    path = g_strdup_printf ("/agent-control/v2/api/agents/%s/support-bundle",
+                            escaped_agent_id);
+
+  g_free (escaped_agent_id);
+
+  headers = init_custom_header (conn->apikey, FALSE);
+  if (!headers)
+    {
+      g_free (path);
+      return NULL;
+    }
+
+  if (!add_custom_header (headers, "Accept", "application/octet-stream"))
+    {
+      gvm_http_headers_free (headers);
+      g_free (path);
+      return NULL;
+    }
+
+  response =
+    agent_controller_send_request_with_headers (conn, GET, path, NULL, headers);
+
+  gvm_http_headers_free (headers);
+  g_free (path);
+
+  if (!response)
+    return NULL;
+
+  if (response->http_status != 200)
+    {
+      g_warning ("%s: Received HTTP status %ld", __func__,
+                 response->http_status);
+      gvm_http_response_free (response);
+      return NULL;
+    }
+
+  if (!response->data || response->size == 0)
+    {
+      g_warning ("%s: Received an empty support bundle", __func__);
+      gvm_http_response_free (response);
+      return NULL;
+    }
+
+  bundle = agent_controller_support_bundle_new ();
+  if (!bundle)
+    {
+      gvm_http_response_free (response);
+      return NULL;
+    }
+
+  /*
+   * Transfer ownership of the binary buffer from the generic HTTP response
+   * to the Agent Controller support-bundle object.
+   */
+  bundle->data = (guint8 *) response->data;
+  bundle->size = response->size;
+  bundle->filename =
+    content_disposition_filename (response->content_disposition);
+
+  response->data = NULL;
+  response->size = 0;
+
+  gvm_http_response_free (response);
+
+  return bundle;
 }
