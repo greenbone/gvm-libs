@@ -237,6 +237,20 @@ struct agent_controller_installer_instruction
 typedef struct agent_controller_installer_instruction
   *agent_controller_installer_instruction_t;
 
+/**
+ * @brief Struct representing a support bundle for agents.
+ */
+struct agent_controller_support_bundle
+{
+  guint8 *data;    ///> The data of the support bundle file (e.g., ZIP archive)
+  gsize size;      ///< Size of the data in bytes
+  gchar *filename; ///< Suggested filename for the support bundle (e.g.,
+                   ///< "support_bundle.zip")
+};
+
+typedef struct agent_controller_support_bundle
+  *agent_controller_support_bundle_t;
+
 agent_controller_connector_t
 agent_controller_connector_new (void);
 
@@ -285,6 +299,12 @@ agent_controller_installer_instruction_new (void);
 void
 agent_controller_installer_instruction_free (
   agent_controller_installer_instruction_t instr);
+
+agent_controller_support_bundle_t
+agent_controller_support_bundle_new (void);
+
+void
+agent_controller_support_bundle_free (agent_controller_support_bundle_t bundle);
 
 agent_controller_agent_list_t
 agent_controller_get_agents (agent_controller_connector_t conn);
@@ -340,5 +360,9 @@ agent_controller_parse_scan_agent_config_string (const gchar *);
 agent_controller_installer_instruction_t
 agent_controller_get_installer_instruction (agent_controller_connector_t conn,
                                             instructions_lang_type_t lang_type);
+
+agent_controller_support_bundle_t
+agent_controller_download_support_bundle (agent_controller_connector_t conn,
+                                          const gchar *agent_id, int days);
 
 #endif /* not _GVM_AGENT_CONTROLLER_AGENT_CONTROLLER_H */
