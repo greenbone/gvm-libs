@@ -1988,7 +1988,6 @@ agent_controller_get_installer_instruction (agent_controller_connector_t conn,
   gvm_http_headers_t *headers;
   gvm_http_response_t *response;
   agent_controller_installer_instruction_t instr;
-  gchar *escaped_origin_url = NULL;
   gchar *path;
 
   if (!conn)
@@ -2009,6 +2008,12 @@ agent_controller_get_installer_instruction (agent_controller_connector_t conn,
 
   if (origin_url && *origin_url)
     {
+      gchar *escaped_origin_url;
+
+      /*
+       * Pass origin_url so the Agent Controller can include the correct server
+       * address in the generated executable installation command.
+       */
       escaped_origin_url = g_uri_escape_string (origin_url, NULL, FALSE);
       if (!escaped_origin_url)
         {
