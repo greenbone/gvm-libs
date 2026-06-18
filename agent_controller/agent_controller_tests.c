@@ -4283,6 +4283,12 @@ main (int argc, char **argv)
     get_installer_instruction_returns_null_when_request_fails);
   add_test_with_context (
     suite, agent_controller,
+    get_installer_instruction_includes_encoded_origin_url);
+  add_test_with_context (
+    suite, agent_controller,
+    get_installer_instruction_omits_empty_origin_url);
+  add_test_with_context (
+    suite, agent_controller,
     get_installer_instruction_returns_null_when_request_with_origin_fails);
 
   add_test_with_context (suite, agent_controller,
