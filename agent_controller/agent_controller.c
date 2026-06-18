@@ -1971,24 +1971,33 @@ agent_controller_get_scan_id (const gchar *body)
 /**
  * @brief Retrieves installer instructions for agents.
  *
- * @param[in] conn Active connector to the Agent Controller
- * @param[in] lang_type Language type for the instructions
+ * @param[in] conn Active connector to the Agent Controller.
+ * @param[in] lang_type Language type for the instructions.
+ * @param[in] origin_url Origin URL included in the installer instructions.
+ *                       May be NULL or empty.
  *
  * @return Newly allocated installer instruction struct on success, NULL on
  *         failure. Caller must free with
- * agent_controller_installer_instruction_free().
+ *         agent_controller_installer_instruction_free().
  */
 agent_controller_installer_instruction_t
 agent_controller_get_installer_instruction (agent_controller_connector_t conn,
-                                            instructions_lang_type_t lang_type)
+                                            instructions_lang_type_t lang_type,
+                                            const gchar *origin_url)
 {
+  gvm_http_headers_t *headers;
+  gvm_http_response_t *response;
+  agent_controller_installer_instruction_t instr;
+  gchar *escaped_origin_url = NULL;
+  gchar *path;
+
   if (!conn)
     {
       g_warning ("%s: Connector is NULL", __func__);
       return NULL;
     }
 
-  gvm_http_headers_t *headers = init_custom_header (conn->apikey, FALSE);
+  headers = init_custom_header (conn->apikey, FALSE);
   if (!headers)
     return NULL;
 
@@ -1998,11 +2007,36 @@ agent_controller_get_installer_instruction (agent_controller_connector_t conn,
       return NULL;
     }
 
-  gchar *path = g_strdup_printf (
-    "/agent-control/public/v2/api/installers/instructions?lang=%s",
-    instructions_lang_type_to_str (lang_type));
+  if (origin_url && *origin_url)
+    {
+      escaped_origin_url = g_uri_escape_string (origin_url, NULL, FALSE);
+      if (!escaped_origin_url)
+        {
+          gvm_http_headers_free (headers);
+          return NULL;
+        }
 
-  gvm_http_response_t *response =
+      path = g_strdup_printf (
+        "/agent-control/public/v2/api/installers/instructions"
+        "?lang=%s&origin_url=%s",
+        instructions_lang_type_to_str (lang_type), escaped_origin_url);
+
+      g_free (escaped_origin_url);
+    }
+  else
+    {
+      path = g_strdup_printf (
+        "/agent-control/public/v2/api/installers/instructions?lang=%s",
+        instructions_lang_type_to_str (lang_type));
+    }
+
+  if (!path)
+    {
+      gvm_http_headers_free (headers);
+      return NULL;
+    }
+
+  response =
     agent_controller_send_request_with_headers (conn, GET, path, NULL, headers);
 
   gvm_http_headers_free (headers);
@@ -2022,9 +2056,7 @@ agent_controller_get_installer_instruction (agent_controller_connector_t conn,
       return NULL;
     }
 
-  agent_controller_installer_instruction_t instr =
-    agent_controller_installer_instruction_new ();
-
+  instr = agent_controller_installer_instruction_new ();
   if (!instr)
     {
       gvm_http_response_free (response);
@@ -2035,6 +2067,7 @@ agent_controller_get_installer_instruction (agent_controller_connector_t conn,
   instr->instruction = response->data ? g_strdup (response->data) : NULL;
 
   gvm_http_response_free (response);
+
   return instr;
 }
 

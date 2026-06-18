@@ -3466,7 +3466,7 @@ Ensure (agent_controller,
   mock_response_data = g_strdup ("{\"instruction\":\"install agent\"}");
 
   agent_controller_installer_instruction_t instr =
-    agent_controller_get_installer_instruction (conn, EN);
+    agent_controller_get_installer_instruction (conn, EN, NULL);
 
   assert_that (instr, is_not_null);
   assert_that (instr->lang_type, is_equal_to (EN));
@@ -3498,7 +3498,7 @@ Ensure (agent_controller,
   mock_response_data = g_strdup ("{\"instruction\":\"agent installieren\"}");
 
   agent_controller_installer_instruction_t instr =
-    agent_controller_get_installer_instruction (conn, DE);
+    agent_controller_get_installer_instruction (conn, DE, NULL);
 
   assert_that (instr, is_not_null);
   assert_that (instr->lang_type, is_equal_to (DE));
@@ -3513,6 +3513,53 @@ Ensure (agent_controller,
   agent_controller_connector_free (conn);
 }
 
+Ensure (agent_controller, get_installer_instruction_includes_encoded_origin_url)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup ("{\"instruction\":\"install agent\"}");
+
+  agent_controller_installer_instruction_t instr =
+    agent_controller_get_installer_instruction (
+      conn, EN, "https://example.com:8443/gsa/path?foo=bar&value=one two");
+
+  assert_that (instr, is_not_null);
+  assert_that (instr->lang_type, is_equal_to (EN));
+  assert_that (instr->instruction,
+               is_equal_to_string ("{\"instruction\":\"install agent\"}"));
+
+  assert_that (last_sent_url,
+               is_equal_to_string (
+                 "http://localhost:8081/agent-control/public/"
+                 "v2/api/installers/instructions?lang=en"
+                 "&origin_url=https%3A%2F%2Fexample.com%3A8443%2Fgsa%2Fpath"
+                 "%3Ffoo%3Dbar%26value%3Done%20two"));
+
+  agent_controller_installer_instruction_free (instr);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, get_installer_instruction_omits_empty_origin_url)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup ("{\"instruction\":\"install agent\"}");
+
+  agent_controller_installer_instruction_t instr =
+    agent_controller_get_installer_instruction (conn, EN, "");
+
+  assert_that (instr, is_not_null);
+
+  assert_that (last_sent_url,
+               is_equal_to_string ("http://localhost:8081/agent-control/public/"
+                                   "v2/api/installers/instructions?lang=en"));
+
+  agent_controller_installer_instruction_free (instr);
+  agent_controller_connector_free (conn);
+}
+
 Ensure (agent_controller,
         get_installer_instruction_returns_null_when_request_fails)
 {
@@ -3522,12 +3569,34 @@ Ensure (agent_controller,
   g_clear_pointer (&mock_response_data, g_free);
 
   agent_controller_installer_instruction_t instr =
-    agent_controller_get_installer_instruction (conn, EN);
+    agent_controller_get_installer_instruction (conn, EN, NULL);
 
   assert_that (instr, is_null);
   assert_that (last_sent_url,
                is_equal_to_string ("http://localhost:8081/agent-control/public/"
                                    "v2/api/installers/instructions?lang=en"));
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        get_installer_instruction_returns_null_when_request_with_origin_fails)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 500;
+  g_clear_pointer (&mock_response_data, g_free);
+
+  agent_controller_installer_instruction_t instr =
+    agent_controller_get_installer_instruction (conn, DE,
+                                                "https://example.com");
+
+  assert_that (instr, is_null);
+
+  assert_that (last_sent_url,
+               is_equal_to_string ("http://localhost:8081/agent-control/public/"
+                                   "v2/api/installers/instructions?lang=de"
+                                   "&origin_url=https%3A%2F%2Fexample.com"));
 
   agent_controller_connector_free (conn);
 }
@@ -4212,6 +4281,9 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, agent_controller,
     get_installer_instruction_returns_null_when_request_fails);
+  add_test_with_context (
+    suite, agent_controller,
+    get_installer_instruction_returns_null_when_request_with_origin_fails);
 
   add_test_with_context (suite, agent_controller,
                          content_disposition_filename_extracts_filename);

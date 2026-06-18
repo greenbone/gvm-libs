@@ -359,7 +359,8 @@ agent_controller_parse_scan_agent_config_string (const gchar *);
 
 agent_controller_installer_instruction_t
 agent_controller_get_installer_instruction (agent_controller_connector_t conn,
-                                            instructions_lang_type_t lang_type);
+                                            instructions_lang_type_t lang_type,
+                                            const gchar *origin_url);
 
 agent_controller_support_bundle_t
 agent_controller_download_support_bundle (agent_controller_connector_t conn,
