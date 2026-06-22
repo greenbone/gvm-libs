@@ -647,6 +647,24 @@ Ensure (security_intelligence,
   security_intelligence_connector_free (conn);
 }
 
+Ensure (security_intelligence, send_request_uses_url_without_protocol_or_host)
+{
+  security_intelligence_connector_t conn =
+    security_intelligence_connector_new ();
+
+  conn->url = g_strdup ("https://example.test/base");
+
+  gvm_http_response_t *resp = security_intelligence_send_request (
+    conn, GET, "/resource", NULL, CONTENT_TYPE_JSON);
+
+  assert_that (resp, is_not_null);
+  assert_that (last_sent_url,
+               is_equal_to_string ("https://example.test/base/resource"));
+
+  gvm_http_response_free (resp);
+  security_intelligence_connector_free (conn);
+}
+
 Ensure (security_intelligence, send_request_uses_prebuilt_base_url_when_present)
 {
   security_intelligence_connector_t conn = make_conn ();
@@ -3533,6 +3551,8 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, security_intelligence,
     send_request_builds_url_from_protocol_host_port_and_path);
+  add_test_with_context (suite, security_intelligence,
+                         send_request_uses_url_without_protocol_or_host);
   add_test_with_context (suite, security_intelligence,
                          send_request_uses_prebuilt_base_url_when_present);
   add_test_with_context (suite, security_intelligence,
