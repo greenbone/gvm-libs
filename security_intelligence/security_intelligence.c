@@ -102,9 +102,9 @@ security_intelligence_send_request (security_intelligence_connector_t conn,
       return NULL;
     }
 
-  if (!conn->protocol || !conn->host)
+  if (!conn->url && (!conn->protocol || !conn->host))
     {
-      g_warning ("%s: Missing URL components", __func__);
+      g_warning ("%s: Missing URL or URL components", __func__);
       return NULL;
     }
 
