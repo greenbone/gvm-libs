@@ -147,9 +147,9 @@ osp_connection_new (const char *host, int port, const char *cacert,
       tv.tv_sec = 24;
       tv.tv_usec = 0;
       setsockopt(connection->socket, SOL_SOCKET, SO_RCVTIMEO, &tv,
-                 sizeof(struct timeval));
+                 sizeof (struct timeval));
       setsockopt(connection->socket, SOL_SOCKET, SO_SNDTIMEO, &tv,
-                 sizeof(struct timeval));
+                 sizeof (struct timeval));
 
       if (connect (connection->socket, (struct sockaddr *) &addr, len) == -1)
         {
