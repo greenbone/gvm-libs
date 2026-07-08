@@ -30,7 +30,8 @@ struct http_scanner_connector
   gchar *key;         /**< Client key. */
   gchar *apikey;      /**< API key for authentication. */
   gchar *host;        /**< server hostname. */
-  gchar *scan_prefix; /**< Scan prefix for scanning endpoint. */
+  gchar *path_prefix; /**< Path prefix for all endpoints. */
+  gchar *scan_prefix; /**< Scan prefix for scan endpoints. */
   gchar *scan_id;     /**< Scan ID. */
   int port;           /**< server port. */
   gchar *protocol;    /**< server protocol (http or https). */
@@ -102,6 +103,9 @@ http_scanner_connector_builder (http_scanner_connector_t conn,
     case HTTP_SCANNER_HOST:
       conn->host = g_strdup ((char *) val);
       break;
+    case HTTP_SCANNER_PATH_PREFIX:
+      conn->path_prefix = g_strdup ((char *) val);
+      break;
     case HTTP_SCANNER_SCAN_ID:
       conn->scan_id = g_strdup ((const gchar *) val);
       break;
@@ -141,6 +145,7 @@ http_scanner_connector_free (http_scanner_connector_t conn)
   g_free (conn->apikey);
   g_free (conn->protocol);
   g_free (conn->host);
+  g_free (conn->path_prefix);
   g_free (conn->scan_id);
   g_free (conn->scan_prefix);
   g_free (conn->unix_socket_path);
@@ -431,7 +436,7 @@ http_scanner_send_request (http_scanner_connector_t conn,
     conn->cert, conn->key, conn->unix_socket_path, conn->stream_resp);
 
   // Check for request errors
-  if (http_response->http_status == -1)
+  if (!http_response || http_response->http_status == -1)
     {
       g_warning ("%s: Error performing CURL request", __func__);
       response->body = g_strdup ("{\"error\": \"Error sending request\"}");
@@ -486,27 +491,149 @@ http_scanner_get_version (http_scanner_connector_t conn)
 }
 
 /**
- * @brief Builds the path prefix for scan endpoints.
+ * @brief Helper function to append a component to a path with proper slashes.
+ *
+ * @param path       The current path.
+ * @param component  The component to append to the path.
+ */
+static void
+append_path_component (GString *path, const gchar *component)
+{
+  const gchar *start;
+  gsize len;
+
+  if (!path || !component || component[0] == '\0')
+    return;
+
+  start = component;
+  while (*start == '/')
+    start++;
+
+  len = strlen (start);
+  while (len > 0 && start[len - 1] == '/')
+    len--;
+
+  if (len == 0)
+    return;
+
+  if (path->len == 0 || path->str[path->len - 1] != '/')
+    g_string_append_c (path, '/');
+
+  g_string_append_len (path, start, len);
+}
+
+/**
+ * @brief Helper function to build the base path for all endpoints.
+ *        Appends the path prefix if it is set in the connector.
  *
  * @param conn Connector struct with the data necessary for the connection.
  *
- * @return The constructed path prefix. Has to be freed by the caller.
+ * @return The constructed base path. Has to be freed by the caller.
  */
 static GString *
-build_path_prefix (http_scanner_connector_t conn)
+build_base_path (http_scanner_connector_t conn)
 {
+  g_assert (conn != NULL);
+
   GString *path = g_string_new ("");
-  if (conn != NULL && conn->scan_prefix != NULL && conn->scan_prefix[0] != '\0')
-    {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_prefix);
-    }
-  g_string_append (path, "/scans");
+
+  append_path_component (path, conn->path_prefix);
+
   return path;
 }
 
 /**
- * @Brief Create a scan.
+ * @brief Helper function to build the scan path prefix for scan endpoints.
+ *        Adds the scan prefix if it is set in the connector.
+ *
+ * @param conn Connector struct with the data necessary for the connection.
+ *
+ * @return The constructed scan path prefix. Has to be freed by the caller.
+ */
+static GString *
+build_scan_path_prefix (http_scanner_connector_t conn)
+{
+  g_assert (conn != NULL);
+
+  GString *path = build_base_path (conn);
+
+  append_path_component (path, conn->scan_prefix);
+  append_path_component (path, "scans");
+
+  return path;
+}
+
+/**
+ * @brief Helper function to build the full endpoint path.
+ *
+ * @param conn      Connector struct with the data necessary for
+ *                  the connection.
+ * @param endpoint  The endpoint to append to the base path.
+ *
+ * @return The constructed endpoint path. Has to be freed by the caller.
+ */
+static GString *
+build_endpoint_path (http_scanner_connector_t conn, const gchar *endpoint)
+{
+  g_assert (conn != NULL);
+
+  GString *path = build_base_path (conn);
+
+  append_path_component (path, endpoint);
+
+  if (path->len == 0)
+    g_string_append (path, "/");
+
+  return path;
+}
+
+/**
+ * @brief Helper function to build the full scans endpoint path.
+ *
+ * @param conn      Connector struct.
+ * @param endpoint  The endpoint to append to the scan path prefix.
+ *
+ * @return The constructed scans endpoint path. Has to be freed by the caller.
+ */
+
+static GString *
+build_scans_endpoint_path (http_scanner_connector_t conn, const gchar *endpoint)
+{
+  g_assert (conn != NULL);
+
+  GString *path = build_scan_path_prefix (conn);
+
+  append_path_component (path, endpoint);
+
+  return path;
+}
+
+/**
+ * @brief Helper function to build the full scan id endpoint path.
+ *
+ * @param conn      Connector struct.
+ * @param endpoint  The endpoint to append after the scan ID.
+ *
+ * @return The constructed scan id endpoint path.
+ *         Has to be freed by the caller.
+ */
+static GString *
+build_scan_id_endpoint_path (http_scanner_connector_t conn,
+                             const gchar *endpoint)
+{
+  g_assert (conn != NULL);
+  g_assert (conn->scan_id != NULL);
+
+  GString *path = build_scan_path_prefix (conn);
+
+  append_path_component (path, conn->scan_id);
+  append_path_component (path, endpoint);
+
+  return path;
+}
+
+/**
+ * @brief Create a scan.
  *
  * @param conn Connector struct with the data necessary for the connection.
  * @param data String containing the scan config in JSON format.
@@ -519,7 +646,26 @@ http_scanner_create_scan (http_scanner_connector_t conn, gchar *data)
 {
   http_scanner_resp_t response = NULL;
   cJSON *parser = NULL;
-  GString *path = build_path_prefix (conn);
+
+  if (conn == NULL)
+    {
+      response = g_malloc0 (sizeof (struct http_scanner_response));
+      response->code = RESP_CODE_ERR;
+      response->body = g_strdup ("{\"error\": \"Invalid connector\"}");
+      g_warning ("%s: Invalid connector", __func__);
+      return response;
+    }
+
+  if (data == NULL || data[0] == '\0')
+    {
+      response = g_malloc0 (sizeof (struct http_scanner_response));
+      response->code = RESP_CODE_ERR;
+      response->body = g_strdup ("{\"error\": \"Missing scan config data\"}");
+      g_warning ("%s: Missing scan config data", __func__);
+      return response;
+    }
+
+  GString *path = build_scan_path_prefix (conn);
 
   response =
     http_scanner_send_request (conn, HTTP_SCANNER_POST, path->str, data, NULL);
@@ -576,26 +722,29 @@ http_scanner_resp_t
 http_scanner_start_scan (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response;
-  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_id != NULL && conn->scan_id[0] != '\0')
+  if (conn == NULL)
     {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_id);
+      response = g_malloc0 (sizeof (struct http_scanner_response));
+      response->code = RESP_CODE_ERR;
+      response->body = g_strdup ("{\"error\": \"Invalid connector\"}");
+      g_warning ("%s: Invalid connector", __func__);
+      return response;
     }
-  else
+
+  if (conn->scan_id == NULL || conn->scan_id[0] == '\0')
     {
       response = g_malloc0 (sizeof (struct http_scanner_response));
       response->code = RESP_CODE_ERR;
       response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
-      g_string_free (path, TRUE);
       g_warning ("%s: Missing scan ID", __func__);
       return response;
     }
 
+  GString *path = build_scan_id_endpoint_path (conn, NULL);
+
   response = http_scanner_send_request (conn, HTTP_SCANNER_POST, path->str,
                                         "{\"action\": \"start\"}", NULL);
-
   g_string_free (path, TRUE);
 
   if (response->code == RESP_CODE_ERR)
@@ -622,22 +771,26 @@ http_scanner_resp_t
 http_scanner_stop_scan (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response;
-  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_id != NULL && conn->scan_id[0] != '\0')
+  if (conn == NULL)
     {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_id);
+      response = g_malloc0 (sizeof (struct http_scanner_response));
+      response->code = RESP_CODE_ERR;
+      response->body = g_strdup ("{\"error\": \"Invalid connector\"}");
+      g_warning ("%s: Invalid connector", __func__);
+      return response;
     }
-  else
+
+  if (conn->scan_id == NULL || conn->scan_id[0] == '\0')
     {
       response = g_malloc0 (sizeof (struct http_scanner_response));
       response->code = RESP_CODE_ERR;
       response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
-      g_string_free (path, TRUE);
       g_warning ("%s: Missing scan ID", __func__);
       return response;
     }
+
+  GString *path = build_scan_id_endpoint_path (conn, NULL);
 
   response = http_scanner_send_request (conn, HTTP_SCANNER_POST, path->str,
                                         "{\"action\": \"stop\"}", NULL);
@@ -663,31 +816,35 @@ http_scanner_get_scan_results (http_scanner_connector_t conn, long first,
                                long last)
 {
   http_scanner_resp_t response = NULL;
-  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_id != NULL && conn->scan_id[0] != '\0')
+  if (conn == NULL)
     {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_id);
-      if (last > first)
-        g_string_append_printf (path, "/results?range%ld-%ld", first, last);
-      else if (last < first)
-        g_string_append_printf (path, "/results?range=%ld", first);
-      else
-        g_string_append (path, "/results");
+      response = g_malloc0 (sizeof (struct http_scanner_response));
+      response->code = RESP_CODE_ERR;
+      response->body = g_strdup ("{\"error\": \"Invalid connector\"}");
+      g_warning ("%s: Invalid connector", __func__);
+      return response;
     }
-  else
+
+  if (conn->scan_id == NULL || conn->scan_id[0] == '\0')
     {
       response = g_malloc0 (sizeof (struct http_scanner_response));
       response->code = RESP_CODE_ERR;
       response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
-      g_string_free (path, TRUE);
       g_warning ("%s: Missing scan ID", __func__);
       return response;
     }
 
+  GString *path = build_scan_id_endpoint_path (conn, "results");
+
+  if (last > first)
+    g_string_append_printf (path, "?range=%ld-%ld", first, last);
+  else if (last < first)
+    g_string_append_printf (path, "?range=%ld", first);
+
   response =
     http_scanner_send_request (conn, HTTP_SCANNER_GET, path->str, NULL, NULL);
+
   g_string_free (path, TRUE);
 
   if (response->code != RESP_CODE_ERR)
@@ -981,26 +1138,30 @@ http_scanner_resp_t
 http_scanner_get_scan_status (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response;
-  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_id != NULL && conn->scan_id[0] != '\0')
+  if (conn == NULL)
     {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_id);
-      g_string_append (path, "/status");
+      response = g_malloc0 (sizeof (struct http_scanner_response));
+      response->code = RESP_CODE_ERR;
+      response->body = g_strdup ("{\"error\": \"Invalid connector\"}");
+      g_warning ("%s: Invalid connector", __func__);
+      return response;
     }
-  else
+
+  if (conn->scan_id == NULL || conn->scan_id[0] == '\0')
     {
       response = g_malloc0 (sizeof (struct http_scanner_response));
       response->code = RESP_CODE_ERR;
       response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
-      g_string_free (path, TRUE);
       g_warning ("%s: Missing scan ID", __func__);
       return response;
     }
 
+  GString *path = build_scan_id_endpoint_path (conn, "status");
+
   response =
     http_scanner_send_request (conn, HTTP_SCANNER_GET, path->str, NULL, NULL);
+
   g_string_free (path, TRUE);
 
   if (response->code != RESP_CODE_ERR)
@@ -1027,26 +1188,29 @@ http_scanner_resp_t
 http_scanner_delete_scan (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response;
-  GString *path = build_path_prefix (conn);
 
-  if (conn != NULL && conn->scan_id != NULL && conn->scan_id[0] != '\0')
+  if (conn == NULL)
     {
-      g_string_append (path, "/");
-      g_string_append (path, conn->scan_id);
+      response = g_malloc0 (sizeof (struct http_scanner_response));
+      response->code = RESP_CODE_ERR;
+      response->body = g_strdup ("{\"error\": \"Invalid connector\"}");
+      g_warning ("%s: Invalid connector", __func__);
+      return response;
     }
-  else
+
+  if (conn->scan_id == NULL || conn->scan_id[0] == '\0')
     {
       response = g_malloc0 (sizeof (struct http_scanner_response));
       response->code = RESP_CODE_ERR;
       response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
-      g_string_free (path, TRUE);
       g_warning ("%s: Missing scan ID", __func__);
       return response;
     }
 
+  GString *path = build_scan_id_endpoint_path (conn, NULL);
+
   response = http_scanner_send_request (conn, HTTP_SCANNER_DELETE, path->str,
                                         NULL, NULL);
-
   g_string_free (path, TRUE);
 
   if (response->code != RESP_CODE_ERR)
@@ -1074,8 +1238,20 @@ http_scanner_get_health_alive (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response = NULL;
 
-  response = http_scanner_send_request (conn, HTTP_SCANNER_GET, "/health/alive",
-                                        NULL, NULL);
+  if (conn == NULL)
+    {
+      response = g_malloc0 (sizeof (struct http_scanner_response));
+      response->code = RESP_CODE_ERR;
+      response->body = g_strdup ("{\"error\": \"Invalid connector\"}");
+      g_warning ("%s: Invalid connector", __func__);
+      return response;
+    }
+  GString *path = build_endpoint_path (conn, "/health/alive");
+
+  response =
+    http_scanner_send_request (conn, HTTP_SCANNER_GET, path->str, NULL, NULL);
+
+  g_string_free (path, TRUE);
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (http_scanner_stream_str (conn));
@@ -1102,8 +1278,21 @@ http_scanner_get_health_ready (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response = NULL;
 
-  response = http_scanner_send_request (conn, HTTP_SCANNER_GET, "/health/ready",
-                                        NULL, "feed-version");
+  if (conn == NULL)
+    {
+      response = g_malloc0 (sizeof (struct http_scanner_response));
+      response->code = RESP_CODE_ERR;
+      response->body = g_strdup ("{\"error\": \"Invalid connector\"}");
+      g_warning ("%s: Invalid connector", __func__);
+      return response;
+    }
+
+  GString *path = build_endpoint_path (conn, "/health/ready");
+
+  response = http_scanner_send_request (conn, HTTP_SCANNER_GET, path->str, NULL,
+                                        "feed-version");
+
+  g_string_free (path, TRUE);
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (http_scanner_stream_str (conn));
@@ -1130,8 +1319,21 @@ http_scanner_get_health_started (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response = NULL;
 
-  response = http_scanner_send_request (conn, HTTP_SCANNER_GET,
-                                        "/health/started", NULL, NULL);
+  if (conn == NULL)
+    {
+      response = g_malloc0 (sizeof (struct http_scanner_response));
+      response->code = RESP_CODE_ERR;
+      response->body = g_strdup ("{\"error\": \"Invalid connector\"}");
+      g_warning ("%s: Invalid connector", __func__);
+      return response;
+    }
+
+  GString *path = build_endpoint_path (conn, "/health/started");
+
+  response =
+    http_scanner_send_request (conn, HTTP_SCANNER_GET, path->str, NULL, NULL);
+
+  g_string_free (path, TRUE);
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (http_scanner_stream_str (conn));
@@ -1179,22 +1381,25 @@ http_scanner_get_scan_progress_ext (http_scanner_connector_t conn,
   const gchar *err = NULL;
   int all = 0, excluded = 0, dead = 0, alive = 0, queued = 0, finished = 0;
   int running_hosts_progress_sum = 0;
-
   http_scanner_resp_t resp;
-  int progress = -1;
+  int progress_or_error = -1;
 
   if (!response && !conn)
-    return -1;
+    goto cleanup;
 
-  if (response == NULL)
+  gboolean allocate_resp = (response == NULL);
+  if (allocate_resp)
     resp = http_scanner_get_scan_status (conn);
   else
     resp = response;
 
   if (resp->code == 404)
-    return -2;
+    {
+      progress_or_error = -2;
+      goto cleanup;
+    }
   else if (resp->code != 200)
-    return -1;
+    goto cleanup;
 
   parser = cJSON_Parse (resp->body);
   if (!parser)
@@ -1211,7 +1416,7 @@ http_scanner_get_scan_progress_ext (http_scanner_connector_t conn,
   if (!cJSON_IsObject (reader))
     {
       // Scan still not started. No information.
-      progress = 0;
+      progress_or_error = 0;
       goto cleanup;
     }
 
@@ -1243,17 +1448,19 @@ http_scanner_get_scan_progress_ext (http_scanner_connector_t conn,
     }
 
   if ((all + finished - dead - excluded) > 0)
-    progress = (running_hosts_progress_sum + 100 * (alive + finished))
-               / (all + finished - dead - excluded);
+    progress_or_error = (running_hosts_progress_sum + 100 * (alive + finished))
+                        / (all + finished - dead - excluded);
   else
-    progress = 0;
+    progress_or_error = 0;
 
 cleanup:
   if (err != NULL)
     g_warning ("%s: Unable to parse scan status. Reason: %s", __func__, err);
+  if (allocate_resp)
+    http_scanner_response_cleanup (resp);
   cJSON_Delete (parser);
 
-  return progress;
+  return progress_or_error;
 }
 
 /** @brief Return the scan progress.
@@ -1376,9 +1583,17 @@ http_scanner_resp_t
 http_scanner_get_scan_preferences (http_scanner_connector_t conn)
 {
   http_scanner_resp_t response = NULL;
-  GString *path = build_path_prefix (conn);
 
-  g_string_append (path, "/preferences");
+  if (conn == NULL)
+    {
+      response = g_malloc0 (sizeof (struct http_scanner_response));
+      response->code = RESP_CODE_ERR;
+      response->body = g_strdup ("{\"error\": \"Invalid connector\"}");
+      g_warning ("%s: Invalid connector", __func__);
+      return response;
+    }
+
+  GString *path = build_scans_endpoint_path (conn, "preferences");
 
   response =
     http_scanner_send_request (conn, HTTP_SCANNER_GET, path->str, NULL, NULL);
@@ -1433,6 +1648,7 @@ http_scanner_param_free (http_scanner_param_t *param)
   g_free (param->defval);
   g_free (param->description);
   g_free (param->type);
+  g_free (param);
 }
 
 /**
@@ -1460,7 +1676,7 @@ http_scanner_param_name (http_scanner_param_t *param)
   if (!param)
     return NULL;
 
-  return param->defval;
+  return param->name;
 }
 
 /**
@@ -1539,7 +1755,11 @@ http_scanner_parsed_scans_preferences (http_scanner_connector_t conn,
   resp = http_scanner_get_scan_preferences (conn);
 
   if (resp->code != 200)
-    return -1;
+    {
+      http_scanner_response_cleanup (resp);
+      g_warning ("%s: Failed to get scan preferences.", __func__);
+      return -1;
+    }
 
   // No results. No information.
   parser = cJSON_Parse (resp->body);

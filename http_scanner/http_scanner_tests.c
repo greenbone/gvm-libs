@@ -202,6 +202,7 @@ Ensure (http_scanner, http_scanner_connector_builder_all_valid_fields)
   const char *host = "localhost";
   const char *scan_id = "scan-uuid-123";
   const char *scan_prefix = "scan-prefix";
+  const char *path_prefix = "path-prefix";
   const char *unix_socket_path = "/temp/test.sock";
   int port = 9390;
 
@@ -240,6 +241,11 @@ Ensure (http_scanner, http_scanner_connector_builder_all_valid_fields)
   assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_PORT, &port),
                is_equal_to (HTTP_SCANNER_OK));
   assert_that (conn->port, is_equal_to (port));
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_PATH_PREFIX,
+                                               path_prefix),
+               is_equal_to (HTTP_SCANNER_OK));
+  assert_that (conn->path_prefix, is_equal_to_string (path_prefix));
 
   assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_PREFIX,
                                                scan_prefix),
@@ -560,6 +566,213 @@ Ensure (http_scanner, send_request_builds_url_with_socket_path)
   http_scanner_connector_free (conn);
 }
 
+Ensure (http_scanner, build_endpoint_path_with_no_endpoint)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_PATH_PREFIX,
+                                               "custom-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+
+  GString *endpoint_path = build_endpoint_path (conn, NULL);
+
+  assert_that (endpoint_path->str, is_equal_to_string ("/custom-prefix"));
+
+  g_string_free (endpoint_path, TRUE);
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, build_scans_endpoint_path_with_no_endpoint)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_PREFIX,
+                                               "scan-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+
+  GString *endpoint_path = build_scans_endpoint_path (conn, NULL);
+
+  assert_that (endpoint_path->str, is_equal_to_string ("/scan-prefix/scans"));
+
+  g_string_free (endpoint_path, TRUE);
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, build_scan_id_endpoint_path_with_no_endpoint)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_PREFIX,
+                                               "scan-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+  assert_that (
+    http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_ID, "scan-id"),
+    is_equal_to (HTTP_SCANNER_OK));
+
+  GString *endpoint_path = build_scan_id_endpoint_path (conn, NULL);
+
+  assert_that (endpoint_path->str,
+               is_equal_to_string ("/scan-prefix/scans/scan-id"));
+
+  g_string_free (endpoint_path, TRUE);
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, build_endpoint_path_with_path_prefix)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_PREFIX,
+                                               "scan-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_PATH_PREFIX,
+                                               "custom-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+
+  GString *endpoint_path = build_endpoint_path (conn, "/health/alive");
+
+  assert_that (endpoint_path->str,
+               is_equal_to_string ("/custom-prefix/health/alive"));
+
+  g_string_free (endpoint_path, TRUE);
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, build_endpoint_path_without_path_prefix)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_PREFIX,
+                                               "scan-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+
+  GString *endpoint_path = build_endpoint_path (conn, "/health/alive");
+
+  assert_that (endpoint_path->str, is_equal_to_string ("/health/alive"));
+
+  g_string_free (endpoint_path, TRUE);
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, build_scans_endpoint_path_with_path_and_scan_prefixes)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_PREFIX,
+                                               "scan-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_PATH_PREFIX,
+                                               "custom-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+
+  GString *endpoint_path = build_scans_endpoint_path (conn, "preferences");
+
+  assert_that (
+    endpoint_path->str,
+    is_equal_to_string ("/custom-prefix/scan-prefix/scans/preferences"));
+
+  g_string_free (endpoint_path, TRUE);
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, build_scans_endpoint_path_with_path_prefix)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_PATH_PREFIX,
+                                               "custom-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+
+  GString *endpoint_path = build_scans_endpoint_path (conn, "preferences");
+
+  assert_that (endpoint_path->str,
+               is_equal_to_string ("/custom-prefix/scans/preferences"));
+
+  g_string_free (endpoint_path, TRUE);
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, build_scans_endpoint_path_with_scan_prefix)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_PREFIX,
+                                               "scan-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+
+  GString *endpoint_path = build_scans_endpoint_path (conn, "preferences");
+
+  assert_that (endpoint_path->str,
+               is_equal_to_string ("/scan-prefix/scans/preferences"));
+
+  g_string_free (endpoint_path, TRUE);
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, build_scan_id_endpoint_path_with_path_and_scan_prefixes)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_PREFIX,
+                                               "scan-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_PATH_PREFIX,
+                                               "custom-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+  assert_that (
+    http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_ID, "scan-id"),
+    is_equal_to (HTTP_SCANNER_OK));
+
+  GString *endpoint_path = build_scan_id_endpoint_path (conn, "status");
+
+  assert_that (
+    endpoint_path->str,
+    is_equal_to_string ("/custom-prefix/scan-prefix/scans/scan-id/status"));
+
+  g_string_free (endpoint_path, TRUE);
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, build_scan_id_endpoint_path_with_path_prefix)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_PATH_PREFIX,
+                                               "custom-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+  assert_that (
+    http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_ID, "scan-id"),
+    is_equal_to (HTTP_SCANNER_OK));
+
+  GString *endpoint_path = build_scan_id_endpoint_path (conn, "status");
+
+  assert_that (endpoint_path->str,
+               is_equal_to_string ("/custom-prefix/scans/scan-id/status"));
+
+  g_string_free (endpoint_path, TRUE);
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, build_scan_id_endpoint_path_with_scan_prefix)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_PREFIX,
+                                               "scan-prefix"),
+               is_equal_to (HTTP_SCANNER_OK));
+  assert_that (
+    http_scanner_connector_builder (conn, HTTP_SCANNER_SCAN_ID, "scan-id"),
+    is_equal_to (HTTP_SCANNER_OK));
+
+  GString *endpoint_path = build_scan_id_endpoint_path (conn, "status");
+
+  assert_that (endpoint_path->str,
+               is_equal_to_string ("/scan-prefix/scans/scan-id/status"));
+
+  g_string_free (endpoint_path, TRUE);
+  http_scanner_connector_free (conn);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -614,6 +827,29 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, http_scanner,
                          send_request_builds_url_with_socket_path);
+  add_test_with_context (suite, http_scanner,
+                         build_endpoint_path_with_path_prefix);
+  add_test_with_context (suite, http_scanner,
+                         build_endpoint_path_without_path_prefix);
+  add_test_with_context (suite, http_scanner,
+                         build_scans_endpoint_path_with_path_and_scan_prefixes);
+  add_test_with_context (suite, http_scanner,
+                         build_scans_endpoint_path_with_path_prefix);
+  add_test_with_context (suite, http_scanner,
+                         build_scans_endpoint_path_with_scan_prefix);
+  add_test_with_context (
+    suite, http_scanner,
+    build_scan_id_endpoint_path_with_path_and_scan_prefixes);
+  add_test_with_context (suite, http_scanner,
+                         build_scan_id_endpoint_path_with_path_prefix);
+  add_test_with_context (suite, http_scanner,
+                         build_scan_id_endpoint_path_with_scan_prefix);
+  add_test_with_context (suite, http_scanner,
+                         build_endpoint_path_with_no_endpoint);
+  add_test_with_context (suite, http_scanner,
+                         build_scans_endpoint_path_with_no_endpoint);
+  add_test_with_context (suite, http_scanner,
+                         build_scan_id_endpoint_path_with_no_endpoint);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
