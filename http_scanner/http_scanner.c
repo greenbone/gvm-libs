@@ -687,6 +687,7 @@ http_scanner_create_scan (http_scanner_connector_t conn, gchar *data)
     {
       const gchar *error_ptr = cJSON_GetErrorPtr ();
       g_warning ("%s: Error parsing json string to get the scan ID", __func__);
+      g_free (response->body);
       if (error_ptr != NULL)
         {
           response->body = g_strdup_printf ("{\"error\": \"%s\"}", error_ptr);
@@ -706,6 +707,7 @@ http_scanner_create_scan (http_scanner_connector_t conn, gchar *data)
   conn->scan_id = g_strdup (cJSON_GetStringValue (parser));
 
   cJSON_Delete (parser);
+  g_free (response->body);
   response->body = g_strdup (http_scanner_stream_str (conn));
   http_scanner_reset_stream (conn);
   return response;
