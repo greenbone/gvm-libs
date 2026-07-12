@@ -1607,6 +1607,7 @@ http_scanner_get_scan_preferences (http_scanner_connector_t conn)
 
   g_string_free (path, TRUE);
 
+  g_free (response->body);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (http_scanner_stream_str (conn));
   else
