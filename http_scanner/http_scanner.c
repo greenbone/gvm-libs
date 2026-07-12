@@ -757,6 +757,7 @@ http_scanner_start_scan (http_scanner_connector_t conn)
       return response;
     }
 
+  g_free (response->body);
   response->body = g_strdup (http_scanner_stream_str (conn));
   http_scanner_reset_stream (conn);
   return response;
