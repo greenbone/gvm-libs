@@ -704,6 +704,7 @@ http_scanner_create_scan (http_scanner_connector_t conn, gchar *data)
       return response;
     }
 
+  g_free (conn->scan_id);
   conn->scan_id = g_strdup (cJSON_GetStringValue (parser));
 
   cJSON_Delete (parser);
