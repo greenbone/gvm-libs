@@ -59,6 +59,98 @@ The `gvm-libs` module consists of the following libraries:
 For more information on using the functionality provided by the `gvm-libs`
 module please refer to the source code documentation.
 
+## Logging configuration
+
+The `base` module of `gvm-libs` contains routines for logging, they
+can be configured with a file on the following format.
+
+The log configuration is divided into domains like these:
+
+```
+[log domain name]
+level=debug
+
+[*]
+prepend=%t %p
+prepend_time_format=%Y-%m-%d %Hh%M.%S %Z
+file=/var/log/gvm/filename.log
+level=info
+```
+
+Each heading (text in square brackets) controls log messages emitted
+for that log domain name. The heading for log domain name `*` defines
+defaults for most values.
+
+Valid labels under each log domain name heading are:
+
+- prepend
+- separator
+- prepend\_time\_format
+- file
+- level
+- syslog\_facility
+- syslog\_ident
+
+Labels without definition in a log domain will default to the value
+set in the default log domain named `*` with one exception:
+
+syslog\_ident defaults to the log domain name.
+
+Labels without definition in either the log domain for a particular
+log message or the default log domain have these defaults:
+
+- prepend: "%t %s %p - "
+- separator: ":"
+- prepend\_time\_format: "%Y-%m-%d %Hh%M.%S %Z"
+- file: "-"
+- level: "debug"
+- syslog\_facility: "local0"
+- syslog\_ident: null (which causes openlog to use the program name if
+  file specifies to log through syslog)
+
+The value of `prepend` is formatted and prepended to each log message,
+valid format sequences are:
+
+- %p: pid
+- %t: time (as formatted by prepend_time_format)
+- %s: separator (as specified by separator)
+
+Valid values for `separator` are most strings.
+
+Valid values for `prepend\_time\_format` are format specifications for
+strftime(3).
+
+The value of `file` controls where the logs are sent:
+
+- null (not specified for the log domain of a particular message or
+  for the default log domain): log to stderr
+- "" (the empty string): log to stderr
+- "-": log to stderr
+- "syslog": log to syslog
+- all other values: treat the value as a path and try to append to the
+  file specified
+
+The `level` label controls what log levels are output, example values:
+
+- "error", "4": errors
+- "critical", "8": critical situation
+- "warning", "16": warnings
+- "message", "32": messages
+- "info", "64": information
+- "debug", "128": debug (lots of output)
+
+Enabling any level includes all the levels above it. So enabling
+information will include warnings, critical situations and errors.
+
+To get absolutely all logging, set the level to debug for all domains
+in the configuration file.
+
+Valid values for `syslog\_facility` are "auth", "authpriv", "cron",
+"daemon", "ftp", "kern", "lpr", "mail", "mark", "news", "security",
+"syslog", "user", "uucp" and "local0" through "local7".
+
+Valid values for `syslog\_ident` are most strings.
+
 ## Support
 
 For any question on the usage of `gvm-libs` please use the [Greenbone Community
