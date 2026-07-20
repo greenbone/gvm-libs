@@ -297,7 +297,7 @@ free_log_configuration (GSList *log_domain_list)
     {
       gvm_logging_domain_t *log_domain_entry;
 
-      /* Get the list data which is an gvm_logging_t struct. */
+      /* Get the list data which is an gvm_logging_domain_t struct. */
       log_domain_entry = log_domain_list_tmp->data;
 
       /* Free the struct contents. */
@@ -523,7 +523,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
                                   log_domain)
               == 0)
             {
-              /* Get the list data which is an gvm_logging_t struct. */
+              /* Get the list data which is an gvm_logging_domain_t struct. */
               log_domain_entry = entry;
 
               /* Get the struct contents. */
@@ -922,7 +922,7 @@ setup_log_handlers_internal (GSList *gvm_log_config_list, GLogFunc log_func,
         {
           gvm_logging_domain_t *log_domain_entry;
 
-          /* Get the list data which is an gvm_logging_t struct. */
+          /* Get the list data which is an gvm_logging_domain_t struct. */
           log_domain_entry = log_domain_list_tmp->data;
 
           err = check_log_file (log_domain_entry);
