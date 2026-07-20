@@ -134,14 +134,20 @@ Ensure (logging, should_load_log_configuration)
   /* Create a temporary configuration file */
   FILE *file = fopen (config_file, "w");
   assert_that (file, is_not_null);
-  fprintf (file, "[*]\n"
+  fprintf (file, "[bar]\n"
+                 "file=syslog\n"
+                 "syslog_facility=kern\n"
+                 "syslog_ident=test_ident\n"
+                 "\n"
+                 "[foo]\n"
+                 "level=debug\n"
+                 "\n"
+                 "[*]\n"
                  "prepend=%%t %%s %%p - \n"
                  "separator=:\n"
                  "prepend_time_format=%%Y-%%m-%%d %%H:%%M:%%S\n"
                  "file=-\n"
-                 "level=debug\n"
-                 "syslog_facility=local0\n"
-                 "syslog_ident=test_ident\n");
+                 "level=info\n");
   fclose (file);
 
   /* Load the configuration */
@@ -151,6 +157,8 @@ Ensure (logging, should_load_log_configuration)
   /* Verify the configuration */
   gvm_logging_domain_t *log_domain_entry =
     (gvm_logging_domain_t *) log_config_list->data;
+  assert_that (gvm_logging_domain_get_log_domain (log_domain_entry),
+               is_equal_to_string("*"));
   assert_that (gvm_logging_domain_get_prepend_string (log_domain_entry),
                is_equal_to_string ("%t %s %p - "));
   assert_that (gvm_logging_domain_get_prepend_separator (log_domain_entry),
@@ -160,11 +168,56 @@ Ensure (logging, should_load_log_configuration)
   assert_that (gvm_logging_domain_get_log_file (log_domain_entry),
                is_equal_to_string ("-"));
   assert_that (*gvm_logging_domain_get_default_level (log_domain_entry),
+               is_equal_to (G_LOG_LEVEL_INFO));
+  assert_that (gvm_logging_domain_get_syslog_facility (log_domain_entry),
+               is_null);
+  assert_that (gvm_logging_domain_get_syslog_ident (log_domain_entry),
+               is_equal_to_string ("*"));
+
+  log_config_list = g_slist_next (log_config_list);
+  assert_that (log_config_list, is_not_null);
+  log_domain_entry =
+      (gvm_logging_domain_t *) log_config_list->data;
+  assert_that (gvm_logging_domain_get_log_domain (log_domain_entry),
+               is_equal_to_string ("foo"));
+  assert_that (gvm_logging_domain_get_prepend_string (log_domain_entry),
+               is_null);
+  assert_that (gvm_logging_domain_get_prepend_separator (log_domain_entry),
+               is_null);
+  assert_that (gvm_logging_domain_get_prepend_time_format (log_domain_entry),
+               is_null);
+  assert_that (gvm_logging_domain_get_log_file (log_domain_entry),
+               is_null);
+  assert_that (*gvm_logging_domain_get_default_level (log_domain_entry),
                is_equal_to (G_LOG_LEVEL_DEBUG));
   assert_that (gvm_logging_domain_get_syslog_facility (log_domain_entry),
-               is_equal_to_string ("local0"));
+               is_null);
+  assert_that (gvm_logging_domain_get_syslog_ident (log_domain_entry),
+               is_equal_to_string ("foo"));
+
+  log_config_list = g_slist_next (log_config_list);
+  assert_that (log_config_list, is_not_null);
+  log_domain_entry =
+      (gvm_logging_domain_t *) log_config_list->data;
+  assert_that (gvm_logging_domain_get_log_domain (log_domain_entry),
+               is_equal_to_string ("bar"));
+  assert_that (gvm_logging_domain_get_prepend_string (log_domain_entry),
+               is_null);
+  assert_that (gvm_logging_domain_get_prepend_separator (log_domain_entry),
+               is_null);
+  assert_that (gvm_logging_domain_get_prepend_time_format (log_domain_entry),
+               is_null);
+  assert_that (gvm_logging_domain_get_log_file (log_domain_entry),
+               is_equal_to_string ("syslog"));
+  assert_that (gvm_logging_domain_get_default_level (log_domain_entry),
+               is_null);
+  assert_that (gvm_logging_domain_get_syslog_facility (log_domain_entry),
+               is_equal_to_string ("kern"));
   assert_that (gvm_logging_domain_get_syslog_ident (log_domain_entry),
                is_equal_to_string ("test_ident"));
+
+  log_config_list = g_slist_next (log_config_list);
+  assert_that (log_config_list, is_null);
 
   /* Clean up */
   free_log_configuration (log_config_list);
