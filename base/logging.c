@@ -249,9 +249,6 @@ load_log_configuration (const gchar *config_file)
             log_domain_entry,
             g_key_file_get_value (key_file, *group, "syslog_facility", &error));
         }
-      else
-        gvm_logging_domain_set_syslog_facility (log_domain_entry,
-                                                g_strdup ("local0"));
 
       /* Look for the syslog_ident string. */
       if (g_key_file_has_key (key_file, *group, "syslog_ident", &error))
