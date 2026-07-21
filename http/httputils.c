@@ -146,13 +146,26 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
       curl_easy_setopt (curl, CURLOPT_HTTPHEADER, headers->custom_headers);
     }
 
-  // Handle SSL CA Certificate
-  if (ca_cert)
+  /*
+   * Always verify the server certificate and hostname.
+   * When a custom CA certificate is provided, use it as the trust source.
+   * Otherwise, libcurl uses its default CA trust store.
+   *
+   * See:
+   * https://curl.se/docs/sslcerts.html
+   * https://curl.se/libcurl/c/CURLOPT_SSL_VERIFYPEER.html
+   * https://curl.se/libcurl/c/CURLOPT_SSL_VERIFYHOST.html
+   */
+  curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, 1L);
+  curl_easy_setopt (curl, CURLOPT_SSL_VERIFYHOST, 2L);
+  curl_easy_setopt (curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2);
+
+  /* Handle SSL CA certificate. */
+  if (ca_cert && ca_cert[0] != '\0')
     {
       struct curl_blob ca_blob = {(void *) ca_cert, strlen (ca_cert),
                                   CURL_BLOB_COPY};
-      curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, 1L);
-      curl_easy_setopt (curl, CURLOPT_SSL_VERIFYHOST, 1L);
+
       ret = curl_easy_setopt (curl, CURLOPT_CAINFO_BLOB, &ca_blob);
       if (ret != CURLE_OK)
         {
@@ -161,14 +174,12 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
           curl_easy_cleanup (curl);
           return NULL;
         }
+
+      g_debug ("%s: Using provided CA certificate.", __func__);
     }
   else
     {
-      // Accept insecure connections if no CA cert is provided
-      curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, 0L);
-      curl_easy_setopt (curl, CURLOPT_SSL_VERIFYHOST, 0L);
-      curl_easy_setopt (curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2);
-      g_debug ("%s: Server certificate verification disabled.", __func__);
+      g_debug ("%s: Using default system CA trust store.", __func__);
     }
 
   // Handle Client Certificate & Private Key for authentication
