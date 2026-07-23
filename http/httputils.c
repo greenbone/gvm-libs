@@ -354,6 +354,7 @@ gvm_http_request_internal (const gchar *url, gvm_http_method_t method,
   curl_easy_setopt (http->handler, CURLOPT_HEADERDATA, http_response);
 
   CURLcode result = curl_easy_perform (http->handler);
+
   if (result == CURLE_OK)
     {
       curl_easy_getinfo (http->handler, CURLINFO_RESPONSE_CODE,
@@ -361,12 +362,40 @@ gvm_http_request_internal (const gchar *url, gvm_http_method_t method,
     }
   else
     {
-      g_debug ("%s: Error performing CURL request: %s", __func__,
-               curl_easy_strerror (result));
+      const gchar *error_message;
+      gchar *effective_url = NULL;
+      gchar *primary_ip = NULL;
+      long ssl_verify_result = 0;
+
+      error_message = curl_easy_strerror (result);
+
+      curl_easy_getinfo (http->handler, CURLINFO_EFFECTIVE_URL, &effective_url);
+
+      curl_easy_getinfo (http->handler, CURLINFO_PRIMARY_IP, &primary_ip);
+
+      curl_easy_getinfo (http->handler, CURLINFO_SSL_VERIFYRESULT,
+                         &ssl_verify_result);
+
+      g_warning ("%s: CURL request failed:"
+                 " code=%d,"
+                 " error=%s,"
+                 " url=%s,"
+                 " effective_url=%s,"
+                 " primary_ip=%s,"
+                 " ssl_verify_result=%ld",
+                 __func__, result, error_message, url ? url : "(null)",
+                 effective_url ? effective_url : "(unknown)",
+                 primary_ip ? primary_ip : "(unknown)", ssl_verify_result);
+
       http_response->http_status = -1;
       http_response->data =
-        g_strdup_printf ("{\"error\": \"CURL request failed: %s\"}",
-                         curl_easy_strerror (result));
+        g_strdup_printf ("{\"error\":\"CURL request failed\","
+                         "\"curl_code\":%d,"
+                         "\"details\":\"%s\","
+                         "\"ssl_verify_result\":%ld}",
+                         result, error_message, ssl_verify_result);
+
+      http_response->size = strlen (http_response->data);
     }
 
   if (response && response->data)
