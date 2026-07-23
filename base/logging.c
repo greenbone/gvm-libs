@@ -249,9 +249,6 @@ load_log_configuration (const gchar *config_file)
             log_domain_entry,
             g_key_file_get_value (key_file, *group, "syslog_facility", &error));
         }
-      else
-        gvm_logging_domain_set_syslog_facility (log_domain_entry,
-                                                g_strdup ("local0"));
 
       /* Look for the syslog_ident string. */
       if (g_key_file_has_key (key_file, *group, "syslog_ident", &error))
@@ -297,7 +294,7 @@ free_log_configuration (GSList *log_domain_list)
     {
       gvm_logging_domain_t *log_domain_entry;
 
-      /* Get the list data which is an gvm_logging_t struct. */
+      /* Get the list data which is an gvm_logging_domain_t struct. */
       log_domain_entry = log_domain_list_tmp->data;
 
       /* Free the struct contents. */
@@ -523,7 +520,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
                                   log_domain)
               == 0)
             {
-              /* Get the list data which is an gvm_logging_t struct. */
+              /* Get the list data which is an gvm_logging_domain_t struct. */
               log_domain_entry = entry;
 
               /* Get the struct contents. */
@@ -922,7 +919,7 @@ setup_log_handlers_internal (GSList *gvm_log_config_list, GLogFunc log_func,
         {
           gvm_logging_domain_t *log_domain_entry;
 
-          /* Get the list data which is an gvm_logging_t struct. */
+          /* Get the list data which is an gvm_logging_domain_t struct. */
           log_domain_entry = log_domain_list_tmp->data;
 
           err = check_log_file (log_domain_entry);
