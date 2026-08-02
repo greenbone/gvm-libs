@@ -382,6 +382,85 @@ Ensure (openvasd, openvasd_build_scan_config_json_with_host_discovery_ipv6_only)
   openvasd_target_free (target);
 }
 
+Ensure (openvasd, openvasd_build_scan_config_json_with_finished_hosts)
+{
+  openvasd_target_t *target;
+  GHashTable *scan_preferences;
+  gchar *json_str;
+  cJSON *json;
+  cJSON *target_obj;
+  cJSON *hosts;
+  cJSON *finished_hosts;
+
+  target =
+    openvasd_target_new ("scan-1", "192.0.2.1,192.0.2.2", "T:22", NULL, 0, 0);
+
+  target->finished_hosts = g_strdup ("192.0.2.1");
+
+  scan_preferences =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  json_str = openvasd_build_scan_config_json (target, scan_preferences, NULL);
+
+  assert_that (json_str, is_not_null);
+
+  json = cJSON_Parse (json_str);
+  assert_that (cJSON_IsObject (json), is_true);
+
+  target_obj = cJSON_GetObjectItem (json, "target");
+  assert_that (cJSON_IsObject (target_obj), is_true);
+
+  hosts = cJSON_GetObjectItem (target_obj, "hosts");
+  assert_that (cJSON_IsArray (hosts), is_true);
+  assert_that (cJSON_GetArraySize (hosts), is_equal_to (2));
+
+  assert_that (json_array_contains_string (hosts, "192.0.2.1"), is_true);
+  assert_that (json_array_contains_string (hosts, "192.0.2.2"), is_true);
+
+  finished_hosts = cJSON_GetObjectItem (target_obj, "finished_hosts");
+  assert_that (cJSON_IsArray (finished_hosts), is_true);
+  assert_that (cJSON_GetArraySize (finished_hosts), is_equal_to (1));
+
+  assert_that (json_array_contains_string (finished_hosts, "192.0.2.1"),
+               is_true);
+
+  cJSON_Delete (json);
+  g_free (json_str);
+  g_hash_table_destroy (scan_preferences);
+  openvasd_target_free (target);
+}
+
+Ensure (openvasd, openvasd_build_scan_config_json_without_finished_hosts)
+{
+  openvasd_target_t *target;
+  GHashTable *scan_preferences;
+  gchar *json_str;
+  cJSON *json;
+  cJSON *target_obj;
+
+  target = openvasd_target_new ("scan-1", "192.0.2.1", "T:22", NULL, 0, 0);
+
+  scan_preferences =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  json_str = openvasd_build_scan_config_json (target, scan_preferences, NULL);
+
+  assert_that (json_str, is_not_null);
+
+  json = cJSON_Parse (json_str);
+  assert_that (cJSON_IsObject (json), is_true);
+
+  target_obj = cJSON_GetObjectItem (json, "target");
+  assert_that (cJSON_IsObject (target_obj), is_true);
+
+  assert_that (cJSON_GetObjectItem (target_obj, "finished_hosts"), is_null);
+
+  cJSON_Delete (json);
+  g_free (json_str);
+  g_hash_table_destroy (scan_preferences);
+  openvasd_target_free (target);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -405,7 +484,10 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, openvasd,
     openvasd_build_scan_config_json_with_host_discovery_ipv6_only);
-
+  add_test_with_context (suite, openvasd,
+                         openvasd_build_scan_config_json_with_finished_hosts);
+  add_test_with_context (
+    suite, openvasd, openvasd_build_scan_config_json_without_finished_hosts);
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
   else
