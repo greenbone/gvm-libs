@@ -7,4 +7,11 @@ updates:
     groups:
       github-actions:
         patterns:
-          - "*"
+          - "actions/*"
+    ignore:
+      - dependency-name: "greenbone/actions"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+    commit-message:
+      prefix: "Deps"
