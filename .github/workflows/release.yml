@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: Selecting the Release type
         id: release-type
-        uses: greenbone/actions/release-type@v3
+        uses: greenbone/actions/release-type@v3.36.12
         with:
           release-type-input: ${{ inputs.release-type }}
       - name: Checkout code
@@ -47,13 +47,13 @@ jobs:
           ref: ${{ steps.release-type.outputs.release-ref }}
       - name: Determine release version
         id: release-version
-        uses: greenbone/actions/release-version@v3
+        uses: greenbone/actions/release-version@v3.36.12
         with:
           release-type: ${{ steps.release-type.outputs.release-type }}
           release-version: ${{ inputs.release-version }}
           versioning-scheme: "semver"
       - name: Install git-cliff
-        uses: greenbone/actions/uv@v3
+        uses: greenbone/actions/uv@v3.36.12
         with:
           install: git-cliff
       - name: Determine changelog
@@ -64,7 +64,7 @@ jobs:
           git-cliff -v --strip header -o /tmp/changelog.md --unreleased --tag ${{ steps.release-version.outputs.release-version }} ${{ steps.release-version.outputs.last-release-version }}..HEAD
       - name: Release with release action
         id: release
-        uses: greenbone/actions/release@v3
+        uses: greenbone/actions/release@v3.36.12
         with:
           github-user: ${{ secrets.GREENBONE_BOT }}
           github-user-mail: ${{ secrets.GREENBONE_BOT_MAIL }}

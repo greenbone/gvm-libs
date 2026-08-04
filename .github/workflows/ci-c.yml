@@ -37,7 +37,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v7
-      - uses: greenbone/actions/uv@v3
+      - uses: greenbone/actions/uv@v3.36.12
         with:
           install: gersemi
       - name: Check CMake Format
@@ -69,7 +69,7 @@ jobs:
       - name: Set git safe.directory
         run: git config --global --add safe.directory '*'
       - name: Install cgreen
-        uses: greenbone/actions/install-cgreen@v3
+        uses: greenbone/actions/install-cgreen@v3.36.12
       - name: Configure and Compile gvm-libs
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 -DENABLE_COVERAGE=1
