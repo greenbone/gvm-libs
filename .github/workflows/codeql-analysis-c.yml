@@ -8,10 +8,10 @@ on:
     branches:
       - main
     paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
+      - "**/*.md"
+      - "**/*.txt"
   schedule:
-    - cron: '30 5 * * 0' # 5:30h on Sundays
+    - cron: "30 5 * * 0" # 5:30h on Sundays
 
 jobs:
   analyze:
@@ -27,25 +27,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'c' ]
+        language: ["c"]
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v7
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # 7.0.1
 
-    - name: Install build dependencies
-      run: sh .github/install-dependencies.sh .github/build-dependencies.list
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v4
-      with:
-        languages: ${{ matrix.language }}
-      # build between init and analyze ...
-    - name: Configure and Compile gvm-libs
-      run: |
-        mkdir build
-        cd build
-        cmake -DCMAKE_BUILD_TYPE=Debug ..
-        make install
-      working-directory: ${{ github.WORKSPACE }}
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v4
+      - name: Install build dependencies
+        run: sh .github/install-dependencies.sh .github/build-dependencies.list
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@d1ba80a13dd99fba24a470575428917156a28b43 # 4.27.5
+        with:
+          languages: ${{ matrix.language }}
+        # build between init and analyze ...
+      - name: Configure and Compile gvm-libs
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Debug ..
+          make install
+        working-directory: ${{ github.WORKSPACE }}
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@d1ba80a13dd99fba24a470575428917156a28b43 # 4.27.5
