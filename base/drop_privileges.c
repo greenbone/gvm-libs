@@ -57,8 +57,7 @@ drop_privileges_error (GError **error, gint errorcode, const gchar *message)
 int
 drop_privileges (gchar *username, GError **error)
 {
-  g_return_val_if_fail (error == NULL || *error == NULL,
-                        GVM_DROP_PRIVILEGES_ERROR_ALREADY_SET);
+  g_return_val_if_fail (*error == NULL, GVM_DROP_PRIVILEGES_ERROR_ALREADY_SET);
 
   if (username == NULL)
     username = "nobody";
