@@ -110,10 +110,18 @@ gvm_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
 void *
 gvm_uncompress (const void *src, unsigned long srclen, unsigned long *dstlen)
 {
-  unsigned long buflen = srclen * 2;
+  unsigned long buflen;
 
-  if (src == NULL || dstlen == NULL)
+  if (src == NULL || dstlen == NULL || srclen == 0)
     return NULL;
+
+  if (srclen >= SSIZE_MAX)
+    return NULL;
+
+  if (srclen > SSIZE_MAX / 2)
+    buflen = SSIZE_MAX;
+  else
+    buflen = srclen * 2;
 
   while (1)
     {
@@ -158,7 +166,12 @@ gvm_uncompress (const void *src, unsigned long srclen, unsigned long *dstlen)
           /* Fallthrough. */
         case Z_BUF_ERROR:
           g_free (buffer);
-          buflen *= 2;
+          if (buflen >= SSIZE_MAX)
+            return NULL;
+          else if (srclen > SSIZE_MAX / 2)
+            buflen = SSIZE_MAX;
+          else
+            buflen *= 2;
           break;
 
         default:
