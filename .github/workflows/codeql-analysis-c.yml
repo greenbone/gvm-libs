@@ -36,7 +36,7 @@ jobs:
       - name: Install build dependencies
         run: sh .github/install-dependencies.sh .github/build-dependencies.list
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@d1ba80a13dd99fba24a470575428917156a28b43 # 4.27.5
+        uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # 4.27.5
         with:
           languages: ${{ matrix.language }}
         # build between init and analyze ...
@@ -48,4 +48,4 @@ jobs:
           make install
         working-directory: ${{ github.WORKSPACE }}
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@d1ba80a13dd99fba24a470575428917156a28b43 # 4.27.5
+        uses: github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # 4.27.5
