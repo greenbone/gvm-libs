@@ -49,7 +49,7 @@ gvm_connection_free (gvm_connection_t *);
 void
 gvm_connection_close (gvm_connection_t *);
 
-int gvm_server_verify (gnutls_session_t);
+int gvm_server_verify (gnutls_session_t, const char *);
 
 int
 gvm_server_open (gnutls_session_t *, const char *, int);
