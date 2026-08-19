@@ -117,6 +117,118 @@ Ensure (openvasd, openvasd_add_port_to_scan_json)
   cJSON_Delete (ports_range_array);
 }
 
+Ensure (openvasd, openvasd_add_port_to_scan_json_max_port)
+{
+  range_t *ports_range;
+  cJSON *ports_range_array = cJSON_CreateArray ();
+
+  ports_range = g_malloc0 (sizeof (range_t));
+
+  ports_range->type = PORT_PROTOCOL_TCP;
+  ports_range->start = 1;
+  ports_range->end = 65535;
+
+  add_port_to_scan_json (ports_range, ports_range_array);
+
+  cJSON *ports_obj = cJSON_GetArrayItem (ports_range_array, 0);
+  cJSON *range_array = cJSON_GetObjectItem (ports_obj, "range");
+  cJSON *range_obj = cJSON_GetArrayItem (range_array, 0);
+
+  int start = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "start"));
+  int end = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "end"));
+
+  assert_that (start, is_equal_to (1));
+  assert_that (end, is_equal_to (65535));
+
+  g_free (ports_range);
+  cJSON_Delete (ports_range_array);
+}
+
+Ensure (openvasd, openvasd_add_port_to_scan_json_normal_range_udp)
+{
+  range_t *ports_range;
+  cJSON *ports_range_array = cJSON_CreateArray ();
+
+  ports_range = g_malloc0 (sizeof (range_t));
+
+  ports_range->type = PORT_PROTOCOL_UDP;
+  ports_range->start = 1;
+  ports_range->end = 1024;
+
+  add_port_to_scan_json (ports_range, ports_range_array);
+
+  cJSON *ports_obj = cJSON_GetArrayItem (ports_range_array, 0);
+  cJSON *range_array = cJSON_GetObjectItem (ports_obj, "range");
+  cJSON *range_obj = cJSON_GetArrayItem (range_array, 0);
+
+  int start = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "start"));
+  int end = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "end"));
+
+  const char *protocol =
+    cJSON_GetStringValue (cJSON_GetObjectItem (ports_obj, "protocol"));
+
+  assert_that (start, is_equal_to (1));
+  assert_that (end, is_equal_to (1024));
+  assert_that (protocol, is_equal_to_string ("udp"));
+
+  g_free (ports_range);
+  cJSON_Delete (ports_range_array);
+}
+
+Ensure (openvasd, openvasd_add_port_to_scan_json_end_out_of_bounds)
+{
+  range_t *ports_range;
+  cJSON *ports_range_array = cJSON_CreateArray ();
+
+  ports_range = g_malloc0 (sizeof (range_t));
+
+  ports_range->type = PORT_PROTOCOL_TCP;
+  ports_range->start = 80;
+  ports_range->end = 70000;
+
+  add_port_to_scan_json (ports_range, ports_range_array);
+
+  cJSON *ports_obj = cJSON_GetArrayItem (ports_range_array, 0);
+  cJSON *range_array = cJSON_GetObjectItem (ports_obj, "range");
+  cJSON *range_obj = cJSON_GetArrayItem (range_array, 0);
+
+  int start = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "start"));
+  int end = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "end"));
+
+  assert_that (start, is_equal_to (80));
+  assert_that (end, is_equal_to (80));
+
+  g_free (ports_range);
+  cJSON_Delete (ports_range_array);
+}
+
+Ensure (openvasd, openvasd_add_port_to_scan_json_end_less_than_start)
+{
+  range_t *ports_range;
+  cJSON *ports_range_array = cJSON_CreateArray ();
+
+  ports_range = g_malloc0 (sizeof (range_t));
+
+  ports_range->type = PORT_PROTOCOL_TCP;
+  ports_range->start = 150;
+  ports_range->end = 70;
+
+  add_port_to_scan_json (ports_range, ports_range_array);
+
+  cJSON *ports_obj = cJSON_GetArrayItem (ports_range_array, 0);
+  cJSON *range_array = cJSON_GetObjectItem (ports_obj, "range");
+  cJSON *range_obj = cJSON_GetArrayItem (range_array, 0);
+
+  int start = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "start"));
+  int end = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "end"));
+
+  assert_that (start, is_equal_to (150));
+  assert_that (end, is_equal_to (150));
+
+  g_free (ports_range);
+  cJSON_Delete (ports_range_array);
+}
+
 Ensure (openvasd, openvasd_add_vts_to_scan_json)
 {
   openvasd_vt_single_t *vt;
@@ -472,6 +584,14 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, openvasd, openvasd_add_credential_to_scan_json);
   add_test_with_context (suite, openvasd, openvasd_add_port_to_scan_json);
+  add_test_with_context (suite, openvasd,
+                         openvasd_add_port_to_scan_json_normal_range_udp);
+  add_test_with_context (suite, openvasd,
+                         openvasd_add_port_to_scan_json_max_port);
+  add_test_with_context (suite, openvasd,
+                         openvasd_add_port_to_scan_json_end_out_of_bounds);
+  add_test_with_context (suite, openvasd,
+                         openvasd_add_port_to_scan_json_end_less_than_start);
   add_test_with_context (suite, openvasd, openvasd_add_vts_to_scan_json);
 
   add_test_with_context (suite, openvasd, openvasd_set_alive_test_methods);
