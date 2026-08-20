@@ -108,18 +108,22 @@ gvm_connection_free (gvm_connection_t *client_connection)
  * @return 0 on success, 1 on failure, -1 on error.
  */
 int
-gvm_server_verify (gnutls_session_t session)
+gvm_server_verify (gnutls_session_t session, const char *host)
 {
   unsigned int status;
   int ret;
 
-  ret = gnutls_certificate_verify_peers2 (session, &status);
+  ret = gnutls_certificate_verify_peers3 (session, host, &status);
   if (ret < 0)
     {
       g_warning ("%s: failed to verify peers: %s", __func__,
                  gnutls_strerror (ret));
       return -1;
     }
+
+  if (status & GNUTLS_CERT_UNEXPECTED_OWNER)
+    g_warning ("%s: the certificate's host does not match the actual host",
+               __func__);
 
   if (status & GNUTLS_CERT_INVALID)
     g_warning ("%s: the certificate is not trusted", __func__);
@@ -434,7 +438,7 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host, int port,
       close (server_socket);
       return -1;
     }
-  if (verify && gvm_server_verify (*session))
+  if (verify && gvm_server_verify (*session, host))
     {
       close (server_socket);
       return -1;
