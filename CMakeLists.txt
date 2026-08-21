@@ -237,6 +237,8 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
   set(
     TESTS
     array-test
+    authutils-test
+    boreas-arp-test
     boreas-alivedetection-test
     boreas-cli-test
     boreas-error-test
@@ -245,19 +247,34 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     boreas-sniffer-test
     compressutils-test
     cpeutils-test
+    credentials-test
+    credentialutils-test
     cvss-test
+    fileutils-test
+    gmp-test
     hosts-test
     json-test
     jsonpull-test
+    kb-test
     logging-test
     logging-domain-test
+    mqtt-test
     networking-test
     nvti-test
     osp-test
     passwordbasedauthentication-test
+    pidfile-test
+    prefs-test
+    pwpolicy-test
+    radiusutils-test
+    serverutils-test
+    settings-test
+    sshutils-test
     streamvalidator-test
+    strings-test
     test-hosts
     util-test
+    uuidutils-test
     version-test
     versionutils-test
     xmlutils-test
