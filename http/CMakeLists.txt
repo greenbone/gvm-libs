@@ -59,6 +59,7 @@ if(BUILD_TESTS)
     ${CJSON_LDFLAGS}
     ${CURL_LDFLAGS}
     ${LINKER_HARDENING_FLAGS}
+    "-Wl,-wrap,curl_easy_setopt"
   )
 endif(BUILD_TESTS)
 

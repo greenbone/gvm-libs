@@ -116,6 +116,20 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
                        const gchar *client_key, const gchar *unix_socket_path,
                        gvm_http_response_stream_t res)
 {
+  if (!url || !res)
+    {
+      g_warning ("%s: Invalid url or response stream", __func__);
+      return NULL;
+    }
+
+  if ((client_cert && !client_key) || (!client_cert && client_key))
+    {
+      g_warning ("%s: Both client certificate and private key must be provided "
+                 "for mutual TLS",
+                 __func__);
+      return NULL;
+    }
+
   CURL *curl = curl_easy_init ();
   CURLcode ret = CURLE_OK;
 
@@ -213,32 +227,37 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
   switch (method)
     {
     case POST:
-      if (payload && payload[0] != '\0')
+      curl_easy_setopt (curl, CURLOPT_POST, 1L);
+      if (payload)
         {
           curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
-          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen (payload));
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE,
+                            (long) strlen (payload));
         }
       break;
     case PUT:
-      if (payload && payload[0] != '\0')
+      curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PUT");
+      if (payload)
         {
-          curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PUT");
           curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
-          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen (payload));
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE,
+                            (long) strlen (payload));
         }
       break;
     case PATCH:
-      if (payload && payload[0] != '\0')
+      curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PATCH");
+      if (payload)
         {
-          curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PATCH");
           curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
-          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen (payload));
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE,
+                            (long) strlen (payload));
         }
       break;
     case DELETE:
       curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "DELETE");
       break;
     case HEAD:
+      curl_easy_setopt (curl, CURLOPT_NOBODY, 1L);
       curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "HEAD");
       break;
     case GET:
