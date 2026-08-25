@@ -1431,7 +1431,7 @@ void
 gvm_hosts_reverse (gvm_hosts_t *hosts)
 {
   size_t i, j;
-  if (hosts == NULL)
+  if (hosts == NULL || hosts->count < 2)
     return;
 
   for (i = 0, j = hosts->count - 1; i < j; i++, j--)
