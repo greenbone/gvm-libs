@@ -225,6 +225,23 @@ Ensure (hosts, gvm_hosts_new_with_max_returns_error)
   assert_that (gvm_hosts_new_with_max ("127.0.0.1|127.0.0.2", 2), is_null);
 }
 
+Ensure (hosts, gvm_hosts_new_with_max_handles_range_edge_cases)
+{
+  gvm_hosts_t *max_ipv4_host =
+    gvm_hosts_new_with_max ("255.255.255.255-255.255.255.255", 10);
+  assert_that (max_ipv4_host, is_not_null);
+  assert_that (max_ipv4_host->count, is_equal_to (1));
+  gvm_hosts_free (max_ipv4_host);
+
+  gvm_hosts_t *max_ipv6_host =
+    gvm_hosts_new_with_max ("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"
+                            "-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+                            10);
+  assert_that (max_ipv6_host, is_not_null);
+  assert_that (max_ipv6_host->count, is_equal_to (1));
+  gvm_hosts_free (max_ipv6_host);
+}
+
 // This is a macro so the line number below is clear on failure.
 #define ASSERT_HOST_EQUALS(hosts_var, i, string)                               \
   {                                                                            \
@@ -416,6 +433,8 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, hosts, gvm_hosts_new_with_max_returns_error);
   add_test_with_context (suite, hosts, gvm_hosts_new_with_max_returns_success);
+  add_test_with_context (suite, hosts,
+                         gvm_hosts_new_with_max_handles_range_edge_cases);
 
   add_test_with_context (suite, hosts, gvm_hosts_move_host_to_end);
   add_test_with_context (suite, hosts, gvm_hosts_allowed_only);
