@@ -714,6 +714,38 @@ Ensure (xmlutils, rewind_resets_state)
   g_free (path);
 }
 
+Ensure (xmlutils, iterator_fails_on_unexpected_eof)
+{
+  const char *xml = "<root><inner><x>1</x></inner></";
+  gchar *path = write_temp_xml (xml);
+  assert_that (path, is_not_null);
+
+  xml_file_iterator_t it = xml_file_iterator_new ();
+  assert_that (xml_file_iterator_init_from_file_path (it, path, 2),
+               is_equal_to (0));
+
+  gchar *err = NULL;
+  element_t e;
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (element_name (e), is_equal_to_string ("x"));
+  assert_that (err, is_null);
+  element_free (e);
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (e, is_null);
+  assert_that (err, contains_string ("Opening and ending tag mismatch"));
+
+  g_free (err);
+  err = NULL;
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (e, is_null);
+  assert_that (err, contains_string ("Opening and ending tag mismatch"));
+
+  element_free (e);
+}
+
 /* Test suite. */
 
 int
@@ -757,6 +789,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, xmlutils, depth2_returns_grandchildren);
 
   add_test_with_context (suite, xmlutils, rewind_resets_state);
+  add_test_with_context (suite, xmlutils, iterator_fails_on_unexpected_eof);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());

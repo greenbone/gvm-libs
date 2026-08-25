@@ -3014,6 +3014,7 @@ xml_file_iterator_next (xml_file_iterator_t iterator, gchar **error)
   while (continue_read && g_queue_is_empty (iterator->element_queue))
     {
       int chars_read;
+      int ret;
       char buffer[XML_FILE_ITERATOR_BUFFER_SIZE];
 
       chars_read =
@@ -3031,25 +3032,22 @@ xml_file_iterator_next (xml_file_iterator_t iterator, gchar **error)
               return NULL;
             }
         }
-      else
-        {
-          int ret;
-          ret = xmlParseChunk (iterator->parser_ctxt, buffer, chars_read,
-                               continue_read == 0);
-          if (ret)
-            {
-              if (error)
-                {
-                  const xmlError *xml_error;
-                  xml_error = xmlCtxtGetLastError (iterator->parser_ctxt);
-                  *error = g_strdup_printf ("error parsing XML"
-                                            " (line %d column %d): %s",
-                                            xml_error->line, xml_error->int2,
-                                            xml_error->message);
-                }
 
-              return NULL;
+      ret = xmlParseChunk (iterator->parser_ctxt, buffer, chars_read,
+                           continue_read == 0);
+      if (ret)
+        {
+          if (error)
+            {
+              const xmlError *xml_error;
+              xml_error = xmlCtxtGetLastError (iterator->parser_ctxt);
+              *error = g_strdup_printf ("error parsing XML"
+                                        " (line %d column %d): %s",
+                                        xml_error->line, xml_error->int2,
+                                        xml_error->message);
             }
+
+          return NULL;
         }
     }
 
