@@ -13,12 +13,23 @@
 
 static gchar *last_sent_url = NULL;
 static gchar *last_sent_socket_path = NULL;
+static int mock_multi_perform_calls = 0;
+static int mock_multi_perform_running_handles = 0;
+static int mock_multi_poll_calls = 0;
+static gvm_http_multi_result_t mock_multi_perform_return_value = GVM_HTTP_OK;
+static gvm_http_multi_result_t mock_multi_poll_return_value = GVM_HTTP_OK;
 
 Describe (http_scanner);
 BeforeEach (http_scanner)
 {
   g_clear_pointer (&last_sent_url, g_free);
   g_clear_pointer (&last_sent_socket_path, g_free);
+
+  mock_multi_perform_calls = 0;
+  mock_multi_poll_calls = 0;
+  mock_multi_perform_running_handles = 0;
+  mock_multi_perform_return_value = GVM_HTTP_OK;
+  mock_multi_poll_return_value = GVM_HTTP_OK;
 }
 
 AfterEach (http_scanner)
@@ -52,6 +63,38 @@ gvm_http_request_unix (const gchar *url, gvm_http_method_t method,
   response->size = strlen (response->data);
 
   return response;
+}
+
+gvm_http_multi_result_t
+gvm_http_multi_perform (gvm_http_multi_t *multi, int *running_handles)
+{
+  (void) multi;
+  mock_multi_perform_calls++;
+
+  if (running_handles)
+    *running_handles = mock_multi_perform_running_handles;
+
+  return mock_multi_perform_return_value;
+}
+
+gvm_http_multi_result_t
+gvm_http_multi_poll (gvm_http_multi_t *multi, int timeout)
+{
+  (void) multi;
+  (void) timeout;
+  mock_multi_poll_calls++;
+
+  return mock_multi_poll_return_value;
+}
+
+static http_scanner_connector_t
+mock_connector_with_multi_new (void)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+  assert_that (conn != NULL);
+  assert_that (conn->stream_resp != NULL);
+  conn->stream_resp->multi_handler = gvm_http_multi_new ();
+  return conn;
 }
 
 /* http_scanner_delete_scan */
@@ -773,6 +816,80 @@ Ensure (http_scanner, build_scan_id_endpoint_path_with_scan_prefix)
   http_scanner_connector_free (conn);
 }
 
+Ensure (http_scanner, http_scanner_process_request_multi_negative_timeout)
+{
+  http_scanner_connector_t conn = mock_connector_with_multi_new ();
+
+  int ret = http_scanner_process_request_multi (conn, -1);
+
+  assert_that (mock_multi_perform_calls, is_equal_to (0));
+  assert_that (mock_multi_poll_calls, is_equal_to (0));
+  assert_that (ret, is_equal_to (-1));
+
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, http_scanner_process_request_multi_perform_failure)
+{
+  http_scanner_connector_t conn = mock_connector_with_multi_new ();
+
+  mock_multi_perform_return_value = GVM_HTTP_MULTI_FAILED;
+
+  int ret = http_scanner_process_request_multi (conn, 10);
+
+  assert_that (mock_multi_perform_calls, is_equal_to (1));
+  assert_that (mock_multi_poll_calls, is_equal_to (0));
+  assert_that (ret, is_equal_to (-1));
+
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, http_scanner_process_request_poll_failure)
+{
+  http_scanner_connector_t conn = mock_connector_with_multi_new ();
+
+  mock_multi_poll_return_value = GVM_HTTP_MULTI_UNKNOWN_ERROR;
+  mock_multi_perform_running_handles = 1;
+
+  int ret = http_scanner_process_request_multi (conn, 10);
+
+  assert_that (mock_multi_perform_calls, is_equal_to (1));
+  assert_that (mock_multi_poll_calls, is_equal_to (1));
+  assert_that (ret, is_equal_to (-1));
+
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, http_scanner_process_request_multi_success)
+{
+  http_scanner_connector_t conn = mock_connector_with_multi_new ();
+
+  mock_multi_perform_running_handles = 5;
+
+  int ret = http_scanner_process_request_multi (conn, 10);
+
+  assert_that (mock_multi_perform_calls, is_equal_to (1));
+  assert_that (mock_multi_poll_calls, is_equal_to (1));
+  assert_that (ret, is_equal_to (5));
+
+  http_scanner_connector_free (conn);
+}
+
+Ensure (http_scanner, http_scanner_process_request_multi_finished_transmission)
+{
+  http_scanner_connector_t conn = mock_connector_with_multi_new ();
+
+  mock_multi_perform_running_handles = 0;
+
+  int ret = http_scanner_process_request_multi (conn, 10);
+
+  assert_that (mock_multi_perform_calls, is_equal_to (1));
+  assert_that (mock_multi_poll_calls, is_equal_to (0));
+  assert_that (ret, is_equal_to (0));
+
+  http_scanner_connector_free (conn);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -795,7 +912,7 @@ main (int argc, char **argv)
                          http_scanner_connector_builder_null_conn);
   add_test_with_context (suite, http_scanner, http_scanner_connector_free);
   add_test_with_context (suite, http_scanner,
-                         http_scanner_connector_builder_invalid_protocol);
+                         http_scanner_connector_free_null_connector);
 
   add_test_with_context (suite, http_scanner,
                          http_scanner_start_scan_handles_missing_id);
@@ -850,6 +967,18 @@ main (int argc, char **argv)
                          build_scans_endpoint_path_with_no_endpoint);
   add_test_with_context (suite, http_scanner,
                          build_scan_id_endpoint_path_with_no_endpoint);
+
+  add_test_with_context (suite, http_scanner,
+                         http_scanner_process_request_multi_negative_timeout);
+  add_test_with_context (suite, http_scanner,
+                         http_scanner_process_request_multi_perform_failure);
+  add_test_with_context (suite, http_scanner,
+                         http_scanner_process_request_poll_failure);
+  add_test_with_context (suite, http_scanner,
+                         http_scanner_process_request_multi_success);
+  add_test_with_context (
+    suite, http_scanner,
+    http_scanner_process_request_multi_finished_transmission);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());

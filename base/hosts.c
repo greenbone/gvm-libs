@@ -1189,7 +1189,7 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
 
             /* Add addresses from first to last as single hosts. */
             current = first.s_addr;
-            while (ntohl (current) <= ntohl (last.s_addr))
+            while (1)
               {
                 gvm_host_t *host;
                 if (max_hosts > 0 && hosts->count > max_hosts)
@@ -1202,6 +1202,11 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
                 host->type = HOST_TYPE_IPV4;
                 host->addr.s_addr = current;
                 gvm_hosts_add (hosts, host);
+                /* Exit loop if range end has been reached.
+                 * Check is done before increment to avoid possible overflow.
+                 */
+                if (ntohl (current) >= ntohl (last.s_addr))
+                  break;
                 /* Next IP address. */
                 current = htonl (ntohl (current) + 1);
               }
@@ -1232,7 +1237,7 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
 
             /* Add addresses from first to last as single hosts. */
             memcpy (current, &first.s6_addr, 16);
-            while (memcmp (current, &last.s6_addr, 16) <= 0)
+            while (1)
               {
                 int i;
                 gvm_host_t *host;
@@ -1247,6 +1252,13 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
                 host->type = HOST_TYPE_IPV6;
                 memcpy (host->addr6.s6_addr, current, 16);
                 gvm_hosts_add (hosts, host);
+
+                /* Exit loop if range end has been reached.
+                 * Check is done before increment to avoid possible overflow.
+                 */
+                if (memcmp (current, &last.s6_addr, 16) >= 0)
+                  break;
+
                 /* Next IPv6 address. */
                 for (i = 15; i >= 0; --i)
                   if (current[i] < 255)
@@ -1431,7 +1443,7 @@ void
 gvm_hosts_reverse (gvm_hosts_t *hosts)
 {
   size_t i, j;
-  if (hosts == NULL)
+  if (hosts == NULL || hosts->count < 2)
     return;
 
   for (i = 0, j = hosts->count - 1; i < j; i++, j--)

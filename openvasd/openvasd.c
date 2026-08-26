@@ -242,7 +242,7 @@ add_port_to_scan_json (gpointer range, gpointer p_array)
   cJSON *range_obj = cJSON_CreateObject ();
   cJSON_AddNumberToObject (range_obj, "start", ports->start);
 
-  if (ports->end > ports->start && ports->end < 65535)
+  if (ports->end >= ports->start && ports->end <= 65535)
     cJSON_AddNumberToObject (range_obj, "end", ports->end);
   else
     cJSON_AddNumberToObject (range_obj, "end", ports->start);
