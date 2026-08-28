@@ -1684,12 +1684,23 @@ gvm_hosts_allowed_only (gvm_hosts_t *hosts, const char *deny_hosts_str,
   // Prepare list of denied and allowed hosts
   denied_hosts = gvm_hosts_new_with_max (deny_hosts_str, 0);
   allowed_hosts = gvm_hosts_new_with_max (allow_hosts_str, 0);
+
+  if (gvm_hosts_count (denied_hosts) == 0)
+    {
+      gvm_hosts_free (denied_hosts);
+      denied_hosts = NULL;
+    }
+
+  if (gvm_hosts_count (allowed_hosts) == 0)
+    {
+      gvm_hosts_free (allowed_hosts);
+      allowed_hosts = NULL;
+    }
+
   if (denied_hosts == NULL && allowed_hosts == NULL)
     return NULL;
 
-  if (gvm_hosts_count (denied_hosts) == 0)
-    gvm_hosts_free (denied_hosts);
-  else
+  if (denied_hosts)
     {
       /* Hash host values from denied hosts list. */
       name_deny_table =
@@ -1703,9 +1714,8 @@ gvm_hosts_allowed_only (gvm_hosts_t *hosts, const char *deny_hosts_str,
             g_hash_table_insert (name_deny_table, name, hosts);
         }
     }
-  if (gvm_hosts_count (allowed_hosts) == 0)
-    gvm_hosts_free (allowed_hosts);
-  else
+
+  if (allowed_hosts)
     {
       /* Hash host values from allowed hosts list. */
       name_allow_table =
@@ -1729,7 +1739,7 @@ gvm_hosts_allowed_only (gvm_hosts_t *hosts, const char *deny_hosts_str,
       name = gvm_host_value_str (hosts->hosts[i]);
       if (name)
         {
-          if (denied_hosts != NULL
+          if (name_deny_table != NULL
               && g_hash_table_lookup (name_deny_table, name))
             {
               gvm_host_free (hosts->hosts[i]);
@@ -1738,7 +1748,7 @@ gvm_hosts_allowed_only (gvm_hosts_t *hosts, const char *deny_hosts_str,
               removed = g_slist_prepend (removed, name);
               continue;
             }
-          else if (allowed_hosts != NULL
+          else if (name_allow_table != NULL
                    && !g_hash_table_lookup (name_allow_table, name))
             {
               gvm_host_free (hosts->hosts[i]);
