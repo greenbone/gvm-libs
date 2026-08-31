@@ -1300,11 +1300,11 @@ gvm_get_outgoing_iface (struct sockaddr_storage *target_addr)
   struct sockaddr_storage out_iface_addr;
   char *out_iface_str;
 
-  out_iface_str = NULL;
-  family = target_addr->ss_family;
-
   if (!target_addr)
     return NULL;
+
+  out_iface_str = NULL;
+  family = target_addr->ss_family;
 
   // get a connected udp socket
   sockfd = get_connected_udp_sock (target_addr);
@@ -1313,8 +1313,12 @@ gvm_get_outgoing_iface (struct sockaddr_storage *target_addr)
   // get socked address which is the addr of the interface we want to get
   out_iface_addr.ss_family = family;
   if (get_sock_addr (sockfd, &out_iface_addr) < 0)
-    return NULL;
+    {
+      close (sockfd);
+      return NULL;
+    }
   // get interface name form interface address
   out_iface_str = get_ifname_from_ifaddr (&out_iface_addr);
+  close (sockfd);
   return out_iface_str;
 }
