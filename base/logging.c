@@ -448,7 +448,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
   gchar *log_file = "-";
   GLogLevelFlags default_level = G_LOG_LEVEL_DEBUG;
   gchar *syslog_facility = "local0";
-  gchar *syslog_ident = NULL;
+  const gchar *syslog_ident = log_domain;
 
   /* Let's load the default configuration file directives from the
    * linked list. Scanning the link list twice is inefficient but
