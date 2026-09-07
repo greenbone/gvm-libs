@@ -200,4 +200,8 @@ int xml_file_iterator_rewind (xml_file_iterator_t);
 element_t
 xml_file_iterator_next (xml_file_iterator_t, gchar **);
 
+/* Simple XML validation */
+int
+gvm_is_valid_xml (const char *, gchar **);
+
 #endif /* not _GVM_UTIL_XMLUTILS_H */

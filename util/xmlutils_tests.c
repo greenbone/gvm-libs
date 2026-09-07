@@ -30,9 +30,11 @@ write_temp_xml (const char *xml)
 Describe (xmlutils);
 BeforeEach (xmlutils)
 {
+  xmlInitParser ();
 }
 AfterEach (xmlutils)
 {
+  xmlCleanupParser ();
 }
 
 /* parse_entity */
@@ -746,6 +748,31 @@ Ensure (xmlutils, iterator_fails_on_unexpected_eof)
   element_free (e);
 }
 
+Ensure (xmlutils, gvm_is_valid_xml_accepts_valid_xml)
+{
+  gchar *error_message;
+
+  assert_that (gvm_is_valid_xml ("<test><x a=\"123\"/></test>", &error_message),
+               is_true);
+  assert_that (error_message, is_null);
+}
+
+Ensure (xmlutils, gvm_is_valid_xml_rejects_invalid_xml)
+{
+  gchar *error_message;
+
+  assert_that (
+    gvm_is_valid_xml ("<test><x a=\"123\"/></invalid>", &error_message),
+    is_false);
+  assert_that (error_message, contains_string ("tag mismatch"));
+  g_free (error_message);
+
+  assert_that (gvm_is_valid_xml ("<test><x a=\"123\"/>", &error_message),
+               is_false);
+  assert_that (error_message, contains_string ("Extra content at the end"));
+  g_free (error_message);
+}
+
 /* Test suite. */
 
 int
@@ -791,11 +818,16 @@ main (int argc, char **argv)
   add_test_with_context (suite, xmlutils, rewind_resets_state);
   add_test_with_context (suite, xmlutils, iterator_fails_on_unexpected_eof);
 
-  if (argc > 1)
-    ret = run_single_test (suite, argv[1], create_text_reporter ());
-  else
-    ret = run_test_suite (suite, create_text_reporter ());
+  add_test_with_context (suite, xmlutils, gvm_is_valid_xml_accepts_valid_xml);
+  add_test_with_context (suite, xmlutils, gvm_is_valid_xml_rejects_invalid_xml);
 
+  TestReporter *reporter = create_text_reporter ();
+  if (argc > 1)
+    ret = run_single_test (suite, argv[1], reporter);
+  else
+    ret = run_test_suite (suite, reporter);
+
+  destroy_reporter (reporter);
   destroy_test_suite (suite);
 
   return ret;
