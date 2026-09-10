@@ -318,6 +318,11 @@ gvm_gzip_open_file_reader (const char *path)
     }
 
   FILE *file = fopencookie (gz_file, "r", io_functions);
+  if (file == NULL)
+    {
+      gzclose (gz_file);
+      return NULL;
+    }
   return file;
 }
 
@@ -350,5 +355,10 @@ gvm_gzip_open_file_reader_fd (int fd)
     }
 
   FILE *file = fopencookie (gz_file, "r", io_functions);
+  if (file == NULL)
+    {
+      gzclose (gz_file);
+      return NULL;
+    }
   return file;
 }
