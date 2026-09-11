@@ -98,6 +98,7 @@ Ensure (logging, should_convert_facility_int_from_string)
 {
   assert_that (facility_int_from_string (NULL), is_equal_to (LOG_LOCAL0));
   assert_that (facility_int_from_string (""), is_equal_to (LOG_LOCAL0));
+  assert_that (facility_int_from_string ("unknown"), is_equal_to (LOG_LOCAL0));
 
   assert_that (facility_int_from_string ("auth"), is_equal_to (LOG_AUTH));
   assert_that (facility_int_from_string ("authpriv"),
@@ -121,8 +122,6 @@ Ensure (logging, should_convert_facility_int_from_string)
   assert_that (facility_int_from_string ("local5"), is_equal_to (LOG_LOCAL5));
   assert_that (facility_int_from_string ("local6"), is_equal_to (LOG_LOCAL6));
   assert_that (facility_int_from_string ("local7"), is_equal_to (LOG_LOCAL7));
-
-  assert_that (facility_int_from_string ("unknown"), is_equal_to (LOG_LOCAL0));
 }
 
 Ensure (logging, should_load_log_configuration)
