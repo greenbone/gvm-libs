@@ -67,6 +67,8 @@ can be configured with a file on the following format.
 The log configuration is divided into domains like these:
 
 ```ini
+# Comment
+
 [log domain name]
 level=debug
 
@@ -151,6 +153,9 @@ Valid values for `syslog\_facility` are "auth", "authpriv", "cron",
 "syslog", "user", "uucp" and "local0" through "local7".
 
 Valid values for `syslog\_ident` are most strings.
+
+Empty lines and lines beginning with the hash symbol ("#") are treated
+as comments.
 
 ## Support
 
