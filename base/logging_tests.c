@@ -132,7 +132,9 @@ Ensure (logging, should_load_log_configuration)
   /* Create a temporary configuration file */
   FILE *file = fopen (config_file, "w");
   assert_that (file, is_not_null);
-  fprintf (file, "[bar]\n"
+  fprintf (file, "# comment\n"
+                 "\n"
+                 "[bar]\n"
                  "file=syslog\n"
                  "syslog_facility=kern\n"
                  "syslog_ident=test_ident\n"
