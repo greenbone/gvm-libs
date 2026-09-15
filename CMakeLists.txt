@@ -31,6 +31,11 @@ option(
   "Build web application scanner library"
   ON
 )
+option(
+  ENABLE_ACTIVE_DIRECTORY_INTEGRATION
+  "Build active directory connector"
+  ON
+)
 
 if(NOT BUILD_STATIC)
   set(BUILD_SHARED ON)
@@ -286,6 +291,10 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     list(APPEND TESTS web-application-scanner-test)
   endif(ENABLE_WEB_APPLICATION_SCANNER)
 
+  if(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
+    list(APPEND TESTS gvmldap-test)
+  endif(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
+
   add_custom_target(tests DEPENDS ${TESTS})
 
   # Code coverage
@@ -371,6 +380,10 @@ if(NOT SKIP_SRC)
   if(ENABLE_SECURITY_INTELLIGENCE)
     add_subdirectory(security_intelligence)
   endif(ENABLE_SECURITY_INTELLIGENCE)
+
+  if(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
+    add_subdirectory(ldap)
+  endif(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
 endif(NOT SKIP_SRC)
 
 ## Documentation
