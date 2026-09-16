@@ -183,11 +183,26 @@ Ensure (gvmldap, ldap_build_uri_uses_given_port_and_formats_ipv6)
 
 Ensure (gvmldap, gvm_ldap_entry_get_dn_returns_null_for_invalid_args)
 {
+  assert_that (gvm_ldap_entry_get_dn ((gvm_ldap_entry_t *) NULL), is_null);
+
   LDAP *ldap = (LDAP *) 0x1;
   LDAPMessage *entry = (LDAPMessage *) 0x1;
 
-  assert_that (gvm_ldap_entry_get_dn (NULL, entry), is_null);
-  assert_that (gvm_ldap_entry_get_dn (ldap, NULL), is_null);
+  assert_that (gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t) {
+                                        .ldap = NULL,
+                                        .message = NULL
+                                      }),
+                                      is_null);
+  assert_that (gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t) {
+                                        .ldap = ldap,
+                                        .message = NULL
+                                       }),
+                                       is_null);
+  assert_that (gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t) {
+                                        .ldap = NULL,
+                                        .message = entry
+                                       }),
+                                       is_null);
 }
 
 Ensure (gvmldap, gvm_ldap_entry_get_dn_returns_dn)
@@ -198,7 +213,10 @@ Ensure (gvmldap, gvm_ldap_entry_get_dn_returns_dn)
 
   mock_dn_to_return = "cn=alice,dc=example,dc=org";
 
-  dn = gvm_ldap_entry_get_dn (ldap, entry);
+  dn = gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t){
+                                .ldap = ldap,
+                                .message = entry
+                              });
 
   assert_that (dn, is_not_null);
   assert_that (dn, is_equal_to_string ("cn=alice,dc=example,dc=org"));
@@ -213,7 +231,10 @@ Ensure (gvmldap, gvm_ldap_entry_get_dn_returns_null_when_ldap_returns_null)
 
   mock_dn_to_return = NULL;
 
-  assert_that (gvm_ldap_entry_get_dn (ldap, entry), is_null);
+  assert_that (gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t){
+                                        .ldap = ldap,
+                                        .message = entry}
+                                      ), is_null);
 }
 
 /* gvm_ldap_entry_get_string */
@@ -223,9 +244,21 @@ Ensure (gvmldap, gvm_ldap_entry_get_string_returns_null_for_invalid_args)
   LDAP *ldap = (LDAP *) 0x1;
   LDAPMessage *entry = (LDAPMessage *) 0x1;
 
-  assert_that (gvm_ldap_entry_get_string (NULL, entry, "cn"), is_null);
-  assert_that (gvm_ldap_entry_get_string (ldap, NULL, "cn"), is_null);
-  assert_that (gvm_ldap_entry_get_string (ldap, entry, NULL), is_null);
+  assert_that (gvm_ldap_entry_get_string (&(gvm_ldap_entry_t) {
+                                            .ldap = NULL,
+                                            .message = entry
+                                            }, "cn"),
+                                            is_null);
+  assert_that (gvm_ldap_entry_get_string (&(gvm_ldap_entry_t) {
+                                            .ldap = ldap,
+                                            .message = NULL
+                                            }, "cn"),
+                                            is_null);
+  assert_that (gvm_ldap_entry_get_string (&(gvm_ldap_entry_t) {
+                                            .ldap = ldap,
+                                            .message = entry
+                                            }, NULL),
+                                            is_null);
 }
 
 Ensure (gvmldap, gvm_ldap_entry_get_string_returns_first_attribute_value)
@@ -237,7 +270,10 @@ Ensure (gvmldap, gvm_ldap_entry_get_string_returns_first_attribute_value)
 
   mock_values_to_return = make_mock_bervals (values);
 
-  value = gvm_ldap_entry_get_string (ldap, entry, "cn");
+  value = gvm_ldap_entry_get_string (&(gvm_ldap_entry_t){
+                                        .ldap = ldap,
+                                        .message = entry
+                                      }, "cn");
 
   assert_that (value, is_not_null);
   assert_that (value, is_equal_to_string ("alice"));
@@ -252,7 +288,10 @@ Ensure (gvmldap, gvm_ldap_entry_get_string_returns_null_when_no_values)
 
   mock_values_to_return = NULL;
 
-  assert_that (gvm_ldap_entry_get_string (ldap, entry, "cn"), is_null);
+  assert_that (gvm_ldap_entry_get_string (&(gvm_ldap_entry_t){
+                                            .ldap = ldap,
+                                            .message = entry
+                                          }, "cn"), is_null);
 }
 
 /* gvm_ldap_entry_get_strings */
@@ -266,7 +305,10 @@ Ensure (gvmldap, gvm_ldap_entry_get_strings_returns_all_attribute_values)
 
   mock_values_to_return = make_mock_bervals (values);
 
-  result = gvm_ldap_entry_get_strings (ldap, entry, "cn");
+  result = gvm_ldap_entry_get_strings (&(gvm_ldap_entry_t){
+                                          .ldap = ldap,
+                                          .message = entry
+                                        }, "cn");
 
   assert_that (result, is_not_null);
   assert_that ((int) result->len, is_equal_to (2));
@@ -283,7 +325,10 @@ Ensure (gvmldap, gvm_ldap_entry_get_strings_returns_null_for_no_values)
 
   mock_values_to_return = NULL;
 
-  assert_that (gvm_ldap_entry_get_strings (ldap, entry, "cn"), is_null);
+  assert_that (gvm_ldap_entry_get_strings (&(gvm_ldap_entry_t){
+                                              .ldap = ldap,
+                                              .message = entry
+                                            }, "cn"), is_null);
 }
 
 Ensure (gvmldap, gvm_ldap_entry_get_strings_returns_null_for_empty_value_set)
@@ -295,7 +340,10 @@ Ensure (gvmldap, gvm_ldap_entry_get_strings_returns_null_for_empty_value_set)
 
   mock_values_to_return = make_mock_bervals (values);
 
-  result = gvm_ldap_entry_get_strings (ldap, entry, "cn");
+  result = gvm_ldap_entry_get_strings (&(gvm_ldap_entry_t){
+                                          .ldap = ldap,
+                                          .message = entry
+                                        }, "cn");
 
   assert_that (result, is_null);
 }
@@ -307,21 +355,29 @@ Ensure (gvmldap, gvm_ldap_search_params_new_rejects_invalid_input)
   gchar *attrs[] = {"cn", NULL};
 
   assert_that (
-    gvm_ldap_search_params_new (NULL, LDAP_SCOPE_SUBTREE, "(uid=alice)", attrs,
-                                0, 0, 0),
-    is_null);
+    gvm_ldap_search_params_new (NULL,
+                                GVM_LDAP_SCOPE_SUBTREE,
+                                "(uid=alice)",
+                                attrs, 0, 0, 0
+                                ), is_null);
   assert_that (
-    gvm_ldap_search_params_new ("dc=example,dc=org", LDAP_SCOPE_SUBTREE, NULL,
-                                attrs, 0, 0, 0),
-    is_null);
+    gvm_ldap_search_params_new ("dc=example,dc=org",
+                                GVM_LDAP_SCOPE_SUBTREE,
+                                NULL,
+                                attrs, 0, 0, 0
+                               ), is_null);
   assert_that (
-    gvm_ldap_search_params_new ("dc=example,dc=org", LDAP_SCOPE_SUBTREE, "",
-                                attrs, 0, 0, 0),
-    is_null);
+    gvm_ldap_search_params_new ("dc=example,dc=org",
+                                GVM_LDAP_SCOPE_SUBTREE,
+                                "",
+                                attrs, 0, 0, 0
+                               ), is_null);
   assert_that (
-    gvm_ldap_search_params_new ("dc=example,dc=org", -1, "(uid=alice)", attrs,
-                                0, 0, 0),
-    is_null);
+    gvm_ldap_search_params_new ("dc=example,dc=org",
+                                -1,
+                                "(uid=alice)",
+                                attrs, 0, 0, 0
+                               ), is_null);
 }
 
 Ensure (gvmldap, gvm_ldap_search_params_new_sets_defaults_and_duplicates_input)
@@ -333,12 +389,12 @@ Ensure (gvmldap, gvm_ldap_search_params_new_sets_defaults_and_duplicates_input)
   attrs[1] = g_strdup ("mail");
   attrs[2] = NULL;
 
-  params = gvm_ldap_search_params_new ("dc=example,dc=org", LDAP_SCOPE_SUBTREE,
+  params = gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
                                        "(uid=alice)", attrs, 0, 0, 0);
 
   assert_that (params, is_not_null);
   assert_that (params->base_dn, is_equal_to_string ("dc=example,dc=org"));
-  assert_that (params->scope, is_equal_to (LDAP_SCOPE_SUBTREE));
+  assert_that (params->scope, is_equal_to (GVM_LDAP_SCOPE_SUBTREE));
   assert_that (params->filter, is_equal_to_string ("(uid=alice)"));
   assert_that ((int) params->page_size, is_equal_to (GVM_LDAP_DEFAULT_PAGE_SIZE));
   assert_that ((int) params->size_limit, is_equal_to (0));
@@ -356,7 +412,7 @@ Ensure (gvmldap, gvm_ldap_search_params_new_sets_explicit_limits_and_timeouts)
 {
   gvm_ldap_search_params_t *params;
 
-  params = gvm_ldap_search_params_new ("dc=example,dc=org", LDAP_SCOPE_ONELEVEL,
+  params = gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_ONELEVEL,
                                        "(objectClass=person)", NULL, 50, 200, 10);
 
   assert_that (params, is_not_null);
@@ -472,6 +528,42 @@ Ensure (gvmldap, ldap_configure_tls_handles_returns_error_for_invalid_input)
   assert_that (ret, is_equal_to (-1));
 }
 
+Ensure (gvmldap, gvm_ldap_scope_to_openldap_returns_false_for_null_output)
+{
+  int ldap_scope = -99;
+
+  assert_that (gvm_ldap_scope_to_openldap (GVM_LDAP_SCOPE_BASE, NULL),
+               is_false);
+  assert_that (ldap_scope, is_equal_to (-99));
+}
+
+/* gvm_ldap_scope_to_openldap */
+Ensure (gvmldap, gvm_ldap_scope_to_openldap_returns_correct_openldap_scope)
+{
+  int ldap_scope;
+
+  assert_that (gvm_ldap_scope_to_openldap (GVM_LDAP_SCOPE_BASE, &ldap_scope),
+               is_true);
+  assert_that (ldap_scope, is_equal_to (LDAP_SCOPE_BASE));
+
+  assert_that (gvm_ldap_scope_to_openldap (GVM_LDAP_SCOPE_ONELEVEL, &ldap_scope),
+               is_true);
+  assert_that (ldap_scope, is_equal_to (LDAP_SCOPE_ONELEVEL));
+
+  assert_that (gvm_ldap_scope_to_openldap (GVM_LDAP_SCOPE_SUBTREE, &ldap_scope),
+               is_true);
+  assert_that (ldap_scope, is_equal_to (LDAP_SCOPE_SUBTREE));
+}
+
+Ensure (gvmldap, gvm_ldap_scope_to_openldap_returns_false_for_invalid_scope)
+{
+  int ldap_scope = -99;
+
+  assert_that (gvm_ldap_scope_to_openldap (-1, &ldap_scope),
+               is_false);
+  assert_that (ldap_scope, is_equal_to (-99));
+}
+
 /* Test suite */
 
 int
@@ -542,6 +634,13 @@ main (int argc, char **argv)
     suite, gvmldap, ldap_configure_tls_sets_tls_options_correctly_with_cert);
   add_test_with_context (
     suite, gvmldap, ldap_configure_tls_handles_returns_error_for_invalid_input);
+
+  add_test_with_context (
+    suite, gvmldap, gvm_ldap_scope_to_openldap_returns_false_for_null_output);
+  add_test_with_context (
+    suite, gvmldap, gvm_ldap_scope_to_openldap_returns_correct_openldap_scope);
+  add_test_with_context (
+    suite, gvmldap, gvm_ldap_scope_to_openldap_returns_false_for_invalid_scope);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
