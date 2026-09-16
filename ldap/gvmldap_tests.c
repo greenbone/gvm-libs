@@ -13,9 +13,18 @@ Describe (gvmldap);
 static const gchar *mock_dn_to_return = NULL;
 static struct berval **mock_values_to_return = NULL;
 static int mock_ldap_str2dn_return_value = 0;
+
 static int mock_ldap_set_option_return_value = LDAP_OPT_SUCCESS;
 static int ldap_set_option_call_count = 0;
 static int last_ldap_set_option_option = 0;
+
+static int mock_ldap_initialize_return_value = LDAP_SUCCESS;
+static LDAP *mock_ldap_initialize_handle = (LDAP *) 0x1;
+static gchar *last_ldap_initialize_uri = NULL;
+static int ldap_initialize_call_count = 0;
+
+static int ldap_unbind_ext_s_call_count = 0;
+static LDAP *last_ldap_unbind_ext_s_handle = NULL;
 
 static struct berval **
 make_mock_bervals (const gchar **values)
@@ -120,14 +129,50 @@ ldap_set_option (LDAP *ld, int option, const void *invalue)
   return mock_ldap_set_option_return_value;
 }
 
+int
+ldap_initialize (LDAP **ldp, LDAP_CONST char *uri)
+{
+  ldap_initialize_call_count++;
+  g_free (last_ldap_initialize_uri);
+  last_ldap_initialize_uri = g_strdup (uri);
+
+  if (mock_ldap_initialize_return_value == LDAP_SUCCESS)
+    *ldp = mock_ldap_initialize_handle;
+  else
+    *ldp = NULL;
+
+  return mock_ldap_initialize_return_value;
+}
+
+int
+ldap_unbind_ext_s (LDAP *ld, LDAPControl **sctrls, LDAPControl **cctrls)
+{
+  (void) sctrls;
+  (void) cctrls;
+
+  ldap_unbind_ext_s_call_count++;
+  last_ldap_unbind_ext_s_handle = ld;
+
+  return LDAP_SUCCESS;
+}
+
 BeforeEach (gvmldap)
 {
   mock_dn_to_return = NULL;
   mock_values_to_return = NULL;
   mock_ldap_str2dn_return_value = 0;
+
   mock_ldap_set_option_return_value = LDAP_OPT_SUCCESS;
   ldap_set_option_call_count = 0;
   last_ldap_set_option_option = 0;
+
+  mock_ldap_initialize_return_value = LDAP_SUCCESS;
+  mock_ldap_initialize_handle = (LDAP *) 0x1;
+  ldap_initialize_call_count = 0;
+  g_clear_pointer (&last_ldap_initialize_uri, g_free);
+
+  ldap_unbind_ext_s_call_count = 0;
+  last_ldap_unbind_ext_s_handle = NULL;
 }
 
 AfterEach (gvmldap)
@@ -143,6 +188,7 @@ AfterEach (gvmldap)
       free_mock_bervals (mock_values_to_return);
       mock_values_to_return = NULL;
     }
+  g_clear_pointer (&last_ldap_initialize_uri, g_free);
 }
 
 /* ldap_build_uri */
@@ -564,6 +610,79 @@ Ensure (gvmldap, gvm_ldap_scope_to_openldap_returns_false_for_invalid_scope)
   assert_that (ldap_scope, is_equal_to (-99));
 }
 
+/* gvm_ldap_open */
+Ensure (gvmldap, gvm_ldap_open_returns_error_when_initialize_fails)
+{
+  gvm_ldap_connection_t *conn = (gvm_ldap_connection_t *) 0x1;
+  gvm_ldap_return_t ret;
+
+  mock_ldap_initialize_return_value = LDAP_SERVER_DOWN;
+
+  ret = gvm_ldap_open (&conn,
+                       "ldap://localhost",
+                       0,
+                       NULL,
+                       GVM_LDAP_TLS_PLAINTEXT,
+                       0,
+                       0);
+
+  assert_that (ret, is_equal_to (GVM_LDAP_INITIALIZE_ERROR));
+  assert_that (conn, is_null);
+  assert_that (ldap_initialize_call_count, is_equal_to (1));
+  assert_that (ldap_unbind_ext_s_call_count, is_equal_to (0));
+}
+
+Ensure (gvmldap, gvm_ldap_open_returns_connection_on_success)
+{
+  gvm_ldap_connection_t *connection = NULL;
+  gvm_ldap_return_t ret;
+
+  ret = gvm_ldap_open (&connection,
+                       "ldap.example.org",
+                       0,
+                       NULL,
+                       GVM_LDAP_TLS_PLAINTEXT,
+                       0,
+                       0);
+
+  assert_that (ret, is_equal_to (GVM_LDAP_SUCCESS));
+  assert_that (connection, is_not_null);
+  assert_that (connection->ldap, is_equal_to (mock_ldap_initialize_handle));
+  assert_that (ldap_initialize_call_count, is_equal_to (1));
+  assert_that (last_ldap_initialize_uri,
+               is_equal_to_string ("ldap://ldap.example.org:389"));
+}
+
+/* gvm_ldap_close */
+Ensure (gvmldap, gvm_ldap_close_unbinds_connection)
+{
+  gvm_ldap_connection_t *connection = NULL;
+  gvm_ldap_return_t ret;
+
+  ret = gvm_ldap_open (&connection,
+                       "ldap.example.org",
+                       0,
+                       NULL,
+                       GVM_LDAP_TLS_PLAINTEXT,
+                       0,
+                       0);
+
+  assert_that (ret, is_equal_to (GVM_LDAP_SUCCESS));
+  assert_that (connection, is_not_null);
+  assert_that (connection->ldap, is_equal_to (mock_ldap_initialize_handle));
+
+  gvm_ldap_close (connection);
+  assert_that (ldap_unbind_ext_s_call_count, is_equal_to (1));
+  assert_that (last_ldap_unbind_ext_s_handle,
+               is_equal_to (mock_ldap_initialize_handle));
+}
+
+Ensure (gvmldap, gvm_ldap_close_ignores_null_connection)
+{
+  gvm_ldap_close (NULL);
+  assert_that (ldap_unbind_ext_s_call_count, is_equal_to (0));
+}
+
 /* Test suite */
 
 int
@@ -641,6 +760,16 @@ main (int argc, char **argv)
     suite, gvmldap, gvm_ldap_scope_to_openldap_returns_correct_openldap_scope);
   add_test_with_context (
     suite, gvmldap, gvm_ldap_scope_to_openldap_returns_false_for_invalid_scope);
+
+  add_test_with_context (
+    suite, gvmldap, gvm_ldap_open_returns_error_when_initialize_fails);
+  add_test_with_context (
+    suite, gvmldap, gvm_ldap_open_returns_connection_on_success);
+
+  add_test_with_context (
+    suite, gvmldap, gvm_ldap_close_unbinds_connection);
+  add_test_with_context (
+    suite, gvmldap, gvm_ldap_close_ignores_null_connection);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
