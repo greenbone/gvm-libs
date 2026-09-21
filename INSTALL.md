@@ -25,7 +25,7 @@ Specific development libraries:
 * libgnutls >= 3.2.15 (util)
 * libgpgme >= 1.7.0 (util)
 * libhiredis >= 0.10.1 (util)
-* libnet1 >= 1.1.2.1 (boreas)
+* libnet >= 1.1.2.1 (boreas)
 * libpaho-mqtt >= 1.3.0 (utils)
 * libpcap
 * libssh >= 0.6.0 (util)
