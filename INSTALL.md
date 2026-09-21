@@ -69,17 +69,17 @@ Certain features of gvm-libs are optional and require the following:
 
 Prerequisites for LDAP authentication:
 
-* libldap2 library >= 2.4.44 (util) (Debian package: libldap2-dev)
+* libldap library >= 2.4.44 (util, ldap) (Debian package: libldap-dev)
 
 Prerequisites for RADIUS authentication:
 
 * libradcli4 library >= 1.2.6 (util) (Debian package: libradcli-dev)
 * Alternative: libfreeradius3 library (util) (Debian package: libfreeradius-dev)
 
-Install prerequisites for optional features on Debian GNU/Linux 'Buster' 10:
+Install prerequisites for optional features on Debian stable:
 
     apt-get install \
-    libldap2-dev \
+    libldap-dev \
     libradcli-dev
 
 ## Compiling gvm-libs
