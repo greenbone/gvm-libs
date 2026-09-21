@@ -56,6 +56,24 @@ The `gvm-libs` module consists of the following libraries:
 
 - `osp`: API support for the Open Scanner Protocol (OSP).
 
+- `agent_controller`: Agent controller client for agent management.
+
+- `boreas`: Host discovery functions.
+
+- `container_image_scanner`: Container image scanner communication.
+
+- `cyberark`: Cyberark credential store communication.
+
+- `http`: Utility functions for http built on libcurl.
+
+- `http_scanner`: Communication with an http scanner.
+
+- `openvasd`: Openvas daemon communication.
+
+- `security_intelligence`: Security intelligence client.
+
+- `web_application_scanner`: Web application scanner communication.
+
 For more information on using the functionality provided by the `gvm-libs`
 module please refer to the source code documentation.
 
