@@ -17,7 +17,7 @@ General build environment:
 
 Specific development libraries:
 
-* libcjson >= 1.7.14 (util)
+* libcjson >= 1.7.14 (agent_controller, container_image_scanner, cyberark, http_scanner, openvasd, security_intelligence, util, web_application_scanner)
 * libcurl >= 7.83.0 (agent_controller, container_image_scanner, cyberark, http, http_scanner, openvasd, security_intelligence)
 * libgcrypt (util)
 * libgio >= 2.42 (util)
