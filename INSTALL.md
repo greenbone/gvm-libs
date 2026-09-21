@@ -19,7 +19,7 @@ Specific development libraries:
 
 * libcjson >= 1.7.14 (util)
 * libcurl >= 7.83.0 (openvasd)
-* libgcrypt
+* libgcrypt (util)
 * libgio >= 2.42 (util)
 * libglib >= 2.42 (all)
 * libgnutls >= 3.2.15 (util)
