@@ -27,7 +27,7 @@ Specific development libraries:
 * libhiredis >= 0.10.1 (util)
 * libnet >= 1.1.2.1 (boreas)
 * libpaho-mqtt >= 1.3.0 (utils)
-* libpcap
+* libpcap (boreas)
 * libssh >= 0.6.0 (util)
 * libuuid >= 2.25.0 (util)
 * libxcrypt (util)
