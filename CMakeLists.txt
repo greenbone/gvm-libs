@@ -310,6 +310,7 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
 
   if(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
     list(APPEND TESTS gvmldap-test)
+    list(APPEND TESTS ad-connector-test)
   endif(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
 
   add_custom_target(tests DEPENDS ${TESTS})
@@ -400,6 +401,7 @@ if(NOT SKIP_SRC)
 
   if(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
     add_subdirectory(ldap)
+    add_subdirectory(ad_connector)
   endif(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
 endif(NOT SKIP_SRC)
 
