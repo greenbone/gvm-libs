@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-#define GVM_STREAM_VALIDATOR_NO_SIZE ((size_t) - 1)
+#define GVM_STREAM_VALIDATOR_NO_SIZE ((size_t) -1)
 
 /**
  * @file
