@@ -127,7 +127,7 @@ Ensure (logging, should_convert_facility_int_from_string)
 Ensure (logging, should_load_log_configuration)
 {
   gchar *config_file = "test_log_config.conf";
-  GSList *log_config_list;
+  GSList *log_config_list, *log_config_entry;
 
   /* Create a temporary configuration file */
   FILE *file = fopen (config_file, "w");
@@ -153,10 +153,11 @@ Ensure (logging, should_load_log_configuration)
   /* Load the configuration */
   log_config_list = load_log_configuration (config_file);
   assert_that (log_config_list, is_not_null);
+  log_config_entry = log_config_list;
 
   /* Verify the configuration */
   gvm_logging_domain_t *log_domain_entry =
-    (gvm_logging_domain_t *) log_config_list->data;
+    (gvm_logging_domain_t *) log_config_entry->data;
   assert_that (gvm_logging_domain_get_log_domain (log_domain_entry),
                is_equal_to_string("*"));
   assert_that (gvm_logging_domain_get_prepend_string (log_domain_entry),
@@ -174,10 +175,10 @@ Ensure (logging, should_load_log_configuration)
   assert_that (gvm_logging_domain_get_syslog_ident (log_domain_entry),
                is_equal_to_string ("*"));
 
-  log_config_list = g_slist_next (log_config_list);
-  assert_that (log_config_list, is_not_null);
+  log_config_entry = g_slist_next (log_config_entry);
+  assert_that (log_config_entry, is_not_null);
   log_domain_entry =
-      (gvm_logging_domain_t *) log_config_list->data;
+      (gvm_logging_domain_t *) log_config_entry->data;
   assert_that (gvm_logging_domain_get_log_domain (log_domain_entry),
                is_equal_to_string ("foo"));
   assert_that (gvm_logging_domain_get_prepend_string (log_domain_entry),
@@ -195,10 +196,10 @@ Ensure (logging, should_load_log_configuration)
   assert_that (gvm_logging_domain_get_syslog_ident (log_domain_entry),
                is_equal_to_string ("foo"));
 
-  log_config_list = g_slist_next (log_config_list);
-  assert_that (log_config_list, is_not_null);
+  log_config_entry = g_slist_next (log_config_entry);
+  assert_that (log_config_entry, is_not_null);
   log_domain_entry =
-      (gvm_logging_domain_t *) log_config_list->data;
+      (gvm_logging_domain_t *) log_config_entry->data;
   assert_that (gvm_logging_domain_get_log_domain (log_domain_entry),
                is_equal_to_string ("bar"));
   assert_that (gvm_logging_domain_get_prepend_string (log_domain_entry),
@@ -216,8 +217,8 @@ Ensure (logging, should_load_log_configuration)
   assert_that (gvm_logging_domain_get_syslog_ident (log_domain_entry),
                is_equal_to_string ("test_ident"));
 
-  log_config_list = g_slist_next (log_config_list);
-  assert_that (log_config_list, is_null);
+  log_config_entry = g_slist_next (log_config_entry);
+  assert_that (log_config_entry, is_null);
 
   /* Clean up */
   free_log_configuration (log_config_list);
