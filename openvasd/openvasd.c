@@ -582,7 +582,7 @@ openvasd_target_set_alive_test_methods (
   if (methods->host_discovery_ipv6)
     {
       target->alive_test_methods =
-        (openvasd_alive_test_methods_t){.host_discovery_ipv6 = TRUE};
+        (openvasd_alive_test_methods_t) {.host_discovery_ipv6 = TRUE};
       return;
     }
 
