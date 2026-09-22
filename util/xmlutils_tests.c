@@ -30,9 +30,11 @@ write_temp_xml (const char *xml)
 Describe (xmlutils);
 BeforeEach (xmlutils)
 {
+  xmlInitParser ();
 }
 AfterEach (xmlutils)
 {
+  xmlCleanupParser ();
 }
 
 /* parse_entity */
@@ -714,6 +716,72 @@ Ensure (xmlutils, rewind_resets_state)
   g_free (path);
 }
 
+Ensure (xmlutils, iterator_fails_on_unexpected_eof)
+{
+  const char *xml = "<root><inner><x>1</x></inner></";
+  gchar *path = write_temp_xml (xml);
+  assert_that (path, is_not_null);
+
+  xml_file_iterator_t it = xml_file_iterator_new ();
+  assert_that (xml_file_iterator_init_from_file_path (it, path, 2),
+               is_equal_to (0));
+
+  gchar *err = NULL;
+  element_t e;
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (element_name (e), is_equal_to_string ("x"));
+  assert_that (err, is_null);
+  element_free (e);
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (e, is_null);
+  assert_that (err, contains_string ("Opening and ending tag mismatch"));
+
+  g_free (err);
+  err = NULL;
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (e, is_null);
+  assert_that (err, contains_string ("Opening and ending tag mismatch"));
+
+  element_free (e);
+}
+
+Ensure (xmlutils, gvm_is_valid_xml_accepts_valid_xml)
+{
+  gchar *error_message;
+
+  assert_that (gvm_is_valid_xml ("<test><x a=\"123\"/></test>", &error_message),
+               is_true);
+  assert_that (error_message, is_null);
+}
+
+Ensure (xmlutils, gvm_is_valid_xml_rejects_invalid_xml)
+{
+  gchar *error_message;
+
+  assert_that (
+    gvm_is_valid_xml ("<test><x a=\"123\"/></invalid>", &error_message),
+    is_false);
+  assert_that (error_message, contains_string ("tag mismatch"));
+  g_free (error_message);
+
+  assert_that (gvm_is_valid_xml ("<test><x a=\"123\"/>", &error_message),
+               is_false);
+  assert_that (error_message, contains_string ("Extra content at the end"));
+  g_free (error_message);
+}
+
+Ensure (xmlutils, gvm_is_valid_xml_rejects_null)
+{
+  gchar *error_message;
+
+  assert_that (gvm_is_valid_xml (NULL, &error_message), is_false);
+  assert_that (error_message, contains_string ("Given string is NULL"));
+  g_free (error_message);
+}
+
 /* Test suite. */
 
 int
@@ -757,12 +825,19 @@ main (int argc, char **argv)
   add_test_with_context (suite, xmlutils, depth2_returns_grandchildren);
 
   add_test_with_context (suite, xmlutils, rewind_resets_state);
+  add_test_with_context (suite, xmlutils, iterator_fails_on_unexpected_eof);
 
+  add_test_with_context (suite, xmlutils, gvm_is_valid_xml_accepts_valid_xml);
+  add_test_with_context (suite, xmlutils, gvm_is_valid_xml_rejects_invalid_xml);
+  add_test_with_context (suite, xmlutils, gvm_is_valid_xml_rejects_null);
+
+  TestReporter *reporter = create_text_reporter ();
   if (argc > 1)
-    ret = run_single_test (suite, argv[1], create_text_reporter ());
+    ret = run_single_test (suite, argv[1], reporter);
   else
-    ret = run_test_suite (suite, create_text_reporter ());
+    ret = run_test_suite (suite, reporter);
 
+  destroy_reporter (reporter);
   destroy_test_suite (suite);
 
   return ret;

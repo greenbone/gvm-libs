@@ -117,6 +117,118 @@ Ensure (openvasd, openvasd_add_port_to_scan_json)
   cJSON_Delete (ports_range_array);
 }
 
+Ensure (openvasd, openvasd_add_port_to_scan_json_max_port)
+{
+  range_t *ports_range;
+  cJSON *ports_range_array = cJSON_CreateArray ();
+
+  ports_range = g_malloc0 (sizeof (range_t));
+
+  ports_range->type = PORT_PROTOCOL_TCP;
+  ports_range->start = 1;
+  ports_range->end = 65535;
+
+  add_port_to_scan_json (ports_range, ports_range_array);
+
+  cJSON *ports_obj = cJSON_GetArrayItem (ports_range_array, 0);
+  cJSON *range_array = cJSON_GetObjectItem (ports_obj, "range");
+  cJSON *range_obj = cJSON_GetArrayItem (range_array, 0);
+
+  int start = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "start"));
+  int end = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "end"));
+
+  assert_that (start, is_equal_to (1));
+  assert_that (end, is_equal_to (65535));
+
+  g_free (ports_range);
+  cJSON_Delete (ports_range_array);
+}
+
+Ensure (openvasd, openvasd_add_port_to_scan_json_normal_range_udp)
+{
+  range_t *ports_range;
+  cJSON *ports_range_array = cJSON_CreateArray ();
+
+  ports_range = g_malloc0 (sizeof (range_t));
+
+  ports_range->type = PORT_PROTOCOL_UDP;
+  ports_range->start = 1;
+  ports_range->end = 1024;
+
+  add_port_to_scan_json (ports_range, ports_range_array);
+
+  cJSON *ports_obj = cJSON_GetArrayItem (ports_range_array, 0);
+  cJSON *range_array = cJSON_GetObjectItem (ports_obj, "range");
+  cJSON *range_obj = cJSON_GetArrayItem (range_array, 0);
+
+  int start = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "start"));
+  int end = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "end"));
+
+  const char *protocol =
+    cJSON_GetStringValue (cJSON_GetObjectItem (ports_obj, "protocol"));
+
+  assert_that (start, is_equal_to (1));
+  assert_that (end, is_equal_to (1024));
+  assert_that (protocol, is_equal_to_string ("udp"));
+
+  g_free (ports_range);
+  cJSON_Delete (ports_range_array);
+}
+
+Ensure (openvasd, openvasd_add_port_to_scan_json_end_out_of_bounds)
+{
+  range_t *ports_range;
+  cJSON *ports_range_array = cJSON_CreateArray ();
+
+  ports_range = g_malloc0 (sizeof (range_t));
+
+  ports_range->type = PORT_PROTOCOL_TCP;
+  ports_range->start = 80;
+  ports_range->end = 70000;
+
+  add_port_to_scan_json (ports_range, ports_range_array);
+
+  cJSON *ports_obj = cJSON_GetArrayItem (ports_range_array, 0);
+  cJSON *range_array = cJSON_GetObjectItem (ports_obj, "range");
+  cJSON *range_obj = cJSON_GetArrayItem (range_array, 0);
+
+  int start = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "start"));
+  int end = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "end"));
+
+  assert_that (start, is_equal_to (80));
+  assert_that (end, is_equal_to (80));
+
+  g_free (ports_range);
+  cJSON_Delete (ports_range_array);
+}
+
+Ensure (openvasd, openvasd_add_port_to_scan_json_end_less_than_start)
+{
+  range_t *ports_range;
+  cJSON *ports_range_array = cJSON_CreateArray ();
+
+  ports_range = g_malloc0 (sizeof (range_t));
+
+  ports_range->type = PORT_PROTOCOL_TCP;
+  ports_range->start = 150;
+  ports_range->end = 70;
+
+  add_port_to_scan_json (ports_range, ports_range_array);
+
+  cJSON *ports_obj = cJSON_GetArrayItem (ports_range_array, 0);
+  cJSON *range_array = cJSON_GetObjectItem (ports_obj, "range");
+  cJSON *range_obj = cJSON_GetArrayItem (range_array, 0);
+
+  int start = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "start"));
+  int end = cJSON_GetNumberValue (cJSON_GetObjectItem (range_obj, "end"));
+
+  assert_that (start, is_equal_to (150));
+  assert_that (end, is_equal_to (150));
+
+  g_free (ports_range);
+  cJSON_Delete (ports_range_array);
+}
+
 Ensure (openvasd, openvasd_add_vts_to_scan_json)
 {
   openvasd_vt_single_t *vt;
@@ -382,6 +494,85 @@ Ensure (openvasd, openvasd_build_scan_config_json_with_host_discovery_ipv6_only)
   openvasd_target_free (target);
 }
 
+Ensure (openvasd, openvasd_build_scan_config_json_with_finished_hosts)
+{
+  openvasd_target_t *target;
+  GHashTable *scan_preferences;
+  gchar *json_str;
+  cJSON *json;
+  cJSON *target_obj;
+  cJSON *hosts;
+  cJSON *finished_hosts;
+
+  target =
+    openvasd_target_new ("scan-1", "192.0.2.1,192.0.2.2", "T:22", NULL, 0, 0);
+
+  target->finished_hosts = g_strdup ("192.0.2.1");
+
+  scan_preferences =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  json_str = openvasd_build_scan_config_json (target, scan_preferences, NULL);
+
+  assert_that (json_str, is_not_null);
+
+  json = cJSON_Parse (json_str);
+  assert_that (cJSON_IsObject (json), is_true);
+
+  target_obj = cJSON_GetObjectItem (json, "target");
+  assert_that (cJSON_IsObject (target_obj), is_true);
+
+  hosts = cJSON_GetObjectItem (target_obj, "hosts");
+  assert_that (cJSON_IsArray (hosts), is_true);
+  assert_that (cJSON_GetArraySize (hosts), is_equal_to (2));
+
+  assert_that (json_array_contains_string (hosts, "192.0.2.1"), is_true);
+  assert_that (json_array_contains_string (hosts, "192.0.2.2"), is_true);
+
+  finished_hosts = cJSON_GetObjectItem (target_obj, "finished_hosts");
+  assert_that (cJSON_IsArray (finished_hosts), is_true);
+  assert_that (cJSON_GetArraySize (finished_hosts), is_equal_to (1));
+
+  assert_that (json_array_contains_string (finished_hosts, "192.0.2.1"),
+               is_true);
+
+  cJSON_Delete (json);
+  g_free (json_str);
+  g_hash_table_destroy (scan_preferences);
+  openvasd_target_free (target);
+}
+
+Ensure (openvasd, openvasd_build_scan_config_json_without_finished_hosts)
+{
+  openvasd_target_t *target;
+  GHashTable *scan_preferences;
+  gchar *json_str;
+  cJSON *json;
+  cJSON *target_obj;
+
+  target = openvasd_target_new ("scan-1", "192.0.2.1", "T:22", NULL, 0, 0);
+
+  scan_preferences =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  json_str = openvasd_build_scan_config_json (target, scan_preferences, NULL);
+
+  assert_that (json_str, is_not_null);
+
+  json = cJSON_Parse (json_str);
+  assert_that (cJSON_IsObject (json), is_true);
+
+  target_obj = cJSON_GetObjectItem (json, "target");
+  assert_that (cJSON_IsObject (target_obj), is_true);
+
+  assert_that (cJSON_GetObjectItem (target_obj, "finished_hosts"), is_null);
+
+  cJSON_Delete (json);
+  g_free (json_str);
+  g_hash_table_destroy (scan_preferences);
+  openvasd_target_free (target);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -393,6 +584,14 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, openvasd, openvasd_add_credential_to_scan_json);
   add_test_with_context (suite, openvasd, openvasd_add_port_to_scan_json);
+  add_test_with_context (suite, openvasd,
+                         openvasd_add_port_to_scan_json_normal_range_udp);
+  add_test_with_context (suite, openvasd,
+                         openvasd_add_port_to_scan_json_max_port);
+  add_test_with_context (suite, openvasd,
+                         openvasd_add_port_to_scan_json_end_out_of_bounds);
+  add_test_with_context (suite, openvasd,
+                         openvasd_add_port_to_scan_json_end_less_than_start);
   add_test_with_context (suite, openvasd, openvasd_add_vts_to_scan_json);
 
   add_test_with_context (suite, openvasd, openvasd_set_alive_test_methods);
@@ -405,7 +604,10 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, openvasd,
     openvasd_build_scan_config_json_with_host_discovery_ipv6_only);
-
+  add_test_with_context (suite, openvasd,
+                         openvasd_build_scan_config_json_with_finished_hosts);
+  add_test_with_context (
+    suite, openvasd, openvasd_build_scan_config_json_without_finished_hosts);
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
   else

@@ -3905,6 +3905,231 @@ Ensure (agent_controller,
   agent_controller_connector_free (conn);
 }
 
+Ensure (agent_controller,
+        download_support_bundle_plain_returns_data_and_filename)
+{
+  static const guint8 plain_data[] = {0x50, 0x4b, 0x03, 0x04, 0x00,
+                                      0xff, 0x10, 0x20, 0x00, 0x42};
+
+  const gchar *expected_filename = "support-bundle-GAT-29::2d61a736-"
+                                   "20260616T062558Z.tar.gz";
+
+  mock_http_status = 200;
+
+  set_mock_binary_response (plain_data, sizeof (plain_data));
+
+  mock_content_disposition =
+    g_strdup_printf ("attachment; filename=\"%s\"", expected_filename);
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle_plain (conn, "GAT-29::2d61a736",
+                                                    0);
+
+  assert_that (bundle, is_not_null);
+  assert_that (bundle->data, is_not_null);
+  assert_that (bundle->size, is_equal_to ((gsize) sizeof (plain_data)));
+  assert_that (bundle->filename, is_equal_to_string (expected_filename));
+
+  assert_that (memcmp (bundle->data, plain_data, sizeof (plain_data)),
+               is_equal_to (0));
+
+  assert_that (
+    last_sent_url,
+    is_equal_to_string ("http://localhost:8081/agent-control/v2/api/agents/"
+                        "GAT-29%3A%3A2d61a736/support-bundle/plain"));
+
+  assert_that (last_sent_payload, is_null);
+
+  assert_that (called_headers, is_not_null);
+  assert_that ((int) called_headers->len, is_equal_to (2));
+
+  assert_that ((const gchar *) g_ptr_array_index (called_headers, 0),
+               is_equal_to_string ("X-API-KEY: token"));
+
+  assert_that ((const gchar *) g_ptr_array_index (called_headers, 1),
+               is_equal_to_string ("Accept: application/octet-stream"));
+
+  agent_controller_support_bundle_free (bundle);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, download_support_bundle_plain_adds_days_parameter)
+{
+  static const guint8 plain_data[] = {0x01, 0x02, 0x03};
+
+  mock_http_status = 200;
+  set_mock_binary_response (plain_data, sizeof (plain_data));
+
+  mock_content_disposition =
+    g_strdup ("attachment; filename=\"bundle.tar.gz\"");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle_plain (conn, "agent-123", 7);
+
+  assert_that (bundle, is_not_null);
+
+  assert_that (
+    last_sent_url,
+    is_equal_to_string ("http://localhost:8081/agent-control/v2/api/agents/"
+                        "agent-123/support-bundle/plain?days=7"));
+
+  agent_controller_support_bundle_free (bundle);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_plain_allows_missing_content_disposition)
+{
+  static const guint8 plain_data[] = {0x01, 0x02};
+
+  mock_http_status = 200;
+  set_mock_binary_response (plain_data, sizeof (plain_data));
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle_plain (conn, "agent-123", 0);
+
+  assert_that (bundle, is_not_null);
+  assert_that (bundle->filename, is_null);
+  assert_that (bundle->size, is_equal_to ((gsize) sizeof (plain_data)));
+
+  agent_controller_support_bundle_free (bundle);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_plain_allows_invalid_content_disposition)
+{
+  static const guint8 plain_data[] = {0x01, 0x02};
+
+  mock_http_status = 200;
+  set_mock_binary_response (plain_data, sizeof (plain_data));
+
+  mock_content_disposition = g_strdup ("attachment");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle_plain (conn, "agent-123", 0);
+
+  assert_that (bundle, is_not_null);
+  assert_that (bundle->filename, is_null);
+
+  agent_controller_support_bundle_free (bundle);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_plain_returns_null_for_null_connection)
+{
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle_plain (NULL, "agent-123", 0);
+
+  assert_that (bundle, is_null);
+  assert_that (last_sent_url, is_null);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_plain_returns_null_for_null_agent_id)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle_plain (conn, NULL, 0);
+
+  assert_that (bundle, is_null);
+  assert_that (last_sent_url, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_plain_returns_null_for_empty_agent_id)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle_plain (conn, "", 0);
+
+  assert_that (bundle, is_null);
+  assert_that (last_sent_url, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_plain_returns_null_for_negative_days)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle_plain (conn, "agent-123", -1);
+
+  assert_that (bundle, is_null);
+  assert_that (last_sent_url, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_plain_returns_null_for_http_error)
+{
+  mock_http_status = 404;
+  mock_response_data = g_strdup ("Agent not found");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle_plain (conn, "missing-agent", 0);
+
+  assert_that (bundle, is_null);
+
+  assert_that (last_sent_url,
+               contains_string ("/agent-control/v2/api/agents/"
+                                "missing-agent/support-bundle/plain"));
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_plain_returns_null_when_request_fails)
+{
+  mock_http_status = 500;
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle_plain (conn, "agent-123", 0);
+
+  assert_that (bundle, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_plain_returns_null_for_empty_response)
+{
+  mock_http_status = 200;
+  mock_empty_response = TRUE;
+
+  mock_content_disposition =
+    g_strdup ("attachment; filename=\"bundle.tar.gz\"");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle_plain (conn, "agent-123", 0);
+
+  assert_that (bundle, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -4340,6 +4565,38 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, agent_controller,
     download_support_bundle_returns_null_for_empty_response);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_plain_returns_data_and_filename);
+  add_test_with_context (suite, agent_controller,
+                         download_support_bundle_plain_adds_days_parameter);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_plain_allows_missing_content_disposition);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_plain_allows_invalid_content_disposition);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_plain_returns_null_for_null_connection);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_plain_returns_null_for_null_agent_id);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_plain_returns_null_for_empty_agent_id);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_plain_returns_null_for_negative_days);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_plain_returns_null_for_http_error);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_plain_returns_null_when_request_fails);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_plain_returns_null_for_empty_response);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());

@@ -225,16 +225,33 @@ Ensure (hosts, gvm_hosts_new_with_max_returns_error)
   assert_that (gvm_hosts_new_with_max ("127.0.0.1|127.0.0.2", 2), is_null);
 }
 
+Ensure (hosts, gvm_hosts_new_with_max_handles_range_edge_cases)
+{
+  gvm_hosts_t *max_ipv4_host =
+    gvm_hosts_new_with_max ("255.255.255.255-255.255.255.255", 10);
+  assert_that (max_ipv4_host, is_not_null);
+  assert_that (max_ipv4_host->count, is_equal_to (1));
+  gvm_hosts_free (max_ipv4_host);
+
+  gvm_hosts_t *max_ipv6_host =
+    gvm_hosts_new_with_max ("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"
+                            "-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+                            10);
+  assert_that (max_ipv6_host, is_not_null);
+  assert_that (max_ipv6_host->count, is_equal_to (1));
+  gvm_hosts_free (max_ipv6_host);
+}
+
 // This is a macro so the line number below is clear on failure.
-#define ASSERT_HOST_EQUALS(hosts, i, string)                                 \
-  {                                                                          \
-    gchar *value;                                                            \
-                                                                             \
-    value = gvm_host_value_str (hosts->hosts[i]);                            \
-    assert_true_with_message (                                               \
-      g_strcmp0 (value, string) == 0,                                        \
-      "Expected hosts->hosts[%d] to be %s but it was %s", i, string, value); \
-    g_free (value);                                                          \
+#define ASSERT_HOST_EQUALS(hosts_var, i, string)                               \
+  {                                                                            \
+    gchar *value;                                                              \
+                                                                               \
+    value = gvm_host_value_str (hosts_var->hosts[i]);                          \
+    assert_true_with_message (g_strcmp0 (value, string) == 0,                  \
+                              "Expected %s->hosts[%d] to be %s but it was %s", \
+                              G_STRINGIFY (hosts_var), i, string, value);      \
+    g_free (value);                                                            \
   }
 
 static int
@@ -312,38 +329,179 @@ Ensure (hosts, gvm_hosts_move_host_to_end)
   gvm_hosts_free (hosts);
 }
 
-Ensure (hosts, gvm_hosts_allowed_only)
+#define ASSERT_SLIST_HOST_EQUALS(list_var, index, host_str) \
+  assert_that (g_slist_nth_data (list_var, index),          \
+               is_equal_to_string (host_str));
+
+Ensure (hosts, gvm_hosts_allowed_only_handles_noop)
 {
   gvm_hosts_t *hosts = NULL;
-  gvm_host_t *host = NULL;
+  GSList *removed = NULL;
+
+  // NULL allow_hosts and deny_hosts
+  hosts = gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3");
+  removed = gvm_hosts_allowed_only (hosts, NULL, NULL);
+
+  assert_that (gvm_hosts_count (hosts), is_equal_to (3));
+  ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.1");
+  ASSERT_HOST_EQUALS (hosts, 1, "192.168.0.2");
+  ASSERT_HOST_EQUALS (hosts, 2, "192.168.0.3");
+  assert_that (removed, is_null);
+
+  g_slist_free_full (removed, g_free);
+  gvm_hosts_free (hosts);
+
+  // NULL allow_hosts and deny_hosts
+  hosts = gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3");
+  removed = gvm_hosts_allowed_only (hosts, NULL, NULL);
+
+  assert_that (gvm_hosts_count (hosts), is_equal_to (3));
+  ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.1");
+  ASSERT_HOST_EQUALS (hosts, 1, "192.168.0.2");
+  ASSERT_HOST_EQUALS (hosts, 2, "192.168.0.3");
+  assert_that (removed, is_null);
+
+  g_slist_free_full (removed, g_free);
+  gvm_hosts_free (hosts);
+
+  // Empty allow_hosts and deny_hosts strings
+  hosts = gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3");
+  removed = gvm_hosts_allowed_only (hosts, "", "");
+
+  assert_that (gvm_hosts_count (hosts), is_equal_to (3));
+  ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.1");
+  ASSERT_HOST_EQUALS (hosts, 1, "192.168.0.2");
+  ASSERT_HOST_EQUALS (hosts, 2, "192.168.0.3");
+  assert_that (removed, is_null);
+
+  g_slist_free_full (removed, g_free);
+  gvm_hosts_free (hosts);
+}
+
+Ensure (hosts, gvm_hosts_allowed_only_handles_deny)
+{
+  gvm_hosts_t *hosts = NULL;
+  GSList *removed = NULL;
+
+  // deny_hosts with NULL allow_hosts
+  hosts = gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3");
+  removed = gvm_hosts_allowed_only (hosts, "192.168.0.2", NULL);
+
+  assert_that (gvm_hosts_count (hosts), is_equal_to (2));
+  ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.1");
+  ASSERT_HOST_EQUALS (hosts, 1, "192.168.0.3");
+  assert_that (g_slist_length (removed), is_equal_to (1));
+  ASSERT_SLIST_HOST_EQUALS (removed, 0, "192.168.0.2");
+
+  g_slist_free_full (removed, g_free);
+  gvm_hosts_free (hosts);
+
+  // deny_hosts with empty allow_hosts string
+  hosts = gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3");
+  removed = gvm_hosts_allowed_only (hosts, "192.168.0.2", "");
+  assert_that (gvm_hosts_count (hosts), is_equal_to (2));
+  ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.1");
+  ASSERT_HOST_EQUALS (hosts, 1, "192.168.0.3");
+  assert_that (g_slist_length (removed), is_equal_to (1));
+  ASSERT_SLIST_HOST_EQUALS (removed, 0, "192.168.0.2");
+
+  g_slist_free_full (removed, g_free);
+  gvm_hosts_free (hosts);
+}
+
+Ensure (hosts, gvm_hosts_allowed_only_handles_allow)
+{
+  gvm_hosts_t *hosts = NULL;
   int totalhosts;
   GSList *removed = NULL;
-  gchar *value;
 
+  // allow_hosts with NULL deny_hosts
   hosts = gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3");
-
-  removed = gvm_hosts_allowed_only (hosts, NULL, NULL);
-  totalhosts = gvm_hosts_count (hosts);
-  assert_that (totalhosts, is_equal_to (3));
-
-  removed = gvm_hosts_allowed_only (hosts, "192.168.0.2", NULL);
-  totalhosts = gvm_hosts_count (hosts);
-  assert_that (totalhosts, is_equal_to (2));
-  assert_that (g_slist_length (removed), is_equal_to (1));
-  g_slist_free_full (removed, g_free);
-
   removed = gvm_hosts_allowed_only (hosts, NULL, "192.168.0.3");
+
   totalhosts = gvm_hosts_count (hosts);
   assert_that (totalhosts, is_equal_to (1));
-  assert_that (g_slist_length (removed), is_equal_to (1));
+  ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.3");
+  assert_that (g_slist_length (removed), is_equal_to (2));
+  ASSERT_SLIST_HOST_EQUALS (removed, 1, "192.168.0.1");
+  ASSERT_SLIST_HOST_EQUALS (removed, 0, "192.168.0.2");
+
   g_slist_free_full (removed, g_free);
-
-  host = gvm_hosts_next (hosts);
-  value = gvm_host_value_str (host);
-  assert_that (g_strcmp0 (value, "192.168.0.3"), is_equal_to (0));
-  g_free (value);
-
   gvm_hosts_free (hosts);
+
+  // allow_hosts with empty deny_hosts string
+  hosts = gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3");
+  removed = gvm_hosts_allowed_only (hosts, "", "192.168.0.3");
+
+  totalhosts = gvm_hosts_count (hosts);
+  assert_that (totalhosts, is_equal_to (1));
+  ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.3");
+  assert_that (g_slist_length (removed), is_equal_to (2));
+  ASSERT_SLIST_HOST_EQUALS (removed, 1, "192.168.0.1");
+  ASSERT_SLIST_HOST_EQUALS (removed, 0, "192.168.0.2");
+
+  g_slist_free_full (removed, g_free);
+  gvm_hosts_free (hosts);
+}
+
+Ensure (hosts, gvm_hosts_allowed_only_handles_both)
+{
+  gvm_hosts_t *hosts = NULL;
+  int totalhosts;
+  GSList *removed = NULL;
+
+  // Both allow_hosts and deny_hosts
+  // Deny should have higher priority than allow
+  hosts = gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3");
+  removed =
+    gvm_hosts_allowed_only (hosts, "192.168.0.2", "192.168.0.2,192.168.0.3");
+
+  totalhosts = gvm_hosts_count (hosts);
+  assert_that (totalhosts, is_equal_to (1));
+  ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.3");
+  assert_that (g_slist_length (removed), is_equal_to (2));
+  ASSERT_SLIST_HOST_EQUALS (removed, 1, "192.168.0.1");
+  ASSERT_SLIST_HOST_EQUALS (removed, 0, "192.168.0.2");
+
+  g_slist_free_full (removed, g_free);
+  gvm_hosts_free (hosts);
+}
+
+Ensure (hosts, gvm_hosts_reverse_moves_hosts)
+{
+  gvm_hosts_t *empty_hosts = NULL;
+  gvm_hosts_t *single_host = NULL;
+  gvm_hosts_t *odd_hosts = NULL;
+  gvm_hosts_t *even_hosts = NULL;
+
+  empty_hosts = gvm_hosts_new ("");
+  gvm_hosts_reverse (empty_hosts);
+  assert_that (empty_hosts->count, is_equal_to (0));
+  gvm_hosts_free (empty_hosts);
+
+  single_host = gvm_hosts_new ("192.168.0.1");
+  gvm_hosts_reverse (single_host);
+  assert_that (single_host->count, is_equal_to (1));
+  ASSERT_HOST_EQUALS (single_host, 0, "192.168.0.1");
+  gvm_hosts_free (single_host);
+
+  odd_hosts = gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3");
+  gvm_hosts_reverse (odd_hosts);
+  assert_that (odd_hosts->count, is_equal_to (3));
+  ASSERT_HOST_EQUALS (odd_hosts, 0, "192.168.0.3");
+  ASSERT_HOST_EQUALS (odd_hosts, 1, "192.168.0.2");
+  ASSERT_HOST_EQUALS (odd_hosts, 2, "192.168.0.1");
+  gvm_hosts_free (odd_hosts);
+
+  even_hosts =
+    gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3,192.168.0.4");
+  gvm_hosts_reverse (even_hosts);
+  assert_that (even_hosts->count, is_equal_to (4));
+  ASSERT_HOST_EQUALS (even_hosts, 0, "192.168.0.4");
+  ASSERT_HOST_EQUALS (even_hosts, 1, "192.168.0.3");
+  ASSERT_HOST_EQUALS (even_hosts, 2, "192.168.0.2");
+  ASSERT_HOST_EQUALS (even_hosts, 3, "192.168.0.1");
+  gvm_hosts_free (even_hosts);
 }
 
 /* Test suite. */
@@ -379,9 +537,17 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, hosts, gvm_hosts_new_with_max_returns_error);
   add_test_with_context (suite, hosts, gvm_hosts_new_with_max_returns_success);
+  add_test_with_context (suite, hosts,
+                         gvm_hosts_new_with_max_handles_range_edge_cases);
 
   add_test_with_context (suite, hosts, gvm_hosts_move_host_to_end);
-  add_test_with_context (suite, hosts, gvm_hosts_allowed_only);
+
+  add_test_with_context (suite, hosts, gvm_hosts_allowed_only_handles_noop);
+  add_test_with_context (suite, hosts, gvm_hosts_allowed_only_handles_deny);
+  add_test_with_context (suite, hosts, gvm_hosts_allowed_only_handles_allow);
+  add_test_with_context (suite, hosts, gvm_hosts_allowed_only_handles_both);
+
+  add_test_with_context (suite, hosts, gvm_hosts_reverse_moves_hosts);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());

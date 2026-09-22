@@ -116,6 +116,20 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
                        const gchar *client_key, const gchar *unix_socket_path,
                        gvm_http_response_stream_t res)
 {
+  if (!url || !res)
+    {
+      g_warning ("%s: Invalid url or response stream", __func__);
+      return NULL;
+    }
+
+  if ((client_cert && !client_key) || (!client_cert && client_key))
+    {
+      g_warning ("%s: Both client certificate and private key must be provided "
+                 "for mutual TLS",
+                 __func__);
+      return NULL;
+    }
+
   CURL *curl = curl_easy_init ();
   CURLcode ret = CURLE_OK;
 
@@ -146,13 +160,26 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
       curl_easy_setopt (curl, CURLOPT_HTTPHEADER, headers->custom_headers);
     }
 
-  // Handle SSL CA Certificate
-  if (ca_cert)
+  /*
+   * Always verify the server certificate and hostname.
+   * When a custom CA certificate is provided, use it as the trust source.
+   * Otherwise, libcurl uses its default CA trust store.
+   *
+   * See:
+   * https://curl.se/docs/sslcerts.html
+   * https://curl.se/libcurl/c/CURLOPT_SSL_VERIFYPEER.html
+   * https://curl.se/libcurl/c/CURLOPT_SSL_VERIFYHOST.html
+   */
+  curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, 1L);
+  curl_easy_setopt (curl, CURLOPT_SSL_VERIFYHOST, 2L);
+  curl_easy_setopt (curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2);
+
+  /* Handle SSL CA certificate. */
+  if (ca_cert && ca_cert[0] != '\0')
     {
       struct curl_blob ca_blob = {(void *) ca_cert, strlen (ca_cert),
                                   CURL_BLOB_COPY};
-      curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, 1L);
-      curl_easy_setopt (curl, CURLOPT_SSL_VERIFYHOST, 1L);
+
       ret = curl_easy_setopt (curl, CURLOPT_CAINFO_BLOB, &ca_blob);
       if (ret != CURLE_OK)
         {
@@ -161,14 +188,12 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
           curl_easy_cleanup (curl);
           return NULL;
         }
+
+      g_debug ("%s: Using provided CA certificate.", __func__);
     }
   else
     {
-      // Accept insecure connections if no CA cert is provided
-      curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, 0L);
-      curl_easy_setopt (curl, CURLOPT_SSL_VERIFYHOST, 0L);
-      curl_easy_setopt (curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2);
-      g_debug ("%s: Server certificate verification disabled.", __func__);
+      g_debug ("%s: Using default system CA trust store.", __func__);
     }
 
   // Handle Client Certificate & Private Key for authentication
@@ -202,32 +227,37 @@ gvm_http_new_internal (const gchar *url, gvm_http_method_t method,
   switch (method)
     {
     case POST:
-      if (payload && payload[0] != '\0')
+      curl_easy_setopt (curl, CURLOPT_POST, 1L);
+      if (payload)
         {
           curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
-          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen (payload));
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE,
+                            (long) strlen (payload));
         }
       break;
     case PUT:
-      if (payload && payload[0] != '\0')
+      curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PUT");
+      if (payload)
         {
-          curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PUT");
           curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
-          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen (payload));
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE,
+                            (long) strlen (payload));
         }
       break;
     case PATCH:
-      if (payload && payload[0] != '\0')
+      curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PATCH");
+      if (payload)
         {
-          curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PATCH");
           curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
-          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen (payload));
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE,
+                            (long) strlen (payload));
         }
       break;
     case DELETE:
       curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "DELETE");
       break;
     case HEAD:
+      curl_easy_setopt (curl, CURLOPT_NOBODY, 1L);
       curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "HEAD");
       break;
     case GET:
@@ -343,6 +373,7 @@ gvm_http_request_internal (const gchar *url, gvm_http_method_t method,
   curl_easy_setopt (http->handler, CURLOPT_HEADERDATA, http_response);
 
   CURLcode result = curl_easy_perform (http->handler);
+
   if (result == CURLE_OK)
     {
       curl_easy_getinfo (http->handler, CURLINFO_RESPONSE_CODE,
@@ -350,12 +381,40 @@ gvm_http_request_internal (const gchar *url, gvm_http_method_t method,
     }
   else
     {
-      g_debug ("%s: Error performing CURL request: %s", __func__,
-               curl_easy_strerror (result));
+      const gchar *error_message;
+      gchar *effective_url = NULL;
+      gchar *primary_ip = NULL;
+      long ssl_verify_result = 0;
+
+      error_message = curl_easy_strerror (result);
+
+      curl_easy_getinfo (http->handler, CURLINFO_EFFECTIVE_URL, &effective_url);
+
+      curl_easy_getinfo (http->handler, CURLINFO_PRIMARY_IP, &primary_ip);
+
+      curl_easy_getinfo (http->handler, CURLINFO_SSL_VERIFYRESULT,
+                         &ssl_verify_result);
+
+      g_warning ("%s: CURL request failed:"
+                 " code=%d,"
+                 " error=%s,"
+                 " url=%s,"
+                 " effective_url=%s,"
+                 " primary_ip=%s,"
+                 " ssl_verify_result=%ld",
+                 __func__, result, error_message, url ? url : "(null)",
+                 effective_url ? effective_url : "(unknown)",
+                 primary_ip ? primary_ip : "(unknown)", ssl_verify_result);
+
       http_response->http_status = -1;
       http_response->data =
-        g_strdup_printf ("{\"error\": \"CURL request failed: %s\"}",
-                         curl_easy_strerror (result));
+        g_strdup_printf ("{\"error\":\"CURL request failed\","
+                         "\"curl_code\":%d,"
+                         "\"details\":\"%s\","
+                         "\"ssl_verify_result\":%ld}",
+                         result, error_message, ssl_verify_result);
+
+      http_response->size = strlen (http_response->data);
     }
 
   if (response && response->data)

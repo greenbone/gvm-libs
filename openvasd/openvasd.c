@@ -242,7 +242,7 @@ add_port_to_scan_json (gpointer range, gpointer p_array)
   cJSON *range_obj = cJSON_CreateObject ();
   cJSON_AddNumberToObject (range_obj, "start", ports->start);
 
-  if (ports->end > ports->start && ports->end < 65535)
+  if (ports->end >= ports->start && ports->end <= 65535)
     cJSON_AddNumberToObject (range_obj, "end", ports->end);
   else
     cJSON_AddNumberToObject (range_obj, "end", ports->start);
@@ -423,7 +423,7 @@ openvasd_build_scan_config_json (openvasd_target_t *target,
           finished_host_item = cJSON_CreateString (finished_hosts_list[i]);
           cJSON_AddItemToArray (finished_hosts_array, finished_host_item);
         }
-      g_strfreev (hosts_list);
+      g_strfreev (finished_hosts_list);
       cJSON_AddItemToObject (target_obj, "finished_hosts",
                              finished_hosts_array);
     }

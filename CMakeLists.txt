@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.18)
 message("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 # VERSION: Always include major, minor and patch level.
-project(gvm-libs VERSION 23.8.1 LANGUAGES C)
+project(gvm-libs VERSION 23.11.1 LANGUAGES C)
 
 if(POLICY CMP0005)
   cmake_policy(SET CMP0005 NEW)
@@ -29,6 +29,11 @@ option(ENABLE_SECURITY_INTELLIGENCE "Build security intelligence library" ON)
 option(
   ENABLE_WEB_APPLICATION_SCANNER
   "Build web application scanner library"
+  ON
+)
+option(
+  ENABLE_ACTIVE_DIRECTORY_INTEGRATION
+  "Build active directory connector"
   ON
 )
 
@@ -303,6 +308,10 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     list(APPEND TESTS web-application-scanner-test)
   endif(ENABLE_WEB_APPLICATION_SCANNER)
 
+  if(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
+    list(APPEND TESTS gvmldap-test)
+  endif(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
+
   add_custom_target(tests DEPENDS ${TESTS})
 
   # Code coverage
@@ -388,6 +397,10 @@ if(NOT SKIP_SRC)
   if(ENABLE_SECURITY_INTELLIGENCE)
     add_subdirectory(security_intelligence)
   endif(ENABLE_SECURITY_INTELLIGENCE)
+
+  if(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
+    add_subdirectory(ldap)
+  endif(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
 endif(NOT SKIP_SRC)
 
 ## Documentation

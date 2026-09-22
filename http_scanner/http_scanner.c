@@ -304,19 +304,27 @@ http_scanner_init_request_multi (http_scanner_connector_t conn,
  * return value is 0, meaning there is no more data to fetch.
  *
  * @param conn Connector struct with the data necessary for the connection.
+ *             `conn->stream_resp->multi_handler` must be initialized
+ *             by `http_scanner_init_request_multi`.
  * @param timeout Maximum time in milliseconds to wait for activity.
  *
- * @return greather than 0 if the handler is still getting data. 0 if the
- * transmision finished. -1 on error
+ * @return greater than 0 if the handler is still getting data. 0 if the
+ * transmission finished. -1 on error
  */
 int
 http_scanner_process_request_multi (http_scanner_connector_t conn, int timeout)
 {
-  static int running = 0;
+  int running = 0;
 
   if (!conn || !conn->stream_resp)
     {
       g_warning ("%s: Invalid connector", __func__);
+      return -1;
+    }
+
+  if (timeout < 0)
+    {
+      g_warning ("%s: Invalid timeout value", __func__);
       return -1;
     }
 
@@ -329,7 +337,13 @@ http_scanner_process_request_multi (http_scanner_connector_t conn, int timeout)
 
   gvm_http_multi_result_t mc = gvm_http_multi_perform (multi, &running);
 
-  if (mc == GVM_HTTP_OK && running)
+  if (mc != GVM_HTTP_OK)
+    {
+      g_warning ("%s: Error performing multi-handle operation", __func__);
+      return -1;
+    }
+
+  if (running > 0)
     {
       /* wait for activity, timeout, or "nothing" */
       if (gvm_http_multi_poll (multi, timeout) != GVM_HTTP_OK)
