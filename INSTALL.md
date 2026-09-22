@@ -25,6 +25,7 @@ Specific development libraries:
 * libgnutls >= 3.2.15 (util)
 * libgpgme >= 1.7.0 (util)
 * libhiredis >= 0.10.1 (util)
+* libldap >= 2.4 (util, ldap)
 * libnet >= 1.1.2.1 (boreas)
 * libpaho-mqtt >= 1.3.0 (utils)
 * libpcap (boreas)
@@ -55,6 +56,7 @@ Install prerequisites on Debian stable:
     libgnutls28-dev \
     libgpgme-dev \
     libhiredis-dev \
+    libldap-dev \
     libnet1-dev \
     libpaho-mqtt-dev \
     libpcap-dev \
@@ -67,10 +69,6 @@ Install prerequisites on Debian stable:
 
 Certain features of gvm-libs are optional and require the following:
 
-Prerequisites for LDAP authentication:
-
-* libldap library >= 2.4.44 (util, ldap) (Debian package: libldap-dev)
-
 Prerequisites for RADIUS authentication:
 
 * libradcli4 library >= 1.2.6 (util) (Debian package: libradcli-dev)
@@ -79,7 +77,6 @@ Prerequisites for RADIUS authentication:
 Install prerequisites for optional features on Debian stable:
 
     apt-get install \
-    libldap-dev \
     libradcli-dev
 
 ## Compiling gvm-libs
