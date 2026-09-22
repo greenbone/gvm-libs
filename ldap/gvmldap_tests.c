@@ -235,14 +235,14 @@ Ensure (gvmldap, gvm_ldap_entry_get_dn_returns_null_for_invalid_args)
   LDAPMessage *entry = (LDAPMessage *) 0x1;
 
   assert_that (
-    gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t) {.ldap = NULL, .message = NULL}),
+    gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t){.ldap = NULL, .message = NULL}),
     is_null);
   assert_that (
-    gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t) {.ldap = ldap, .message = NULL}),
+    gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t){.ldap = ldap, .message = NULL}),
     is_null);
-  assert_that (gvm_ldap_entry_get_dn (
-                 &(gvm_ldap_entry_t) {.ldap = NULL, .message = entry}),
-               is_null);
+  assert_that (
+    gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t){.ldap = NULL, .message = entry}),
+    is_null);
 }
 
 Ensure (gvmldap, gvm_ldap_entry_get_dn_returns_dn)
@@ -253,8 +253,8 @@ Ensure (gvmldap, gvm_ldap_entry_get_dn_returns_dn)
 
   mock_dn_to_return = "cn=alice,dc=example,dc=org";
 
-  dn = gvm_ldap_entry_get_dn (
-    &(gvm_ldap_entry_t) {.ldap = ldap, .message = entry});
+  dn =
+    gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t){.ldap = ldap, .message = entry});
 
   assert_that (dn, is_not_null);
   assert_that (dn, is_equal_to_string ("cn=alice,dc=example,dc=org"));
@@ -269,9 +269,9 @@ Ensure (gvmldap, gvm_ldap_entry_get_dn_returns_null_when_ldap_returns_null)
 
   mock_dn_to_return = NULL;
 
-  assert_that (gvm_ldap_entry_get_dn (
-                 &(gvm_ldap_entry_t) {.ldap = ldap, .message = entry}),
-               is_null);
+  assert_that (
+    gvm_ldap_entry_get_dn (&(gvm_ldap_entry_t){.ldap = ldap, .message = entry}),
+    is_null);
 }
 
 /* gvm_ldap_entry_get_string */
@@ -282,13 +282,13 @@ Ensure (gvmldap, gvm_ldap_entry_get_string_returns_null_for_invalid_args)
   LDAPMessage *entry = (LDAPMessage *) 0x1;
 
   assert_that (gvm_ldap_entry_get_string (
-                 &(gvm_ldap_entry_t) {.ldap = NULL, .message = entry}, "cn"),
+                 &(gvm_ldap_entry_t){.ldap = NULL, .message = entry}, "cn"),
                is_null);
   assert_that (gvm_ldap_entry_get_string (
-                 &(gvm_ldap_entry_t) {.ldap = ldap, .message = NULL}, "cn"),
+                 &(gvm_ldap_entry_t){.ldap = ldap, .message = NULL}, "cn"),
                is_null);
   assert_that (gvm_ldap_entry_get_string (
-                 &(gvm_ldap_entry_t) {.ldap = ldap, .message = entry}, NULL),
+                 &(gvm_ldap_entry_t){.ldap = ldap, .message = entry}, NULL),
                is_null);
 }
 
@@ -302,7 +302,7 @@ Ensure (gvmldap, gvm_ldap_entry_get_string_returns_first_attribute_value)
   mock_values_to_return = make_mock_bervals (values);
 
   value = gvm_ldap_entry_get_string (
-    &(gvm_ldap_entry_t) {.ldap = ldap, .message = entry}, "cn");
+    &(gvm_ldap_entry_t){.ldap = ldap, .message = entry}, "cn");
 
   assert_that (value, is_not_null);
   assert_that (value, is_equal_to_string ("alice"));
@@ -318,7 +318,7 @@ Ensure (gvmldap, gvm_ldap_entry_get_string_returns_null_when_no_values)
   mock_values_to_return = NULL;
 
   assert_that (gvm_ldap_entry_get_string (
-                 &(gvm_ldap_entry_t) {.ldap = ldap, .message = entry}, "cn"),
+                 &(gvm_ldap_entry_t){.ldap = ldap, .message = entry}, "cn"),
                is_null);
 }
 
@@ -334,7 +334,7 @@ Ensure (gvmldap, gvm_ldap_entry_get_strings_returns_all_attribute_values)
   mock_values_to_return = make_mock_bervals (values);
 
   result = gvm_ldap_entry_get_strings (
-    &(gvm_ldap_entry_t) {.ldap = ldap, .message = entry}, "cn");
+    &(gvm_ldap_entry_t){.ldap = ldap, .message = entry}, "cn");
 
   assert_that (result, is_not_null);
   assert_that ((int) result->len, is_equal_to (2));
@@ -354,7 +354,7 @@ Ensure (gvmldap, gvm_ldap_entry_get_strings_returns_null_for_no_values)
   mock_values_to_return = NULL;
 
   assert_that (gvm_ldap_entry_get_strings (
-                 &(gvm_ldap_entry_t) {.ldap = ldap, .message = entry}, "cn"),
+                 &(gvm_ldap_entry_t){.ldap = ldap, .message = entry}, "cn"),
                is_null);
 }
 
@@ -368,7 +368,7 @@ Ensure (gvmldap, gvm_ldap_entry_get_strings_returns_null_for_empty_value_set)
   mock_values_to_return = make_mock_bervals (values);
 
   result = gvm_ldap_entry_get_strings (
-    &(gvm_ldap_entry_t) {.ldap = ldap, .message = entry}, "cn");
+    &(gvm_ldap_entry_t){.ldap = ldap, .message = entry}, "cn");
 
   assert_that (result, is_null);
 }
