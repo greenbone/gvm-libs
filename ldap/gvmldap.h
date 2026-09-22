@@ -59,9 +59,9 @@ typedef enum
  */
 typedef enum
 {
-  GVM_LDAP_SEARCH_CONTINUE,          /* Continue the search normally. */
-  GVM_LDAP_SEARCH_STOP,              /* Terminate the search and return success. */
-  GVM_LDAP_SEARCH_CALLBACK_ERROR,    /* Abort the search due to an error. */
+  GVM_LDAP_SEARCH_CONTINUE,       /* Continue the search normally. */
+  GVM_LDAP_SEARCH_STOP,           /* Terminate the search and return success. */
+  GVM_LDAP_SEARCH_CALLBACK_ERROR, /* Abort the search due to an error. */
 } gvm_ldap_search_callback_return_t;
 
 typedef struct gvm_ldap_connection gvm_ldap_connection_t;
@@ -75,14 +75,15 @@ typedef struct gvm_ldap_entry gvm_ldap_entry_t;
  * gvm_ldap_search_params_free().
  *
  */
-typedef struct {
-  gchar *base_dn;          ///< Base DN for the LDAP search.
-  gvm_ldap_scope_t scope;  ///< LDAP search scope (element of gvm_ldap_scope_t)
-  gchar *filter;           ///< LDAP search filter string.
-  gchar **attributes;      ///< NULL-terminated attribute list, or NULL for all.
-  guint page_size;         ///< Number of entries per page for paged searches.
-  guint size_limit;        ///< Maximum number of entries to return.
-  guint timeout_seconds;   ///< Timeout for the search in seconds.
+typedef struct
+{
+  gchar *base_dn;         ///< Base DN for the LDAP search.
+  gvm_ldap_scope_t scope; ///< LDAP search scope (element of gvm_ldap_scope_t)
+  gchar *filter;          ///< LDAP search filter string.
+  gchar **attributes;     ///< NULL-terminated attribute list, or NULL for all.
+  guint page_size;        ///< Number of entries per page for paged searches.
+  guint size_limit;       ///< Maximum number of entries to return.
+  guint timeout_seconds;  ///< Timeout for the search in seconds.
 } gvm_ldap_search_params_t;
 
 /**
@@ -92,7 +93,6 @@ typedef struct {
  */
 typedef gvm_ldap_search_callback_return_t (*gvm_ldap_search_callback_t) (
   gvm_ldap_entry_t *, gpointer);
-
 
 gvm_ldap_return_t
 gvm_ldap_open (gvm_ldap_connection_t **, const gchar *, gint, const gchar *,
@@ -104,8 +104,7 @@ gvm_ldap_bind_simple (gvm_ldap_connection_t *, const gchar *, const gchar *);
 gvm_ldap_return_t
 gvm_ldap_search_paged (gvm_ldap_connection_t *,
                        const gvm_ldap_search_params_t *,
-                       gvm_ldap_search_callback_t,
-                       gpointer);
+                       gvm_ldap_search_callback_t, gpointer);
 
 void
 gvm_ldap_close (gvm_ldap_connection_t *);
