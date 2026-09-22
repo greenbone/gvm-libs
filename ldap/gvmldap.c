@@ -18,6 +18,7 @@
  */
 
 #include "gvmldap.h"
+
 #include <ldap.h>
 #include <string.h>
 
@@ -34,7 +35,7 @@
  * @brief LDAP connection structure.
  *
  * This structure represents an LDAP connection, encapsulating the LDAP handle.
-*/
+ */
 struct gvm_ldap_connection
 {
   LDAP *ldap;
@@ -62,7 +63,7 @@ struct gvm_ldap_entry
  *
  * @return Newly allocated string containing the LDAP URI.
  *         Caller must free it with g_free().
-*/
+ */
 static gchar *
 ldap_build_uri (const gchar *ldap_host, gint port, gvm_ldap_tls_mode_t tls_mode)
 {
@@ -71,12 +72,13 @@ ldap_build_uri (const gchar *ldap_host, gint port, gvm_ldap_tls_mode_t tls_mode)
 
   scheme = (tls_mode == GVM_LDAP_TLS_LDAPS) ? "ldaps" : "ldap";
 
-  ldap_port = (port > 0) ? port : ((tls_mode == GVM_LDAP_TLS_LDAPS)
-                                  ? LDAPS_DEFAULT_PORT
-                                  : LDAP_DEFAULT_PORT);
+  ldap_port = (port > 0)
+                ? port
+                : ((tls_mode == GVM_LDAP_TLS_LDAPS) ? LDAPS_DEFAULT_PORT
+                                                    : LDAP_DEFAULT_PORT);
 
   /* IPv6 address */
-  if (strchr(ldap_host, ':') != NULL && ldap_host[0] != '[')
+  if (strchr (ldap_host, ':') != NULL && ldap_host[0] != '[')
     return g_strdup_printf ("%s://[%s]:%d", scheme, ldap_host, ldap_port);
 
   return g_strdup_printf ("%s://%s:%d", scheme, ldap_host, ldap_port);
@@ -87,13 +89,13 @@ ldap_build_uri (const gchar *ldap_host, gint port, gvm_ldap_tls_mode_t tls_mode)
  *
  * @param ldap              LDAP connection.
  * @param option            LDAP option to set (e.g., LDAP_OPT_NETWORK_TIMEOUT).
- * @param timeout_seconds   Timeout value in seconds or 0 to use default (infinite).
+ * @param timeout_seconds   Timeout value in seconds or 0 to use default
+ * (infinite).
  *
  * @return LDAP_OPT_SUCCESS on success, or an LDAP error code on failure.
  */
 static int
-ldap_set_timeout_option (LDAP *ldap, int option,
-                         guint timeout_seconds)
+ldap_set_timeout_option (LDAP *ldap, int option, guint timeout_seconds)
 {
   struct timeval tv;
 
@@ -110,10 +112,11 @@ ldap_set_timeout_option (LDAP *ldap, int option,
  * @brief Configure TLS options for an LDAP connection.
  *
  * @param ldap              LDAP connection.
- * @param ca_cert_file      Path to the CA certificate file for TLS, can be NULL.
+ * @param ca_cert_file      Path to the CA certificate file for TLS, can be
+ * NULL.
  *
  * @return 0 on success, -1 on failure.
-*/
+ */
 static int
 ldap_configure_tls (LDAP *ldap, const gchar *ca_cert_file)
 {
@@ -153,16 +156,13 @@ ldap_configure_tls (LDAP *ldap, const gchar *ca_cert_file)
  * @param network_timeout    Network timeout in seconds.
  * @param operation_timeout  Operation timeout in seconds.
  *
- * @return GVM_LDAP_SUCCESS on success, or gvm_ldap_return_t error code otherwise.
+ * @return GVM_LDAP_SUCCESS on success, or gvm_ldap_return_t error code
+ * otherwise.
  */
 gvm_ldap_return_t
-gvm_ldap_open (gvm_ldap_connection_t **connection,
-               const gchar *host,
-               gint port,
-               const gchar *ca_cert_file,
-               gvm_ldap_tls_mode_t tls_mode,
-               guint network_timeout,
-               guint operation_timeout)
+gvm_ldap_open (gvm_ldap_connection_t **connection, const gchar *host, gint port,
+               const gchar *ca_cert_file, gvm_ldap_tls_mode_t tls_mode,
+               guint network_timeout, guint operation_timeout)
 {
   gvm_ldap_connection_t *new_connection;
   gchar *uri = NULL;
@@ -210,8 +210,8 @@ gvm_ldap_open (gvm_ldap_connection_t **connection,
 
   if (!new_connection->ldap || ldap_ret != LDAP_SUCCESS)
     {
-      g_warning ("%s: Could not initialize LDAP connection: %s",
-                 __func__, ldap_err2string (ldap_ret));
+      g_warning ("%s: Could not initialize LDAP connection: %s", __func__,
+                 ldap_err2string (ldap_ret));
       gvm_ldap_close (new_connection);
       return GVM_LDAP_INITIALIZE_ERROR;
     }
@@ -227,32 +227,30 @@ gvm_ldap_open (gvm_ldap_connection_t **connection,
   else
     g_warning ("%s: Using LDAP plaintext connection.", __func__);
 
-  ldap_ret = ldap_set_option (new_connection->ldap, LDAP_OPT_PROTOCOL_VERSION,
-                              &ldapv3);
+  ldap_ret =
+    ldap_set_option (new_connection->ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
   if (ldap_ret != LDAP_OPT_SUCCESS)
     {
-      g_warning ("%s, Failed to set ldap protocol version to 3: %s.",
-                 __func__, ldap_err2string (ldap_ret));
+      g_warning ("%s, Failed to set ldap protocol version to 3: %s.", __func__,
+                 ldap_err2string (ldap_ret));
       goto option_error;
     }
 
-  ldap_ret = ldap_set_timeout_option (new_connection->ldap,
-                                      LDAP_OPT_NETWORK_TIMEOUT,
-                                      network_timeout);
+  ldap_ret = ldap_set_timeout_option (
+    new_connection->ldap, LDAP_OPT_NETWORK_TIMEOUT, network_timeout);
   if (ldap_ret != LDAP_OPT_SUCCESS)
     {
-      g_warning ("%s: Failed to set LDAP network timeout: %s",
-                 __func__, ldap_err2string (ldap_ret));
+      g_warning ("%s: Failed to set LDAP network timeout: %s", __func__,
+                 ldap_err2string (ldap_ret));
       goto option_error;
     }
 
-  ldap_ret = ldap_set_timeout_option (new_connection->ldap,
-                                      LDAP_OPT_TIMEOUT,
+  ldap_ret = ldap_set_timeout_option (new_connection->ldap, LDAP_OPT_TIMEOUT,
                                       operation_timeout);
   if (ldap_ret != LDAP_OPT_SUCCESS)
     {
-      g_warning ("%s: Failed to set LDAP operation timeout: %s",
-                 __func__, ldap_err2string (ldap_ret));
+      g_warning ("%s: Failed to set LDAP operation timeout: %s", __func__,
+                 ldap_err2string (ldap_ret));
       goto option_error;
     }
 
@@ -261,8 +259,8 @@ gvm_ldap_open (gvm_ldap_connection_t **connection,
       ldap_ret = ldap_start_tls_s (new_connection->ldap, NULL, NULL);
       if (ldap_ret != LDAP_SUCCESS)
         {
-          g_warning ("%s: Failed to start LDAP TLS: %s",
-                     __func__, ldap_err2string (ldap_ret));
+          g_warning ("%s: Failed to start LDAP TLS: %s", __func__,
+                     ldap_err2string (ldap_ret));
           goto tls_error;
         }
     }
@@ -312,14 +310,12 @@ ldap_bind_dn_is_valid (const gchar *bind_dn)
 
   /* Allow user@domain */
   const gchar *at = strchr (bind_dn, '@');
-  if (at && at != bind_dn
-      && at[1] != '\0' && strchr (at + 1, '@') == NULL)
+  if (at && at != bind_dn && at[1] != '\0' && strchr (at + 1, '@') == NULL)
     return TRUE;
 
   /* Allow DOMAIN\user */
   const gchar *bs = strchr (bind_dn, '\\');
-  if (bs && bs != bind_dn
-      && bs[1] != '\0' && strchr (bs + 1, '\\') == NULL)
+  if (bs && bs != bind_dn && bs[1] != '\0' && strchr (bs + 1, '\\') == NULL)
     return TRUE;
 
   return FALSE;
@@ -336,33 +332,26 @@ ldap_bind_dn_is_valid (const gchar *bind_dn)
  *         error code otherwise.
  */
 gvm_ldap_return_t
-gvm_ldap_bind_simple (gvm_ldap_connection_t *connection,
-                      const gchar *bind_dn,
+gvm_ldap_bind_simple (gvm_ldap_connection_t *connection, const gchar *bind_dn,
                       const gchar *password)
 {
   gvm_ldap_return_t ret = GVM_LDAP_SUCCESS;
   struct berval credential;
 
-  if (!connection || !connection->ldap
-      || !ldap_bind_dn_is_valid (bind_dn)
+  if (!connection || !connection->ldap || !ldap_bind_dn_is_valid (bind_dn)
       || !password || password[0] == '\0')
     return GVM_LDAP_INVALID_VALUE;
 
   credential.bv_val = (char *) password;
   credential.bv_len = strlen (password);
 
-  ret = ldap_sasl_bind_s (connection->ldap,
-                          bind_dn,
-                          LDAP_SASL_SIMPLE,
-                          &credential,
-                          NULL,
-                          NULL,
-                          NULL);
+  ret = ldap_sasl_bind_s (connection->ldap, bind_dn, LDAP_SASL_SIMPLE,
+                          &credential, NULL, NULL, NULL);
 
   if (ret != LDAP_SUCCESS)
     {
-      g_warning ("%s: LDAP simple bind failed: %s.",
-                 __func__, ldap_err2string (ret));
+      g_warning ("%s: LDAP simple bind failed: %s.", __func__,
+                 ldap_err2string (ret));
       return GVM_LDAP_BIND_ERROR;
     }
 
@@ -386,17 +375,17 @@ gvm_ldap_scope_to_openldap (gvm_ldap_scope_t scope, int *ldap_scope)
 
   switch (scope)
     {
-      case GVM_LDAP_SCOPE_BASE:
-        *ldap_scope = LDAP_SCOPE_BASE;
-        return TRUE;
-      case GVM_LDAP_SCOPE_ONELEVEL:
-        *ldap_scope = LDAP_SCOPE_ONELEVEL;
-        return TRUE;
-      case GVM_LDAP_SCOPE_SUBTREE:
-        *ldap_scope = LDAP_SCOPE_SUBTREE;
-        return TRUE;
-      default:
-        return FALSE;
+    case GVM_LDAP_SCOPE_BASE:
+      *ldap_scope = LDAP_SCOPE_BASE;
+      return TRUE;
+    case GVM_LDAP_SCOPE_ONELEVEL:
+      *ldap_scope = LDAP_SCOPE_ONELEVEL;
+      return TRUE;
+    case GVM_LDAP_SCOPE_SUBTREE:
+      *ldap_scope = LDAP_SCOPE_SUBTREE;
+      return TRUE;
+    default:
+      return FALSE;
     }
 }
 
@@ -482,15 +471,11 @@ gvm_ldap_search_params_free (gvm_ldap_search_params_t *params)
 gvm_ldap_return_t
 gvm_ldap_search_paged (gvm_ldap_connection_t *connection,
                        const gvm_ldap_search_params_t *search_params,
-                       gvm_ldap_search_callback_t callback,
-                       gpointer user_data)
+                       gvm_ldap_search_callback_t callback, gpointer user_data)
 {
   struct timeval timeout = {0, 0};
   struct timeval *timeout_ptr = NULL;
-  struct berval cookie = {
-    .bv_len = 0,
-    .bv_val = NULL
-  };
+  struct berval cookie = {.bv_len = 0, .bv_val = NULL};
   gvm_ldap_return_t ret = GVM_LDAP_SUCCESS;
   int ldap_scope;
 
@@ -506,8 +491,8 @@ gvm_ldap_search_paged (gvm_ldap_connection_t *connection,
       return GVM_LDAP_INVALID_VALUE;
     }
 
-  if (!search_params || !search_params->base_dn
-      || !search_params->filter || search_params->filter[0] == '\0')
+  if (!search_params || !search_params->base_dn || !search_params->filter
+      || search_params->filter[0] == '\0')
     {
       g_warning ("%s: Invalid LDAP search parameters", __func__);
       return GVM_LDAP_INVALID_VALUE;
@@ -515,8 +500,8 @@ gvm_ldap_search_paged (gvm_ldap_connection_t *connection,
 
   if (!gvm_ldap_scope_to_openldap (search_params->scope, &ldap_scope))
     {
-      g_warning ("%s: Invalid LDAP search scope: %d",
-                __func__, search_params->scope);
+      g_warning ("%s: Invalid LDAP search scope: %d", __func__,
+                 search_params->scope);
       return GVM_LDAP_INVALID_VALUE;
     }
 
@@ -528,54 +513,43 @@ gvm_ldap_search_paged (gvm_ldap_connection_t *connection,
     }
 
   for (;;)
-   {
+    {
       LDAPControl *page_control = NULL;
       LDAPControl *server_controls[2] = {NULL, NULL};
       LDAPControl **returned_controls = NULL;
       LDAPControl *page_response_control = NULL;
       LDAPMessage *result = NULL;
-      struct berval next_cookie = {
-        .bv_len = 0,
-        .bv_val = NULL
-      };
+      struct berval next_cookie = {.bv_len = 0, .bv_val = NULL};
       gboolean stop = FALSE;
       gboolean has_more_pages = FALSE;
       int ldap_ret;
 
-      ldap_ret = ldap_create_page_control (connection->ldap,
-                                           search_params->page_size,
-                                           &cookie,
-                                           1,  /* iscritical */
-                                           &page_control);
+      ldap_ret = ldap_create_page_control (
+        connection->ldap, search_params->page_size, &cookie, 1, /* iscritical */
+        &page_control);
       if (ldap_ret != LDAP_SUCCESS)
         {
-          g_warning ("%s: Failed to create page control: %s.",
-                     __func__, ldap_err2string (ldap_ret));
+          g_warning ("%s: Failed to create page control: %s.", __func__,
+                     ldap_err2string (ldap_ret));
           ret = GVM_LDAP_SEARCH_ERROR;
           break;
         }
 
       server_controls[0] = page_control;
 
-      ldap_ret = ldap_search_ext_s (connection->ldap,
-                                    search_params->base_dn,
-                                    ldap_scope,
-                                    search_params->filter,
-                                    search_params->attributes,
-                                    0,     /* attrsonly */
-                                    server_controls,
-                                    NULL,  /* client controls */
-                                    timeout_ptr,
-                                    search_params->size_limit,
-                                    &result);
+      ldap_ret = ldap_search_ext_s (
+        connection->ldap, search_params->base_dn, ldap_scope,
+        search_params->filter, search_params->attributes, 0, /* attrsonly */
+        server_controls, NULL, /* client controls */
+        timeout_ptr, search_params->size_limit, &result);
 
       ldap_control_free (page_control);
       page_control = NULL;
 
       if (ldap_ret != LDAP_SUCCESS)
         {
-          g_warning ("%s: LDAP search failed: %s.",
-                     __func__, ldap_err2string (ldap_ret));
+          g_warning ("%s: LDAP search failed: %s.", __func__,
+                     ldap_err2string (ldap_ret));
           ret = GVM_LDAP_SEARCH_ERROR;
           goto page_cleanup;
         }
@@ -611,19 +585,13 @@ gvm_ldap_search_paged (gvm_ldap_connection_t *connection,
 
       int result_code = LDAP_SUCCESS;
       /* Extract page control information. */
-      ldap_ret = ldap_parse_result (connection->ldap,
-                                    result,
-                                    &result_code,
-                                    NULL,
-                                    NULL,
-                                    NULL,
-                                    &returned_controls,
-                                    0);
+      ldap_ret = ldap_parse_result (connection->ldap, result, &result_code,
+                                    NULL, NULL, NULL, &returned_controls, 0);
 
       if (ldap_ret != LDAP_SUCCESS)
         {
-          g_warning ("%s: Failed to parse LDAP result: %s.",
-                     __func__, ldap_err2string (ldap_ret));
+          g_warning ("%s: Failed to parse LDAP result: %s.", __func__,
+                     ldap_err2string (ldap_ret));
           ret = GVM_LDAP_SEARCH_ERROR;
           goto page_cleanup;
         }
@@ -637,9 +605,8 @@ gvm_ldap_search_paged (gvm_ldap_connection_t *connection,
           goto page_cleanup;
         }
 
-      page_response_control = ldap_control_find (LDAP_CONTROL_PAGEDRESULTS,
-                                                 returned_controls,
-                                                 NULL);
+      page_response_control =
+        ldap_control_find (LDAP_CONTROL_PAGEDRESULTS, returned_controls, NULL);
       if (page_response_control == NULL)
         {
           g_warning ("%s: LDAP server did not return a paged response control.",
@@ -648,10 +615,8 @@ gvm_ldap_search_paged (gvm_ldap_connection_t *connection,
           goto page_cleanup;
         }
 
-      ldap_ret = ldap_parse_pageresponse_control (connection->ldap,
-                                                  page_response_control,
-                                                  NULL,
-                                                  &next_cookie);
+      ldap_ret = ldap_parse_pageresponse_control (
+        connection->ldap, page_response_control, NULL, &next_cookie);
 
       if (ldap_ret != LDAP_SUCCESS)
         {
@@ -674,7 +639,7 @@ gvm_ldap_search_paged (gvm_ldap_connection_t *connection,
           next_cookie.bv_len = 0;
         }
 
-page_cleanup:
+    page_cleanup:
       if (next_cookie.bv_val)
         ber_memfree (next_cookie.bv_val);
 
@@ -686,7 +651,7 @@ page_cleanup:
 
       if (ret != GVM_LDAP_SUCCESS || !has_more_pages)
         break;
-   }
+    }
 
   if (cookie.bv_val)
     ber_memfree (cookie.bv_val);
@@ -743,7 +708,8 @@ gvm_ldap_entry_get_dn (gvm_ldap_entry_t *entry)
 }
 
 /**
- * @brief Retrieves the first value of the specified attribute from the LDAP entry.
+ * @brief Retrieves the first value of the specified attribute from the LDAP
+ * entry.
  *
  * @param entry      The LDAP entry to retrieve the attribute value from.
  * @param attribute  The attribute name to retrieve the value for.
@@ -752,8 +718,7 @@ gvm_ldap_entry_get_dn (gvm_ldap_entry_t *entry)
  *         Free with g_free().
  */
 gchar *
-gvm_ldap_entry_get_string (gvm_ldap_entry_t *entry,
-                           const gchar *attribute)
+gvm_ldap_entry_get_string (gvm_ldap_entry_t *entry, const gchar *attribute)
 {
   struct berval **values;
   gchar *result = NULL;
@@ -784,8 +749,7 @@ gvm_ldap_entry_get_string (gvm_ldap_entry_t *entry,
  *         Had to be freed by the caller.
  */
 GPtrArray *
-gvm_ldap_entry_get_strings (gvm_ldap_entry_t *entry,
-                            const gchar *attribute)
+gvm_ldap_entry_get_strings (gvm_ldap_entry_t *entry, const gchar *attribute)
 {
   struct berval **values;
   GPtrArray *result;
@@ -800,8 +764,7 @@ gvm_ldap_entry_get_strings (gvm_ldap_entry_t *entry,
 
   result = g_ptr_array_new_with_free_func (g_free);
   for (int i = 0; values[i] != NULL; i++)
-    g_ptr_array_add (result,
-                     g_strndup (values[i]->bv_val, values[i]->bv_len));
+    g_ptr_array_add (result, g_strndup (values[i]->bv_val, values[i]->bv_len));
 
   ldap_value_free_len (values);
 

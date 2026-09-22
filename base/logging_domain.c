@@ -6,7 +6,7 @@
 #include "logging_domain.h"
 
 /**
- * @struct gvm_logging_t
+ * @struct gvm_logging_domain_t
  * @brief Logging stores the parameters loaded from a log configuration
  * @brief file, to be used internally by the gvm_logging module only.
  */
@@ -34,7 +34,7 @@ struct gvm_logging_domain
  * @param log_domain A string containing the log domain to be used.
  *                   Gets owned by the logging domain and must not be freed.
  *
- * @return gvm_logging_t* Pointer to the new logging struct.
+ * @return gvm_logging_domain_t* Pointer to the new logging struct.
  */
 gvm_logging_domain_t *
 gvm_logging_domain_new (gchar *log_domain)
@@ -64,8 +64,8 @@ gvm_logging_domain_new (gchar *log_domain)
  * This function should be called when the logging domain is no longer needed
  * to ensure that all allocated resources are properly released.
  *
- * @param log_domain A pointer to a gvm_logging_t structure representing the
- *                   logging domain to be freed.
+ * @param log_domain A pointer to a gvm_logging_domain_t structure
+ *                   representing the logging domain to be freed.
  *
  */
 void
