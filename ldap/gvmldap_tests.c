@@ -441,6 +441,50 @@ Ensure (gvmldap, gvm_ldap_search_params_new_sets_explicit_limits_and_timeouts)
   gvm_ldap_search_params_free (params);
 }
 
+Ensure (gvmldap, gvm_ldap_search_params_new_rejects_invalid_attribute_names)
+{
+  gchar *oid_attr[] = {"1.2.840.113556", NULL};
+  gchar *option_attr[] = {"cn;lang-de", NULL};
+  gchar *space_attr[] = {"display name", NULL};
+  gchar *underscore_attr[] = {"custom_attr", NULL};
+
+  assert_that (gvm_ldap_search_params_new ("dc=example,dc=org",
+                                           GVM_LDAP_SCOPE_SUBTREE,
+                                           "(uid=alice)", oid_attr, 0, 0, 0),
+               is_null);
+
+  assert_that (gvm_ldap_search_params_new ("dc=example,dc=org",
+                                           GVM_LDAP_SCOPE_SUBTREE,
+                                           "(uid=alice)", option_attr, 0, 0, 0),
+               is_null);
+
+  assert_that (gvm_ldap_search_params_new ("dc=example,dc=org",
+                                           GVM_LDAP_SCOPE_SUBTREE,
+                                           "(uid=alice)", space_attr, 0, 0, 0),
+               is_null);
+
+  assert_that (
+    gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
+                                "(uid=alice)", underscore_attr, 0, 0, 0),
+    is_null);
+}
+
+Ensure (gvmldap, gvm_ldap_search_params_new_accepts_valid_attribute_names)
+{
+  gchar *valid_attr[] = {"objectClass", "sn", "mail-abc", NULL};
+
+  gvm_ldap_search_params_t *params =
+    gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
+                                "(uid=alice)", valid_attr, 0, 0, 0);
+  assert_that (params, is_not_null);
+
+  assert_that (params->attributes, is_not_null);
+  assert_that (params->attributes[0], is_equal_to_string ("objectClass"));
+  assert_that (params->attributes[1], is_equal_to_string ("sn"));
+  assert_that (params->attributes[2], is_equal_to_string ("mail-abc"));
+  assert_that (params->attributes[3], is_null);
+}
+
 /* ldap_bind_dn_is_valid */
 
 Ensure (gvmldap, ldap_bind_dn_is_valid_rejects_null_and_empty)
@@ -684,6 +728,10 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, gvmldap,
     gvm_ldap_search_params_new_sets_explicit_limits_and_timeouts);
+  add_test_with_context (
+    suite, gvmldap, gvm_ldap_search_params_new_rejects_invalid_attribute_names);
+  add_test_with_context (
+    suite, gvmldap, gvm_ldap_search_params_new_accepts_valid_attribute_names);
 
   add_test_with_context (suite, gvmldap,
                          ldap_bind_dn_is_valid_rejects_null_and_empty);

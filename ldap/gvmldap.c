@@ -390,12 +390,50 @@ gvm_ldap_scope_to_openldap (gvm_ldap_scope_t scope, int *ldap_scope)
 }
 
 /**
+ * @brief Validates an LDAP attribute name.
+ *
+ * @details The attribute name must start with an ASCII letter and
+ * can be followed by zero or more ASCII letters, digits,
+ * or hyphens.
+ *
+ * @param attribute LDAP attribute name to validate.
+ *
+ * @return TRUE if the attribute name is valid, FALSE otherwise.
+ */
+static gboolean
+gvm_ldap_attribute_name_is_valid (const gchar *attribute)
+{
+  const gchar *current;
+
+  if (!attribute || attribute[0] == '\0')
+    return FALSE;
+
+  current = attribute;
+
+  if (!g_ascii_isalpha (*current))
+    return FALSE;
+
+  current++;
+
+  while (*current)
+    {
+      if (!g_ascii_isalnum (*current) && *current != '-')
+        return FALSE;
+
+      current++;
+    }
+
+  return TRUE;
+}
+
+/**
  * @brief Creates a new LDAP search parameters structure.
  *
  * @param base_dn          The base DN for the search.
  * @param scope            The search scope (element of gvm_ldap_scope_t).
  * @param filter           The search filter.
- * @param attributes       The attributes to retrieve.
+ * @param attributes       A NULL-terminated array of strings with the
+ *                         attributes to retrieve.
  * @param page_size        The page size for paged searches.
  *                         Use 0 for GVM_LDAP_DEFAULT_PAGE_SIZE.
  * @param size_limit       The size limit for the search. Use 0 for no limit.
@@ -424,6 +462,19 @@ gvm_ldap_search_params_new (const gchar *base_dn, gvm_ldap_scope_t scope,
     {
       g_warning ("%s: Invalid LDAP search scope: %d", __func__, scope);
       return NULL;
+    }
+
+  if (attributes)
+    {
+      for (gchar **attr = attributes; *attr != NULL; attr++)
+        {
+          if (!gvm_ldap_attribute_name_is_valid (*attr))
+            {
+              g_warning ("%s: Invalid LDAP attribute name: %s", __func__,
+                         *attr);
+              return NULL;
+            }
+        }
     }
 
   params = g_malloc0 (sizeof (gvm_ldap_search_params_t));
