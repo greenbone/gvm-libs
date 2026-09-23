@@ -158,7 +158,7 @@ osp_connection_new (const char *host, int port, const char *cacert,
 
       /* Set timeout */
       struct timeval tv;
-      tv.tv_sec = osp_get_connection_timeout();
+      tv.tv_sec = osp_get_connection_timeout ();
       tv.tv_usec = 0;
       setsockopt (connection->socket, SOL_SOCKET, SO_RCVTIMEO, &tv,
                   sizeof (struct timeval));

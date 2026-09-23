@@ -691,7 +691,7 @@ unix_vsendf_internal (int socket, const char *fmt, va_list ap, int quiet)
       if (count < 0)
         {
           if ((errno == EINTR || errno == EAGAIN)
-              && (connection_retries++ < get_max_connection_retries()))
+              && (connection_retries++ < get_max_connection_retries ()))
             continue;
           g_warning ("Failed to write to server: %s", strerror (errno));
           rc = -1;
