@@ -46,6 +46,20 @@ server_new_internal (unsigned int, const char *, const gchar *, const gchar *,
 
 /* Connections. */
 
+int max_connection_retries = DEFAULT_MAX_CONNECTION_RETRIES;
+
+void
+set_max_connection_retries (int max_retries)
+{
+  max_connection_retries = max_retries;
+}
+
+int
+get_max_connection_retries (void)
+{
+  return max_connection_retries;
+}
+
 /**
  * @brief Close UNIX socket connection.
  *
@@ -658,14 +672,14 @@ unix_vsendf_internal (int socket, const char *fmt, va_list ap, int quiet)
 {
   char *string_start, *string;
   int rc = 0, left;
-  int timeout_count;
+  int connection_retries;
 
   left = vasprintf (&string, fmt, ap);
   if (left == -1)
     string = NULL;
 
   string_start = string;
-  timeout_count = 0;
+  connection_retries = 0;
   while (left > 0)
     {
       ssize_t count;
@@ -676,7 +690,8 @@ unix_vsendf_internal (int socket, const char *fmt, va_list ap, int quiet)
       count = write (socket, string, left);
       if (count < 0)
         {
-          if ((errno == EINTR || errno == EAGAIN) && (timeout_count++ < 8))
+          if ((errno == EINTR || errno == EAGAIN)
+              && (connection_retries++ < get_max_connection_retries()))
             continue;
           g_warning ("Failed to write to server: %s", strerror (errno));
           rc = -1;
@@ -687,7 +702,7 @@ unix_vsendf_internal (int socket, const char *fmt, va_list ap, int quiet)
 
       string += count;
       left -= count;
-      timeout_count = 0;
+      connection_retries = 0;
     }
   if (quiet == 0)
     g_debug ("=> done");
