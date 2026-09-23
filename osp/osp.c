@@ -40,6 +40,8 @@ struct osp_connection
   int port;                 /**< Port. */
 };
 
+time_t osp_connection_timeout = OSP_DEFAULT_CONNECTION_TIMEOUT;
+
 /**
  * @brief Struct holding options for OSP parameters.
  */
@@ -100,6 +102,18 @@ static int
 osp_send_command_str (osp_connection_t *, gchar **, const char *, ...)
   __attribute__ ((__format__ (__printf__, 3, 4)));
 
+void
+osp_set_connection_timeout (time_t t)
+{
+  osp_connection_timeout = t;
+}
+
+time_t
+osp_get_connection_timeout (void)
+{
+  return osp_connection_timeout;
+}
+
 /**
  * @brief Open a new connection to an OSP server.
  *
@@ -144,7 +158,7 @@ osp_connection_new (const char *host, int port, const char *cacert,
 
       /* Set timeout */
       struct timeval tv;
-      tv.tv_sec = 24;
+      tv.tv_sec = osp_get_connection_timeout();
       tv.tv_usec = 0;
       setsockopt (connection->socket, SOL_SOCKET, SO_RCVTIMEO, &tv,
                   sizeof (struct timeval));
