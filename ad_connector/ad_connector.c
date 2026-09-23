@@ -16,7 +16,9 @@
 #define G_LOG_DOMAIN "libgvm ad_connector"
 
 #include "ad_connector.h"
+
 #include "../ldap/gvmldap.h"
+
 #include <string.h>
 
 #define AD_CONNECTOR_DEFAULT_MAX_RESULTS 1000
@@ -26,97 +28,83 @@
  */
 struct ad_connector
 {
-  gvm_ldap_connection_t *ldap_connection;  /**< LDAP connection. */
-  gchar *ldap_host;                  /**< LDAP server hostname or IP.
-                                          Port not included */
-  gint ldap_port;                    /**< LDAP port number or 0 for default
-                                          (389 for LDAP, 636 for LDAPS). */
-  ad_connector_tls_mode_t tls_mode;  /**< TLS mode to use for the connection. */
-  gchar *cacert_file;                /**< CA Certificate, or NULL. */
-  gchar *bind_dn;                    /**< Distinguished Name (DN) to bind as. */
-  guint network_timeout;             /**< Network timeout in seconds. */
-  guint operation_timeout;           /**< Operation timeout in seconds. */
+  gvm_ldap_connection_t *ldap_connection; /**< LDAP connection. */
+  gchar *ldap_host;                       /**< LDAP server hostname or IP.
+                                               Port not included */
+  gint ldap_port;                         /**< LDAP port number or 0 for default
+                                               (389 for LDAP, 636 for LDAPS). */
+  ad_connector_tls_mode_t tls_mode; /**< TLS mode to use for the connection. */
+  gchar *cacert_file;               /**< CA Certificate, or NULL. */
+  gchar *bind_dn;                   /**< Distinguished Name (DN) to bind as. */
+  guint network_timeout;            /**< Network timeout in seconds. */
+  guint operation_timeout;          /**< Operation timeout in seconds. */
 };
 
 struct ad_search_config
 {
-  gchar *base_dn;                       /**< Base Distinguished Name (DN)
-                                              for the LDAP search. */
-  ad_connector_search_scope_t scope;    /**< Search scope for the LDAP query. */
-  ad_object_type_t object_types;        /**< Bitmask of object types to include
-                                             in the search. */
-  guint page_size;                      /**< Page size for paged LDAP searches.
-                                             or 0 for GVM_LDAP_DEFAULT_PAGE_SIZE */
-  guint ldap_size_limit;                /**< Client-requested cap on the number
-                                             of LDAP search results after which
-                                             LDAP_SIZELIMIT_EXCEEDED
-                                             is returned.
-                                             0 for no client-imposed limit */
-  guint ldap_time_limit;                /**< Search timeout in seconds.
-                                             This is client-requested and may
-                                             be overriden by the server. */
-  guint max_results;                    /**< Maximum number of search results to return
-                                             or 0 for no limit. */
-  gchar *extra_attributes;              /**< Optional additional LDAP attributes to retrieve. */
+  gchar *base_dn;                    /**< Base Distinguished Name (DN)
+                                           for the LDAP search. */
+  ad_connector_search_scope_t scope; /**< Search scope for the LDAP query. */
+  ad_object_type_t object_types;     /**< Bitmask of object types to include
+                                          in the search. */
+  guint page_size;                   /**< Page size for paged LDAP searches.
+                                          or 0 for GVM_LDAP_DEFAULT_PAGE_SIZE */
+  guint ldap_size_limit;             /**< Client-requested cap on the number
+                                          of LDAP search results after which
+                                          LDAP_SIZELIMIT_EXCEEDED
+                                          is returned.
+                                          0 for no client-imposed limit */
+  guint ldap_time_limit;             /**< Search timeout in seconds.
+                                          This is client-requested and may
+                                          be overriden by the server. */
+  guint max_results; /**< Maximum number of search results to return
+                          or 0 for no limit. */
+  gchar
+    *extra_attributes; /**< Optional additional LDAP attributes to retrieve. */
 
-  gboolean include_disabled_computers;  /**< Whether to include disabled accounts in
-                                             the search results. */
+  gboolean include_disabled_computers; /**< Whether to include disabled accounts
+                                          in the search results. */
 };
 
 typedef struct
 {
-  guint max_results;              /**< Maximum number of search results to return. */
-  guint emitted;                  /**< Number of search results emitted to the callback. */
-  gboolean truncated;             /**< TRUE if the search was truncated due
-                                       to max_results limit. */
-  gchar **attributes;             /**< List of LDAP attributes to retrieve. */
-  ad_object_callback_t callback;  /**< Callback function for processing search results. */
-  gpointer user_data;             /**< User-defined data passed to the callback. */
+  guint max_results;  /**< Maximum number of search results to return. */
+  guint emitted;      /**< Number of search results emitted to the callback. */
+  gboolean truncated; /**< TRUE if the search was truncated due
+                           to max_results limit. */
+  gchar **attributes; /**< List of LDAP attributes to retrieve. */
+  ad_object_callback_t
+    callback;         /**< Callback function for processing search results. */
+  gpointer user_data; /**< User-defined data passed to the callback. */
 } ad_search_context_t;
 
 /**
  * @brief List of general LDAP attributes for Active Directory searches.
  */
 static const gchar *ad_object_core_attributes[] = {
-  "objectClass",
-  "objectCategory",
-  "name",
-  "description",
-  "cn",
-  NULL
-};
+  "objectClass", "objectCategory", "name", "description", "cn", NULL};
 
 /**
  * @brief Organizational Unit (OU) LDAP attributes.
  */
-static const gchar *ad_ou_attributes[] = {
-  "ou",
-  NULL
-};
+static const gchar *ad_ou_attributes[] = {"ou", NULL};
 
 /**
  * @brief Computer LDAP attributes.
  */
-static const gchar *ad_computer_attributes[] = {
-  "dNSHostName",
-  "sAMAccountName",
-  "operatingSystem",
-  "operatingSystemVersion",
-  "servicePrincipalName",
-  "userAccountControl",
-  NULL
-};
+static const gchar *ad_computer_attributes[] = {"dNSHostName",
+                                                "sAMAccountName",
+                                                "operatingSystem",
+                                                "operatingSystemVersion",
+                                                "servicePrincipalName",
+                                                "userAccountControl",
+                                                NULL};
 
 /**
  * @brief Group LDAP attributes.
  */
-static const gchar *ad_group_attributes[] = {
-  "sAMAccountName",
-  "displayName",
-  "groupType",
-  "memberOf",
-  NULL
-};
+static const gchar *ad_group_attributes[] = {"sAMAccountName", "displayName",
+                                             "groupType", "memberOf", NULL};
 
 /**
  * @brief Create a new Active Directory connector instance.
@@ -191,8 +179,7 @@ set_non_empty_string_value (const void *value, gchar **result)
  *         AD_CONNECTOR_CONNECTION_ERROR if the connector is already connected.
  */
 ad_connector_return_t
-ad_connector_builder (ad_connector_t connector,
-                      ad_connector_opt_t opt,
+ad_connector_builder (ad_connector_t connector, ad_connector_opt_t opt,
                       const void *val)
 {
   if (connector == NULL)
@@ -207,7 +194,7 @@ ad_connector_builder (ad_connector_t connector,
   switch (opt)
     {
     case AD_CONNECTOR_OPT_HOST:
-      return set_non_empty_string_value(val, &connector->ldap_host);
+      return set_non_empty_string_value (val, &connector->ldap_host);
     case AD_CONNECTOR_OPT_PORT:
       {
         gint port = *((const gint *) val);
@@ -218,8 +205,8 @@ ad_connector_builder (ad_connector_t connector,
       }
     case AD_CONNECTOR_OPT_TLS_MODE:
       {
-        ad_connector_tls_mode_t tls_mode
-          = *((const ad_connector_tls_mode_t *) val);
+        ad_connector_tls_mode_t tls_mode =
+          *((const ad_connector_tls_mode_t *) val);
         if (tls_mode != AD_CONNECTOR_TLS_LDAPS
             && tls_mode != AD_CONNECTOR_TLS_STARTTLS)
           return AD_CONNECTOR_INVALID_VALUE;
@@ -227,16 +214,15 @@ ad_connector_builder (ad_connector_t connector,
         break;
       }
     case AD_CONNECTOR_OPT_CA_CERT_FILE:
-      g_free(connector->cacert_file);
-      connector->cacert_file = val ? g_strdup ((const gchar *) val)
-                                   : NULL;
+      g_free (connector->cacert_file);
+      connector->cacert_file = val ? g_strdup ((const gchar *) val) : NULL;
       break;
     case AD_CONNECTOR_OPT_BIND_DN:
-      return set_non_empty_string_value(val, &connector->bind_dn);
+      return set_non_empty_string_value (val, &connector->bind_dn);
     case AD_CONNECTOR_OPT_NETWORK_TIMEOUT:
-      return set_non_negative_value(val, &connector->network_timeout);
+      return set_non_negative_value (val, &connector->network_timeout);
     case AD_CONNECTOR_OPT_OPERATION_TIMEOUT:
-      return set_non_negative_value(val, &connector->operation_timeout);
+      return set_non_negative_value (val, &connector->operation_timeout);
     default:
       return AD_CONNECTOR_INVALID_OPT;
     }
@@ -260,8 +246,7 @@ ad_connector_builder (ad_connector_t connector,
 ad_search_config_t
 ad_search_config_new (void)
 {
-  ad_search_config_t config
-    = g_malloc0 (sizeof (struct ad_search_config));
+  ad_search_config_t config = g_malloc0 (sizeof (struct ad_search_config));
 
   config->object_types = AD_OBJECT_TYPE_ALL;
   config->scope = AD_CONNECTOR_SEARCH_SCOPE_ONELEVEL;
@@ -282,8 +267,7 @@ ad_search_config_new (void)
 static gboolean
 ad_object_type_flags_are_valid (ad_object_type_t object_types)
 {
-  return object_types != 0
-         && (object_types & ~AD_OBJECT_TYPE_ALL) == 0;
+  return object_types != 0 && (object_types & ~AD_OBJECT_TYPE_ALL) == 0;
 }
 
 /**
@@ -301,8 +285,7 @@ ad_object_type_flags_are_valid (ad_object_type_t object_types)
  *         options, or AD_CONNECTOR_INVALID_VALUE for invalid input.
  */
 ad_connector_return_t
-ad_search_config_builder (ad_search_config_t config,
-                          ad_search_config_opt_t opt,
+ad_search_config_builder (ad_search_config_t config, ad_search_config_opt_t opt,
                           const void *value)
 {
   if (!config)
@@ -314,11 +297,11 @@ ad_search_config_builder (ad_search_config_t config,
   switch (opt)
     {
     case AD_SEARCH_CONFIG_OPT_BASE_DN:
-      return set_non_empty_string_value(value, &config->base_dn);
+      return set_non_empty_string_value (value, &config->base_dn);
     case AD_SEARCH_CONFIG_OPT_SCOPE:
       {
-        ad_connector_search_scope_t scope
-          = *((const ad_connector_search_scope_t *) value);
+        ad_connector_search_scope_t scope =
+          *((const ad_connector_search_scope_t *) value);
         if (scope != AD_CONNECTOR_SEARCH_SCOPE_BASE
             && scope != AD_CONNECTOR_SEARCH_SCOPE_ONELEVEL
             && scope != AD_CONNECTOR_SEARCH_SCOPE_SUBTREE)
@@ -328,25 +311,24 @@ ad_search_config_builder (ad_search_config_t config,
       }
     case AD_SEARCH_CONFIG_OPT_OBJECT_TYPES:
       {
-        ad_object_type_t object_types
-          = *((const ad_object_type_t *) value);
-        if (!ad_object_type_flags_are_valid(object_types))
+        ad_object_type_t object_types = *((const ad_object_type_t *) value);
+        if (!ad_object_type_flags_are_valid (object_types))
           return AD_CONNECTOR_INVALID_VALUE;
         config->object_types = object_types;
         break;
       }
     case AD_SEARCH_CONFIG_OPT_PAGE_SIZE:
-      return set_non_negative_value(value, &config->page_size);
+      return set_non_negative_value (value, &config->page_size);
     case AD_SEARCH_CONFIG_OPT_SIZE_LIMIT:
-      return set_non_negative_value(value, &config->ldap_size_limit);
+      return set_non_negative_value (value, &config->ldap_size_limit);
     case AD_SEARCH_CONFIG_OPT_TIME_LIMIT:
-      return set_non_negative_value(value, &config->ldap_time_limit);
+      return set_non_negative_value (value, &config->ldap_time_limit);
     case AD_SEARCH_CONFIG_OPT_MAX_RESULTS:
-      return set_non_negative_value(value, &config->max_results);
+      return set_non_negative_value (value, &config->max_results);
     case AD_SEARCH_CONFIG_OPT_EXTRA_ATTRIBUTES:
-      g_free(config->extra_attributes);
-      config->extra_attributes = value ? g_strdup((const gchar *) value)
-                                       : NULL;
+      g_free (config->extra_attributes);
+      config->extra_attributes =
+        value ? g_strdup ((const gchar *) value) : NULL;
       break;
     case AD_SEARCH_CONFIG_OPT_INCLUDE_DISABLED_COMPUTERS:
       config->include_disabled_computers = !!*((const gboolean *) value);
@@ -385,24 +367,22 @@ ad_search_config_free (ad_search_config_t config)
  *         unknown AD TLS mode.
  */
 static ad_connector_return_t
-get_gvm_ldap_tls_mode (ad_connector_t connector,
-                       gvm_ldap_tls_mode_t *tls_mode)
+get_gvm_ldap_tls_mode (ad_connector_t connector, gvm_ldap_tls_mode_t *tls_mode)
 {
   if (!connector || !tls_mode)
     return AD_CONNECTOR_INVALID_VALUE;
 
   switch (connector->tls_mode)
     {
-      case AD_CONNECTOR_TLS_LDAPS:
-        *tls_mode = GVM_LDAP_TLS_LDAPS;
-        return AD_CONNECTOR_OK;
-      case AD_CONNECTOR_TLS_STARTTLS:
-        *tls_mode = GVM_LDAP_TLS_STARTTLS;
-        return AD_CONNECTOR_OK;
-      default:
-        g_warning ("%s: Unknown TLS mode %d.",
-                   __func__, connector->tls_mode);
-        return AD_CONNECTOR_INVALID_VALUE;
+    case AD_CONNECTOR_TLS_LDAPS:
+      *tls_mode = GVM_LDAP_TLS_LDAPS;
+      return AD_CONNECTOR_OK;
+    case AD_CONNECTOR_TLS_STARTTLS:
+      *tls_mode = GVM_LDAP_TLS_STARTTLS;
+      return AD_CONNECTOR_OK;
+    default:
+      g_warning ("%s: Unknown TLS mode %d.", __func__, connector->tls_mode);
+      return AD_CONNECTOR_INVALID_VALUE;
     }
 }
 
@@ -445,24 +425,19 @@ ad_connector_connect (ad_connector_t connector, const gchar *password)
   if (connector_ret != AD_CONNECTOR_OK)
     return connector_ret;
 
-  ret = gvm_ldap_open (&connector->ldap_connection,
-                       connector->ldap_host,
-                       connector->ldap_port,
-                       connector->cacert_file,
-                       tls_mode,
-                       connector->network_timeout,
-                       connector->operation_timeout);
+  ret =
+    gvm_ldap_open (&connector->ldap_connection, connector->ldap_host,
+                   connector->ldap_port, connector->cacert_file, tls_mode,
+                   connector->network_timeout, connector->operation_timeout);
 
   if (ret != GVM_LDAP_SUCCESS)
     {
       g_warning ("%s: Failed to open LDAP connection.", __func__);
-      return ret == GVM_LDAP_INVALID_VALUE
-               ? AD_CONNECTOR_INVALID_VALUE
-               : AD_CONNECTOR_CONNECTION_ERROR;
+      return ret == GVM_LDAP_INVALID_VALUE ? AD_CONNECTOR_INVALID_VALUE
+                                           : AD_CONNECTOR_CONNECTION_ERROR;
     }
 
-  ret = gvm_ldap_bind_simple (connector->ldap_connection,
-                              connector->bind_dn,
+  ret = gvm_ldap_bind_simple (connector->ldap_connection, connector->bind_dn,
                               password);
 
   if (ret != GVM_LDAP_SUCCESS)
@@ -490,8 +465,7 @@ ad_connector_connect (ad_connector_t connector, const gchar *password)
  * @return TRUE if the attribute has the expected value, FALSE otherwise.
  */
 static gboolean
-ad_ldap_entry_has_value (gvm_ldap_entry_t *entry,
-                         const gchar *attribute,
+ad_ldap_entry_has_value (gvm_ldap_entry_t *entry, const gchar *attribute,
                          const gchar *expected_value)
 {
   GPtrArray *values;
@@ -530,9 +504,7 @@ ad_ldap_entry_has_value (gvm_ldap_entry_t *entry,
 static gboolean
 entry_is_ou (gvm_ldap_entry_t *entry)
 {
-  return ad_ldap_entry_has_value (entry,
-                                  "objectClass",
-                                  "organizationalUnit");
+  return ad_ldap_entry_has_value (entry, "objectClass", "organizationalUnit");
 }
 
 /**
@@ -564,7 +536,7 @@ entry_is_group (gvm_ldap_entry_t *entry)
 /**
  * @brief Frees the memory allocated for attribute values.
  *
-  * @param data  The GPtrArray to free.
+ * @param data  The GPtrArray to free.
  */
 static void
 ad_attribute_values_free (gpointer data)
@@ -676,9 +648,7 @@ ad_object_from_ldap_entry (gvm_ldap_entry_t *entry, gchar **attributes)
 
   object->parent_dn = get_parent_dn_from_dn (object->distinguished_name);
 
-  object->attributes = g_hash_table_new_full (g_str_hash,
-                                              g_str_equal,
-                                              g_free,
+  object->attributes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
                                               ad_attribute_values_free);
 
   for (int i = 0; attributes && attributes[i]; i++)
@@ -687,8 +657,7 @@ ad_object_from_ldap_entry (gvm_ldap_entry_t *entry, gchar **attributes)
 
       values = gvm_ldap_entry_get_strings (entry, attributes[i]);
       if (values)
-        g_hash_table_insert (object->attributes,
-                             g_strdup (attributes[i]),
+        g_hash_table_insert (object->attributes, g_strdup (attributes[i]),
                              values);
     }
 
@@ -698,7 +667,7 @@ ad_object_from_ldap_entry (gvm_ldap_entry_t *entry, gchar **attributes)
 /**
  * @brief LDAP search callback that converts entries to AD objects.
  *
-  * Converts supported LDAP entries to temporary AD objects and passes them to
+ * Converts supported LDAP entries to temporary AD objects and passes them to
  *  the user callback stored in the search context.
  *  The AD object is valid only for the duration of the user callback.
  *
@@ -713,43 +682,43 @@ ad_object_from_ldap_entry (gvm_ldap_entry_t *entry, gchar **attributes)
 static gvm_ldap_search_callback_return_t
 ad_search_ldap_entry_callback (gvm_ldap_entry_t *entry, gpointer context)
 {
-    ad_search_context_t *ctx = context;
-    ad_object_t *object;
-    ad_object_callback_result_t result;
+  ad_search_context_t *ctx = context;
+  ad_object_t *object;
+  ad_object_callback_result_t result;
 
-    if (!ctx || !ctx->callback)
-      return GVM_LDAP_SEARCH_CALLBACK_ERROR;
+  if (!ctx || !ctx->callback)
+    return GVM_LDAP_SEARCH_CALLBACK_ERROR;
 
-    object = ad_object_from_ldap_entry (entry, ctx->attributes);
-    if (!object)
-      {
-        g_warning ("Failed to create ad_object from LDAP entry.");
-        return GVM_LDAP_SEARCH_CONTINUE;
-      }
-
-    if (ctx->max_results > 0 && ctx->emitted >= ctx->max_results)
-      {
-        ctx->truncated = TRUE;
-        ad_object_free (object);
-        return GVM_LDAP_SEARCH_STOP;
-      }
-
-    result = ctx->callback (object, ctx->user_data);
-    ad_object_free (object);
-
-    switch (result)
+  object = ad_object_from_ldap_entry (entry, ctx->attributes);
+  if (!object)
     {
-      case AD_OBJECT_CALLBACK_CONTINUE:
-        ctx->emitted++;
-        return GVM_LDAP_SEARCH_CONTINUE;
-
-      case AD_OBJECT_CALLBACK_ERROR:
-        return GVM_LDAP_SEARCH_CALLBACK_ERROR;
-      default:
-        break;
+      g_warning ("Failed to create ad_object from LDAP entry.");
+      return GVM_LDAP_SEARCH_CONTINUE;
     }
 
-    return GVM_LDAP_SEARCH_CALLBACK_ERROR;
+  if (ctx->max_results > 0 && ctx->emitted >= ctx->max_results)
+    {
+      ctx->truncated = TRUE;
+      ad_object_free (object);
+      return GVM_LDAP_SEARCH_STOP;
+    }
+
+  result = ctx->callback (object, ctx->user_data);
+  ad_object_free (object);
+
+  switch (result)
+    {
+    case AD_OBJECT_CALLBACK_CONTINUE:
+      ctx->emitted++;
+      return GVM_LDAP_SEARCH_CONTINUE;
+
+    case AD_OBJECT_CALLBACK_ERROR:
+      return GVM_LDAP_SEARCH_CALLBACK_ERROR;
+    default:
+      break;
+    }
+
+  return GVM_LDAP_SEARCH_CALLBACK_ERROR;
 }
 
 /**
@@ -778,7 +747,7 @@ ad_connector_build_computer_filter (gboolean include_disabled_computers)
  *        search configuration.
  *
  * @param config  Pointer to the search configuration instance.
-  *
+ *
  * @return A newly allocated LDAP filter string or NULL on error.
  *         Free with g_free().
  */
@@ -797,19 +766,16 @@ ad_connector_build_search_filter (ad_search_config_t config)
   clauses = g_ptr_array_new_with_free_func (g_free);
 
   if (config->object_types & AD_OBJECT_TYPE_OU)
-    g_ptr_array_add (clauses,
-                     g_strdup ("(&(objectCategory=organizationalUnit)"
-                               "(objectClass=organizationalUnit))"));
+    g_ptr_array_add (clauses, g_strdup ("(&(objectCategory=organizationalUnit)"
+                                        "(objectClass=organizationalUnit))"));
 
   if (config->object_types & AD_OBJECT_TYPE_COMPUTER)
-    g_ptr_array_add (clauses,
-                     ad_connector_build_computer_filter (
-                       config->include_disabled_computers));
+    g_ptr_array_add (clauses, ad_connector_build_computer_filter (
+                                config->include_disabled_computers));
 
   if (config->object_types & AD_OBJECT_TYPE_GROUP)
-    g_ptr_array_add (clauses,
-                     g_strdup ("(&(objectCategory=group)"
-                               "(objectClass=group))"));
+    g_ptr_array_add (clauses, g_strdup ("(&(objectCategory=group)"
+                                        "(objectClass=group))"));
 
   if (clauses->len == 0)
     {
@@ -850,12 +816,11 @@ ad_attribute_array_add_unique (GPtrArray *attributes, const gchar *attribute)
 
   for (guint i = 0; i < attributes->len; i++)
     {
-      if (g_ascii_strcasecmp (attribute,
-                              g_ptr_array_index (attributes, i))
+      if (g_ascii_strcasecmp (attribute, g_ptr_array_index (attributes, i))
           == 0)
         {
-          g_warning ("%s: Duplicate attribute '%s' ignored",
-                      __func__, attribute);
+          g_warning ("%s: Duplicate attribute '%s' ignored", __func__,
+                     attribute);
           return;
         }
     }
@@ -871,14 +836,13 @@ ad_attribute_array_add_unique (GPtrArray *attributes, const gchar *attribute)
  */
 static void
 ad_attribute_array_add_list (GPtrArray *attributes,
-                             const gchar * const *attribute_list)
+                             const gchar *const *attribute_list)
 {
   if (!attribute_list || !attribute_list[0])
     return;
 
   for (guint i = 0; attribute_list[i]; i++)
     ad_attribute_array_add_unique (attributes, attribute_list[i]);
-
 }
 
 /**
@@ -916,7 +880,7 @@ ad_attribute_array_add_extra_attributes (GPtrArray *attributes,
  *
  * @return A newly allocated, NULL-terminated array of attribute names.
  *         or NULL on error. The caller must free it with g_strfreev().
-*/
+ */
 static gchar **
 ad_connector_build_attributes (ad_search_config_t search_config)
 {
@@ -994,88 +958,79 @@ get_ldap_search_scope (ad_connector_search_scope_t scope)
 ad_connector_return_t
 ad_connector_search_objects (ad_connector_t connector,
                              const ad_search_config_t search_config,
-                             ad_object_callback_t callback,
-                             gpointer user_data,
+                             ad_object_callback_t callback, gpointer user_data,
                              ad_object_search_result_t *result)
 {
-    gvm_ldap_search_params_t *search_params;
-    int ret;
+  gvm_ldap_search_params_t *search_params;
+  int ret;
 
-    if (!connector || !callback || !search_config)
-        return AD_CONNECTOR_INVALID_VALUE;
+  if (!connector || !callback || !search_config)
+    return AD_CONNECTOR_INVALID_VALUE;
 
-    if (!connector->ldap_connection)
-      {
-        g_warning ("%s: Search requires an established LDAP connection.",
-                   __func__);
-        return AD_CONNECTOR_CONNECTION_ERROR;
-      }
+  if (!connector->ldap_connection)
+    {
+      g_warning ("%s: Search requires an established LDAP connection.",
+                 __func__);
+      return AD_CONNECTOR_CONNECTION_ERROR;
+    }
 
-    if (result)
-      memset (result, 0, sizeof(ad_object_search_result_t));
+  if (result)
+    memset (result, 0, sizeof (ad_object_search_result_t));
 
-    gchar *filter = ad_connector_build_search_filter (search_config);
-    if (!filter)
-      {
-        g_warning ("%s: Failed to build LDAP filter.", __func__);
-        return AD_CONNECTOR_INVALID_VALUE;
-      }
-    gchar **attributes = ad_connector_build_attributes (search_config);
-    if (!attributes)
-      {
-        g_warning ("%s: Failed to build LDAP attributes list.", __func__);
-        g_free (filter);
-        return AD_CONNECTOR_INVALID_VALUE;
-      }
+  gchar *filter = ad_connector_build_search_filter (search_config);
+  if (!filter)
+    {
+      g_warning ("%s: Failed to build LDAP filter.", __func__);
+      return AD_CONNECTOR_INVALID_VALUE;
+    }
+  gchar **attributes = ad_connector_build_attributes (search_config);
+  if (!attributes)
+    {
+      g_warning ("%s: Failed to build LDAP attributes list.", __func__);
+      g_free (filter);
+      return AD_CONNECTOR_INVALID_VALUE;
+    }
 
-    gvm_ldap_scope_t scope = get_ldap_search_scope (search_config->scope);
+  gvm_ldap_scope_t scope = get_ldap_search_scope (search_config->scope);
 
-    search_params = gvm_ldap_search_params_new (search_config->base_dn,
-                                                scope,
-                                                filter,
-                                                attributes,
-                                                search_config->page_size,
-                                                search_config->ldap_size_limit,
-                                                search_config->ldap_time_limit);
-    if (!search_params)
-      {
-        g_strfreev (attributes);
-        g_free (filter);
-        return AD_CONNECTOR_INVALID_VALUE;
-      }
+  search_params = gvm_ldap_search_params_new (
+    search_config->base_dn, scope, filter, attributes, search_config->page_size,
+    search_config->ldap_size_limit, search_config->ldap_time_limit);
+  if (!search_params)
+    {
+      g_strfreev (attributes);
+      g_free (filter);
+      return AD_CONNECTOR_INVALID_VALUE;
+    }
 
-    g_free (filter);
+  g_free (filter);
 
-    ad_search_context_t context = {
-        .callback = callback,
-        .user_data = user_data,
-        .emitted = 0,
-        .max_results = search_config->max_results,
-        .attributes = attributes,
-        .truncated = FALSE
-    };
+  ad_search_context_t context = {.callback = callback,
+                                 .user_data = user_data,
+                                 .emitted = 0,
+                                 .max_results = search_config->max_results,
+                                 .attributes = attributes,
+                                 .truncated = FALSE};
 
-    ret = gvm_ldap_search_paged (connector->ldap_connection,
-                                 search_params,
-                                 ad_search_ldap_entry_callback,
-                                 &context);
+  ret = gvm_ldap_search_paged (connector->ldap_connection, search_params,
+                               ad_search_ldap_entry_callback, &context);
 
-    if (result)
-      {
-        result->emitted = context.emitted;
-        result->truncated = context.truncated;
-      }
+  if (result)
+    {
+      result->emitted = context.emitted;
+      result->truncated = context.truncated;
+    }
 
-    g_strfreev (attributes);
-    gvm_ldap_search_params_free (search_params);
+  g_strfreev (attributes);
+  gvm_ldap_search_params_free (search_params);
 
-    if (ret == GVM_LDAP_CALLBACK_ERROR)
-        return AD_CONNECTOR_RESULT_ERROR;
+  if (ret == GVM_LDAP_CALLBACK_ERROR)
+    return AD_CONNECTOR_RESULT_ERROR;
 
-    if (ret != GVM_LDAP_SUCCESS)
-        return AD_CONNECTOR_SEARCH_ERROR;
+  if (ret != GVM_LDAP_SUCCESS)
+    return AD_CONNECTOR_SEARCH_ERROR;
 
-    return AD_CONNECTOR_OK;
+  return AD_CONNECTOR_OK;
 }
 
 /**
