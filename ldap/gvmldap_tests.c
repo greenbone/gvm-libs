@@ -443,20 +443,15 @@ Ensure (gvmldap, gvm_ldap_search_params_new_sets_explicit_limits_and_timeouts)
 
 Ensure (gvmldap, gvm_ldap_search_params_new_rejects_invalid_attribute_names)
 {
-  gchar *oid_attr[] = {"1.2.840.113556", NULL};
-  gchar *option_attr[] = {"cn;lang-de", NULL};
   gchar *space_attr[] = {"display name", NULL};
   gchar *underscore_attr[] = {"custom_attr", NULL};
-
-  assert_that (gvm_ldap_search_params_new ("dc=example,dc=org",
-                                           GVM_LDAP_SCOPE_SUBTREE,
-                                           "(uid=alice)", oid_attr, 0, 0, 0),
-               is_null);
-
-  assert_that (gvm_ldap_search_params_new ("dc=example,dc=org",
-                                           GVM_LDAP_SCOPE_SUBTREE,
-                                           "(uid=alice)", option_attr, 0, 0, 0),
-               is_null);
+  gchar *empty_option_attr[] = {"cn;", NULL};
+  gchar *underscore_option_attr[] = {"cn;lang_de", NULL};
+  gchar *invalid_option_attr[] = {"cn;lang.de", NULL};
+  gchar *double_semicolon_attr[] = {"cn;;lang-de", NULL};
+  gchar *trailing_oid_dot_attr[] = {"1.2.", NULL};
+  gchar *single_arc_oid_attr[] = {"1", NULL};
+  gchar *leading_zero_oid_attr[] = {"01.2", NULL};
 
   assert_that (gvm_ldap_search_params_new ("dc=example,dc=org",
                                            GVM_LDAP_SCOPE_SUBTREE,
@@ -467,11 +462,59 @@ Ensure (gvmldap, gvm_ldap_search_params_new_rejects_invalid_attribute_names)
     gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
                                 "(uid=alice)", underscore_attr, 0, 0, 0),
     is_null);
+
+  assert_that (
+    gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
+                                "(uid=alice)", empty_option_attr, 0, 0, 0),
+    is_null);
+
+  assert_that (
+    gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
+                                "(uid=alice)", underscore_option_attr, 0, 0, 0),
+    is_null);
+
+  assert_that (
+    gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
+                                "(uid=alice)", invalid_option_attr, 0, 0, 0),
+    is_null);
+
+  assert_that (
+    gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
+                                "(uid=alice)", double_semicolon_attr, 0, 0, 0),
+    is_null);
+
+  assert_that (
+    gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
+                                "(uid=alice)", trailing_oid_dot_attr, 0, 0, 0),
+    is_null);
+
+  assert_that (
+    gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
+                                "(uid=alice)", single_arc_oid_attr, 0, 0, 0),
+    is_null);
+
+  assert_that (
+    gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
+                                "(uid=alice)", leading_zero_oid_attr, 0, 0, 0),
+    is_null);
 }
 
 Ensure (gvmldap, gvm_ldap_search_params_new_accepts_valid_attribute_names)
 {
-  gchar *valid_attr[] = {"objectClass", "sn", "mail-abc", NULL};
+  gchar *valid_attr[] = {
+    "objectClass",
+    "sn",
+    "mail-abc",
+    "1.2.840.113556",
+    "1.0.840.113556",
+    "cn;lang-de",
+    "cn;1abc",
+    "cn;-abc",
+    "cn;lang-de;bin",
+    "1.2;1abc;-abc",
+    "1.2.840.113556;binary",
+    NULL,
+  };
 
   gvm_ldap_search_params_t *params =
     gvm_ldap_search_params_new ("dc=example,dc=org", GVM_LDAP_SCOPE_SUBTREE,
@@ -482,7 +525,18 @@ Ensure (gvmldap, gvm_ldap_search_params_new_accepts_valid_attribute_names)
   assert_that (params->attributes[0], is_equal_to_string ("objectClass"));
   assert_that (params->attributes[1], is_equal_to_string ("sn"));
   assert_that (params->attributes[2], is_equal_to_string ("mail-abc"));
-  assert_that (params->attributes[3], is_null);
+  assert_that (params->attributes[3], is_equal_to_string ("1.2.840.113556"));
+  assert_that (params->attributes[4], is_equal_to_string ("1.0.840.113556"));
+  assert_that (params->attributes[5], is_equal_to_string ("cn;lang-de"));
+  assert_that (params->attributes[6], is_equal_to_string ("cn;1abc"));
+  assert_that (params->attributes[7], is_equal_to_string ("cn;-abc"));
+  assert_that (params->attributes[8], is_equal_to_string ("cn;lang-de;bin"));
+  assert_that (params->attributes[9], is_equal_to_string ("1.2;1abc;-abc"));
+  assert_that (params->attributes[10],
+               is_equal_to_string ("1.2.840.113556;binary"));
+  assert_that (params->attributes[11], is_null);
+
+  gvm_ldap_search_params_free (params);
 }
 
 /* ldap_bind_dn_is_valid */
