@@ -712,6 +712,10 @@ ad_search_ldap_entry_callback (gvm_ldap_entry_t *entry, gpointer context)
       ctx->emitted++;
       return GVM_LDAP_SEARCH_CONTINUE;
 
+    case AD_OBJECT_CALLBACK_STOP:
+      ctx->emitted++;
+      return GVM_LDAP_SEARCH_STOP;
+
     case AD_OBJECT_CALLBACK_ERROR:
       return GVM_LDAP_SEARCH_CALLBACK_ERROR;
     default:
@@ -910,25 +914,33 @@ ad_connector_build_attributes (ad_search_config_t search_config)
 /**
  * @brief Converts an AD filter scope to the corresponding LDAP search scope.
  *
- * @param scope  The AD filter scope to convert.
+ * @param scope       The AD filter scope to convert.
+ * @param ldap_scope  Pointer to store the converted LDAP search scope.
  *
- * @return The corresponding LDAP search scope.
+ * @return AD_CONNECTOR_OK on success, or AD_CONNECTOR_INVALID_VALUE for an
+ *         unknown AD search scope.
  */
-static gvm_ldap_scope_t
-get_ldap_search_scope (ad_connector_search_scope_t scope)
+static ad_connector_return_t
+get_ldap_search_scope (ad_connector_search_scope_t scope,
+                       gvm_ldap_scope_t *ldap_scope)
 {
+  if (!ldap_scope)
+    return AD_CONNECTOR_INVALID_VALUE;
+
   switch (scope)
     {
     case AD_CONNECTOR_SEARCH_SCOPE_BASE:
-      return GVM_LDAP_SCOPE_BASE;
+      *ldap_scope = GVM_LDAP_SCOPE_BASE;
+      return AD_CONNECTOR_OK;
     case AD_CONNECTOR_SEARCH_SCOPE_ONELEVEL:
-      return GVM_LDAP_SCOPE_ONELEVEL;
+      *ldap_scope = GVM_LDAP_SCOPE_ONELEVEL;
+      return AD_CONNECTOR_OK;
     case AD_CONNECTOR_SEARCH_SCOPE_SUBTREE:
-      return GVM_LDAP_SCOPE_SUBTREE;
+      *ldap_scope = GVM_LDAP_SCOPE_SUBTREE;
+      return AD_CONNECTOR_OK;
     default:
-      g_warning ("%s: Unknown filter scope %d. Defaulting to onelevel scope.",
-                 __func__, scope);
-      return GVM_LDAP_SCOPE_ONELEVEL;
+      g_warning ("%s: Unknown filter scope %d.", __func__, scope);
+      return AD_CONNECTOR_INVALID_VALUE;
     }
 }
 
@@ -962,6 +974,8 @@ ad_connector_search_objects (ad_connector_t connector,
                              ad_object_search_result_t *result)
 {
   gvm_ldap_search_params_t *search_params;
+  gvm_ldap_scope_t scope;
+  ad_connector_return_t scope_ret;
   int ret;
 
   if (!connector || !callback || !search_config)
@@ -977,6 +991,16 @@ ad_connector_search_objects (ad_connector_t connector,
   if (result)
     memset (result, 0, sizeof (ad_object_search_result_t));
 
+  if (!search_config->base_dn || search_config->base_dn[0] == '\0')
+    {
+      g_warning ("%s: Search requires a non-empty base DN.", __func__);
+      return AD_CONNECTOR_INVALID_VALUE;
+    }
+
+  scope_ret = get_ldap_search_scope (search_config->scope, &scope);
+  if (scope_ret != AD_CONNECTOR_OK)
+    return scope_ret;
+
   gchar *filter = ad_connector_build_search_filter (search_config);
   if (!filter)
     {
@@ -990,8 +1014,6 @@ ad_connector_search_objects (ad_connector_t connector,
       g_free (filter);
       return AD_CONNECTOR_INVALID_VALUE;
     }
-
-  gvm_ldap_scope_t scope = get_ldap_search_scope (search_config->scope);
 
   search_params = gvm_ldap_search_params_new (
     search_config->base_dn, scope, filter, attributes, search_config->page_size,

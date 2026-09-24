@@ -284,6 +284,23 @@ mock_callback_continue (ad_object_t *object, gpointer user_data)
 }
 
 static ad_object_callback_result_t
+mock_callback_stop (ad_object_t *object, gpointer user_data)
+{
+  mock_callback_context_t *probe = user_data;
+
+  if (!probe || !object)
+    return AD_OBJECT_CALLBACK_ERROR;
+
+  probe->calls++;
+  probe->last_type = object->type;
+
+  g_free (probe->last_name);
+  probe->last_name = object->name ? g_strdup (object->name) : NULL;
+
+  return AD_OBJECT_CALLBACK_STOP;
+}
+
+static ad_object_callback_result_t
 mock_callback_error (ad_object_t *object, gpointer user_data)
 {
   mock_callback_context_t *probe = user_data;
@@ -1112,6 +1129,32 @@ Ensure (ad_connector,
   g_free (cb_ctx.last_name);
 }
 
+Ensure (ad_connector, search_entry_callback_emits_and_stops_on_callback_stop)
+{
+  gvm_ldap_entry_t *entry = (gvm_ldap_entry_t *) 0x55;
+  mock_callback_context_t cb_ctx = {0};
+  ad_search_context_t ctx = {.max_results = 0,
+                             .emitted = 5,
+                             .truncated = FALSE,
+                             .attributes = NULL,
+                             .callback = mock_callback_stop,
+                             .user_data = &cb_ctx};
+
+  stub_set_entry_attr_values (entry, "objectClass", "top", "computer", NULL);
+  stub_last_entry_dn = g_strdup ("CN=PC4,OU=Computers,DC=example,DC=org");
+  stub_last_entry_name = g_strdup ("PC4");
+
+  assert_that (ad_search_ldap_entry_callback (entry, &ctx),
+               is_equal_to (GVM_LDAP_SEARCH_STOP));
+  assert_that (ctx.emitted, is_equal_to (6));
+  assert_that (ctx.truncated, is_false);
+  assert_that (cb_ctx.calls, is_equal_to (1));
+  assert_that (cb_ctx.last_type, is_equal_to (AD_OBJECT_TYPE_COMPUTER));
+  assert_that (cb_ctx.last_name, is_equal_to_string ("PC4"));
+
+  g_free (cb_ctx.last_name);
+}
+
 Ensure (ad_connector,
         search_entry_callback_maps_callback_error_and_invalid_return)
 {
@@ -1317,20 +1360,38 @@ Ensure (ad_connector, build_attributes_adds_extra_unique_attributes)
 /* get_ldap_search_scope */
 Ensure (ad_connector, get_ldap_search_scope_maps_known_values)
 {
-  assert_that (get_ldap_search_scope (AD_CONNECTOR_SEARCH_SCOPE_BASE),
-               is_equal_to (GVM_LDAP_SCOPE_BASE));
-  assert_that (get_ldap_search_scope (AD_CONNECTOR_SEARCH_SCOPE_ONELEVEL),
-               is_equal_to (GVM_LDAP_SCOPE_ONELEVEL));
-  assert_that (get_ldap_search_scope (AD_CONNECTOR_SEARCH_SCOPE_SUBTREE),
-               is_equal_to (GVM_LDAP_SCOPE_SUBTREE));
+  gvm_ldap_scope_t scope = GVM_LDAP_SCOPE_SUBTREE;
+  assert_that (get_ldap_search_scope (AD_CONNECTOR_SEARCH_SCOPE_BASE, &scope),
+               is_equal_to (AD_CONNECTOR_OK));
+  assert_that (scope, is_equal_to (GVM_LDAP_SCOPE_BASE));
+
+  assert_that (
+    get_ldap_search_scope (AD_CONNECTOR_SEARCH_SCOPE_ONELEVEL, &scope),
+    is_equal_to (AD_CONNECTOR_OK));
+  assert_that (scope, is_equal_to (GVM_LDAP_SCOPE_ONELEVEL));
+
+  assert_that (
+    get_ldap_search_scope (AD_CONNECTOR_SEARCH_SCOPE_SUBTREE, &scope),
+    is_equal_to (AD_CONNECTOR_OK));
+  assert_that (scope, is_equal_to (GVM_LDAP_SCOPE_SUBTREE));
 }
 
-Ensure (ad_connector, get_ldap_search_scope_defaults_for_unknown_value)
+Ensure (ad_connector, get_ldap_search_scope_rejects_unknown_values)
 {
   ad_connector_search_scope_t invalid_scope = (ad_connector_search_scope_t) 99;
+  gvm_ldap_scope_t scope = GVM_LDAP_SCOPE_BASE;
 
-  assert_that (get_ldap_search_scope (invalid_scope),
-               is_equal_to (GVM_LDAP_SCOPE_ONELEVEL));
+  assert_that (get_ldap_search_scope (invalid_scope, &scope),
+               is_equal_to (AD_CONNECTOR_INVALID_VALUE));
+  assert_that (scope, is_equal_to (GVM_LDAP_SCOPE_BASE));
+}
+
+Ensure (ad_connector, get_ldap_search_scope_rejects_null_out_pointer)
+{
+  ad_connector_search_scope_t valid_scope = AD_CONNECTOR_SEARCH_SCOPE_BASE;
+
+  assert_that (get_ldap_search_scope (valid_scope, NULL),
+               is_equal_to (AD_CONNECTOR_INVALID_VALUE));
 }
 
 /* ad_connector_search_objects */
@@ -1387,6 +1448,65 @@ Ensure (ad_connector,
   ad_connector_free (connector);
 }
 
+Ensure (ad_connector, search_objects_rejects_invalid_base_dn)
+{
+  ad_connector_t connector = ad_connector_new ();
+  ad_search_config_t config = ad_search_config_new ();
+  ad_object_search_result_t result = {.emitted = 99, .truncated = TRUE};
+
+  assert_that (connector, is_not_null);
+  assert_that (config, is_not_null);
+
+  connector->ldap_connection = (gvm_ldap_connection_t *) 0x66;
+
+  assert_that (ad_connector_search_objects (
+                 connector, config, dummy_object_callback, NULL, &result),
+               is_equal_to (AD_CONNECTOR_INVALID_VALUE));
+  assert_that (result.emitted, is_equal_to (0));
+  assert_that (result.truncated, is_false);
+  assert_that (stub_search_paged_calls, is_equal_to (0));
+
+  result.emitted = 99;
+  result.truncated = TRUE;
+  config->base_dn = g_strdup ("");
+
+  assert_that (ad_connector_search_objects (
+                 connector, config, dummy_object_callback, NULL, &result),
+               is_equal_to (AD_CONNECTOR_INVALID_VALUE));
+  assert_that (result.emitted, is_equal_to (0));
+  assert_that (result.truncated, is_false);
+  assert_that (stub_search_paged_calls, is_equal_to (0));
+
+  connector->ldap_connection = NULL;
+  ad_search_config_free (config);
+  ad_connector_free (connector);
+}
+
+Ensure (ad_connector, search_objects_rejects_invalid_scope)
+{
+  ad_connector_t connector = ad_connector_new ();
+  ad_search_config_t config = ad_search_config_new ();
+  ad_object_search_result_t result = {.emitted = 99, .truncated = TRUE};
+
+  assert_that (connector, is_not_null);
+  assert_that (config, is_not_null);
+
+  connector->ldap_connection = (gvm_ldap_connection_t *) 0x66;
+  config->base_dn = g_strdup ("dc=example,dc=com");
+  config->scope = (ad_connector_search_scope_t) 99;
+
+  assert_that (ad_connector_search_objects (
+                 connector, config, dummy_object_callback, NULL, &result),
+               is_equal_to (AD_CONNECTOR_INVALID_VALUE));
+  assert_that (result.emitted, is_equal_to (0));
+  assert_that (result.truncated, is_false);
+  assert_that (stub_search_paged_calls, is_equal_to (0));
+
+  connector->ldap_connection = NULL;
+  ad_search_config_free (config);
+  ad_connector_free (connector);
+}
+
 Ensure (ad_connector, search_objects_maps_ldap_return_codes_and_resets_result)
 {
   ad_connector_t connector = ad_connector_new ();
@@ -1397,6 +1517,7 @@ Ensure (ad_connector, search_objects_maps_ldap_return_codes_and_resets_result)
   assert_that (config, is_not_null);
 
   connector->ldap_connection = (gvm_ldap_connection_t *) 0x66;
+  config->base_dn = g_strdup ("dc=example,dc=com");
 
   stub_search_paged_ret = GVM_LDAP_SUCCESS;
   assert_that (ad_connector_search_objects (
@@ -1517,6 +1638,9 @@ main (int argc, char **argv)
     search_entry_callback_emits_and_continues_on_callback_continue);
   add_test_with_context (
     suite, ad_connector,
+    search_entry_callback_emits_and_stops_on_callback_stop);
+  add_test_with_context (
+    suite, ad_connector,
     search_entry_callback_maps_callback_error_and_invalid_return);
 
   add_test_with_context (suite, ad_connector,
@@ -1543,7 +1667,9 @@ main (int argc, char **argv)
   add_test_with_context (suite, ad_connector,
                          get_ldap_search_scope_maps_known_values);
   add_test_with_context (suite, ad_connector,
-                         get_ldap_search_scope_defaults_for_unknown_value);
+                         get_ldap_search_scope_rejects_unknown_values);
+  add_test_with_context (suite, ad_connector,
+                         get_ldap_search_scope_rejects_null_out_pointer);
 
   add_test_with_context (
     suite, ad_connector,
@@ -1551,6 +1677,10 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, ad_connector,
     search_objects_returns_invalid_value_when_filter_or_params_fail);
+  add_test_with_context (suite, ad_connector,
+                         search_objects_rejects_invalid_base_dn);
+  add_test_with_context (suite, ad_connector,
+                         search_objects_rejects_invalid_scope);
   add_test_with_context (
     suite, ad_connector,
     search_objects_maps_ldap_return_codes_and_resets_result);
