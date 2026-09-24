@@ -23,6 +23,14 @@
 #endif
 #include <netinet/ip.h>
 
+#define DEFAULT_MAX_CONNECTION_RETRIES 8
+
+void
+set_max_connection_retries (int);
+
+int
+get_max_connection_retries (void);
+
 /**
  * @brief Connection.
  */

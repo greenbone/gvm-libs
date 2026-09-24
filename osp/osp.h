@@ -71,6 +71,13 @@ typedef struct osp_param osp_param_t;
 
 /* OSP Connection handling */
 
+#define OSP_DEFAULT_CONNECTION_TIMEOUT 32
+
+void osp_set_connection_timeout (time_t);
+
+time_t
+osp_get_connection_timeout (void);
+
 osp_connection_t *
 osp_connection_new (const char *, int, const char *, const char *,
                     const char *);

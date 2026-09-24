@@ -40,6 +40,8 @@ struct osp_connection
   int port;                 /**< Port. */
 };
 
+time_t osp_connection_timeout = OSP_DEFAULT_CONNECTION_TIMEOUT;
+
 /**
  * @brief Struct holding options for OSP parameters.
  */
@@ -100,6 +102,18 @@ static int
 osp_send_command_str (osp_connection_t *, gchar **, const char *, ...)
   __attribute__ ((__format__ (__printf__, 3, 4)));
 
+void
+osp_set_connection_timeout (time_t t)
+{
+  osp_connection_timeout = t;
+}
+
+time_t
+osp_get_connection_timeout (void)
+{
+  return osp_connection_timeout;
+}
+
 /**
  * @brief Open a new connection to an OSP server.
  *
@@ -141,6 +155,16 @@ osp_connection_new (const char *host, int port, const char *cacert,
       memset (addr.sun_path, 0, sizeof (addr.sun_path));
       memcpy (addr.sun_path, host, strlen (host));
       len = strlen (addr.sun_path) + sizeof (addr.sun_family);
+
+      /* Set timeout */
+      struct timeval tv;
+      tv.tv_sec = osp_get_connection_timeout ();
+      tv.tv_usec = 0;
+      setsockopt (connection->socket, SOL_SOCKET, SO_RCVTIMEO, &tv,
+                  sizeof (struct timeval));
+      setsockopt (connection->socket, SOL_SOCKET, SO_SNDTIMEO, &tv,
+                  sizeof (struct timeval));
+
       if (connect (connection->socket, (struct sockaddr *) &addr, len) == -1)
         {
           close (connection->socket);
@@ -196,9 +220,15 @@ osp_send_command (osp_connection_t *connection, entity_t *response,
   if (*connection->host == '/')
     {
       if (gvm_socket_vsendf (connection->socket, fmt, ap) == -1)
-        goto out;
+        {
+          rc = 2;
+          goto out;
+        }
       if (read_entity_s (connection->socket, response))
-        goto out;
+        {
+          rc = 3;
+          goto out;
+        }
     }
   else
     {
@@ -975,7 +1005,7 @@ osp_stop_scan (osp_connection_t *connection, const char *scan_id, char **error)
     {
       if (error)
         *error = g_strdup ("Couldn't send stop_scan command to scanner");
-      return -1;
+      return rc;
     }
 
   rc = atoi (entity_attribute (entity, "status"));
