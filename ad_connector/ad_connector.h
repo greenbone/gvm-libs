@@ -105,6 +105,7 @@ typedef struct
 typedef enum
 {
   AD_OBJECT_CALLBACK_CONTINUE, /**< Continue processing objects */
+  AD_OBJECT_CALLBACK_STOP,     /**< Stop processing objects */
   AD_OBJECT_CALLBACK_ERROR,    /**< An error occurred during processing */
 } ad_object_callback_result_t;
 
