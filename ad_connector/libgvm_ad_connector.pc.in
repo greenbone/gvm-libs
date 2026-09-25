@@ -3,7 +3,7 @@ exec_prefix=@EXEC_PREFIX@
 libdir=@LIBDIR@
 includedir=@INCLUDEDIR@
 
-Name: gvmlibs-ad-connector
+Name: gvmlibs-ad_connector
 Description: Greenbone Vulnerability Management Library AD Connector
 Version: @LIBGVMCONFIG_VERSION@
 Requires.private: glib-2.0 >= 2.42.0
