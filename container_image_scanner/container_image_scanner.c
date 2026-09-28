@@ -15,10 +15,10 @@
  */
 struct container_image_target
 {
-  gchar  *scan_id;       /**  Scan ID */
-  GSList *credentials;   /** Credentials to use in the scan */
-  gchar  *hosts;         /** String defining one or many hosts to scan */
-  gchar  *exclude_hosts; /** String defining one or many hosts to exclude */
+  gchar *scan_id;       /**  Scan ID */
+  GSList *credentials;  /** Credentials to use in the scan */
+  gchar *hosts;         /** String defining one or many hosts to scan */
+  gchar *exclude_hosts; /** String defining one or many hosts to exclude */
 };
 
 /**

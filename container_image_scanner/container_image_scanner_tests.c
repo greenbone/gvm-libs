@@ -28,7 +28,8 @@ Ensure (container_image, null_free_doesnt_crash)
 
 Ensure (container_image, new_container_image_target_has_hosts)
 {
-  container_image_target_t *target = container_image_target_new (NULL, NULL, NULL);
+  container_image_target_t *target =
+    container_image_target_new (NULL, NULL, NULL);
 
   assert_that (target, is_not_equal_to (NULL));
   assert_that (target->scan_id, is_equal_to (NULL));
@@ -118,7 +119,7 @@ Ensure (container_image, container_image_credential_set_invalid_auth_data)
   // Invalid names
   container_image_credential_set_auth_data (credential, "_$", "123");
   container_image_credential_set_auth_data (credential, "\x00", "123");
-  container_image_credential_set_auth_data (credential, "\xFF", "123"); //fails
+  container_image_credential_set_auth_data (credential, "\xFF", "123"); // fails
   container_image_credential_set_auth_data (credential, "AlmostValid\x7E",
                                             "123");
 
@@ -163,8 +164,8 @@ Ensure (container_image, container_image_add_preferences_to_scan_json)
 
 Ensure (container_image, container_image_target_add_credentials)
 {
-  container_image_target_t *target
-    = container_image_target_new (NULL, "hosts", NULL);
+  container_image_target_t *target =
+    container_image_target_new (NULL, "hosts", NULL);
 
   container_image_credential_t *credential =
     container_image_credential_new ("test", "generic");
@@ -193,9 +194,8 @@ Ensure (container_image, container_image_target_add_credentials)
 
 Ensure (container_image, emit_simple_scan_json)
 {
-  container_image_target_t *target =
-    container_image_target_new ("TEST-ID", "oci://test-host/test-image",
-                                "oci://exclude/path");
+  container_image_target_t *target = container_image_target_new (
+    "TEST-ID", "oci://test-host/test-image", "oci://exclude/path");
 
   container_image_credential_t *credential =
     container_image_credential_new ("up", "generic");

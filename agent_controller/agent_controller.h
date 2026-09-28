@@ -358,12 +358,16 @@ agent_controller_scan_agent_config_t
 agent_controller_parse_scan_agent_config_string (const gchar *);
 
 agent_controller_installer_instruction_t
-agent_controller_get_installer_instruction (agent_controller_connector_t conn,
-                                            instructions_lang_type_t lang_type,
-                                            const gchar *origin_url);
+agent_controller_get_installer_instruction (agent_controller_connector_t,
+                                            instructions_lang_type_t,
+                                            const gchar *);
 
 agent_controller_support_bundle_t
-agent_controller_download_support_bundle (agent_controller_connector_t conn,
-                                          const gchar *agent_id, int days);
+agent_controller_download_support_bundle (agent_controller_connector_t,
+                                          const gchar *, int);
+
+agent_controller_support_bundle_t
+agent_controller_download_support_bundle_plain (agent_controller_connector_t,
+                                                const gchar *, int);
 
 #endif /* not _GVM_AGENT_CONTROLLER_AGENT_CONTROLLER_H */

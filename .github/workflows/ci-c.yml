@@ -17,7 +17,7 @@ jobs:
       - name: Check Source Format
         id: check
         run: |
-          clang-format -i -style=file {agent_controller,base,boreas,gmp,http,http_scanner,openvasd,osp,security_intelligence,web_application_scanner,util}/*.{c,h}
+          clang-format -i --style=file {ad_connector,agent_controller,base,boreas,container_image_scanner,cyberark,gmp,http,http_scanner,ldap,openvasd,osp,security_intelligence,util,web_application_scanner}/*.{c,h}
           git diff --exit-code
       - name: Report Diff
         if: ${{ failure() && steps.check.outcome == 'failure' }}
@@ -25,7 +25,7 @@ jobs:
           echo "## Clang Format Check" >> $GITHUB_STEP_SUMMARY
           echo "Found formatting issues in the source code. Please run clang-format to fix them." >> $GITHUB_STEP_SUMMARY
           echo '```sh' >> $GITHUB_STEP_SUMMARY
-          echo 'clang-format -i -style=file {agent_controller,base,boreas,gmp,http,http_scanner,openvasd,osp,security_intelligence,web_application_scanner,util}/*.{c,h}' >> $GITHUB_STEP_SUMMARY
+          echo 'clang-format -i --style=file {ad_connector,agent_controller,base,boreas,container_image_scanner,cyberark,gmp,http,http_scanner,ldap,openvasd,osp,security_intelligence,util,web_application_scanner}/*.{c,h}' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "## Clang Format Diff" >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
@@ -79,7 +79,7 @@ jobs:
           CTEST_OUTPUT_ON_FAILURE=1 cmake --build build -- tests test coverage-xml
       - name: Upload test coverage to Codecov
         if: github.repository == 'greenbone/gvm-libs'
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: build/coverage/coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}

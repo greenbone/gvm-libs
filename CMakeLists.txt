@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.18)
 message("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 # VERSION: Always include major, minor and patch level.
-project(gvm-libs VERSION 23.9.4 LANGUAGES C)
+project(gvm-libs VERSION 23.11.1 LANGUAGES C)
 
 if(POLICY CMP0005)
   cmake_policy(SET CMP0005 NEW)
@@ -29,6 +29,11 @@ option(ENABLE_SECURITY_INTELLIGENCE "Build security intelligence library" ON)
 option(
   ENABLE_WEB_APPLICATION_SCANNER
   "Build web application scanner library"
+  ON
+)
+option(
+  ENABLE_ACTIVE_DIRECTORY_INTEGRATION
+  "Build active directory connector"
   ON
 )
 
@@ -237,6 +242,8 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
   set(
     TESTS
     array-test
+    authutils-test
+    boreas-arp-test
     boreas-alivedetection-test
     boreas-cli-test
     boreas-error-test
@@ -245,19 +252,34 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     boreas-sniffer-test
     compressutils-test
     cpeutils-test
+    credentials-test
+    credentialutils-test
     cvss-test
+    fileutils-test
+    gmp-test
     hosts-test
     json-test
     jsonpull-test
+    kb-test
     logging-test
     logging-domain-test
+    mqtt-test
     networking-test
     nvti-test
     osp-test
     passwordbasedauthentication-test
+    pidfile-test
+    prefs-test
+    pwpolicy-test
+    radiusutils-test
+    serverutils-test
+    settings-test
+    sshutils-test
     streamvalidator-test
+    strings-test
     test-hosts
     util-test
+    uuidutils-test
     version-test
     versionutils-test
     xmlutils-test
@@ -285,6 +307,11 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
   if(ENABLE_WEB_APPLICATION_SCANNER)
     list(APPEND TESTS web-application-scanner-test)
   endif(ENABLE_WEB_APPLICATION_SCANNER)
+
+  if(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
+    list(APPEND TESTS gvmldap-test)
+    list(APPEND TESTS ad-connector-test)
+  endif(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
 
   add_custom_target(tests DEPENDS ${TESTS})
 
@@ -371,6 +398,11 @@ if(NOT SKIP_SRC)
   if(ENABLE_SECURITY_INTELLIGENCE)
     add_subdirectory(security_intelligence)
   endif(ENABLE_SECURITY_INTELLIGENCE)
+
+  if(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
+    add_subdirectory(ldap)
+    add_subdirectory(ad_connector)
+  endif(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
 endif(NOT SKIP_SRC)
 
 ## Documentation

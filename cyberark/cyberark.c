@@ -81,8 +81,7 @@ cyberark_connector_free (cyberark_connector_t connector)
  */
 cyberark_error_t
 cyberark_connector_builder (cyberark_connector_t conn,
-                            cyberark_connector_opts_t opt,
-                            const void *val)
+                            cyberark_connector_opts_t opt, const void *val)
 {
   if (conn == NULL || val == NULL)
     return CYBERARK_INVALID_VALUE;
@@ -169,7 +168,8 @@ init_custom_header (const gchar *apikey, gboolean content_type)
 /**
  * @brief Sends an HTTP(S) request to a CyberArk.
  *
- * @param[in] conn          The connection containing server and certificate details.
+ * @param[in] conn          The connection containing server and certificate
+ * details.
  * @param[in] method        The HTTP method (GET, POST, PUT, etc.).
  * @param[in] path          The request path.
  * @param[in] payload       Optional request body payload.
@@ -179,11 +179,9 @@ init_custom_header (const gchar *apikey, gboolean content_type)
  *         Must be freed using `gvm_http_response_free()`.
  */
 static gvm_http_response_t *
-cyberark_send_request (cyberark_connector_t conn,
-                               gvm_http_method_t method,
-                               const gchar *request_path,
-                               const gchar *payload,
-                               const gchar *apikey)
+cyberark_send_request (cyberark_connector_t conn, gvm_http_method_t method,
+                       const gchar *request_path, const gchar *payload,
+                       const gchar *apikey)
 {
   if (!conn)
     {
@@ -199,14 +197,15 @@ cyberark_send_request (cyberark_connector_t conn,
 
   gchar *url;
 
-  if (conn->port )
-    url =  g_strdup_printf ("%s://%s:%d/%s%s", conn->protocol, conn->host,
-                            conn->port, conn->path, request_path);
+  if (conn->port)
+    url = g_strdup_printf ("%s://%s:%d/%s%s", conn->protocol, conn->host,
+                           conn->port, conn->path, request_path);
   else
-    url =  g_strdup_printf ("%s://%s/%s%s", conn->protocol, conn->host,
-                            conn->path, request_path);
+    url = g_strdup_printf ("%s://%s/%s%s", conn->protocol, conn->host,
+                           conn->path, request_path);
 
-  gvm_http_headers_t *headers = init_custom_header (apikey, payload ? TRUE : FALSE);
+  gvm_http_headers_t *headers =
+    init_custom_header (apikey, payload ? TRUE : FALSE);
 
   gvm_http_response_t *http_response = gvm_http_request (
     url, method, payload, headers, conn->ca_cert, conn->cert, conn->key, NULL);
@@ -269,7 +268,6 @@ static gchar *
 cyberark_build_query_string (cyberark_connector_t conn, const gchar *safe,
                              const gchar *folder, const gchar *object)
 {
-
   if (!conn)
     {
       g_warning ("%s: Connector is NULL", __func__);
@@ -291,9 +289,7 @@ cyberark_build_query_string (cyberark_connector_t conn, const gchar *safe,
   if (object && *object)
     {
       gchar *object_escaped = g_uri_escape_string (object, NULL, FALSE);
-      g_string_append_printf (query,
-                              "&Query=object=%s",
-                              object_escaped);
+      g_string_append_printf (query, "&Query=object=%s", object_escaped);
       g_free (object_escaped);
     }
   else
@@ -306,18 +302,14 @@ cyberark_build_query_string (cyberark_connector_t conn, const gchar *safe,
   if (safe && *safe)
     {
       gchar *safe_escaped = g_uri_escape_string (safe, NULL, FALSE);
-      g_string_append_printf (query,
-                              ";safe=%s",
-                              safe_escaped);
+      g_string_append_printf (query, ";safe=%s", safe_escaped);
       g_free (safe_escaped);
     }
 
   if (folder && *folder)
     {
       gchar *folder_escaped = g_uri_escape_string (folder, NULL, FALSE);
-      g_string_append_printf (query,
-                              ";folder=%s",
-                              folder_escaped);
+      g_string_append_printf (query, ";folder=%s", folder_escaped);
       g_free (folder_escaped);
     }
 
@@ -335,7 +327,6 @@ cyberark_build_query_string (cyberark_connector_t conn, const gchar *safe,
 static cyberark_object_t
 parse_cyberark_object (cJSON *object_json)
 {
-
   if (!object_json || !cJSON_IsObject (object_json))
     {
       g_warning ("%s: Invalid JSON object", __func__);
@@ -355,9 +346,9 @@ parse_cyberark_object (cJSON *object_json)
   const gchar *object = gvm_json_obj_str (object_json, "object");
   const gchar *safe = gvm_json_obj_str (object_json, "safe");
   const gchar *folder = gvm_json_obj_str (object_json, "folder");
-  const gchar *password_change_in_process = 
+  const gchar *password_change_in_process =
     gvm_json_obj_str (object_json, "passwordchangeinprocess");
-  
+
   if (!content || !username || !password_change_in_process)
     {
       g_warning ("%s: Missing required fields in JSON object", __func__);
@@ -367,8 +358,8 @@ parse_cyberark_object (cJSON *object_json)
 
   cyberark_object->username = g_strdup (username);
   cyberark_object->content = g_strdup (content);
-  cyberark_object->password_change_in_process 
-    = strcasecmp (password_change_in_process, "true") == 0 ? 1 : 0;
+  cyberark_object->password_change_in_process =
+    strcasecmp (password_change_in_process, "true") == 0 ? 1 : 0;
   cyberark_object->object = object ? g_strdup (object) : NULL;
   cyberark_object->safe = safe ? g_strdup (safe) : NULL;
   cyberark_object->folder = folder ? g_strdup (folder) : NULL;
@@ -449,8 +440,8 @@ cyberark_get_object (cyberark_connector_t conn, const gchar *safe,
   gchar *path = g_strdup_printf ("/Accounts/%s", query_str);
   g_free (query_str);
 
-  gvm_http_response_t *response = cyberark_send_request (
-    conn, GET, path, NULL, NULL);
+  gvm_http_response_t *response =
+    cyberark_send_request (conn, GET, path, NULL, NULL);
 
   g_free (path);
 
@@ -506,7 +497,7 @@ cyberark_get_object (cyberark_connector_t conn, const gchar *safe,
  * @param[in] conn          Active connector to the credential store
  * @param[in] safe          Safe name used for verification
  * @param[in] folder        Folder name used for verification
- * @param[in] object        Object name used for verification 
+ * @param[in] object        Object name used for verification
  *
  * @return 0 on connection success, 1 on connection failure, -1 on error.
  */
@@ -520,7 +511,7 @@ cyberark_verify_connection (cyberark_connector_t conn, const gchar *safe,
       return -1;
     }
 
- gchar *query_str = cyberark_build_query_string (conn, safe, folder, object);
+  gchar *query_str = cyberark_build_query_string (conn, safe, folder, object);
 
   if (!query_str)
     {
@@ -532,8 +523,8 @@ cyberark_verify_connection (cyberark_connector_t conn, const gchar *safe,
 
   g_free (query_str);
 
-  gvm_http_response_t *response = cyberark_send_request (
-    conn, GET, path, NULL, NULL);
+  gvm_http_response_t *response =
+    cyberark_send_request (conn, GET, path, NULL, NULL);
 
   g_free (path);
 
@@ -544,10 +535,10 @@ cyberark_verify_connection (cyberark_connector_t conn, const gchar *safe,
     }
 
   /*
-    * For now, consider connection verified if the HTTP response is 200 or 404
-    * in case a dummy object is used. Other status codes indicate a problem
-    * with the connection or authentication.
-  */
+   * For now, consider connection verified if the HTTP response is 200 or 404
+   * in case a dummy object is used. Other status codes indicate a problem
+   * with the connection or authentication.
+   */
 
   int ret = 1;
   if (response->http_status == 200)
@@ -561,7 +552,8 @@ cyberark_verify_connection (cyberark_connector_t conn, const gchar *safe,
       if (error_code)
         {
           g_debug ("%s: CyberArk error code: %s", __func__, error_code);
-          if (response->http_status == 404 && g_strcmp0 (error_code, "APPAP004E") == 0)
+          if (response->http_status == 404
+              && g_strcmp0 (error_code, "APPAP004E") == 0)
             ret = 0;
           g_free (error_code);
         }

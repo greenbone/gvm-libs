@@ -3058,3 +3058,51 @@ xml_file_iterator_next (xml_file_iterator_t iterator, gchar **error)
 
   return NULL;
 }
+
+/**
+ * @brief Check if a string is valid XML.
+ *
+ * @param[in]   str             The string to check.
+ * @param[out]  error_message   Optional error message output.
+ *
+ * @return 1 if string is valid XML, 0 if not.
+ */
+int
+gvm_is_valid_xml (const char *str, gchar **error_message)
+{
+  xmlSAXHandler sax_handler;
+  int ret;
+
+  if (error_message)
+    *error_message = NULL;
+
+  if (str == NULL)
+    {
+      if (error_message)
+        *error_message = g_strdup ("Given string is NULL");
+      return 0;
+    }
+
+  memset (&sax_handler, 0, sizeof (xmlSAXHandler));
+  sax_handler.initialized = XML_SAX2_MAGIC;
+
+  xmlParserCtxt *ctx =
+    xmlCreatePushParserCtxt (&sax_handler, NULL, NULL, 0, NULL);
+
+  ret = xmlParseChunk (ctx, str, strlen (str), 1);
+  if (ret)
+    {
+      if (error_message)
+        {
+          const xmlError *xml_error;
+          xml_error = xmlCtxtGetLastError (ctx);
+          *error_message =
+            g_strdup_printf ("%s (line %d column %d)", xml_error->message,
+                             xml_error->line, xml_error->int2);
+        }
+      xmlFreeParserCtxt (ctx);
+      return 0;
+    }
+  xmlFreeParserCtxt (ctx);
+  return 1;
+}
