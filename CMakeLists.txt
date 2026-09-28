@@ -314,6 +314,10 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     list(APPEND TESTS ad-connector-test)
   endif(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
 
+  if(ENABLE_CREDENTIAL_STORES)
+    list(APPEND TESTS cyberark-test)
+  endif(ENABLE_CREDENTIAL_STORES)
+
   add_custom_target(tests DEPENDS ${TESTS})
 
   # Code coverage
