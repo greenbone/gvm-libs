@@ -278,6 +278,7 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     streamvalidator-test
     strings-test
     test-hosts
+    tlsutils-test
     util-test
     uuidutils-test
     version-test
