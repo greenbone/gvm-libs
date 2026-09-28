@@ -93,6 +93,7 @@ mock_connector_with_multi_new (void)
   http_scanner_connector_t conn = http_scanner_connector_new ();
   assert_that (conn != NULL);
   assert_that (conn->stream_resp != NULL);
+  gvm_http_multi_free (conn->stream_resp->multi_handler);
   conn->stream_resp->multi_handler = gvm_http_multi_new ();
   return conn;
 }

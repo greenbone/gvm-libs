@@ -744,6 +744,11 @@ Ensure (xmlutils, iterator_fails_on_unexpected_eof)
   assert_that (err, contains_string ("Opening and ending tag mismatch"));
 
   element_free (e);
+
+  g_free (err);
+  xml_file_iterator_free (it);
+  g_unlink (path);
+  g_free (path);
 }
 
 /* Test suite. */
