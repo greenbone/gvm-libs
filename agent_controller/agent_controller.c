@@ -1108,30 +1108,37 @@ agent_controller_connector_builder (agent_controller_connector_t conn,
   switch (opt)
     {
     case AGENT_CONTROLLER_CA_CERT:
+      g_free (conn->ca_cert);
       conn->ca_cert = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_CERT:
+      g_free (conn->cert);
       conn->cert = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_KEY:
+      g_free (conn->key);
       conn->key = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_API_KEY:
+      g_free (conn->apikey);
       conn->apikey = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_PROTOCOL:
       if (g_strcmp0 ((const gchar *) val, "http") != 0
           && g_strcmp0 ((const gchar *) val, "https") != 0)
         return AGENT_CONTROLLER_INVALID_VALUE;
+      g_free (conn->protocol);
       conn->protocol = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_HOST:
+      g_free (conn->host);
       conn->host = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_PORT:
       conn->port = *((const int *) val);
       break;
     case AGENT_CONTROLLER_UNIX_SOCKET_PATH:
+      g_free (conn->unix_socket_path);
       conn->unix_socket_path = g_strdup ((const gchar *) val);
       break;
     default:

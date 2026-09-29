@@ -92,33 +92,41 @@ cyberark_connector_builder (cyberark_connector_t conn,
   switch (opt)
     {
     case CYBERARK_CA_CERT:
+      g_free (conn->ca_cert);
       conn->ca_cert = g_strdup ((const gchar *) val);
       break;
     case CYBERARK_CERT:
+      g_free (conn->cert);
       conn->cert = g_strdup ((const gchar *) val);
       break;
     case CYBERARK_KEY:
+      g_free (conn->key);
       conn->key = g_strdup ((const gchar *) val);
       break;
     case CYBERARK_API_KEY:
+      g_free (conn->apikey);
       conn->apikey = g_strdup ((const gchar *) val);
       break;
     case CYBERARK_PROTOCOL:
       if (g_strcmp0 ((const gchar *) val, "http") != 0
           && g_strcmp0 ((const gchar *) val, "https") != 0)
         return CYBERARK_INVALID_VALUE;
+      g_free (conn->protocol);
       conn->protocol = g_strdup ((const gchar *) val);
       break;
     case CYBERARK_HOST:
+      g_free (conn->host);
       conn->host = g_strdup ((const gchar *) val);
       break;
     case CYBERARK_PATH:
+      g_free (conn->path);
       conn->path = g_strdup ((const gchar *) val);
       break;
     case CYBERARK_PORT:
       conn->port = *((const int *) val);
       break;
     case CYBERARK_APP_ID:
+      g_free (conn->app_id);
       conn->app_id = g_strdup ((const gchar *) val);
       break;
     default:

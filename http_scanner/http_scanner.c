@@ -83,39 +83,49 @@ http_scanner_connector_builder (http_scanner_connector_t conn,
   switch (opt)
     {
     case HTTP_SCANNER_CA_CERT:
+      g_free (conn->ca_cert);
       conn->ca_cert = g_strdup ((char *) val);
       break;
     case HTTP_SCANNER_CERT:
+      g_free (conn->cert);
       conn->cert = g_strdup ((char *) val);
       break;
     case HTTP_SCANNER_KEY:
+      g_free (conn->key);
       conn->key = g_strdup ((char *) val);
       break;
     case HTTP_SCANNER_API_KEY:
+      g_free (conn->apikey);
       conn->apikey = g_strdup ((char *) val);
       break;
     case HTTP_SCANNER_PROTOCOL:
       if (g_strcmp0 ((char *) val, "http") != 0
           && g_strcmp0 ((char *) val, "https") != 0)
         return HTTP_SCANNER_INVALID_VALUE;
+      g_free (conn->protocol);
       conn->protocol = g_strdup ((char *) val);
       break;
     case HTTP_SCANNER_HOST:
+      g_free (conn->host);
       conn->host = g_strdup ((char *) val);
       break;
     case HTTP_SCANNER_PATH_PREFIX:
+      g_free (conn->path_prefix);
       conn->path_prefix = g_strdup ((char *) val);
       break;
     case HTTP_SCANNER_SCAN_ID:
+      g_free (conn->scan_id);
       conn->scan_id = g_strdup ((const gchar *) val);
       break;
     case HTTP_SCANNER_SCAN_PREFIX:
+      g_free (conn->scan_prefix);
       conn->scan_prefix = g_strdup ((char *) val);
       break;
     case HTTP_SCANNER_PORT:
       conn->port = *((int *) val);
       break;
     case HTTP_SCANNER_UNIX_SOCKET_PATH:
+      g_free (conn->unix_socket_path);
       conn->unix_socket_path = g_strdup ((char *) val);
       break;
     default:
