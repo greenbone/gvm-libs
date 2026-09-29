@@ -711,6 +711,8 @@ Ensure (gvmldap, gvm_ldap_open_returns_connection_on_success)
   assert_that (ldap_initialize_call_count, is_equal_to (1));
   assert_that (last_ldap_initialize_uri,
                is_equal_to_string ("ldap://ldap.example.org:389"));
+
+  gvm_ldap_close (connection);
 }
 
 /* gvm_ldap_close */
