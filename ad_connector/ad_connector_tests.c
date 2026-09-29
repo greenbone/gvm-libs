@@ -1034,6 +1034,7 @@ Ensure (ad_connector,
   object = ad_object_from_ldap_entry (entry_no_name, attrs);
   assert_that (object, is_null);
 
+  g_free (stub_last_entry_dn);
   stub_last_entry_dn = NULL;
   stub_last_entry_name = g_strdup ("PC3");
   stub_set_entry_attr_values (entry_no_dn, "objectClass", "computer", NULL,
