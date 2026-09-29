@@ -304,6 +304,20 @@ Ensure (http_scanner, http_scanner_connector_builder_all_valid_fields)
   http_scanner_connector_free (conn);
 }
 
+Ensure (http_scanner, builder_set_twice_no_leak)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+  http_scanner_error_t rc;
+  const char *host = "host-1";
+
+  rc = http_scanner_connector_builder (conn, HTTP_SCANNER_HOST, host);
+  assert_that (rc, is_equal_to (HTTP_SCANNER_OK));
+  rc = http_scanner_connector_builder (conn, HTTP_SCANNER_HOST, host);
+  assert_that (rc, is_equal_to (HTTP_SCANNER_OK));
+
+  http_scanner_connector_free (conn);
+}
+
 Ensure (http_scanner, http_scanner_connector_builder_valid_protocol_http)
 {
   http_scanner_connector_t conn = http_scanner_connector_new ();
@@ -905,6 +919,7 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, http_scanner,
                          http_scanner_connector_builder_all_valid_fields);
+  add_test_with_context (suite, http_scanner, builder_set_twice_no_leak);
   add_test_with_context (suite, http_scanner,
                          http_scanner_connector_builder_valid_protocol_http);
   add_test_with_context (suite, http_scanner,

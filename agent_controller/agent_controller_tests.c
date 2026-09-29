@@ -353,6 +353,20 @@ Ensure (agent_controller, connector_builder_all_valid_fields)
   agent_controller_connector_free (conn);
 }
 
+Ensure (agent_controller, builder_set_twice_no_leak)
+{
+  agent_controller_connector_t conn = agent_controller_connector_new ();
+  agent_controller_error_t rc;
+  const char *host = "host-1";
+
+  rc = agent_controller_connector_builder (conn, AGENT_CONTROLLER_HOST, host);
+  assert_that (rc, is_equal_to (AGENT_CONTROLLER_OK));
+  rc = agent_controller_connector_builder (conn, AGENT_CONTROLLER_HOST, host);
+  assert_that (rc, is_equal_to (AGENT_CONTROLLER_OK));
+
+  agent_controller_connector_free (conn);
+}
+
 Ensure (agent_controller, connector_builder_valid_protocol_http)
 {
   agent_controller_connector_t conn = agent_controller_connector_new ();
@@ -4143,6 +4157,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller, connector_free_safely);
   add_test_with_context (suite, agent_controller,
                          connector_builder_all_valid_fields);
+  add_test_with_context (suite, agent_controller, builder_set_twice_no_leak);
   add_test_with_context (suite, agent_controller,
                          connector_builder_valid_protocol_http);
   add_test_with_context (suite, agent_controller,
