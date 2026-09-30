@@ -136,7 +136,7 @@ sent to file or stderr, valid format sequences are:
 
 Valid values for `separator` are most strings.
 
-Valid values for `prepend\_time\_format` are format specifications for
+Valid values for `prepend_time_format` are format specifications for
 strftime(3).
 
 The value of `file` controls where the logs are sent:
@@ -166,11 +166,11 @@ in the configuration file. Do note warnings though about sensitive
 information in log messages in comments at the start of some config
 files as shipped from dependent projects.
 
-Valid values for `syslog\_facility` are "auth", "authpriv", "cron",
+Valid values for `syslog_facility` are "auth", "authpriv", "cron",
 "daemon", "ftp", "kern", "lpr", "mail", "mark", "news", "security",
 "syslog", "user", "uucp" and "local0" through "local7".
 
-Valid values for `syslog\_ident` are most strings.
+Valid values for `syslog_ident` are most strings.
 
 Empty lines and lines beginning with the hash symbol ("#") are treated
 as comments.
