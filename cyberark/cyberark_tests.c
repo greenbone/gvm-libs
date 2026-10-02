@@ -69,6 +69,20 @@ Ensure (cyberark, build_query_string_escapes)
   cyberark_connector_free (conn);
 }
 
+/* cyberark_connector_builder */
+
+Ensure (cyberark, builder_set_twice_does_not_leak)
+{
+  cyberark_connector_t conn = cyberark_connector_new ();
+  cyberark_error_t rc;
+
+  rc = cyberark_connector_builder (conn, CYBERARK_HOST, "host-1");
+  assert_that (rc, is_equal_to (CYBERARK_OK));
+  rc = cyberark_connector_builder (conn, CYBERARK_HOST, "host-2");
+  assert_that (rc, is_equal_to (CYBERARK_OK));
+  cyberark_connector_free (conn);
+}
+
 /* parse_cyberark_object */
 
 Ensure (cyberark, parse_object_valid)
@@ -125,6 +139,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, cyberark, build_query_string_missing_object);
   add_test_with_context (suite, cyberark, build_query_string_builds);
   add_test_with_context (suite, cyberark, build_query_string_escapes);
+  add_test_with_context (suite, cyberark, builder_set_twice_does_not_leak);
   add_test_with_context (suite, cyberark, parse_object_valid);
   add_test_with_context (suite, cyberark, parse_object_missing_required_field);
   add_test_with_context (suite, cyberark, parse_error_returns_error_code);
