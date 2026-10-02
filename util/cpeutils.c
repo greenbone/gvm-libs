@@ -948,6 +948,7 @@ add_quoting (const char *component)
           else
             {
               g_free (tmp_component);
+              g_string_free (quoted_component, TRUE);
               return NULL;
             }
         }
