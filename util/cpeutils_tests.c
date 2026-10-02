@@ -303,6 +303,22 @@ Ensure (cpeutils, fs_cpe_to_uri_cpe_accepts_end_star)
   g_free (result);
 }
 
+Ensure (cpeutils, add_quoting_rejects_interior_star)
+{
+  char *result;
+
+  result = add_quoting ("a*b");
+  assert_that (result, is_null);
+}
+
+Ensure (cpeutils, add_quoting_rejects_interior_question)
+{
+  char *result;
+
+  result = add_quoting ("a?b");
+  assert_that (result, is_null);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -321,6 +337,9 @@ main (int argc, char **argv)
   add_test_with_context (suite, cpeutils, cpe_struct_match);
   add_test_with_context (suite, cpeutils, uri_cpe_to_uri_product);
   add_test_with_context (suite, cpeutils, fs_cpe_to_uri_cpe_accepts_end_star);
+  add_test_with_context (suite, cpeutils, add_quoting_rejects_interior_star);
+  add_test_with_context (suite, cpeutils,
+                         add_quoting_rejects_interior_question);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
