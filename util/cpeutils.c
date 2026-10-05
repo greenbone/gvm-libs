@@ -932,8 +932,8 @@ add_quoting (const char *component)
               g_string_append_c (quoted_component, *c);
               embedded = TRUE;
               c++;
-              continue;
             }
+          continue;
         }
       if (*c == '*')
         {
