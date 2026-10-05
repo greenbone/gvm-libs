@@ -259,6 +259,7 @@ http_scanner_init_request_multi (http_scanner_connector_t conn,
   if (!multi_handle)
     {
       g_warning ("%s: Failed to initialize curl multi-handle", __func__);
+      gvm_http_headers_free (customheader);
       g_free (url);
       response->code = RESP_CODE_ERR;
       response->body =
