@@ -18,6 +18,7 @@ static int mock_multi_perform_running_handles = 0;
 static int mock_multi_poll_calls = 0;
 static gvm_http_multi_result_t mock_multi_perform_return_value = GVM_HTTP_OK;
 static gvm_http_multi_result_t mock_multi_poll_return_value = GVM_HTTP_OK;
+static gboolean mock_multi_new_fails = FALSE;
 
 Describe (http_scanner);
 BeforeEach (http_scanner)
@@ -30,6 +31,7 @@ BeforeEach (http_scanner)
   mock_multi_perform_running_handles = 0;
   mock_multi_perform_return_value = GVM_HTTP_OK;
   mock_multi_poll_return_value = GVM_HTTP_OK;
+  mock_multi_new_fails = FALSE;
 }
 
 AfterEach (http_scanner)
@@ -87,6 +89,19 @@ gvm_http_multi_poll (gvm_http_multi_t *multi, int timeout)
   return mock_multi_poll_return_value;
 }
 
+gvm_http_multi_t *
+gvm_http_multi_new (void)
+{
+  if (mock_multi_new_fails)
+    return NULL;
+
+  gvm_http_multi_t *multi = g_malloc0 (sizeof (gvm_http_multi_t));
+  multi->handler = curl_multi_init ();
+  multi->headers = gvm_http_headers_new ();
+
+  return multi;
+}
+
 static http_scanner_connector_t
 mock_connector_with_multi_new (void)
 {
@@ -96,6 +111,35 @@ mock_connector_with_multi_new (void)
   gvm_http_multi_free (conn->stream_resp->multi_handler);
   conn->stream_resp->multi_handler = gvm_http_multi_new ();
   return conn;
+}
+
+Ensure (http_scanner, http_scanner_init_request_multi_multi_new_failure)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+  http_scanner_resp_t resp;
+  int port = 9390;
+
+  assert_that (
+    http_scanner_connector_builder (conn, HTTP_SCANNER_API_KEY, "api-key"),
+    is_equal_to (HTTP_SCANNER_OK));
+  assert_that (
+    http_scanner_connector_builder (conn, HTTP_SCANNER_PROTOCOL, "https"),
+    is_equal_to (HTTP_SCANNER_OK));
+  assert_that (
+    http_scanner_connector_builder (conn, HTTP_SCANNER_HOST, "localhost"),
+    is_equal_to (HTTP_SCANNER_OK));
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_PORT, &port),
+               is_equal_to (HTTP_SCANNER_OK));
+
+  mock_multi_new_fails = TRUE;
+
+  resp = http_scanner_init_request_multi (conn, "/scans");
+
+  assert_that (resp, is_not_null);
+  assert_that (resp->code, is_equal_to (RESP_CODE_ERR));
+
+  http_scanner_response_cleanup (resp);
+  http_scanner_connector_free (conn);
 }
 
 /* http_scanner_delete_scan */
@@ -983,6 +1027,9 @@ main (int argc, char **argv)
                          build_scans_endpoint_path_with_no_endpoint);
   add_test_with_context (suite, http_scanner,
                          build_scan_id_endpoint_path_with_no_endpoint);
+
+  add_test_with_context (suite, http_scanner,
+                         http_scanner_init_request_multi_multi_new_failure);
 
   add_test_with_context (suite, http_scanner,
                          http_scanner_process_request_multi_negative_timeout);
