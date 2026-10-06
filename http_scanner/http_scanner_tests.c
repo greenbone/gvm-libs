@@ -204,6 +204,35 @@ Ensure (http_scanner, http_scanner_init_request_multi_replaces_multi_handler)
   http_scanner_connector_free (conn);
 }
 
+Ensure (http_scanner, http_scanner_init_request_multi_replaces_multi_headers)
+{
+  http_scanner_connector_t conn = http_scanner_connector_new ();
+  http_scanner_resp_t resp;
+  int port = 9390;
+
+  assert_that (
+    http_scanner_connector_builder (conn, HTTP_SCANNER_API_KEY, "api-key"),
+    is_equal_to (HTTP_SCANNER_OK));
+  assert_that (
+    http_scanner_connector_builder (conn, HTTP_SCANNER_PROTOCOL, "https"),
+    is_equal_to (HTTP_SCANNER_OK));
+  assert_that (
+    http_scanner_connector_builder (conn, HTTP_SCANNER_HOST, "localhost"),
+    is_equal_to (HTTP_SCANNER_OK));
+  assert_that (http_scanner_connector_builder (conn, HTTP_SCANNER_PORT, &port),
+               is_equal_to (HTTP_SCANNER_OK));
+
+  mock_multi_new_with_headers = TRUE;
+
+  resp = http_scanner_init_request_multi (conn, "/scans");
+
+  assert_that (resp, is_not_null);
+  assert_that (resp->code, is_equal_to (RESP_CODE_OK));
+
+  http_scanner_response_cleanup (resp);
+  http_scanner_connector_free (conn);
+}
+
 /* http_scanner_delete_scan */
 
 Ensure (http_scanner, http_scanner_delete_scan_handles_missing_id)
@@ -1095,6 +1124,9 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, http_scanner,
     http_scanner_init_request_multi_replaces_multi_handler);
+  add_test_with_context (
+    suite, http_scanner,
+    http_scanner_init_request_multi_replaces_multi_headers);
 
   add_test_with_context (suite, http_scanner,
                          http_scanner_process_request_multi_negative_timeout);
