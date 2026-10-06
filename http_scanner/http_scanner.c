@@ -299,6 +299,7 @@ http_scanner_init_request_multi (http_scanner_connector_t conn,
       return response;
     }
 
+  gvm_http_multi_free (conn->stream_resp->multi_handler);
   conn->stream_resp->multi_handler = multi_handle;
   conn->stream_resp->multi_handler->headers = customheader;
 
