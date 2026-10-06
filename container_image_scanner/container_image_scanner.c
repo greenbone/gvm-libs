@@ -109,14 +109,17 @@ container_image_build_scan_config_json (container_image_target_t *target,
 
   // hosts
   hosts_array = cJSON_CreateArray ();
-  gchar **hosts_list = g_strsplit (target->hosts, ",", 0);
-  for (int i = 0; hosts_list[i] != NULL; i++)
+  if (target->hosts)
     {
-      cJSON *host_item = NULL;
-      host_item = cJSON_CreateString (hosts_list[i]);
-      cJSON_AddItemToArray (hosts_array, host_item);
+      gchar **hosts_list = g_strsplit (target->hosts, ",", 0);
+      for (int i = 0; hosts_list[i] != NULL; i++)
+        {
+          cJSON *host_item = NULL;
+          host_item = cJSON_CreateString (hosts_list[i]);
+          cJSON_AddItemToArray (hosts_array, host_item);
+        }
+      g_strfreev (hosts_list);
     }
-  g_strfreev (hosts_list);
   cJSON_AddItemToObject (target_obj, "hosts", hosts_array);
 
   // exclude hosts
