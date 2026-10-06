@@ -232,6 +232,22 @@ Ensure (container_image, emit_simple_scan_json)
   container_image_target_free (target);
 }
 
+Ensure (container_image, emit_scan_json_without_hosts)
+{
+  container_image_target_t *target =
+    container_image_target_new (NULL, NULL, NULL);
+
+  GHashTable *preferences = g_hash_table_new (g_str_hash, g_str_equal);
+
+  gchar *json = container_image_build_scan_config_json (target, preferences);
+
+  assert_that (json, is_not_equal_to (NULL));
+
+  g_free (json);
+  g_hash_table_destroy (preferences);
+  container_image_target_free (target);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -255,6 +271,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, container_image,
                          container_image_target_add_credentials);
   add_test_with_context (suite, container_image, emit_simple_scan_json);
+  add_test_with_context (suite, container_image, emit_scan_json_without_hosts);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
