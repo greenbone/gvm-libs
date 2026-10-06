@@ -301,7 +301,8 @@ http_scanner_init_request_multi (http_scanner_connector_t conn,
 
   gvm_http_multi_free (conn->stream_resp->multi_handler);
   conn->stream_resp->multi_handler = multi_handle;
-  conn->stream_resp->multi_handler->headers = customheader;
+  gvm_http_headers_free (multi_handle->headers);
+  multi_handle->headers = customheader;
 
   g_debug ("%s: Multi handle initialized successfully", __func__);
 
