@@ -67,6 +67,23 @@ __wrap_curl_easy_setopt (CURL *handle, CURLoption option, ...)
   return CURLE_OK;
 }
 
+static gboolean multi_init_use_real = TRUE;
+
+__attribute__ ((weak)) CURLM *
+__real_curl_multi_init (void);
+
+CURLM *
+__wrap_curl_multi_init (void);
+
+CURLM *
+__wrap_curl_multi_init (void)
+{
+  if (multi_init_use_real)
+    return __real_curl_multi_init ();
+
+  return NULL;
+}
+
 /* Helper functions */
 
 static void
@@ -112,6 +129,7 @@ BeforeEach (gvm_http)
   head_request_called = FALSE;
   last_postfields = NULL;
   last_postfieldsize = -1;
+  multi_init_use_real = TRUE;
 }
 
 AfterEach (gvm_http)
@@ -153,6 +171,17 @@ Ensure (gvm_http, multi_init_returns_valid_object)
   assert_that (multi, is_not_null);
   assert_that (multi->handler, is_not_null);
   assert_that (multi->headers, is_not_null);
+
+  gvm_http_multi_free (multi);
+}
+
+Ensure (gvm_http, multi_new_returns_null_when_multi_init_fails)
+{
+  multi_init_use_real = FALSE;
+  gvm_http_multi_t *multi = gvm_http_multi_new ();
+  multi_init_use_real = TRUE;
+
+  assert_that (multi, is_null);
 
   gvm_http_multi_free (multi);
 }
@@ -393,6 +422,8 @@ main (int argc, char **argv)
   add_test_with_context (suite, gvm_http, cleanup_headers_handles_null_safely);
   add_test_with_context (suite, gvm_http, headers_new_initializes_empty_list);
   add_test_with_context (suite, gvm_http, multi_init_returns_valid_object);
+  add_test_with_context (suite, gvm_http,
+                         multi_new_returns_null_when_multi_init_fails);
   add_test_with_context (suite, gvm_http,
                          multi_add_handler_with_null_returns_bad_handle);
   add_test_with_context (suite, gvm_http,
