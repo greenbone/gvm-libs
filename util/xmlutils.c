@@ -3071,7 +3071,7 @@ int
 gvm_is_valid_xml (const char *str, gchar **error_message)
 {
   xmlSAXHandler sax_handler;
-  int ret;
+  int ret = 0;
 
   if (error_message)
     *error_message = NULL;
