@@ -787,6 +787,15 @@ Ensure (xmlutils, gvm_is_valid_xml_rejects_null)
   g_free (error_message);
 }
 
+Ensure (xmlutils, gvm_is_valid_xml_rejects_empty)
+{
+  gchar *error_message;
+
+  assert_that (gvm_is_valid_xml ("", &error_message), is_false);
+  assert_that (error_message, is_not_null);
+  g_free (error_message);
+}
+
 /* Test suite. */
 
 int
@@ -835,6 +844,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, xmlutils, gvm_is_valid_xml_accepts_valid_xml);
   add_test_with_context (suite, xmlutils, gvm_is_valid_xml_rejects_invalid_xml);
   add_test_with_context (suite, xmlutils, gvm_is_valid_xml_rejects_null);
+  add_test_with_context (suite, xmlutils, gvm_is_valid_xml_rejects_empty);
 
   TestReporter *reporter = create_text_reporter ();
   if (argc > 1)
