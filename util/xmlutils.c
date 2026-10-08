@@ -3089,7 +3089,19 @@ gvm_is_valid_xml (const char *str, gchar **error_message)
   xmlParserCtxt *ctx =
     xmlCreatePushParserCtxt (&sax_handler, NULL, NULL, 0, NULL);
 
-  ret = xmlParseChunk (ctx, str, strlen (str), 1);
+  size_t len = strlen (str);
+  size_t offset = 0;
+  while (offset < len)
+    {
+      size_t chunk_size = MIN (8192, len - offset);
+      ret = xmlParseChunk (ctx, str + offset, chunk_size, 0);
+      if (ret)
+        break;
+      offset += chunk_size;
+    }
+  if (ret == 0)
+    ret = xmlParseChunk (ctx, NULL, 0, 1);
+
   if (ret)
     {
       if (error_message)
