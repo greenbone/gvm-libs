@@ -679,7 +679,7 @@ Ensure (ad_connector, get_gvm_ldap_tls_mode_rejects_null)
 
 Ensure (ad_connector, get_gvm_ldap_tls_mode_maps_supported_modes)
 {
-  gvm_ldap_tls_mode_t tls_mode;
+  gvm_ldap_tls_mode_t tls_mode = GVM_LDAP_TLS_PLAINTEXT;
   ad_connector_tls_mode_t starttls = AD_CONNECTOR_TLS_STARTTLS;
 
   ad_connector_t connector = ad_connector_new ();
