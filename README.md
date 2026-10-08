@@ -74,6 +74,8 @@ The `gvm-libs` module consists of the following libraries:
 
 - `web_application_scanner`: Web application scanner communication.
 
+- `ad_connector`: Active directory connector interface.
+
 For more information on using the functionality provided by the `gvm-libs`
 module please refer to the source code documentation.
 
