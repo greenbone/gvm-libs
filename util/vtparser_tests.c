@@ -114,6 +114,32 @@ Ensure (vtparser, parse_vt_json_parses_a_vt)
   fclose (file);
 }
 
+/* get_category_from_name */
+
+Ensure (vtparser, get_category_from_name_known)
+{
+  int cat;
+
+  cat = get_category_from_name ("init");
+  assert_that (cat, is_equal_to (ACT_INIT));
+  cat = get_category_from_name ("gather_info");
+  assert_that (cat, is_equal_to (ACT_GATHER_INFO));
+  cat = get_category_from_name ("attack");
+  assert_that (cat, is_equal_to (ACT_ATTACK));
+  cat = get_category_from_name ("end");
+  assert_that (cat, is_equal_to (ACT_END));
+}
+
+Ensure (vtparser, get_category_from_name_unknown)
+{
+  int cat;
+
+  cat = get_category_from_name ("nope");
+  assert_that (cat, is_equal_to (-1));
+  cat = get_category_from_name (NULL);
+  assert_that (cat, is_equal_to (-1));
+}
+
 /* Test suite. */
 
 int
@@ -125,6 +151,8 @@ main (int argc, char **argv)
   suite = create_test_suite ();
 
   add_test_with_context (suite, vtparser, parse_vt_json_parses_a_vt);
+  add_test_with_context (suite, vtparser, get_category_from_name_known);
+  add_test_with_context (suite, vtparser, get_category_from_name_unknown);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());

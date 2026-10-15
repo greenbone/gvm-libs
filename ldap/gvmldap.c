@@ -390,12 +390,198 @@ gvm_ldap_scope_to_openldap (gvm_ldap_scope_t scope, int *ldap_scope)
 }
 
 /**
+ * @brief Validates the keystring at the current cursor position.
+ *
+ * A keystring starts with an ASCII letter and continues with
+ * zero or more ASCII letters, digits, or hyphens.
+ * On success, advances *cursor to the first character after
+ * the keystring.
+ *
+ * @param[in,out] cursor Cursor into the string being parsed.
+ *
+ * @return TRUE if a keystring was consumed, FALSE otherwise.
+ */
+static gboolean
+gvm_ldap_keystring_is_valid (const gchar **cursor)
+{
+  const gchar *current;
+
+  if (!cursor || !*cursor)
+    return FALSE;
+
+  current = *cursor;
+
+  if (!g_ascii_isalpha (*current))
+    return FALSE;
+
+  current++;
+
+  while (g_ascii_isalnum (*current) || *current == '-')
+    current++;
+
+  *cursor = current;
+  return TRUE;
+}
+
+/**
+ * @brief Validates an LDAP attribute option at the current cursor position.
+ *
+ * An option contains one or more ASCII letters, digits, or hyphens.
+ * On success, advances *cursor to the first character after
+ * the option.
+ *
+ * @param[in,out] cursor Cursor into the string being parsed.
+ *
+ * @return TRUE if an option was consumed, FALSE otherwise.
+ */
+static gboolean
+gvm_ldap_option_is_valid (const gchar **cursor)
+{
+  const gchar *current;
+
+  if (!cursor || !*cursor)
+    return FALSE;
+
+  current = *cursor;
+
+  if (!g_ascii_isalnum (*current) && *current != '-')
+    return FALSE;
+
+  while (g_ascii_isalnum (*current) || *current == '-')
+    current++;
+
+  *cursor = current;
+  return TRUE;
+}
+
+/**
+ * @brief Validates a numeric OID arc at the current cursor position.
+ *
+ * An arc is either "0" or a non-zero digit followed by zero
+ * or more digits. On success, advances *cursor to the first
+ * character after the arc.
+ *
+ * @param[in,out] cursor Cursor into the string being parsed.
+ *
+ * @return TRUE if an arc was consumed, FALSE otherwise.
+ */
+static gboolean
+gvm_ldap_oid_arc_is_valid (const gchar **cursor)
+{
+  const gchar *current;
+
+  if (!cursor || !*cursor || !g_ascii_isdigit (**cursor))
+    return FALSE;
+
+  current = *cursor;
+
+  if (*current == '0')
+    {
+      current++;
+      if (g_ascii_isdigit (*current))
+        return FALSE;
+    }
+  else
+    {
+      while (g_ascii_isdigit (*current))
+        current++;
+    }
+
+  *cursor = current;
+  return TRUE;
+}
+
+/**
+ * @brief Validates the OID at the current cursor position.
+ *
+ * An OID contains at least two numeric arcs separated by dots.
+ * On success, advances *cursor to the first character after
+ * the OID.
+ *
+ * @param[in,out] cursor Cursor into the string being parsed.
+ *
+ * @return TRUE if an OID was consumed, FALSE otherwise.
+ */
+static gboolean
+gvm_ldap_oid_is_valid (const gchar **cursor)
+{
+  const gchar *current;
+  guint arc_count = 0;
+
+  if (!cursor || !*cursor || !g_ascii_isdigit (**cursor))
+    return FALSE;
+
+  current = *cursor;
+
+  while (TRUE)
+    {
+      if (!gvm_ldap_oid_arc_is_valid (&current))
+        return FALSE;
+
+      arc_count++;
+
+      if (*current != '.')
+        break;
+
+      current++;
+    }
+
+  *cursor = current;
+  return arc_count >= 2;
+}
+
+/**
+ * @brief Validates an LDAP attribute description.
+ *
+ * @details Accepts an attribute descriptor or numeric OID, optionally
+ *          followed by semicolon-separated attribute options.
+ *
+ * @param attribute LDAP attribute description to validate.
+ *
+ * @return TRUE if the description is valid, otherwise FALSE.
+ */
+static gboolean
+gvm_ldap_attribute_name_is_valid (const gchar *attribute)
+{
+  const gchar *cursor;
+
+  if (!attribute || attribute[0] == '\0')
+    return FALSE;
+
+  cursor = attribute;
+
+  if (g_ascii_isalpha (*cursor))
+    {
+      if (!gvm_ldap_keystring_is_valid (&cursor))
+        return FALSE;
+    }
+  else if (g_ascii_isdigit (*cursor))
+    {
+      if (!gvm_ldap_oid_is_valid (&cursor))
+        return FALSE;
+    }
+  else
+    return FALSE;
+
+  while (*cursor == ';')
+    {
+      cursor++;
+
+      if (!gvm_ldap_option_is_valid (&cursor))
+        return FALSE;
+    }
+
+  return *cursor == '\0';
+}
+
+/**
  * @brief Creates a new LDAP search parameters structure.
  *
  * @param base_dn          The base DN for the search.
  * @param scope            The search scope (element of gvm_ldap_scope_t).
  * @param filter           The search filter.
- * @param attributes       The attributes to retrieve.
+ * @param attributes       A NULL-terminated array of strings with the
+ *                         attributes to retrieve.
  * @param page_size        The page size for paged searches.
  *                         Use 0 for GVM_LDAP_DEFAULT_PAGE_SIZE.
  * @param size_limit       The size limit for the search. Use 0 for no limit.
@@ -424,6 +610,19 @@ gvm_ldap_search_params_new (const gchar *base_dn, gvm_ldap_scope_t scope,
     {
       g_warning ("%s: Invalid LDAP search scope: %d", __func__, scope);
       return NULL;
+    }
+
+  if (attributes)
+    {
+      for (gchar **attr = attributes; *attr != NULL; attr++)
+        {
+          if (!gvm_ldap_attribute_name_is_valid (*attr))
+            {
+              g_warning ("%s: Invalid LDAP attribute name: %s", __func__,
+                         *attr);
+              return NULL;
+            }
+        }
     }
 
   params = g_malloc0 (sizeof (gvm_ldap_search_params_t));

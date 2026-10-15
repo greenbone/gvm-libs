@@ -416,6 +416,13 @@ if(BUILD_TESTS)
     ${LINKER_HARDENING_FLAGS}
   )
   add_unit_test(
+    tlsutils-test
+    tlsutils_tests.c
+    ${GLIB_LDFLAGS}
+    ${GNUTLS_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+  add_unit_test(
     credentialutils-test
     credentialutils_tests.c
     gvm_base_shared

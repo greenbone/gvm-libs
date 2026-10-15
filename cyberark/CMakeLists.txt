@@ -96,4 +96,20 @@ if(BUILD_SHARED)
   )
 endif(BUILD_SHARED)
 
+## Tests
+
+if(BUILD_TESTS)
+  add_unit_test(
+    cyberark-test
+    cyberark_tests.c
+    gvm_base_shared
+    gvm_util_shared
+    gvm_http_shared
+    ${GLIB_LDFLAGS}
+    ${CJSON_LDFLAGS}
+    ${CURL_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+endif(BUILD_TESTS)
+
 ## End

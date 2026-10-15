@@ -746,6 +746,11 @@ Ensure (xmlutils, iterator_fails_on_unexpected_eof)
   assert_that (err, contains_string ("Opening and ending tag mismatch"));
 
   element_free (e);
+
+  g_free (err);
+  xml_file_iterator_free (it);
+  g_unlink (path);
+  g_free (path);
 }
 
 Ensure (xmlutils, gvm_is_valid_xml_accepts_valid_xml)
@@ -779,6 +784,15 @@ Ensure (xmlutils, gvm_is_valid_xml_rejects_null)
 
   assert_that (gvm_is_valid_xml (NULL, &error_message), is_false);
   assert_that (error_message, contains_string ("Given string is NULL"));
+  g_free (error_message);
+}
+
+Ensure (xmlutils, gvm_is_valid_xml_rejects_empty)
+{
+  gchar *error_message;
+
+  assert_that (gvm_is_valid_xml ("", &error_message), is_false);
+  assert_that (error_message, is_not_null);
   g_free (error_message);
 }
 
@@ -830,6 +844,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, xmlutils, gvm_is_valid_xml_accepts_valid_xml);
   add_test_with_context (suite, xmlutils, gvm_is_valid_xml_rejects_invalid_xml);
   add_test_with_context (suite, xmlutils, gvm_is_valid_xml_rejects_null);
+  add_test_with_context (suite, xmlutils, gvm_is_valid_xml_rejects_empty);
 
   TestReporter *reporter = create_text_reporter ();
   if (argc > 1)

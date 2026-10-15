@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.18)
 message("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 # VERSION: Always include major, minor and patch level.
-project(gvm-libs VERSION 23.11.1 LANGUAGES C)
+project(gvm-libs VERSION 23.12.2 LANGUAGES C)
 
 if(POLICY CMP0005)
   cmake_policy(SET CMP0005 NEW)
@@ -278,6 +278,7 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     streamvalidator-test
     strings-test
     test-hosts
+    tlsutils-test
     util-test
     uuidutils-test
     version-test
@@ -310,7 +311,12 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
 
   if(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
     list(APPEND TESTS gvmldap-test)
+    list(APPEND TESTS ad-connector-test)
   endif(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
+
+  if(ENABLE_CREDENTIAL_STORES)
+    list(APPEND TESTS cyberark-test)
+  endif(ENABLE_CREDENTIAL_STORES)
 
   add_custom_target(tests DEPENDS ${TESTS})
 
@@ -400,6 +406,7 @@ if(NOT SKIP_SRC)
 
   if(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
     add_subdirectory(ldap)
+    add_subdirectory(ad_connector)
   endif(ENABLE_ACTIVE_DIRECTORY_INTEGRATION)
 endif(NOT SKIP_SRC)
 

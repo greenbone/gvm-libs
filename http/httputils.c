@@ -721,6 +721,11 @@ gvm_http_multi_new ()
 {
   gvm_http_multi_t *multi = g_malloc0 (sizeof (gvm_http_multi_t));
   multi->handler = curl_multi_init ();
+  if (!multi->handler)
+    {
+      g_free (multi);
+      return NULL;
+    }
   multi->headers = gvm_http_headers_new ();
 
   return multi;

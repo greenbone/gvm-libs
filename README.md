@@ -56,6 +56,26 @@ The `gvm-libs` module consists of the following libraries:
 
 - `osp`: API support for the Open Scanner Protocol (OSP).
 
+- `agent_controller`: Agent controller client for agent management.
+
+- `boreas`: Host discovery functions.
+
+- `container_image_scanner`: Container image scanner communication.
+
+- `cyberark`: Cyberark credential store communication.
+
+- `http`: Utility functions for http built on libcurl.
+
+- `http_scanner`: Communication with an http scanner.
+
+- `openvasd`: Openvas daemon communication.
+
+- `security_intelligence`: Security intelligence client.
+
+- `web_application_scanner`: Web application scanner communication.
+
+- `ad_connector`: Active directory connector interface.
+
 For more information on using the functionality provided by the `gvm-libs`
 module please refer to the source code documentation.
 
@@ -118,7 +138,7 @@ sent to file or stderr, valid format sequences are:
 
 Valid values for `separator` are most strings.
 
-Valid values for `prepend\_time\_format` are format specifications for
+Valid values for `prepend_time_format` are format specifications for
 strftime(3).
 
 The value of `file` controls where the logs are sent:
@@ -148,11 +168,11 @@ in the configuration file. Do note warnings though about sensitive
 information in log messages in comments at the start of some config
 files as shipped from dependent projects.
 
-Valid values for `syslog\_facility` are "auth", "authpriv", "cron",
+Valid values for `syslog_facility` are "auth", "authpriv", "cron",
 "daemon", "ftp", "kern", "lpr", "mail", "mark", "news", "security",
 "syslog", "user", "uucp" and "local0" through "local7".
 
-Valid values for `syslog\_ident` are most strings.
+Valid values for `syslog_ident` are most strings.
 
 Empty lines and lines beginning with the hash symbol ("#") are treated
 as comments.
