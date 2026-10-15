@@ -2096,12 +2096,10 @@ agent_controller_get_installer_instruction (agent_controller_connector_t conn,
  * @return Newly allocated support bundle on success, NULL on failure.
  */
 agent_controller_support_bundle_t
-agent_controller_download_support_bundle (
-  agent_controller_connector_t conn,
-  const gchar *agent_id,
-  int days,
-  gboolean encrypted,
-  gboolean anonymized)
+agent_controller_download_support_bundle (agent_controller_connector_t conn,
+                                          const gchar *agent_id, int days,
+                                          gboolean encrypted,
+                                          gboolean anonymized)
 {
   gvm_http_headers_t *headers;
   gvm_http_response_t *response;
@@ -2117,20 +2115,16 @@ agent_controller_download_support_bundle (
   if (!escaped_agent_id)
     return NULL;
 
-  path = g_strdup_printf (
-    "/agent-control/v2/api/agents/%s/support-bundle"
-    "?encrypted=%s&anonymized=%s%s",
-    escaped_agent_id,
-    encrypted ? "true" : "false",
-    anonymized ? "true" : "false",
-    days > 0 ? "" : "");
+  path = g_strdup_printf ("/agent-control/v2/api/agents/%s/support-bundle"
+                          "?encrypted=%s&anonymized=%s%s",
+                          escaped_agent_id, encrypted ? "true" : "false",
+                          anonymized ? "true" : "false", days > 0 ? "" : "");
 
   g_free (escaped_agent_id);
 
   if (days > 0)
     {
-      gchar *path_with_days =
-        g_strdup_printf ("%s&days=%d", path, days);
+      gchar *path_with_days = g_strdup_printf ("%s&days=%d", path, days);
       g_free (path);
       path = path_with_days;
     }
@@ -2153,8 +2147,7 @@ agent_controller_download_support_bundle (
     }
 
   response =
-    agent_controller_send_request_with_headers (
-      conn, GET, path, NULL, headers);
+    agent_controller_send_request_with_headers (conn, GET, path, NULL, headers);
 
   gvm_http_headers_free (headers);
   g_free (path);
@@ -2164,8 +2157,8 @@ agent_controller_download_support_bundle (
 
   if (response->http_status != 200)
     {
-      g_warning ("%s: Received HTTP status %ld",
-                 __func__, response->http_status);
+      g_warning ("%s: Received HTTP status %ld", __func__,
+                 response->http_status);
       gvm_http_response_free (response);
       return NULL;
     }
