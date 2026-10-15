@@ -3718,7 +3718,7 @@ Ensure (agent_controller, download_support_bundle_returns_data_and_filename)
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "GAT-29::2d61a736", 0);
+    agent_controller_download_support_bundle (conn, "GAT-29::2d61a736", 0, TRUE, FALSE);
 
   assert_that (bundle, is_not_null);
   assert_that (bundle->data, is_not_null);
@@ -3731,7 +3731,7 @@ Ensure (agent_controller, download_support_bundle_returns_data_and_filename)
   assert_that (
     last_sent_url,
     is_equal_to_string ("http://localhost:8081/agent-control/v2/api/agents/"
-                        "GAT-29%3A%3A2d61a736/support-bundle"));
+                        "GAT-29%3A%3A2d61a736/support-bundle?encrypted=true&anonymized=false"));
 
   assert_that (last_sent_payload, is_null);
 
@@ -3760,14 +3760,14 @@ Ensure (agent_controller, download_support_bundle_adds_days_parameter)
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", 7);
+    agent_controller_download_support_bundle (conn, "agent-123", 7, TRUE, FALSE);
 
   assert_that (bundle, is_not_null);
 
   assert_that (
     last_sent_url,
     is_equal_to_string ("http://localhost:8081/agent-control/v2/api/agents/"
-                        "agent-123/support-bundle?days=7"));
+                        "agent-123/support-bundle?encrypted=true&anonymized=false&days=7"));
 
   agent_controller_support_bundle_free (bundle);
   agent_controller_connector_free (conn);
@@ -3784,7 +3784,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, TRUE, FALSE);
 
   assert_that (bundle, is_not_null);
   assert_that (bundle->filename, is_null);
@@ -3807,7 +3807,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, TRUE, FALSE);
 
   assert_that (bundle, is_not_null);
   assert_that (bundle->filename, is_null);
@@ -3820,7 +3820,7 @@ Ensure (agent_controller,
         download_support_bundle_returns_null_for_null_connection)
 {
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (NULL, "agent-123", 0);
+    agent_controller_download_support_bundle (NULL, "agent-123", 0, TRUE, FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
@@ -3832,7 +3832,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, NULL, 0);
+    agent_controller_download_support_bundle (conn, NULL, 0, TRUE, FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
@@ -3846,7 +3846,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "", 0);
+    agent_controller_download_support_bundle (conn, "", 0, TRUE, FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
@@ -3860,7 +3860,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", -1);
+    agent_controller_download_support_bundle (conn, "agent-123", -1, TRUE, FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
@@ -3876,12 +3876,12 @@ Ensure (agent_controller, download_support_bundle_returns_null_for_http_error)
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "missing-agent", 0);
+    agent_controller_download_support_bundle (conn, "missing-agent", 0, TRUE, FALSE);
 
   assert_that (bundle, is_null);
 
   assert_that (last_sent_url, contains_string ("/agent-control/v2/api/agents/"
-                                               "missing-agent/support-bundle"));
+                                               "missing-agent/support-bundle?encrypted=true&anonymized=false"));
 
   agent_controller_connector_free (conn);
 }
@@ -3894,7 +3894,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, TRUE, FALSE);
 
   assert_that (bundle, is_null);
 
@@ -3912,7 +3912,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, TRUE, FALSE);
 
   assert_that (bundle, is_null);
 
@@ -3920,7 +3920,7 @@ Ensure (agent_controller,
 }
 
 Ensure (agent_controller,
-        download_support_bundle_plain_returns_data_and_filename)
+        download_support_bundle_unencrypted_returns_data_and_filename)
 {
   static const guint8 plain_data[] = {0x50, 0x4b, 0x03, 0x04, 0x00,
                                       0xff, 0x10, 0x20, 0x00, 0x42};
@@ -3938,8 +3938,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle_plain (conn, "GAT-29::2d61a736",
-                                                    0);
+    agent_controller_download_support_bundle (conn, "GAT-29::2d61a736", 0, FALSE, FALSE);
 
   assert_that (bundle, is_not_null);
   assert_that (bundle->data, is_not_null);
@@ -3952,7 +3951,7 @@ Ensure (agent_controller,
   assert_that (
     last_sent_url,
     is_equal_to_string ("http://localhost:8081/agent-control/v2/api/agents/"
-                        "GAT-29%3A%3A2d61a736/support-bundle/plain"));
+                        "GAT-29%3A%3A2d61a736/support-bundle?encrypted=false&anonymized=false"));
 
   assert_that (last_sent_payload, is_null);
 
@@ -3969,7 +3968,7 @@ Ensure (agent_controller,
   agent_controller_connector_free (conn);
 }
 
-Ensure (agent_controller, download_support_bundle_plain_adds_days_parameter)
+Ensure (agent_controller, download_support_bundle_unencrypted_adds_days_parameter)
 {
   static const guint8 plain_data[] = {0x01, 0x02, 0x03};
 
@@ -3982,21 +3981,21 @@ Ensure (agent_controller, download_support_bundle_plain_adds_days_parameter)
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle_plain (conn, "agent-123", 7);
+    agent_controller_download_support_bundle (conn, "agent-123", 7, FALSE, FALSE);
 
   assert_that (bundle, is_not_null);
 
   assert_that (
     last_sent_url,
     is_equal_to_string ("http://localhost:8081/agent-control/v2/api/agents/"
-                        "agent-123/support-bundle/plain?days=7"));
+                        "agent-123/support-bundle?encrypted=false&anonymized=false&days=7"));
 
   agent_controller_support_bundle_free (bundle);
   agent_controller_connector_free (conn);
 }
 
 Ensure (agent_controller,
-        download_support_bundle_plain_allows_missing_content_disposition)
+        download_support_bundle_unencrypted_allows_missing_content_disposition)
 {
   static const guint8 plain_data[] = {0x01, 0x02};
 
@@ -4006,7 +4005,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle_plain (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, FALSE, FALSE);
 
   assert_that (bundle, is_not_null);
   assert_that (bundle->filename, is_null);
@@ -4017,7 +4016,7 @@ Ensure (agent_controller,
 }
 
 Ensure (agent_controller,
-        download_support_bundle_plain_allows_invalid_content_disposition)
+        download_support_bundle_unencrypted_allows_invalid_content_disposition)
 {
   static const guint8 plain_data[] = {0x01, 0x02};
 
@@ -4029,7 +4028,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle_plain (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, FALSE, FALSE);
 
   assert_that (bundle, is_not_null);
   assert_that (bundle->filename, is_null);
@@ -4039,22 +4038,22 @@ Ensure (agent_controller,
 }
 
 Ensure (agent_controller,
-        download_support_bundle_plain_returns_null_for_null_connection)
+        download_support_bundle_unencrypted_returns_null_for_null_connection)
 {
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle_plain (NULL, "agent-123", 0);
+    agent_controller_download_support_bundle (NULL, "agent-123", 0, FALSE, FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
 }
 
 Ensure (agent_controller,
-        download_support_bundle_plain_returns_null_for_null_agent_id)
+        download_support_bundle_unencrypted_returns_null_for_null_agent_id)
 {
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle_plain (conn, NULL, 0);
+    agent_controller_download_support_bundle (conn, NULL, 0, FALSE, FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
@@ -4063,12 +4062,12 @@ Ensure (agent_controller,
 }
 
 Ensure (agent_controller,
-        download_support_bundle_plain_returns_null_for_empty_agent_id)
+        download_support_bundle_unencrypted_returns_null_for_empty_agent_id)
 {
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle_plain (conn, "", 0);
+    agent_controller_download_support_bundle (conn, "", 0, FALSE, FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
@@ -4077,12 +4076,12 @@ Ensure (agent_controller,
 }
 
 Ensure (agent_controller,
-        download_support_bundle_plain_returns_null_for_negative_days)
+        download_support_bundle_unencrypted_returns_null_for_negative_days)
 {
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle_plain (conn, "agent-123", -1);
+    agent_controller_download_support_bundle (conn, "agent-123", -1, FALSE, FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
@@ -4091,7 +4090,7 @@ Ensure (agent_controller,
 }
 
 Ensure (agent_controller,
-        download_support_bundle_plain_returns_null_for_http_error)
+        download_support_bundle_unencrypted_returns_null_for_http_error)
 {
   mock_http_status = 404;
   mock_response_data = g_strdup ("Agent not found");
@@ -4099,26 +4098,26 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle_plain (conn, "missing-agent", 0);
+    agent_controller_download_support_bundle (conn, "missing-agent", 0, FALSE, FALSE);
 
   assert_that (bundle, is_null);
 
   assert_that (last_sent_url,
                contains_string ("/agent-control/v2/api/agents/"
-                                "missing-agent/support-bundle/plain"));
+                                "missing-agent/support-bundle?encrypted=false&anonymized=false"));
 
   agent_controller_connector_free (conn);
 }
 
 Ensure (agent_controller,
-        download_support_bundle_plain_returns_null_when_request_fails)
+        download_support_bundle_unencrypted_returns_null_when_request_fails)
 {
   mock_http_status = 500;
 
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle_plain (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, FALSE, FALSE);
 
   assert_that (bundle, is_null);
 
@@ -4126,7 +4125,7 @@ Ensure (agent_controller,
 }
 
 Ensure (agent_controller,
-        download_support_bundle_plain_returns_null_for_empty_response)
+        download_support_bundle_unencrypted_returns_null_for_empty_response)
 {
   mock_http_status = 200;
   mock_empty_response = TRUE;
@@ -4137,10 +4136,54 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle_plain (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, FALSE, FALSE);
 
   assert_that (bundle, is_null);
 
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, download_support_bundle_encrypted_anonymized)
+{
+  static const guint8 data[] = {0x01, 0x02, 0x03};
+
+  mock_http_status = 200;
+  set_mock_binary_response (data, sizeof (data));
+
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "agent-123", 7,
+                                              TRUE, TRUE);
+
+  assert_that (bundle, is_not_null);
+  assert_that (
+    last_sent_url,
+    is_equal_to_string ("http://localhost:8081/agent-control/v2/api/agents/"
+                        "agent-123/support-bundle?encrypted=true&anonymized=true&days=7"));
+
+  agent_controller_support_bundle_free (bundle);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, download_support_bundle_unencrypted_anonymized)
+{
+  static const guint8 data[] = {0x01, 0x02, 0x03};
+
+  mock_http_status = 200;
+  set_mock_binary_response (data, sizeof (data));
+
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "agent-123", 0,
+                                              FALSE, TRUE);
+
+  assert_that (bundle, is_not_null);
+  assert_that (
+    last_sent_url,
+    is_equal_to_string ("http://localhost:8081/agent-control/v2/api/agents/"
+                        "agent-123/support-bundle?encrypted=false&anonymized=true"));
+
+  agent_controller_support_bundle_free (bundle);
   agent_controller_connector_free (conn);
 }
 
@@ -4582,36 +4625,7 @@ main (int argc, char **argv)
     download_support_bundle_returns_null_for_empty_response);
   add_test_with_context (
     suite, agent_controller,
-    download_support_bundle_plain_returns_data_and_filename);
-  add_test_with_context (suite, agent_controller,
-                         download_support_bundle_plain_adds_days_parameter);
-  add_test_with_context (
-    suite, agent_controller,
-    download_support_bundle_plain_allows_missing_content_disposition);
-  add_test_with_context (
-    suite, agent_controller,
-    download_support_bundle_plain_allows_invalid_content_disposition);
-  add_test_with_context (
-    suite, agent_controller,
-    download_support_bundle_plain_returns_null_for_null_connection);
-  add_test_with_context (
-    suite, agent_controller,
-    download_support_bundle_plain_returns_null_for_null_agent_id);
-  add_test_with_context (
-    suite, agent_controller,
-    download_support_bundle_plain_returns_null_for_empty_agent_id);
-  add_test_with_context (
-    suite, agent_controller,
-    download_support_bundle_plain_returns_null_for_negative_days);
-  add_test_with_context (
-    suite, agent_controller,
-    download_support_bundle_plain_returns_null_for_http_error);
-  add_test_with_context (
-    suite, agent_controller,
-    download_support_bundle_plain_returns_null_when_request_fails);
-  add_test_with_context (
-    suite, agent_controller,
-    download_support_bundle_plain_returns_null_for_empty_response);
+    download_support_bundle_encrypted_anonymized);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
