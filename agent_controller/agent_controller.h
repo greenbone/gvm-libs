@@ -364,10 +364,7 @@ agent_controller_get_installer_instruction (agent_controller_connector_t,
 
 agent_controller_support_bundle_t
 agent_controller_download_support_bundle (agent_controller_connector_t,
-                                          const gchar *, int);
-
-agent_controller_support_bundle_t
-agent_controller_download_support_bundle_plain (agent_controller_connector_t,
-                                                const gchar *, int);
+                                          const gchar *, int, gboolean,
+                                          gboolean);
 
 #endif /* not _GVM_AGENT_CONTROLLER_AGENT_CONTROLLER_H */
