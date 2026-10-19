@@ -81,6 +81,18 @@ struct agent_controller_agent_control_cfg
 };
 
 /**
+ * @brief Scheduler cron configuration entry.
+ */
+struct agent_controller_scheduler_cron
+{
+  gchar *cron;
+  int max_delay_seconds;
+};
+
+typedef struct agent_controller_scheduler_cron
+  *agent_controller_scheduler_cron_t;
+
+/**
  * @brief agent_script_executor block.
  */
 struct agent_controller_script_exec_cfg
@@ -90,9 +102,8 @@ struct agent_controller_script_exec_cfg
   ///< milliseconds
   int indexer_dir_depth; ///< Max directory depth to scan/index
 
-  GPtrArray *scheduler_cron_time; ///< Optional list of cron expressions
-  ///< Format: standard 5-field cron like
-  /// "0 23 * * *"
+  GPtrArray *scheduler_cron_time; ///< Array of
+                                  ///< agent_controller_scheduler_cron_t
 };
 
 /**
@@ -165,6 +176,8 @@ struct agent_controller_agent
     *latest_updater_version; ///< Latest updater version string (may be empty)
   gchar *operating_system;   ///< OS string (may be empty)
   gchar *architecture; ///< Architecture string (e.g., "amd64", may be empty)
+  gchar *os_cpe;       ///< Operating system CPE identifier
+  gchar *os_status;    ///< Operating system detection status
 
   int update_to_latest;         ///< 1: update to latest, 0: do not
   int agent_update_available;   ///< 1 agent update available, 0 do not
@@ -305,6 +318,12 @@ agent_controller_support_bundle_new (void);
 
 void
 agent_controller_support_bundle_free (agent_controller_support_bundle_t bundle);
+
+agent_controller_scheduler_cron_t
+agent_controller_scheduler_cron_new (void);
+
+void
+agent_controller_scheduler_cron_free (agent_controller_scheduler_cron_t cron);
 
 agent_controller_agent_list_t
 agent_controller_get_agents (agent_controller_connector_t conn);
