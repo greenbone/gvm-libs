@@ -362,17 +362,28 @@ agent_controller_parse_agent_config (cJSON *root)
       cJSON *cron = cJSON_GetObjectItem (exec, "scheduler_cron_time");
       if (cJSON_IsArray (cron))
         {
-          GPtrArray *arr = g_ptr_array_new_with_free_func (g_free);
+          GPtrArray *arr = g_ptr_array_new_with_free_func (
+            (GDestroyNotify) agent_controller_scheduler_cron_free);
           int n = cJSON_GetArraySize (cron);
 
           for (int i = 0; i < n; ++i)
             {
               cJSON *it = cJSON_GetArrayItem (cron, i);
-              if (cJSON_IsString (it) && it->valuestring
-                  && it->valuestring[0] != '\0')
-                {
-                  g_ptr_array_add (arr, g_strdup (it->valuestring));
-                }
+              if (!cJSON_IsObject (it))
+                continue;
+
+              const gchar *expr = gvm_json_obj_str (it, "cron");
+              if (!expr || !*expr)
+                continue;
+
+              agent_controller_scheduler_cron_t entry =
+                agent_controller_scheduler_cron_new ();
+
+              entry->cron = g_strdup (expr);
+              entry->max_delay_seconds =
+                gvm_json_obj_int (it, "max_delay_seconds");
+
+              g_ptr_array_add (arr, entry);
             }
 
           if (arr->len > 0)
@@ -528,6 +539,8 @@ agent_controller_parse_agent (cJSON *item)
     gvm_json_obj_str (item, "latest_updater_version");
   const gchar *os_str = gvm_json_obj_str (item, "operating_system");
   const gchar *arch = gvm_json_obj_str (item, "architecture");
+  const gchar *os_cpe = gvm_json_obj_str (item, "os_cpe");
+  const gchar *os_status = gvm_json_obj_str (item, "os_status");
 
   agent->updater_version = upd_ver ? g_strdup (upd_ver) : NULL;
   agent->agent_version = agt_ver ? g_strdup (agt_ver) : NULL;
@@ -537,6 +550,8 @@ agent_controller_parse_agent (cJSON *item)
     latest_updater_ver ? g_strdup (latest_updater_ver) : NULL;
   agent->operating_system = os_str ? g_strdup (os_str) : NULL;
   agent->architecture = arch ? g_strdup (arch) : NULL;
+  agent->os_cpe = os_cpe ? g_strdup (os_cpe) : NULL;
+  agent->os_status = os_status ? g_strdup (os_status) : NULL;
   agent->update_to_latest =
     cJSON_IsTrue (cJSON_GetObjectItem (item, "update_to_latest"));
   agent->agent_update_available =
@@ -552,35 +567,34 @@ agent_controller_parse_agent (cJSON *item)
 }
 
 /**
- * @brief Deep-copy a GPtrArray of char*.
+ * @brief Deep-copy a GPtrArray of scheduler cron entries.
  *
- * @param[in] src  Source pointer array to duplicate (may be NULL).
+ * @param[in] src Source array to duplicate (may be NULL).
  *
- * @return A newly allocated #GPtrArray on success; NULL if @p src is NULL
- *         or if an allocation fails.
+ * @return Newly allocated array, or NULL if src is NULL.
  */
 static GPtrArray *
-dup_str_ptr_array (const GPtrArray *src)
+dup_scheduler_cron_array (const GPtrArray *src)
 {
   if (!src)
     return NULL;
 
-  GPtrArray *dst = g_ptr_array_sized_new (src->len);
-  if (!dst)
-    return NULL;
-
-  g_ptr_array_set_free_func (dst, g_free);
+  GPtrArray *dst = g_ptr_array_new_with_free_func (
+    (GDestroyNotify) agent_controller_scheduler_cron_free);
 
   for (guint i = 0; i < src->len; ++i)
     {
-      const char *s = g_ptr_array_index ((GPtrArray *) src, i);
-      char *copy = s ? g_strdup (s) : NULL;
+      agent_controller_scheduler_cron_t entry =
+        g_ptr_array_index ((GPtrArray *) src, i);
 
-      if (s && !copy)
-        {
-          g_ptr_array_free (dst, TRUE);
-          return NULL;
-        }
+      if (!entry)
+        continue;
+
+      agent_controller_scheduler_cron_t copy =
+        agent_controller_scheduler_cron_new ();
+
+      copy->cron = g_strdup (entry->cron);
+      copy->max_delay_seconds = entry->max_delay_seconds;
 
       g_ptr_array_add (dst, copy);
     }
@@ -662,7 +676,7 @@ agent_controller_build_updated_agent_config (
       : base_config->agent_script_executor.scheduler_cron_time;
 
   merged->agent_script_executor.scheduler_cron_time =
-    dup_str_ptr_array (src_cron);
+    dup_scheduler_cron_array (src_cron);
 
   return merged;
 }
@@ -1075,6 +1089,8 @@ agent_controller_agent_free (agent_controller_agent_t agent)
   g_free (agent->latest_updater_version);
   g_free (agent->operating_system);
   g_free (agent->updater_version);
+  g_free (agent->os_cpe);
+  g_free (agent->os_status);
   g_free (agent);
 }
 
@@ -1284,6 +1300,32 @@ agent_controller_support_bundle_free (agent_controller_support_bundle_t bundle)
   g_free (bundle->data);
   g_free (bundle->filename);
   g_free (bundle);
+}
+
+/**
+ * @brief Allocate/zero a new scheduler cron struct.
+ *
+ * @return Newly allocated scheduler cron struct
+ */
+agent_controller_scheduler_cron_t
+agent_controller_scheduler_cron_new (void)
+{
+  return g_malloc0 (sizeof (struct agent_controller_scheduler_cron));
+}
+
+/**
+ * @brief Free a scheduler cron struct.
+ *
+ * @param[in] cron to be freed
+ */
+void
+agent_controller_scheduler_cron_free (agent_controller_scheduler_cron_t cron)
+{
+  if (cron == NULL)
+    return;
+
+  g_free (cron->cron);
+  g_free (cron);
 }
 
 /**
@@ -1662,11 +1704,22 @@ agent_controller_convert_agent_config_string (
   if (arr && arr->len > 0)
     {
       cJSON *cron = cJSON_CreateArray ();
+
       for (guint i = 0; i < arr->len; ++i)
         {
-          const gchar *expr = g_ptr_array_index ((GPtrArray *) arr, i);
-          if (expr && *expr)
-            cJSON_AddItemToArray (cron, cJSON_CreateString (expr));
+          agent_controller_scheduler_cron_t entry =
+            g_ptr_array_index ((GPtrArray *) arr, i);
+
+          if (!entry || !entry->cron || !*entry->cron)
+            continue;
+
+          cJSON *cron_obj = cJSON_CreateObject ();
+
+          cJSON_AddStringToObject (cron_obj, "cron", entry->cron);
+          cJSON_AddNumberToObject (cron_obj, "max_delay_seconds",
+                                   entry->max_delay_seconds);
+
+          cJSON_AddItemToArray (cron, cron_obj);
         }
 
       if (cJSON_GetArraySize (cron) > 0)
