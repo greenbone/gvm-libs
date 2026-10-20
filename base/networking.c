@@ -930,7 +930,7 @@ get_routes (void)
               "%s: %s", __func__,
               err ? err->message
                   : "g_io_channel_read_line() status == G_IO_STATUS_ERROR");
-          err = NULL;
+          g_clear_error (&err);
           g_free (line);
           break;
         }
