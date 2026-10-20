@@ -329,6 +329,35 @@ Ensure (hosts, gvm_hosts_move_host_to_end)
   gvm_hosts_free (hosts);
 }
 
+Ensure (hosts, gvm_hosts_move_current_host_to_end_before_first_host)
+{
+  gvm_hosts_t *hosts = gvm_hosts_new ("192.168.0.1");
+
+  assert_that (hosts->current, is_equal_to (0));
+  assert_that (hosts->count, is_equal_to (1));
+
+  gvm_hosts_move_current_host_to_end (hosts);
+  assert_that (hosts->current <= hosts->count, is_true);
+
+  gvm_hosts_free (hosts);
+}
+
+Ensure (hosts, gvm_hosts_move_current_host_to_end_empty_hosts)
+{
+  gvm_hosts_t *hosts = gvm_hosts_new ("");
+  gvm_host_t *host;
+
+  assert_that (hosts->current, is_equal_to (0));
+  assert_that (hosts->count, is_equal_to (0));
+
+  gvm_hosts_move_current_host_to_end (hosts);
+  host = gvm_hosts_next (hosts);
+  assert_that (host, is_null);
+  assert_that (hosts->current <= hosts->count, is_true);
+
+  gvm_hosts_free (hosts);
+}
+
 #define ASSERT_SLIST_HOST_EQUALS(list_var, index, host_str) \
   assert_that (g_slist_nth_data (list_var, index),          \
                is_equal_to_string (host_str));
@@ -541,6 +570,10 @@ main (int argc, char **argv)
                          gvm_hosts_new_with_max_handles_range_edge_cases);
 
   add_test_with_context (suite, hosts, gvm_hosts_move_host_to_end);
+  add_test_with_context (suite, hosts,
+                         gvm_hosts_move_current_host_to_end_before_first_host);
+  add_test_with_context (suite, hosts,
+                         gvm_hosts_move_current_host_to_end_empty_hosts);
 
   add_test_with_context (suite, hosts, gvm_hosts_allowed_only_handles_noop);
   add_test_with_context (suite, hosts, gvm_hosts_allowed_only_handles_deny);
