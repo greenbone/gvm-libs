@@ -1038,6 +1038,7 @@ __real_g_io_channel_new_file (const char *filename, const char *mode,
                               GError **error);
 
 gboolean g_g_io_channel_new_file_use_real = TRUE;
+static gboolean g_g_io_channel_new_file_fail_real = FALSE;
 GIOChannel *
 __wrap_g_io_channel_new_file (const char *filename, const char *mode,
                               GError **error);
@@ -1048,6 +1049,10 @@ __wrap_g_io_channel_new_file (const char *filename, const char *mode,
   if (g_g_io_channel_new_file_use_real)
     return __real_g_io_channel_new_file (filename, mode, error);
 
+  if (g_g_io_channel_new_file_fail_real)
+    return __real_g_io_channel_new_file ("/nonexistent/gvm-libs/route", mode,
+                                         error);
+
   return (GIOChannel *) mock (filename, mode, error);
 }
 
@@ -1056,6 +1061,7 @@ __real_g_io_channel_shutdown (GIOChannel *channel, gboolean flush,
                               GError **err);
 
 gboolean g_g_io_channel_shutdown_use_real = TRUE;
+static gboolean g_g_io_channel_shutdown_fail_real = FALSE;
 GIOStatus
 __wrap_g_io_channel_shutdown (GIOChannel *channel, gboolean flush,
                               GError **err);
@@ -1065,22 +1071,93 @@ __wrap_g_io_channel_shutdown (GIOChannel *channel, gboolean flush, GError **err)
   if (g_g_io_channel_shutdown_use_real)
     return __real_g_io_channel_shutdown (channel, flush, err);
 
+  if (g_g_io_channel_shutdown_fail_real)
+    {
+      close (g_io_channel_unix_get_fd (channel));
+      return __real_g_io_channel_shutdown (channel, flush, err);
+    }
+
   return (GIOStatus) mock (channel, flush, err);
+}
+
+__attribute__ ((weak)) GIOStatus
+__real_g_io_channel_read_line (GIOChannel *channel, gchar **str_return,
+                               gsize *length, gsize *terminator_pos,
+                               GError **error);
+
+gboolean g_g_io_channel_read_line_use_real = TRUE;
+static gboolean g_g_io_channel_read_line_fail_real = FALSE;
+static const gchar *g_g_io_channel_read_line_text = NULL;
+static int g_g_io_channel_read_line_calls = 0;
+static int g_g_io_channel_read_line_error_after = 0;
+GIOStatus
+__wrap_g_io_channel_read_line (GIOChannel *channel, gchar **str_return,
+                               gsize *length, gsize *terminator_pos,
+                               GError **error);
+GIOStatus
+__wrap_g_io_channel_read_line (GIOChannel *channel, gchar **str_return,
+                               gsize *length, gsize *terminator_pos,
+                               GError **error)
+{
+  if (g_g_io_channel_read_line_use_real)
+    return __real_g_io_channel_read_line (channel, str_return, length,
+                                          terminator_pos, error);
+
+  if (g_g_io_channel_read_line_text
+      && g_g_io_channel_read_line_calls < g_g_io_channel_read_line_error_after)
+    {
+      g_g_io_channel_read_line_calls++;
+      if (str_return)
+        *str_return = g_strdup (g_g_io_channel_read_line_text);
+      if (length)
+        *length = strlen (g_g_io_channel_read_line_text);
+      if (terminator_pos)
+        *terminator_pos = 0;
+      return G_IO_STATUS_NORMAL;
+    }
+
+  if (g_g_io_channel_read_line_fail_real)
+    {
+      g_g_io_channel_read_line_fail_real = FALSE;
+      if (str_return)
+        *str_return = NULL;
+      if (error)
+        g_set_error_literal (error, G_IO_CHANNEL_ERROR,
+                             G_IO_CHANNEL_ERROR_FAILED, "mock read error");
+      return G_IO_STATUS_ERROR;
+    }
+
+  if (str_return)
+    *str_return = NULL;
+  return G_IO_STATUS_EOF;
 }
 
 __attribute__ ((weak)) void
 __real_g_io_channel_unref (GIOChannel *channel);
 
+static gboolean g_g_io_channel_unref_use_real = FALSE;
 void
 __wrap_g_io_channel_unref (GIOChannel *channel);
 void
 __wrap_g_io_channel_unref (GIOChannel *channel)
 {
-  if (g_g_io_channel_shutdown_use_real)
-    {
-      __real_g_io_channel_unref (channel);
-      return;
-    }
+  if (g_g_io_channel_shutdown_use_real || g_g_io_channel_unref_use_real)
+    __real_g_io_channel_unref (channel);
+}
+
+static void
+reset_channel_mocks (void)
+{
+  g_g_io_channel_new_file_use_real = TRUE;
+  g_g_io_channel_new_file_fail_real = FALSE;
+  g_g_io_channel_shutdown_use_real = TRUE;
+  g_g_io_channel_shutdown_fail_real = FALSE;
+  g_g_io_channel_read_line_use_real = TRUE;
+  g_g_io_channel_read_line_fail_real = FALSE;
+  g_g_io_channel_unref_use_real = FALSE;
+  g_g_io_channel_read_line_text = NULL;
+  g_g_io_channel_read_line_calls = 0;
+  g_g_io_channel_read_line_error_after = 0;
 }
 
 Ensure (networking, get_routes)
@@ -1137,6 +1214,81 @@ Ensure (networking, get_routes)
   ret = unlink ("./myfile");
   if (0 != ret)
     g_warning ("%s: Could not delete file \"./myfile\");", __func__);
+}
+
+Ensure (networking, get_routes_shutdown_error_frees_gerror)
+{
+  GIOChannel *file_channel;
+  GSList *list;
+
+  reset_channel_mocks ();
+  file_channel = g_io_channel_new_file ("/dev/null", "r", NULL);
+  assert_that (file_channel, is_not_null);
+  g_g_io_channel_new_file_use_real = false;
+  g_g_io_channel_shutdown_use_real = false;
+  g_g_io_channel_shutdown_fail_real = true;
+  g_g_io_channel_read_line_use_real = false;
+  g_g_io_channel_unref_use_real = true;
+  expect (__wrap_g_io_channel_new_file, will_return (file_channel));
+  list = get_routes ();
+  assert_that (list, is_null);
+  reset_channel_mocks ();
+}
+
+Ensure (networking, get_routes_new_file_error_frees_gerror)
+{
+  GSList *list;
+
+  reset_channel_mocks ();
+  g_g_io_channel_new_file_use_real = false;
+  g_g_io_channel_new_file_fail_real = true;
+  list = get_routes ();
+  assert_that (list, is_null);
+  reset_channel_mocks ();
+}
+
+Ensure (networking, get_routes_first_read_error_frees_gerror)
+{
+  GIOChannel *file_channel;
+  GSList *list;
+
+  reset_channel_mocks ();
+  file_channel = g_io_channel_new_file ("/dev/null", "w", NULL);
+  assert_that (file_channel, is_not_null);
+  g_g_io_channel_new_file_use_real = false;
+  g_g_io_channel_shutdown_use_real = false;
+  g_g_io_channel_read_line_use_real = false;
+  g_g_io_channel_read_line_fail_real = true;
+  expect (__wrap_g_io_channel_new_file, will_return (file_channel));
+  expect (__wrap_g_io_channel_shutdown, will_return (G_IO_STATUS_NORMAL));
+  list = get_routes ();
+  assert_that (list, is_null);
+  g_g_io_channel_shutdown_use_real = true;
+  g_io_channel_unref (file_channel);
+  reset_channel_mocks ();
+}
+
+Ensure (networking, get_routes_loop_read_error_frees_gerror)
+{
+  GIOChannel *file_channel;
+  GSList *list;
+
+  reset_channel_mocks ();
+  file_channel = g_io_channel_new_file ("/dev/null", "w", NULL);
+  assert_that (file_channel, is_not_null);
+  g_g_io_channel_new_file_use_real = false;
+  g_g_io_channel_shutdown_use_real = false;
+  g_g_io_channel_read_line_use_real = false;
+  g_g_io_channel_read_line_text = "header\n";
+  g_g_io_channel_read_line_error_after = 1;
+  g_g_io_channel_read_line_fail_real = true;
+  expect (__wrap_g_io_channel_new_file, will_return (file_channel));
+  expect (__wrap_g_io_channel_shutdown, will_return (G_IO_STATUS_NORMAL));
+  list = get_routes ();
+  assert_that (list, is_null);
+  g_g_io_channel_shutdown_use_real = true;
+  g_io_channel_unref (file_channel);
+  reset_channel_mocks ();
 }
 
 Ensure (networking, gvm_routethrough_v4)
@@ -1227,6 +1379,14 @@ gvm_routethough ()
   TestSuite *suite = create_test_suite ();
   add_test_with_context (suite, networking, ip_islocalhost);
   add_test_with_context (suite, networking, get_routes);
+  add_test_with_context (suite, networking,
+                         get_routes_shutdown_error_frees_gerror);
+  add_test_with_context (suite, networking,
+                         get_routes_new_file_error_frees_gerror);
+  add_test_with_context (suite, networking,
+                         get_routes_first_read_error_frees_gerror);
+  add_test_with_context (suite, networking,
+                         get_routes_loop_read_error_frees_gerror);
   add_test_with_context (suite, networking, gvm_routethrough_v4);
 
   return suite;

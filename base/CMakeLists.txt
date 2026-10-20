@@ -132,7 +132,7 @@ if(BUILD_TESTS)
 
   set(
     NETWORKING_TEST_LINKER_WRAP_OPTIONS
-    "-Wl,-wrap,g_io_channel_new_file,-wrap,g_io_channel_shutdown,-wrap,g_io_channel_unref"
+    "-Wl,-wrap,g_io_channel_new_file,-wrap,g_io_channel_shutdown,-wrap,g_io_channel_unref,-wrap,g_io_channel_read_line"
   )
   add_unit_test(
     networking-test
