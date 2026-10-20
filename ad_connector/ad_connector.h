@@ -23,9 +23,9 @@ typedef enum
   AD_CONNECTOR_OPT_PORT,         /**< LDAP server port, 0 uses the
                                       TLS mode default */
   AD_CONNECTOR_OPT_TLS_MODE,     /**< Instance of ad_connector_tls_mode_t */
-  AD_CONNECTOR_OPT_CA_CERT_FILE, /**< Optional CA certificate path */
-  AD_CONNECTOR_OPT_BIND_DN, /**< Non-empty bind name/DN for the LDAP connection
-                             */
+  AD_CONNECTOR_OPT_CA_CERT,      /**< Optional CA certificate in PEM format */
+  AD_CONNECTOR_OPT_BIND_DN,      /**< Non-empty bind name/DN
+                                      for the LDAP connection */
   AD_CONNECTOR_OPT_NETWORK_TIMEOUT,   /**< Network timeout (seconds),
                                            0 for no explicit timeout/default LDAP
                                          behavior*/
