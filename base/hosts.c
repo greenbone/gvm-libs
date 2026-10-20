@@ -1356,7 +1356,8 @@ gvm_hosts_move_current_host_to_end (gvm_hosts_t *hosts)
   if (hosts->current == hosts->count)
     {
       // We're on the last host, just make the previous host current.
-      // TODO what happens when current is 0?
+      if (hosts->current == 0)
+        return;
       hosts->current -= 1;
       return;
     }
