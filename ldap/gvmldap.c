@@ -19,12 +19,12 @@
 
 #include "gvmldap.h"
 
+#include <errno.h>
+#include <glib/gstdio.h>
 #include <ldap.h>
 #include <string.h>
-#include <errno.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <glib/gstdio.h>
 
 #define LDAP_DEFAULT_PORT 389
 #define LDAPS_DEFAULT_PORT 636
@@ -136,8 +136,7 @@ ldap_write_ca_cert_tmp (const gchar *ca_cert)
   fd = g_file_open_tmp ("gvmldap-ca-XXXXXX", &path, &error);
   if (fd < 0)
     {
-      g_warning ("Could not create temporary LDAP CA file: %s",
-                 error->message);
+      g_warning ("Could not create temporary LDAP CA file: %s", error->message);
       g_clear_error (&error);
       return NULL;
     }
@@ -161,7 +160,8 @@ ldap_write_ca_cert_tmp (const gchar *ca_cert)
       if (written <= 0)
         {
           g_warning ("Could not write temporary LDAP CA file: %s",
-                     written < 0 ? g_strerror (errno) : "write made no progress");
+                     written < 0 ? g_strerror (errno)
+                                 : "write made no progress");
           goto fail;
         }
 
@@ -229,16 +229,16 @@ ldap_configure_tls (LDAP *ldap, const gchar *ca_cert)
       == LDAP_OPT_SUCCESS)
     ret = 0;
 
-  cleanup:
-    if (ca_path != NULL)
-      {
-        if (g_unlink (ca_path) != 0)
-          g_warning ("Could not remove temporary LDAP CA file: %s",
-                    g_strerror (errno));
-        g_free (ca_path);
-      }
+cleanup:
+  if (ca_path != NULL)
+    {
+      if (g_unlink (ca_path) != 0)
+        g_warning ("Could not remove temporary LDAP CA file: %s",
+                   g_strerror (errno));
+      g_free (ca_path);
+    }
 
-    return ret;
+  return ret;
 }
 
 /**

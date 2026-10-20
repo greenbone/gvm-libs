@@ -15,6 +15,7 @@ static struct berval **mock_values_to_return = NULL;
 static int mock_ldap_str2dn_return_value = 0;
 
 static int mock_ldap_set_option_return_value = LDAP_OPT_SUCCESS;
+static int mock_ldap_set_option_failure_option = 0;
 static int ldap_set_option_call_count = 0;
 static int last_ldap_set_option_option = 0;
 
@@ -131,9 +132,12 @@ ldap_set_option (LDAP *ld, int option, const void *invalue)
   if (option == LDAP_OPT_X_TLS_CACERTFILE && invalue != NULL)
     {
       last_ca_cert_path = g_strdup ((const gchar *) invalue);
-      g_file_get_contents (last_ca_cert_path,
-                           &ca_cert_contents_at_set_option, NULL, NULL);
+      g_file_get_contents (last_ca_cert_path, &ca_cert_contents_at_set_option,
+                           NULL, NULL);
     }
+
+  if (option == mock_ldap_set_option_failure_option)
+    return LDAP_OPT_ERROR;
 
   return mock_ldap_set_option_return_value;
 }
@@ -172,6 +176,7 @@ BeforeEach (gvmldap)
   mock_ldap_str2dn_return_value = 0;
 
   mock_ldap_set_option_return_value = LDAP_OPT_SUCCESS;
+  mock_ldap_set_option_failure_option = 0;
   ldap_set_option_call_count = 0;
   last_ldap_set_option_option = 0;
 
@@ -189,6 +194,7 @@ AfterEach (gvmldap)
   mock_dn_to_return = NULL;
   mock_ldap_str2dn_return_value = 0;
   mock_ldap_set_option_return_value = LDAP_OPT_SUCCESS;
+  mock_ldap_set_option_failure_option = 0;
   ldap_set_option_call_count = 0;
   last_ldap_set_option_option = 0;
 
@@ -679,11 +685,49 @@ Ensure (gvmldap, ldap_configure_tls_sets_tls_options_correctly_with_cert)
   assert_that (g_file_test (last_ca_cert_path, G_FILE_TEST_EXISTS), is_false);
 }
 
+Ensure (gvmldap, ldap_configure_tls_removes_cert_file_when_cacertfile_fails)
+{
+  LDAP *ldap = (LDAP *) 0x1;
+  const gchar *cert = "mock CA certificate\n";
+  int ret;
+
+  mock_ldap_set_option_failure_option = LDAP_OPT_X_TLS_CACERTFILE;
+
+  ret = ldap_configure_tls (ldap, cert);
+
+  assert_that (ret, is_equal_to (-1));
+  assert_that (ldap_set_option_call_count, is_equal_to (2));
+  assert_that (last_ldap_set_option_option,
+               is_equal_to (LDAP_OPT_X_TLS_CACERTFILE));
+  assert_that (last_ca_cert_path, is_not_null);
+  assert_that (ca_cert_contents_at_set_option, is_equal_to_string (cert));
+  assert_that (g_file_test (last_ca_cert_path, G_FILE_TEST_EXISTS), is_false);
+}
+
+Ensure (gvmldap, ldap_configure_tls_removes_cert_file_when_newctx_fails)
+{
+  LDAP *ldap = (LDAP *) 0x1;
+  const gchar *cert = "mock CA certificate\n";
+  int ret;
+
+  mock_ldap_set_option_failure_option = LDAP_OPT_X_TLS_NEWCTX;
+
+  ret = ldap_configure_tls (ldap, cert);
+
+  assert_that (ret, is_equal_to (-1));
+  assert_that (ldap_set_option_call_count, is_equal_to (3));
+  assert_that (last_ldap_set_option_option,
+               is_equal_to (LDAP_OPT_X_TLS_NEWCTX));
+  assert_that (last_ca_cert_path, is_not_null);
+  assert_that (ca_cert_contents_at_set_option, is_equal_to_string (cert));
+  assert_that (g_file_test (last_ca_cert_path, G_FILE_TEST_EXISTS), is_false);
+}
+
 Ensure (gvmldap, ldap_configure_tls_handles_returns_error_for_invalid_input)
 {
   int ret;
 
-  ret = ldap_configure_tls (NULL, "/path/to/cert");
+  ret = ldap_configure_tls (NULL, "mock CA certificate");
 
   assert_that (ldap_set_option_call_count, is_equal_to (0));
   assert_that (ret, is_equal_to (-1));
@@ -755,6 +799,26 @@ Ensure (gvmldap, gvm_ldap_open_returns_connection_on_success)
   assert_that (ldap_initialize_call_count, is_equal_to (1));
   assert_that (last_ldap_initialize_uri,
                is_equal_to_string ("ldap://ldap.example.org:389"));
+
+  gvm_ldap_close (connection);
+}
+
+Ensure (gvmldap, gvm_ldap_open_passes_ca_cert_data_to_tls_configuration)
+{
+  gvm_ldap_connection_t *connection = NULL;
+  const gchar *cert = "-----BEGIN CERTIFICATE-----\n"
+                      "mock certificate data\n"
+                      "-----END CERTIFICATE-----\n";
+  gvm_ldap_return_t ret;
+
+  ret = gvm_ldap_open (&connection, "ldap.example.org", 0, cert,
+                       GVM_LDAP_TLS_LDAPS, 0, 0);
+
+  assert_that (ret, is_equal_to (GVM_LDAP_SUCCESS));
+  assert_that (connection, is_not_null);
+  assert_that (last_ca_cert_path, is_not_null);
+  assert_that (ca_cert_contents_at_set_option, is_equal_to_string (cert));
+  assert_that (g_file_test (last_ca_cert_path, G_FILE_TEST_EXISTS), is_false);
 
   gvm_ldap_close (connection);
 }
@@ -861,6 +925,10 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, gvmldap, ldap_configure_tls_sets_tls_options_correctly_with_cert);
   add_test_with_context (
+    suite, gvmldap, ldap_configure_tls_removes_cert_file_when_cacertfile_fails);
+  add_test_with_context (
+    suite, gvmldap, ldap_configure_tls_removes_cert_file_when_newctx_fails);
+  add_test_with_context (
     suite, gvmldap, ldap_configure_tls_handles_returns_error_for_invalid_input);
 
   add_test_with_context (
@@ -874,6 +942,8 @@ main (int argc, char **argv)
                          gvm_ldap_open_returns_error_when_initialize_fails);
   add_test_with_context (suite, gvmldap,
                          gvm_ldap_open_returns_connection_on_success);
+  add_test_with_context (
+    suite, gvmldap, gvm_ldap_open_passes_ca_cert_data_to_tls_configuration);
 
   add_test_with_context (suite, gvmldap, gvm_ldap_close_unbinds_connection);
   add_test_with_context (suite, gvmldap,
