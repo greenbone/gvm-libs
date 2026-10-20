@@ -21,6 +21,10 @@
 
 #include <ldap.h>
 #include <string.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <glib/gstdio.h>
 
 #define LDAP_DEFAULT_PORT 389
 #define LDAPS_DEFAULT_PORT 636
@@ -108,41 +112,133 @@ ldap_set_timeout_option (LDAP *ldap, int option, guint timeout_seconds)
   return ldap_set_option (ldap, option, &tv);
 }
 
+/**
+ * @brief Writes the CA certificate to a temporary file.
+ *
+ * @param ca_cert  CA certificate content.
+ *
+ * @return Path to the temporary file containing the CA certificate,
+ *         or NULL on failure. The caller should call g_unlink() and g_free()
+ *         on the returned path after use.
+ */
+static gchar *
+ldap_write_ca_cert_tmp (const gchar *ca_cert)
+{
+  GError *error = NULL;
+  gchar *path = NULL;
+  gint fd;
+  gsize remaining = 0;
+  const gchar *p = NULL;
+
+  if (ca_cert == NULL || *ca_cert == '\0')
+    return NULL;
+
+  fd = g_file_open_tmp ("gvmldap-ca-XXXXXX", &path, &error);
+  if (fd < 0)
+    {
+      g_warning ("Could not create temporary LDAP CA file: %s",
+                 error->message);
+      g_clear_error (&error);
+      return NULL;
+    }
+
+  if (fchmod (fd, 0600) != 0)
+    {
+      g_warning ("Could not set LDAP CA file permissions: %s",
+                 g_strerror (errno));
+      goto fail;
+    }
+
+  p = ca_cert;
+  remaining = strlen (ca_cert);
+
+  while (remaining > 0)
+    {
+      ssize_t written = write (fd, p, remaining);
+
+      if (written < 0 && errno == EINTR)
+        continue;
+      if (written <= 0)
+        {
+          g_warning ("Could not write temporary LDAP CA file: %s",
+                     written < 0 ? g_strerror (errno) : "write made no progress");
+          goto fail;
+        }
+
+      p += written;
+      remaining -= written;
+    }
+
+  if (close (fd) != 0)
+    {
+      g_warning ("Could not close temporary LDAP CA file: %s",
+                 g_strerror (errno));
+      fd = -1;
+      goto fail;
+    }
+
+  return path;
+
+fail:
+  if (fd >= 0)
+    close (fd);
+
+  if (g_unlink (path) != 0)
+    g_warning ("Could not remove temporary LDAP CA file: %s",
+               g_strerror (errno));
+
+  g_free (path);
+  return NULL;
+}
+
 /*
  * @brief Configure TLS options for an LDAP connection.
  *
  * @param ldap              LDAP connection.
- * @param ca_cert_file      Path to the CA certificate file for TLS, can be
- * NULL.
+ * @param ca_cert           CA certificate in PEM format for TLS, can be NULL.
  *
  * @return 0 on success, -1 on failure.
  */
 static int
-ldap_configure_tls (LDAP *ldap, const gchar *ca_cert_file)
+ldap_configure_tls (LDAP *ldap, const gchar *ca_cert)
 {
   int require_cert = LDAP_OPT_X_TLS_DEMAND;
   int new_ctx = 0;
-  int ret;
+  gchar *ca_path = NULL;
+  int ret = -1;
 
   if (!ldap)
     return -1;
 
-  ret = ldap_set_option (ldap, LDAP_OPT_X_TLS_REQUIRE_CERT, &require_cert);
-  if (ret != LDAP_OPT_SUCCESS)
+  if (ldap_set_option (ldap, LDAP_OPT_X_TLS_REQUIRE_CERT, &require_cert)
+      != LDAP_OPT_SUCCESS)
     return -1;
 
-  if (ca_cert_file && ca_cert_file[0] != '\0')
+  if (ca_cert && ca_cert[0] != '\0')
     {
-      ret = ldap_set_option (ldap, LDAP_OPT_X_TLS_CACERTFILE, ca_cert_file);
-      if (ret != LDAP_OPT_SUCCESS)
+      ca_path = ldap_write_ca_cert_tmp (ca_cert);
+      if (ca_path == NULL)
         return -1;
+
+      if (ldap_set_option (ldap, LDAP_OPT_X_TLS_CACERTFILE, ca_path)
+          != LDAP_OPT_SUCCESS)
+        goto cleanup;
     }
 
-  ret = ldap_set_option (ldap, LDAP_OPT_X_TLS_NEWCTX, &new_ctx);
-  if (ret != LDAP_OPT_SUCCESS)
-    return -1;
+  if (ldap_set_option (ldap, LDAP_OPT_X_TLS_NEWCTX, &new_ctx)
+      == LDAP_OPT_SUCCESS)
+    ret = 0;
 
-  return 0;
+  cleanup:
+    if (ca_path != NULL)
+      {
+        if (g_unlink (ca_path) != 0)
+          g_warning ("Could not remove temporary LDAP CA file: %s",
+                    g_strerror (errno));
+        g_free (ca_path);
+      }
+
+    return ret;
 }
 
 /**
@@ -151,7 +247,7 @@ ldap_configure_tls (LDAP *ldap, const gchar *ca_cert_file)
  * @param connection         Pointer to the LDAP connection structure.
  * @param host               The LDAP server host.
  * @param port               The LDAP server port, 0 to use the mode's default.
- * @param ca_cert_file       Path to the CA certificate file for TLS.
+ * @param ca_cert            CA certificate for TLS in PEM format.
  * @param tls_mode           The TLS mode to use (PLAINTEXT, STARTTLS, or TLS).
  * @param network_timeout    Network timeout in seconds.
  * @param operation_timeout  Operation timeout in seconds.
@@ -161,7 +257,7 @@ ldap_configure_tls (LDAP *ldap, const gchar *ca_cert_file)
  */
 gvm_ldap_return_t
 gvm_ldap_open (gvm_ldap_connection_t **connection, const gchar *host, gint port,
-               const gchar *ca_cert_file, gvm_ldap_tls_mode_t tls_mode,
+               const gchar *ca_cert, gvm_ldap_tls_mode_t tls_mode,
                guint network_timeout, guint operation_timeout)
 {
   gvm_ldap_connection_t *new_connection;
@@ -218,7 +314,7 @@ gvm_ldap_open (gvm_ldap_connection_t **connection, const gchar *host, gint port,
 
   if (tls_mode != GVM_LDAP_TLS_PLAINTEXT)
     {
-      if (ldap_configure_tls (new_connection->ldap, ca_cert_file) != 0)
+      if (ldap_configure_tls (new_connection->ldap, ca_cert) != 0)
         {
           g_warning ("%s: Failed to configure LDAP TLS", __func__);
           goto option_error;

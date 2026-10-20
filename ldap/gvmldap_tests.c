@@ -26,6 +26,9 @@ static int ldap_initialize_call_count = 0;
 static int ldap_unbind_ext_s_call_count = 0;
 static LDAP *last_ldap_unbind_ext_s_handle = NULL;
 
+static gchar *last_ca_cert_path = NULL;
+static gchar *ca_cert_contents_at_set_option = NULL;
+
 static struct berval **
 make_mock_bervals (const gchar **values)
 {
@@ -121,10 +124,16 @@ int
 ldap_set_option (LDAP *ld, int option, const void *invalue)
 {
   (void) ld;
-  (void) invalue;
 
   ldap_set_option_call_count++;
   last_ldap_set_option_option = option;
+
+  if (option == LDAP_OPT_X_TLS_CACERTFILE && invalue != NULL)
+    {
+      last_ca_cert_path = g_strdup ((const gchar *) invalue);
+      g_file_get_contents (last_ca_cert_path,
+                           &ca_cert_contents_at_set_option, NULL, NULL);
+    }
 
   return mock_ldap_set_option_return_value;
 }
@@ -189,6 +198,9 @@ AfterEach (gvmldap)
       mock_values_to_return = NULL;
     }
   g_clear_pointer (&last_ldap_initialize_uri, g_free);
+
+  g_clear_pointer (&last_ca_cert_path, g_free);
+  g_clear_pointer (&ca_cert_contents_at_set_option, g_free);
 }
 
 /* ldap_build_uri */
@@ -607,6 +619,34 @@ Ensure (gvmldap, ldap_set_timeout_option_sets_timeout_for_nonzero)
   assert_that (ret, is_equal_to (LDAP_OPT_SUCCESS));
 }
 
+/* ldap_write_ca_cert_tmp */
+
+Ensure (gvmldap, ldap_write_ca_cert_tmp_rejects_missing_cert)
+{
+  assert_that (ldap_write_ca_cert_tmp (NULL), is_null);
+  assert_that (ldap_write_ca_cert_tmp (""), is_null);
+}
+
+Ensure (gvmldap, ldap_write_ca_cert_tmp_writes_private_file)
+{
+  const gchar *cert = "mock CA certificate\nsecond line\n";
+  gchar *path = ldap_write_ca_cert_tmp (cert);
+  gchar *contents = NULL;
+  gsize length = 0;
+  struct stat st;
+
+  assert_that (path, is_not_null);
+  assert_that (g_file_get_contents (path, &contents, &length, NULL), is_true);
+  assert_that (contents, is_equal_to_string (cert));
+  assert_that ((int) length, is_equal_to ((int) strlen (cert)));
+  assert_that (stat (path, &st), is_equal_to (0));
+  assert_that ((int) (st.st_mode & 0777), is_equal_to (0600));
+
+  g_free (contents);
+  g_unlink (path);
+  g_free (path);
+}
+
 /* ldap_configure_tls */
 
 Ensure (gvmldap, ldap_configure_tls_sets_tls_options_correctly_no_cert)
@@ -625,14 +665,18 @@ Ensure (gvmldap, ldap_configure_tls_sets_tls_options_correctly_no_cert)
 Ensure (gvmldap, ldap_configure_tls_sets_tls_options_correctly_with_cert)
 {
   LDAP *ldap = (LDAP *) 0x1;
+  const gchar *cert = "mock CA certificate\nsecond line\n";
   int ret;
 
-  ret = ldap_configure_tls (ldap, "/path/to/cert");
+  ret = ldap_configure_tls (ldap, cert);
 
+  assert_that (ret, is_equal_to (0));
   assert_that (ldap_set_option_call_count, is_equal_to (3));
   assert_that (last_ldap_set_option_option,
                is_equal_to (LDAP_OPT_X_TLS_NEWCTX));
-  assert_that (ret, is_equal_to (0));
+  assert_that (last_ca_cert_path, is_not_null);
+  assert_that (ca_cert_contents_at_set_option, is_equal_to_string (cert));
+  assert_that (g_file_test (last_ca_cert_path, G_FILE_TEST_EXISTS), is_false);
 }
 
 Ensure (gvmldap, ldap_configure_tls_handles_returns_error_for_invalid_input)
@@ -806,6 +850,11 @@ main (int argc, char **argv)
                          ldap_set_timeout_option_does_not_set_timeout_for_zero);
   add_test_with_context (suite, gvmldap,
                          ldap_set_timeout_option_sets_timeout_for_nonzero);
+
+  add_test_with_context (suite, gvmldap,
+                         ldap_write_ca_cert_tmp_rejects_missing_cert);
+  add_test_with_context (suite, gvmldap,
+                         ldap_write_ca_cert_tmp_writes_private_file);
 
   add_test_with_context (suite, gvmldap,
                          ldap_configure_tls_sets_tls_options_correctly_no_cert);
