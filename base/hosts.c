@@ -1363,7 +1363,8 @@ gvm_hosts_move_current_host_to_end (gvm_hosts_t *hosts)
 
   // Make the previous host current. This makes sure that gvm_hosts_next will
   // return the host that has replaced the current host.
-  // TODO what happens when current is 0?
+  if (hosts->current == 0)
+    return;
   hosts->current -= 1;
   // Get the host to be moved.
   host_tmp = hosts->hosts[hosts->current];
