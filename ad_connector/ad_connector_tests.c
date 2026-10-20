@@ -458,10 +458,9 @@ Ensure (ad_connector, builder_validates_non_negative_timeouts)
 Ensure (ad_connector, builder_accepts_ca_cert_and_allows_null_or_empty)
 {
   ad_connector_t connector;
-  const gchar *ca_cert =
-    "-----BEGIN CERTIFICATE-----\n"
-    "mock certificate data\n"
-    "-----END CERTIFICATE-----\n";
+  const gchar *ca_cert = "-----BEGIN CERTIFICATE-----\n"
+                         "mock certificate data\n"
+                         "-----END CERTIFICATE-----\n";
 
   connector = ad_connector_new ();
   assert_that (connector, is_not_null);
@@ -471,17 +470,15 @@ Ensure (ad_connector, builder_accepts_ca_cert_and_allows_null_or_empty)
     is_equal_to (AD_CONNECTOR_OK));
   assert_that (connector->ca_cert, is_equal_to_string (ca_cert));
 
-  assert_that (
-    ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT, ""),
-    is_equal_to (AD_CONNECTOR_OK));
+  assert_that (ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT, ""),
+               is_equal_to (AD_CONNECTOR_OK));
   assert_that (connector->ca_cert, is_null);
 
   assert_that (
     ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT, ca_cert),
     is_equal_to (AD_CONNECTOR_OK));
-  assert_that (
-    ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT, NULL),
-    is_equal_to (AD_CONNECTOR_OK));
+  assert_that (ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT, NULL),
+               is_equal_to (AD_CONNECTOR_OK));
   assert_that (connector->ca_cert, is_null);
 
   ad_connector_free (connector);
@@ -834,10 +831,9 @@ Ensure (ad_connector, connect_succeeds_with_valid_configuration)
 {
   ad_connector_t connector = ad_connector_new ();
   ad_connector_tls_mode_t starttls = AD_CONNECTOR_TLS_STARTTLS;
-  const gchar *ca_cert =
-    "-----BEGIN CERTIFICATE-----\n"
-    "mock certificate data\n"
-    "-----END CERTIFICATE-----\n";
+  const gchar *ca_cert = "-----BEGIN CERTIFICATE-----\n"
+                         "mock certificate data\n"
+                         "-----END CERTIFICATE-----\n";
   gint port = 1389;
   assert_that (connector, is_not_null);
 
