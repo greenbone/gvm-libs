@@ -895,7 +895,7 @@ get_routes (void)
     {
       g_warning ("%s: %s. ", __func__,
                  err ? err->message : "Error opening /proc/net/ipv6_route");
-      err = NULL;
+      g_clear_error (&err);
       return NULL;
     }
 
