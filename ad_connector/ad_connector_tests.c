@@ -19,6 +19,7 @@ static gint stub_bind_calls;
 static gint stub_close_calls;
 
 static gchar *stub_last_open_host;
+static gchar *stub_last_open_ca_cert;
 static gint stub_last_open_port;
 static gvm_ldap_tls_mode_t stub_last_open_tls_mode;
 static guint stub_last_open_network_timeout;
@@ -38,13 +39,14 @@ static GHashTable *stub_entry_attributes;
 /* -------------------- Mock Functions -------------------- */
 gvm_ldap_return_t
 gvm_ldap_open (gvm_ldap_connection_t **connection, const gchar *host, gint port,
-               const gchar *cacert_file, gvm_ldap_tls_mode_t tls_mode,
+               const gchar *ca_cert, gvm_ldap_tls_mode_t tls_mode,
                guint network_timeout, guint operation_timeout)
 {
-  (void) cacert_file;
   stub_open_calls++;
   g_free (stub_last_open_host);
   stub_last_open_host = g_strdup (host);
+  g_free (stub_last_open_ca_cert);
+  stub_last_open_ca_cert = g_strdup (ca_cert);
   stub_last_open_port = port;
   stub_last_open_tls_mode = tls_mode;
   stub_last_open_network_timeout = network_timeout;
@@ -155,6 +157,8 @@ reset_ldap_stubs (void)
 
   g_free (stub_last_open_host);
   stub_last_open_host = NULL;
+  g_free (stub_last_open_ca_cert);
+  stub_last_open_ca_cert = NULL;
   stub_last_open_port = 0;
   stub_last_open_tls_mode = GVM_LDAP_TLS_LDAPS;
   stub_last_open_network_timeout = 0;
@@ -361,6 +365,9 @@ AfterEach (ad_connector)
   g_free (stub_last_open_host);
   stub_last_open_host = NULL;
 
+  g_free (stub_last_open_ca_cert);
+  stub_last_open_ca_cert = NULL;
+
   g_free (stub_last_bind_dn);
   stub_last_bind_dn = NULL;
 
@@ -448,23 +455,31 @@ Ensure (ad_connector, builder_validates_non_negative_timeouts)
   ad_connector_free (connector);
 }
 
-Ensure (ad_connector, builder_allows_null_ca_cert_file)
+Ensure (ad_connector, builder_accepts_ca_cert_and_allows_null_or_empty)
 {
   ad_connector_t connector;
-  const gchar *ca = "/tmp/test-ca.pem";
+  const gchar *ca_cert = "-----BEGIN CERTIFICATE-----\n"
+                         "mock certificate data\n"
+                         "-----END CERTIFICATE-----\n";
 
   connector = ad_connector_new ();
   assert_that (connector, is_not_null);
 
   assert_that (
-    ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT_FILE, ca),
+    ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT, ca_cert),
     is_equal_to (AD_CONNECTOR_OK));
-  assert_that (connector->cacert_file, is_equal_to_string ("/tmp/test-ca.pem"));
+  assert_that (connector->ca_cert, is_equal_to_string (ca_cert));
+
+  assert_that (ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT, ""),
+               is_equal_to (AD_CONNECTOR_OK));
+  assert_that (connector->ca_cert, is_null);
 
   assert_that (
-    ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT_FILE, NULL),
+    ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT, ca_cert),
     is_equal_to (AD_CONNECTOR_OK));
-  assert_that (connector->cacert_file, is_null);
+  assert_that (ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT, NULL),
+               is_equal_to (AD_CONNECTOR_OK));
+  assert_that (connector->ca_cert, is_null);
 
   ad_connector_free (connector);
 }
@@ -816,11 +831,17 @@ Ensure (ad_connector, connect_succeeds_with_valid_configuration)
 {
   ad_connector_t connector = ad_connector_new ();
   ad_connector_tls_mode_t starttls = AD_CONNECTOR_TLS_STARTTLS;
+  const gchar *ca_cert = "-----BEGIN CERTIFICATE-----\n"
+                         "mock certificate data\n"
+                         "-----END CERTIFICATE-----\n";
   gint port = 1389;
   assert_that (connector, is_not_null);
 
   set_valid_connection_config (connector);
 
+  assert_that (
+    ad_connector_builder (connector, AD_CONNECTOR_OPT_CA_CERT, ca_cert),
+    is_equal_to (AD_CONNECTOR_OK));
   assert_that (ad_connector_builder (connector, AD_CONNECTOR_OPT_PORT, &port),
                is_equal_to (AD_CONNECTOR_OK));
   assert_that (
@@ -835,6 +856,7 @@ Ensure (ad_connector, connect_succeeds_with_valid_configuration)
 
   assert_that (connector->ldap_connection, is_equal_to (stub_open_connection));
   assert_that (stub_last_open_host, is_equal_to_string ("ad.example.org"));
+  assert_that (stub_last_open_ca_cert, is_equal_to_string (ca_cert));
   assert_that (stub_last_open_port, is_equal_to (1389));
   assert_that (stub_last_open_tls_mode, is_equal_to (GVM_LDAP_TLS_STARTTLS));
   assert_that (stub_last_open_network_timeout, is_equal_to (12));
@@ -1557,7 +1579,8 @@ main (int argc, char **argv)
                          builder_rejects_empty_host_or_bind_dn);
   add_test_with_context (suite, ad_connector,
                          builder_validates_non_negative_timeouts);
-  add_test_with_context (suite, ad_connector, builder_allows_null_ca_cert_file);
+  add_test_with_context (suite, ad_connector,
+                         builder_accepts_ca_cert_and_allows_null_or_empty);
   add_test_with_context (suite, ad_connector,
                          builder_rejects_changes_when_connection_exists);
 

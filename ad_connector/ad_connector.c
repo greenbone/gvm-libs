@@ -34,7 +34,7 @@ struct ad_connector
   gint ldap_port;                         /**< LDAP port number or 0 for default
                                                (389 for LDAP, 636 for LDAPS). */
   ad_connector_tls_mode_t tls_mode; /**< TLS mode to use for the connection. */
-  gchar *cacert_file;               /**< CA Certificate, or NULL. */
+  gchar *ca_cert;                   /**< CA Certificate, or NULL. */
   gchar *bind_dn;                   /**< Distinguished Name (DN) to bind as. */
   guint network_timeout;            /**< Network timeout in seconds. */
   guint operation_timeout;          /**< Operation timeout in seconds. */
@@ -109,7 +109,7 @@ static const gchar *ad_group_attributes[] = {"sAMAccountName", "displayName",
 /**
  * @brief Create a new Active Directory connector instance.
  *
- * The connector defaults to LDAPS, port 0, no CA certificate file,
+ * The connector defaults to LDAPS, port 0, no CA certificate,
  * no bind DN, and zero network/operation timeouts.
  *
  * Port 0 lets the LDAP layer choose the default port for the
@@ -188,7 +188,7 @@ ad_connector_builder (ad_connector_t connector, ad_connector_opt_t opt,
   if (connector->ldap_connection)
     return AD_CONNECTOR_CONNECTION_ERROR;
 
-  if (val == NULL && opt != AD_CONNECTOR_OPT_CA_CERT_FILE)
+  if (val == NULL && opt != AD_CONNECTOR_OPT_CA_CERT)
     return AD_CONNECTOR_INVALID_VALUE;
 
   switch (opt)
@@ -213,9 +213,11 @@ ad_connector_builder (ad_connector_t connector, ad_connector_opt_t opt,
         connector->tls_mode = tls_mode;
         break;
       }
-    case AD_CONNECTOR_OPT_CA_CERT_FILE:
-      g_free (connector->cacert_file);
-      connector->cacert_file = val ? g_strdup ((const gchar *) val) : NULL;
+    case AD_CONNECTOR_OPT_CA_CERT:
+      g_free (connector->ca_cert);
+      connector->ca_cert = val && *((const gchar *) val) != '\0'
+                             ? g_strdup ((const gchar *) val)
+                             : NULL;
       break;
     case AD_CONNECTOR_OPT_BIND_DN:
       return set_non_empty_string_value (val, &connector->bind_dn);
@@ -427,7 +429,7 @@ ad_connector_connect (ad_connector_t connector, const gchar *password)
 
   ret =
     gvm_ldap_open (&connector->ldap_connection, connector->ldap_host,
-                   connector->ldap_port, connector->cacert_file, tls_mode,
+                   connector->ldap_port, connector->ca_cert, tls_mode,
                    connector->network_timeout, connector->operation_timeout);
 
   if (ret != GVM_LDAP_SUCCESS)
@@ -1074,7 +1076,7 @@ ad_connector_free (ad_connector_t connector)
     }
 
   g_free (connector->ldap_host);
-  g_free (connector->cacert_file);
+  g_free (connector->ca_cert);
   g_free (connector->bind_dn);
 
   g_free (connector);
