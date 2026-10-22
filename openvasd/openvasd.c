@@ -200,7 +200,6 @@ openvasd_parsed_performance (http_scanner_connector_t conn,
     }
   else if (resp->code != 200)
     {
-      parser = cJSON_Parse (resp->body);
       item = cJSON_GetObjectItem (parser, "error");
       if (item != NULL)
         *err = g_strdup (cJSON_GetStringValue (item));
