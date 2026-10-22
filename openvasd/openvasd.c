@@ -164,6 +164,7 @@ openvasd_get_performance (http_scanner_connector_t conn,
     }
   else
     {
+      g_free (response->body);
       response->body = g_strdup (
         "{\"error\": \"Not possible to get performance information.\"}");
       g_warning ("%s: Not possible to get performance information", __func__);
