@@ -11,6 +11,42 @@
 #include <cgreen/internal/c_assertions.h>
 #include <cgreen/mocks.h>
 
+static long mock_performance_code;
+static const gchar *mock_performance_body;
+
+http_scanner_resp_t
+http_scanner_send_request (http_scanner_connector_t conn,
+                           http_scanner_method_t method, const gchar *path,
+                           const gchar *data, const gchar *content_type)
+{
+  http_scanner_resp_t resp;
+
+  (void) conn;
+  (void) method;
+  (void) path;
+  (void) data;
+  (void) content_type;
+
+  resp = g_malloc0 (sizeof (struct http_scanner_response));
+  resp->code = mock_performance_code;
+
+  return resp;
+}
+
+gchar *
+http_scanner_stream_str (http_scanner_connector_t conn)
+{
+  (void) conn;
+
+  return (gchar *) mock_performance_body;
+}
+
+void
+http_scanner_reset_stream (http_scanner_connector_t conn)
+{
+  (void) conn;
+}
+
 static gboolean
 json_array_contains_string (cJSON *array, const char *value)
 {
@@ -39,6 +75,29 @@ BeforeEach (openvasd)
 
 AfterEach (openvasd)
 {
+}
+
+Ensure (openvasd, openvasd_parsed_performance_error_response_frees_parser)
+{
+  gchar *graph = NULL;
+  gchar *err = NULL;
+  openvasd_get_performance_opts_t opts;
+  int ret;
+
+  mock_performance_code = 500;
+  mock_performance_body = "{\"error\": \"performance unavailable\"}";
+
+  opts.start = 1;
+  opts.end = 2;
+  opts.titles = "cpu";
+
+  ret = openvasd_parsed_performance (NULL, opts, &graph, &err);
+
+  assert_that (ret, is_equal_to (-1));
+  assert_that (graph, is_null);
+  assert_that (err, is_equal_to_string ("performance unavailable"));
+
+  g_free (err);
 }
 
 Ensure (openvasd, openvasd_add_credential_to_scan_json)
@@ -582,6 +641,8 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
+  add_test_with_context (
+    suite, openvasd, openvasd_parsed_performance_error_response_frees_parser);
   add_test_with_context (suite, openvasd, openvasd_add_credential_to_scan_json);
   add_test_with_context (suite, openvasd, openvasd_add_port_to_scan_json);
   add_test_with_context (suite, openvasd,
