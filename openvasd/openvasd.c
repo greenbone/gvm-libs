@@ -158,7 +158,10 @@ openvasd_get_performance (http_scanner_connector_t conn,
   g_free (query);
 
   if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (http_scanner_stream_str (conn));
+    {
+      g_free (response->body);
+      response->body = g_strdup (http_scanner_stream_str (conn));
+    }
   else
     {
       response->body = g_strdup (
