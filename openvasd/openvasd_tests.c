@@ -29,6 +29,7 @@ http_scanner_send_request (http_scanner_connector_t conn,
 
   resp = g_malloc0 (sizeof (struct http_scanner_response));
   resp->code = mock_performance_code;
+  resp->body = g_strdup (mock_performance_body);
 
   return resp;
 }
@@ -98,6 +99,43 @@ Ensure (openvasd, openvasd_parsed_performance_error_response_frees_parser)
   assert_that (err, is_equal_to_string ("performance unavailable"));
 
   g_free (err);
+}
+
+Ensure (openvasd, openvasd_get_performance_frees_body_on_success)
+{
+  openvasd_get_performance_opts_t opts = {
+    .start = 1, .end = 2, .titles = "cpu"};
+  http_scanner_resp_t resp;
+
+  mock_performance_code = 200;
+  mock_performance_body = "[{\"cpu\": 12.5}]";
+
+  resp = openvasd_get_performance (NULL, opts);
+
+  assert_that (resp->code, is_equal_to (200));
+  assert_that (resp->body, is_equal_to_string ("[{\"cpu\": 12.5}]"));
+
+  http_scanner_response_cleanup (resp);
+}
+
+Ensure (openvasd, openvasd_get_performance_frees_body_on_error)
+{
+  openvasd_get_performance_opts_t opts = {
+    .start = 1, .end = 2, .titles = "cpu"};
+  http_scanner_resp_t resp;
+
+  mock_performance_code = RESP_CODE_ERR;
+  mock_performance_body = "{\"error\": \"Error sending request\"}";
+
+  resp = openvasd_get_performance (NULL, opts);
+
+  assert_that (resp->code, is_equal_to (RESP_CODE_ERR));
+  assert_that (
+    resp->body,
+    is_equal_to_string (
+      "{\"error\": \"Not possible to get performance information.\"}"));
+
+  http_scanner_response_cleanup (resp);
 }
 
 Ensure (openvasd, openvasd_add_credential_to_scan_json)
@@ -669,6 +707,10 @@ main (int argc, char **argv)
                          openvasd_build_scan_config_json_with_finished_hosts);
   add_test_with_context (
     suite, openvasd, openvasd_build_scan_config_json_without_finished_hosts);
+  add_test_with_context (suite, openvasd,
+                         openvasd_get_performance_frees_body_on_success);
+  add_test_with_context (suite, openvasd,
+                         openvasd_get_performance_frees_body_on_error);
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
   else
