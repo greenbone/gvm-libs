@@ -11,6 +11,43 @@
 #include <cgreen/internal/c_assertions.h>
 #include <cgreen/mocks.h>
 
+static long mock_performance_code;
+static const gchar *mock_performance_body;
+
+http_scanner_resp_t
+http_scanner_send_request (http_scanner_connector_t conn,
+                           http_scanner_method_t method, const gchar *path,
+                           const gchar *data, const gchar *content_type)
+{
+  http_scanner_resp_t resp;
+
+  (void) conn;
+  (void) method;
+  (void) path;
+  (void) data;
+  (void) content_type;
+
+  resp = g_malloc0 (sizeof (struct http_scanner_response));
+  resp->code = mock_performance_code;
+  resp->body = g_strdup (mock_performance_body);
+
+  return resp;
+}
+
+gchar *
+http_scanner_stream_str (http_scanner_connector_t conn)
+{
+  (void) conn;
+
+  return (gchar *) mock_performance_body;
+}
+
+void
+http_scanner_reset_stream (http_scanner_connector_t conn)
+{
+  (void) conn;
+}
+
 static gboolean
 json_array_contains_string (cJSON *array, const char *value)
 {
@@ -32,104 +69,73 @@ json_array_contains_string (cJSON *array, const char *value)
   return FALSE;
 }
 
-static glong mock_http_status = 200;
-
-gvm_http_response_t *
-gvm_http_request_unix (const gchar *url, gvm_http_method_t method,
-                       const gchar *payload, gvm_http_headers_t *headers,
-                       const gchar *ca_cert, const gchar *client_cert,
-                       const gchar *client_key, const gchar *unix_socket_path,
-                       gvm_http_response_stream_t response)
-{
-  static const gchar body[] = "[{\"cpu\": 12.5}]";
-  gvm_http_response_t *http_response;
-
-  (void) url;
-  (void) method;
-  (void) payload;
-  (void) headers;
-  (void) ca_cert;
-  (void) client_cert;
-  (void) client_key;
-  (void) unix_socket_path;
-
-  http_response = g_malloc0 (sizeof (gvm_http_response_t));
-  http_response->http_status = mock_http_status;
-
-  if (mock_http_status == -1)
-    return http_response;
-
-  http_response->data = g_strdup (body);
-  http_response->size = strlen (http_response->data);
-
-  if (response)
-    {
-      g_free (response->data);
-      response->data = g_strdup (body);
-      response->length = strlen (response->data);
-    }
-
-  return http_response;
-}
-
-static http_scanner_connector_t
-mock_performance_connector (void)
-{
-  http_scanner_connector_t conn = http_scanner_connector_new ();
-  int port = 9390;
-
-  http_scanner_connector_builder (conn, HTTP_SCANNER_PROTOCOL, "http");
-  http_scanner_connector_builder (conn, HTTP_SCANNER_HOST, "localhost");
-  http_scanner_connector_builder (conn, HTTP_SCANNER_PORT, &port);
-
-  return conn;
-}
-
 Describe (openvasd);
 BeforeEach (openvasd)
 {
-  mock_http_status = 200;
 }
 
 AfterEach (openvasd)
 {
 }
 
+Ensure (openvasd, openvasd_parsed_performance_error_response_frees_parser)
+{
+  gchar *graph = NULL;
+  gchar *err = NULL;
+  openvasd_get_performance_opts_t opts;
+  int ret;
+
+  mock_performance_code = 500;
+  mock_performance_body = "{\"error\": \"performance unavailable\"}";
+
+  opts.start = 1;
+  opts.end = 2;
+  opts.titles = "cpu";
+
+  ret = openvasd_parsed_performance (NULL, opts, &graph, &err);
+
+  assert_that (ret, is_equal_to (-1));
+  assert_that (graph, is_null);
+  assert_that (err, is_equal_to_string ("performance unavailable"));
+
+  g_free (err);
+}
+
 Ensure (openvasd, openvasd_get_performance_frees_body_on_success)
 {
-  http_scanner_connector_t conn = mock_performance_connector ();
   openvasd_get_performance_opts_t opts = {
     .start = 1, .end = 2, .titles = "cpu"};
   http_scanner_resp_t resp;
 
-  resp = openvasd_get_performance (conn, opts);
+  mock_performance_code = 200;
+  mock_performance_body = "[{\"cpu\": 12.5}]";
+
+  resp = openvasd_get_performance (NULL, opts);
 
   assert_that (resp->code, is_equal_to (200));
   assert_that (resp->body, is_equal_to_string ("[{\"cpu\": 12.5}]"));
 
   http_scanner_response_cleanup (resp);
-  http_scanner_connector_free (conn);
 }
 
 Ensure (openvasd, openvasd_get_performance_frees_body_on_error)
 {
-  http_scanner_connector_t conn = mock_performance_connector ();
   openvasd_get_performance_opts_t opts = {
     .start = 1, .end = 2, .titles = "cpu"};
   http_scanner_resp_t resp;
 
-  mock_http_status = -1;
+  mock_performance_code = RESP_CODE_ERR;
+  mock_performance_body = "{\"error\": \"Error sending request\"}";
 
-  resp = openvasd_get_performance (conn, opts);
+  resp = openvasd_get_performance (NULL, opts);
 
-  assert_that (resp->code, is_equal_to (-1));
+  assert_that (resp->code, is_equal_to (RESP_CODE_ERR));
   assert_that (
     resp->body,
     is_equal_to_string (
       "{\"error\": \"Not possible to get performance information.\"}"));
 
   http_scanner_response_cleanup (resp);
-  http_scanner_connector_free (conn);
 }
 
 Ensure (openvasd, openvasd_add_credential_to_scan_json)
@@ -673,6 +679,8 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
+  add_test_with_context (
+    suite, openvasd, openvasd_parsed_performance_error_response_frees_parser);
   add_test_with_context (suite, openvasd, openvasd_add_credential_to_scan_json);
   add_test_with_context (suite, openvasd, openvasd_add_port_to_scan_json);
   add_test_with_context (suite, openvasd,
