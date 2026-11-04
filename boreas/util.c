@@ -578,6 +578,7 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
     {
       g_warning ("%s: failed to open ICPMV6 socket: %s", __func__,
                  strerror (errno));
+      g_free (scanner->ipv6_net->net);
       g_free (scanner->ipv6_net);
       return BOREAS_OPENING_SOCKET_FAILED;
     }
