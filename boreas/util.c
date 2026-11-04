@@ -567,6 +567,7 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
                  INET_ADDRSTRLEN);
       printf ("%s: Destination: %s. %s", __func__, destination_str,
               str_boreas_error (error));
+      g_free (scanner->ipv6_net);
       return BOREAS_INVALID_IPV6_NETWORK;
     }
 
