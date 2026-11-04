@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
+#include <fcntl.h>
 
 Describe (util);
 BeforeEach (util)
@@ -195,6 +196,99 @@ Ensure (util, get_source_addr_v6)
   close (udpv6soc);
 }
 
+Ensure (util, init_ipv6_net_data_get_source_addr_v6_error)
+{
+  scanner_t scanner = {0};
+  boreas_error_t error;
+
+  scanner.udpv6soc = -1;
+  error = init_ipv6_net_data (&scanner, "::1/128");
+  if (scanner.udpv6soc >= 0)
+    close (scanner.udpv6soc);
+  assert_that (error, is_equal_to (BOREAS_INVALID_IPV6_NETWORK));
+}
+
+Ensure (util, init_ipv6_net_data_socket_error)
+{
+  scanner_t scanner = {0};
+  boreas_error_t error;
+
+  set_socket (UDPV6, &scanner.udpv6soc);
+  g_socket_use_real = false;
+  expect (__wrap_socket, will_return (-1));
+  error = init_ipv6_net_data (&scanner, "::1/128");
+  g_socket_use_real = true;
+  close (scanner.udpv6soc);
+  assert_that (error, is_equal_to (BOREAS_OPENING_SOCKET_FAILED));
+}
+
+Ensure (util, init_ipv6_net_data_setsockopt_error)
+{
+  scanner_t scanner = {0};
+  boreas_error_t error;
+  int fd;
+
+  set_socket (UDPV6, &scanner.udpv6soc);
+  fd = open ("/dev/null", O_RDONLY);
+  close (fd);
+  g_socket_use_real = false;
+  g_setsockopt_use_real = false;
+  expect (__wrap_socket, will_return (fd));
+  expect (__wrap_setsockopt, when (optname, is_equal_to (IP_HDRINCL)),
+          will_return (-1));
+  error = init_ipv6_net_data (&scanner, "::1/128");
+  g_socket_use_real = true;
+  g_setsockopt_use_real = true;
+  close (scanner.udpv6soc);
+  assert_that (error, is_equal_to (BOREAS_SETTING_SOCKET_OPTION_FAILED));
+}
+
+Ensure (util, init_ipv6_net_data_set_broadcast_error)
+{
+  scanner_t scanner = {0};
+  boreas_error_t error;
+  int fd;
+
+  set_socket (UDPV6, &scanner.udpv6soc);
+  fd = open ("/dev/null", O_RDONLY);
+  close (fd);
+  g_socket_use_real = false;
+  g_setsockopt_use_real = false;
+  expect (__wrap_socket, will_return (fd));
+  expect (__wrap_setsockopt, when (optname, is_equal_to (IP_HDRINCL)),
+          will_return (0));
+  expect (__wrap_setsockopt, when (optname, is_equal_to (SO_BROADCAST)),
+          will_return (-1));
+  error = init_ipv6_net_data (&scanner, "::1/128");
+  g_socket_use_real = true;
+  g_setsockopt_use_real = true;
+  close (scanner.udpv6soc);
+  assert_that (error, is_equal_to (BOREAS_SETTING_SOCKET_OPTION_FAILED));
+}
+
+Ensure (util, init_ipv6_net_data_bind_error)
+{
+  scanner_t scanner = {0};
+  boreas_error_t error;
+  int fd;
+
+  set_socket (UDPV6, &scanner.udpv6soc);
+  fd = open ("/dev/null", O_RDONLY);
+  close (fd);
+  g_socket_use_real = false;
+  g_setsockopt_use_real = false;
+  expect (__wrap_socket, will_return (fd));
+  expect (__wrap_setsockopt, when (optname, is_equal_to (IP_HDRINCL)),
+          will_return (0));
+  expect (__wrap_setsockopt, when (optname, is_equal_to (SO_BROADCAST)),
+          will_return (0));
+  error = init_ipv6_net_data (&scanner, "::1/128");
+  g_socket_use_real = true;
+  g_setsockopt_use_real = true;
+  close (scanner.udpv6soc);
+  assert_that (error, is_equal_to (BOREAS_BIND_SOCKET_FAILED));
+}
+
 Ensure (util, fill_ports_array)
 {
   GArray *ports_garray = NULL;
@@ -257,6 +351,12 @@ main (int argc, char **argv)
   add_test_with_context (suite, util, set_socket);
   add_test_with_context (suite, util, get_source_addr_v4);
   add_test_with_context (suite, util, get_source_addr_v6);
+  add_test_with_context (suite, util,
+                         init_ipv6_net_data_get_source_addr_v6_error);
+  add_test_with_context (suite, util, init_ipv6_net_data_socket_error);
+  add_test_with_context (suite, util, init_ipv6_net_data_setsockopt_error);
+  add_test_with_context (suite, util, init_ipv6_net_data_set_broadcast_error);
+  add_test_with_context (suite, util, init_ipv6_net_data_bind_error);
   add_test_with_context (suite, util, cidr6_contains_ip);
 
   if (argc > 1)
