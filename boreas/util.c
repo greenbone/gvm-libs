@@ -600,6 +600,7 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
   if (error != 0)
     {
       close (soc);
+      g_free (scanner->ipv6_net->net);
       g_free (scanner->ipv6_net);
       return error;
     }
