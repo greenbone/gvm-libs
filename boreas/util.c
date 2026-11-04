@@ -590,6 +590,7 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
       g_warning ("%s: failed to set socket option IP_HDRINCL: %s", __func__,
                  strerror (errno));
       close (soc);
+      g_free (scanner->ipv6_net->net);
       g_free (scanner->ipv6_net);
       return BOREAS_SETTING_SOCKET_OPTION_FAILED;
     }
