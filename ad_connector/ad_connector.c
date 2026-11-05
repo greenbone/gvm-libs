@@ -81,30 +81,7 @@ typedef struct
 /**
  * @brief List of general LDAP attributes for Active Directory searches.
  */
-static const gchar *ad_object_core_attributes[] = {
-  "objectClass", "objectCategory", "name", "description", "cn", NULL};
-
-/**
- * @brief Organizational Unit (OU) LDAP attributes.
- */
-static const gchar *ad_ou_attributes[] = {"ou", NULL};
-
-/**
- * @brief Computer LDAP attributes.
- */
-static const gchar *ad_computer_attributes[] = {"dNSHostName",
-                                                "sAMAccountName",
-                                                "operatingSystem",
-                                                "operatingSystemVersion",
-                                                "servicePrincipalName",
-                                                "userAccountControl",
-                                                NULL};
-
-/**
- * @brief Group LDAP attributes.
- */
-static const gchar *ad_group_attributes[] = {"sAMAccountName", "displayName",
-                                             "groupType", "memberOf", NULL};
+static const gchar *ad_object_core_attributes[] = {"objectClass", "name", NULL};
 
 /**
  * @brief Create a new Active Directory connector instance.
@@ -597,7 +574,7 @@ get_parent_dn_from_dn (const gchar *dn)
  *
  * @param object The AD object to free.
  */
-static void
+void
 ad_object_free (ad_object_t *object)
 {
   if (object == NULL)
@@ -669,9 +646,8 @@ ad_object_from_ldap_entry (gvm_ldap_entry_t *entry, gchar **attributes)
 /**
  * @brief LDAP search callback that converts entries to AD objects.
  *
- * Converts supported LDAP entries to temporary AD objects and passes them to
- *  the user callback stored in the search context.
- *  The AD object is valid only for the duration of the user callback.
+ * Converts supported LDAP entries to owned AD objects and transfers ownership
+ * to the user callback.
  *
  * @param entry    The LDAP entry to process.
  * @param context  ad_search_context_t used to track callback state.
@@ -706,7 +682,6 @@ ad_search_ldap_entry_callback (gvm_ldap_entry_t *entry, gpointer context)
     }
 
   result = ctx->callback (object, ctx->user_data);
-  ad_object_free (object);
 
   switch (result)
     {
@@ -879,8 +854,8 @@ ad_attribute_array_add_extra_attributes (GPtrArray *attributes,
 
 /**
  * @brief Builds the LDAP attributes list for the given search configuration.
- *        Returns an array with the default attributes based on the object
- *        types and any extra attributes specified in the search configuration.
+ *        Returns objectClass and name plus and any extra attributes
+ *        specified in the search configuration.
  *
  * @param search_config  Pointer to the search configuration instance.
  *
@@ -896,15 +871,6 @@ ad_connector_build_attributes (ad_search_config_t search_config)
   GPtrArray *attributes = g_ptr_array_new_with_free_func (g_free);
 
   ad_attribute_array_add_list (attributes, ad_object_core_attributes);
-
-  if (search_config->object_types & AD_OBJECT_TYPE_COMPUTER)
-    ad_attribute_array_add_list (attributes, ad_computer_attributes);
-
-  if (search_config->object_types & AD_OBJECT_TYPE_OU)
-    ad_attribute_array_add_list (attributes, ad_ou_attributes);
-
-  if (search_config->object_types & AD_OBJECT_TYPE_GROUP)
-    ad_attribute_array_add_list (attributes, ad_group_attributes);
 
   ad_attribute_array_add_extra_attributes (attributes,
                                            search_config->extra_attributes);
@@ -950,8 +916,8 @@ get_ldap_search_scope (ad_connector_search_scope_t scope,
  * @brief Searches for AD objects in Active Directory.
  *
  * Performs a paged LDAP search using the given configuration. For each
- * supported AD object found, the callback is invoked with an ad_object_t
- * that is valid only for the duration of the callback.
+ * supported AD object found, ownership of an ad_object_t transfers to the
+ * callback.
  *
  * If max_results is reached, the search stops early, returns
  * AD_CONNECTOR_OK, and sets result->truncated to TRUE when result is
@@ -962,8 +928,7 @@ get_ldap_search_scope (ad_connector_search_scope_t scope,
  * @param callback       Callback invoked for each AD object found.
  * @param user_data      User data passed to the callback.
  * @param result         Optional search metadata.
- *                       emitted is the number of objects whose calllback
- *                       returned AD_OBJECT_CALLBACK_CONTINUE.
+ *                       emitted counts callbacks returning CONTINUE or STOP.
  *
  * @return AD_CONNECTOR_OK on success, AD_CONNECTOR_RESULT_ERROR if the
  *         callback reports an error, AD_CONNECTOR_SEARCH_ERROR for LDAP

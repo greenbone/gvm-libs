@@ -110,8 +110,8 @@ typedef enum
 } ad_object_callback_result_t;
 
 /**
- * The object passed to the callback is owned by the connector and is valid
- * only for the duration of the callback.
+ * Ownership of the object transfers to the callback on entry. The callback
+ * must retain it or free it with ad_object_free().
  */
 typedef ad_object_callback_result_t (*ad_object_callback_t) (
   ad_object_t *object, gpointer user_data);
@@ -149,5 +149,8 @@ ad_connector_return_t
 ad_connector_search_objects (ad_connector_t, const ad_search_config_t,
                              ad_object_callback_t, gpointer,
                              ad_object_search_result_t *);
+
+void
+ad_object_free (ad_object_t *);
 
 #endif /* not _GVM_AD_CONNECTOR_AD_CONNECTOR_H */
