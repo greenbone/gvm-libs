@@ -276,7 +276,10 @@ mock_callback_continue (ad_object_t *object, gpointer user_data)
   mock_callback_context_t *probe = user_data;
 
   if (!probe || !object)
-    return AD_OBJECT_CALLBACK_ERROR;
+    {
+      ad_object_free (object);
+      return AD_OBJECT_CALLBACK_ERROR;
+    }
 
   probe->calls++;
   probe->last_type = object->type;
@@ -284,6 +287,7 @@ mock_callback_continue (ad_object_t *object, gpointer user_data)
   g_free (probe->last_name);
   probe->last_name = object->name ? g_strdup (object->name) : NULL;
 
+  ad_object_free (object);
   return AD_OBJECT_CALLBACK_CONTINUE;
 }
 
@@ -293,7 +297,10 @@ mock_callback_stop (ad_object_t *object, gpointer user_data)
   mock_callback_context_t *probe = user_data;
 
   if (!probe || !object)
-    return AD_OBJECT_CALLBACK_ERROR;
+    {
+      ad_object_free (object);
+      return AD_OBJECT_CALLBACK_ERROR;
+    }
 
   probe->calls++;
   probe->last_type = object->type;
@@ -301,6 +308,7 @@ mock_callback_stop (ad_object_t *object, gpointer user_data)
   g_free (probe->last_name);
   probe->last_name = object->name ? g_strdup (object->name) : NULL;
 
+  ad_object_free (object);
   return AD_OBJECT_CALLBACK_STOP;
 }
 
@@ -312,6 +320,7 @@ mock_callback_error (ad_object_t *object, gpointer user_data)
   if (probe && object)
     probe->calls++;
 
+  ad_object_free (object);
   return AD_OBJECT_CALLBACK_ERROR;
 }
 
@@ -323,6 +332,7 @@ mock_callback_invalid_enum (ad_object_t *object, gpointer user_data)
   if (probe && object)
     probe->calls++;
 
+  ad_object_free (object);
   return (ad_object_callback_result_t) 999;
 }
 
@@ -347,8 +357,8 @@ attr_list_count (gchar **attributes, const gchar *attr)
 static ad_object_callback_result_t
 dummy_object_callback (ad_object_t *object, gpointer user_data)
 {
-  (void) object;
   (void) user_data;
+  ad_object_free (object);
   return AD_OBJECT_CALLBACK_CONTINUE;
 }
 /* -------------------- End of helper Functions -------------------- */
@@ -1331,7 +1341,7 @@ Ensure (ad_connector, build_attributes_returns_null_for_null_config)
   assert_that (attributes, is_null);
 }
 
-Ensure (ad_connector, build_attributes_includes_core_and_type_specific_defaults)
+Ensure (ad_connector, build_attributes_includes_defaults)
 {
   ad_search_config_t config;
   gchar **attributes;
@@ -1341,18 +1351,9 @@ Ensure (ad_connector, build_attributes_includes_core_and_type_specific_defaults)
 
   attributes = ad_connector_build_attributes (config);
   assert_that (attributes, is_not_null);
-
-  /* Core attributes */
-  assert_that (attr_list_count (attributes, "objectClass"), is_equal_to (1));
-  assert_that (attr_list_count (attributes, "objectCategory"), is_equal_to (1));
-  assert_that (attr_list_count (attributes, "name"), is_equal_to (1));
-  assert_that (attr_list_count (attributes, "description"), is_equal_to (1));
-  assert_that (attr_list_count (attributes, "cn"), is_equal_to (1));
-  /* Type-specific attributes from default object_types = AD_OBJECT_TYPE_ALL */
-  assert_that (attr_list_count (attributes, "ou"), is_equal_to (1));
-  assert_that (attr_list_count (attributes, "dNSHostName"), is_equal_to (1));
-  assert_that (attr_list_count (attributes, "memberOf"), is_equal_to (1));
-
+  assert_that (g_strv_length (attributes), is_equal_to (2));
+  assert_that (attributes[0], is_equal_to_string ("objectClass"));
+  assert_that (attributes[1], is_equal_to_string ("name"));
   g_strfreev (attributes);
   ad_search_config_free (config);
 }
@@ -1361,7 +1362,8 @@ Ensure (ad_connector, build_attributes_adds_extra_unique_attributes)
 {
   ad_search_config_t config;
   gchar **attributes;
-  const gchar *extra = "memberOf, customAttr, CUSTOMATTR, ";
+  const gchar *extra = "memberOf, customAttr, CUSTOMATTR, OBJECTCLASS, NAME, "
+                       "dNSHostName, description, ";
 
   config = ad_search_config_new ();
   assert_that (config, is_not_null);
@@ -1375,6 +1377,11 @@ Ensure (ad_connector, build_attributes_adds_extra_unique_attributes)
 
   assert_that (attr_list_count (attributes, "memberOf"), is_equal_to (1));
   assert_that (attr_list_count (attributes, "customAttr"), is_equal_to (1));
+  assert_that (attr_list_count (attributes, "objectClass"), is_equal_to (1));
+  assert_that (attr_list_count (attributes, "name"), is_equal_to (1));
+  assert_that (attr_list_count (attributes, "dNSHostName"), is_equal_to (1));
+  assert_that (attr_list_count (attributes, "description"), is_equal_to (1));
+  assert_that (g_strv_length (attributes), is_equal_to (6));
 
   g_strfreev (attributes);
   ad_search_config_free (config);
@@ -1682,9 +1689,8 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, ad_connector,
                          build_attributes_returns_null_for_null_config);
-  add_test_with_context (
-    suite, ad_connector,
-    build_attributes_includes_core_and_type_specific_defaults);
+  add_test_with_context (suite, ad_connector,
+                         build_attributes_includes_defaults);
   add_test_with_context (suite, ad_connector,
                          build_attributes_adds_extra_unique_attributes);
 
