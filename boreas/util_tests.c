@@ -208,6 +208,18 @@ Ensure (util, init_ipv6_net_data_get_source_addr_v6_error)
   assert_that (error, is_equal_to (BOREAS_INVALID_IPV6_NETWORK));
 }
 
+Ensure (util, init_ipv6_net_data_get_source_addr_v6_error_long_destination)
+{
+  scanner_t scanner = {0};
+  boreas_error_t error;
+
+  scanner.udpv6soc = -1;
+  error = init_ipv6_net_data (&scanner, "2001:db8:1234:5678::/64");
+  if (scanner.udpv6soc >= 0)
+    close (scanner.udpv6soc);
+  assert_that (error, is_equal_to (BOREAS_INVALID_IPV6_NETWORK));
+}
+
 Ensure (util, init_ipv6_net_data_socket_error)
 {
   scanner_t scanner = {0};
@@ -353,6 +365,8 @@ main (int argc, char **argv)
   add_test_with_context (suite, util, get_source_addr_v6);
   add_test_with_context (suite, util,
                          init_ipv6_net_data_get_source_addr_v6_error);
+  add_test_with_context (
+    suite, util, init_ipv6_net_data_get_source_addr_v6_error_long_destination);
   add_test_with_context (suite, util, init_ipv6_net_data_socket_error);
   add_test_with_context (suite, util, init_ipv6_net_data_setsockopt_error);
   add_test_with_context (suite, util, init_ipv6_net_data_set_broadcast_error);
