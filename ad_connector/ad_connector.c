@@ -251,6 +251,25 @@ ad_object_type_flags_are_valid (ad_object_type_t object_types)
 }
 
 /**
+ * @brief Check whether a search base DN is within an allowed base DN.
+ *
+ * Both DNs must be valid. Comparison is conservative: uncertain equivalence
+ * is rejected, including differently ordered attributes in an RDN and values
+ * that differ in case. No directory schema matching rules are applied.
+ *
+ * @param base_dn          Requested search base DN.
+ * @param allowed_base_dn  Allowed search base DN.
+ *
+ * @return TRUE if the requested base is equal to or below the allowed base,
+ *         FALSE otherwise.
+ */
+gboolean
+ad_search_base_dn_is_within (const gchar *base_dn, const gchar *allowed_base_dn)
+{
+  return gvm_ldap_dn_is_within_base (base_dn, allowed_base_dn);
+}
+
+/**
  * @brief Sets one option on an AD search configuration.
  *
  * String values are copied. Numeric values are passed as pointers to gint.

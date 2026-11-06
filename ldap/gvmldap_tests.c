@@ -12,10 +12,6 @@ Describe (gvmldap);
 
 static const gchar *mock_dn_to_return = NULL;
 static struct berval **mock_values_to_return = NULL;
-static int mock_ldap_str2dn_return_value = LDAP_SUCCESS;
-static LDAPAVA mock_dn_ava;
-static LDAPAVA *mock_dn_rdn[] = {&mock_dn_ava, NULL};
-static LDAPRDN mock_parsed_dn[] = {mock_dn_rdn, NULL};
 
 static int mock_ldap_set_option_return_value = LDAP_OPT_SUCCESS;
 static int mock_ldap_set_option_failure_option = 0;
@@ -115,23 +111,6 @@ ldap_value_free_len (struct berval **vals)
 }
 
 int
-ldap_str2dn (LDAP_CONST char *str, LDAPDN *dn, unsigned flags)
-{
-  (void) str;
-
-  (void) flags;
-
-  *dn = mock_ldap_str2dn_return_value == LDAP_SUCCESS ? mock_parsed_dn : NULL;
-  return mock_ldap_str2dn_return_value;
-}
-
-void
-ldap_dnfree (LDAPDN dn)
-{
-  (void) dn;
-}
-
-int
 ldap_set_option (LDAP *ld, int option, const void *invalue)
 {
   (void) ld;
@@ -181,7 +160,6 @@ ldap_unbind_ext_s (LDAP *ld, LDAPControl **sctrls, LDAPControl **cctrls)
 
 BeforeEach (gvmldap)
 {
-  mock_ldap_str2dn_return_value = LDAP_SUCCESS;
   mock_dn_to_return = NULL;
   mock_values_to_return = NULL;
 
@@ -201,7 +179,6 @@ BeforeEach (gvmldap)
 
 AfterEach (gvmldap)
 {
-  mock_ldap_str2dn_return_value = LDAP_SUCCESS;
   mock_dn_to_return = NULL;
   mock_ldap_set_option_return_value = LDAP_OPT_SUCCESS;
   mock_ldap_set_option_failure_option = 0;
@@ -626,9 +603,67 @@ Ensure (gvmldap, dn_is_valid_accepts_parser_success)
 
 Ensure (gvmldap, dn_is_valid_rejects_parser_error)
 {
-  mock_ldap_str2dn_return_value = LDAP_INVALID_DN_SYNTAX;
-
   assert_that (gvm_ldap_dn_is_valid ("not-a-dn"), is_false);
+}
+
+Ensure (gvmldap, dn_is_within_base_accepts_equal_and_descendant_dns)
+{
+  assert_that (
+    gvm_ldap_dn_is_within_base ("DC=example,DC=com", "DC=example,DC=com"),
+    is_true);
+  assert_that (gvm_ldap_dn_is_within_base ("OU=Sales,DC=example,DC=com",
+                                           "DC=example,DC=com"),
+               is_true);
+  assert_that (gvm_ldap_dn_is_within_base ("CN=Host,OU=Sales,DC=example,DC=com",
+                                           "DC=example,DC=com"),
+               is_true);
+  assert_that (
+    gvm_ldap_dn_is_within_base ("dc=example,DC=com", "DC=example,DC=com"),
+    is_true);
+  assert_that (
+    gvm_ldap_dn_is_within_base ("OU=Sales\\, West,DC=example,DC=com",
+                                "OU=Sales\\2C West,DC=example,DC=com"),
+    is_true);
+  assert_that (
+    gvm_ldap_dn_is_within_base ("OU=Sales+CN=Team,DC=example,DC=com",
+                                "ou=Sales+cn=Team,DC=example,DC=com"),
+    is_true);
+}
+
+Ensure (gvmldap, dn_is_within_base_rejects_outside_or_uncertain_dns)
+{
+  assert_that (gvm_ldap_dn_is_within_base ("OU=Other,DC=example,DC=com",
+                                           "OU=Sales,DC=example,DC=com"),
+               is_false);
+  assert_that (gvm_ldap_dn_is_within_base ("OU=Sales,DC=example,DC=org",
+                                           "DC=example,DC=com"),
+               is_false);
+  assert_that (gvm_ldap_dn_is_within_base ("DC=com", "DC=example,DC=com"),
+               is_false);
+  assert_that (gvm_ldap_dn_is_within_base ("OU=Fake\\,DC=example,DC=com",
+                                           "DC=example,DC=com"),
+               is_false);
+  assert_that (
+    gvm_ldap_dn_is_within_base ("DC=Example,DC=com", "DC=example,DC=com"),
+    is_false);
+  assert_that (
+    gvm_ldap_dn_is_within_base ("OU=Sales+CN=Team,DC=example,DC=com",
+                                "CN=Team+OU=Sales,DC=example,DC=com"),
+    is_false);
+  assert_that (gvm_ldap_dn_is_within_base ("CN=#04024869,DC=example,DC=com",
+                                           "CN=#04024869,DC=example,DC=com"),
+               is_false);
+}
+
+Ensure (gvmldap, dn_is_within_base_rejects_invalid_input)
+{
+  assert_that (gvm_ldap_dn_is_within_base (NULL, "DC=example"), is_false);
+  assert_that (gvm_ldap_dn_is_within_base ("DC=example", NULL), is_false);
+  assert_that (gvm_ldap_dn_is_within_base ("", "DC=example"), is_false);
+  assert_that (gvm_ldap_dn_is_within_base ("DC=example", ""), is_false);
+
+  assert_that (gvm_ldap_dn_is_within_base ("not-a-dn", "DC=example"), is_false);
+  assert_that (gvm_ldap_dn_is_within_base ("DC=example", "not-a-dn"), is_false);
 }
 
 /* ldap_bind_dn_is_valid */
@@ -652,19 +687,16 @@ Ensure (gvmldap, ldap_bind_dn_is_valid_accepts_valid_dn)
 
 Ensure (gvmldap, ldap_bind_dn_is_valid_accepts_user_at_domain)
 {
-  mock_ldap_str2dn_return_value = LDAP_INVALID_DN_SYNTAX;
   assert_that (ldap_bind_dn_is_valid ("alice@example.org"), is_true);
 }
 
 Ensure (gvmldap, ldap_bind_dn_is_valid_accepts_domain_backslash_user)
 {
-  mock_ldap_str2dn_return_value = LDAP_INVALID_DN_SYNTAX;
   assert_that (ldap_bind_dn_is_valid ("EXAMPLE\\alice"), is_true);
 }
 
 Ensure (gvmldap, ldap_bind_dn_is_valid_rejects_invalid_dn)
 {
-  mock_ldap_str2dn_return_value = LDAP_INVALID_DN_SYNTAX;
   assert_that (ldap_bind_dn_is_valid ("@example.org"), is_false);
   assert_that (ldap_bind_dn_is_valid ("alice@"), is_false);
   assert_that (ldap_bind_dn_is_valid ("alice@@example.org"), is_false);
@@ -942,12 +974,16 @@ main (int argc, char **argv)
     escape_filter_value_preserves_injection_input_as_literal_data);
   add_test_with_context (
     suite, gvmldap, escape_filter_value_escapes_control_and_non_ascii_bytes);
+  add_test_with_context (suite, gvmldap, dn_is_valid_rejects_null_and_empty);
+  add_test_with_context (suite, gvmldap, dn_is_valid_accepts_parser_success);
+  add_test_with_context (suite, gvmldap, dn_is_valid_rejects_parser_error);
+
   add_test_with_context (suite, gvmldap,
-                         dn_is_valid_rejects_null_and_empty);
+                         dn_is_within_base_accepts_equal_and_descendant_dns);
   add_test_with_context (suite, gvmldap,
-                         dn_is_valid_accepts_parser_success);
+                         dn_is_within_base_rejects_outside_or_uncertain_dns);
   add_test_with_context (suite, gvmldap,
-                         dn_is_valid_rejects_parser_error);
+                         dn_is_within_base_rejects_invalid_input);
 
   add_test_with_context (suite, gvmldap,
                          ldap_build_uri_uses_defaults_for_starttls_and_ldaps);

@@ -139,6 +139,10 @@ ad_connector_return_t
 ad_search_config_builder (ad_search_config_t, ad_search_config_opt_t,
                           const void *);
 
+gboolean
+ad_search_base_dn_is_within (const gchar *base_dn,
+                             const gchar *allowed_base_dn);
+
 void ad_search_config_free (ad_search_config_t);
 
 ad_connector_t
