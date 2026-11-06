@@ -362,17 +362,28 @@ agent_controller_parse_agent_config (cJSON *root)
       cJSON *cron = cJSON_GetObjectItem (exec, "scheduler_cron_time");
       if (cJSON_IsArray (cron))
         {
-          GPtrArray *arr = g_ptr_array_new_with_free_func (g_free);
+          GPtrArray *arr = g_ptr_array_new_with_free_func (
+            (GDestroyNotify) agent_controller_scheduler_cron_free);
           int n = cJSON_GetArraySize (cron);
 
           for (int i = 0; i < n; ++i)
             {
               cJSON *it = cJSON_GetArrayItem (cron, i);
-              if (cJSON_IsString (it) && it->valuestring
-                  && it->valuestring[0] != '\0')
-                {
-                  g_ptr_array_add (arr, g_strdup (it->valuestring));
-                }
+              if (!cJSON_IsObject (it))
+                continue;
+
+              const gchar *expr = gvm_json_obj_str (it, "cron");
+              if (!expr || !*expr)
+                continue;
+
+              agent_controller_scheduler_cron_t entry =
+                agent_controller_scheduler_cron_new ();
+
+              entry->cron = g_strdup (expr);
+              entry->max_delay_seconds =
+                gvm_json_obj_int (it, "max_delay_seconds");
+
+              g_ptr_array_add (arr, entry);
             }
 
           if (arr->len > 0)
@@ -528,6 +539,8 @@ agent_controller_parse_agent (cJSON *item)
     gvm_json_obj_str (item, "latest_updater_version");
   const gchar *os_str = gvm_json_obj_str (item, "operating_system");
   const gchar *arch = gvm_json_obj_str (item, "architecture");
+  const gchar *os_cpe = gvm_json_obj_str (item, "os_cpe");
+  const gchar *os_status = gvm_json_obj_str (item, "os_status");
 
   agent->updater_version = upd_ver ? g_strdup (upd_ver) : NULL;
   agent->agent_version = agt_ver ? g_strdup (agt_ver) : NULL;
@@ -537,6 +550,8 @@ agent_controller_parse_agent (cJSON *item)
     latest_updater_ver ? g_strdup (latest_updater_ver) : NULL;
   agent->operating_system = os_str ? g_strdup (os_str) : NULL;
   agent->architecture = arch ? g_strdup (arch) : NULL;
+  agent->os_cpe = os_cpe ? g_strdup (os_cpe) : NULL;
+  agent->os_status = os_status ? g_strdup (os_status) : NULL;
   agent->update_to_latest =
     cJSON_IsTrue (cJSON_GetObjectItem (item, "update_to_latest"));
   agent->agent_update_available =
@@ -552,35 +567,34 @@ agent_controller_parse_agent (cJSON *item)
 }
 
 /**
- * @brief Deep-copy a GPtrArray of char*.
+ * @brief Deep-copy a GPtrArray of scheduler cron entries.
  *
- * @param[in] src  Source pointer array to duplicate (may be NULL).
+ * @param[in] src Source array to duplicate (may be NULL).
  *
- * @return A newly allocated #GPtrArray on success; NULL if @p src is NULL
- *         or if an allocation fails.
+ * @return Newly allocated array, or NULL if src is NULL.
  */
 static GPtrArray *
-dup_str_ptr_array (const GPtrArray *src)
+dup_scheduler_cron_array (const GPtrArray *src)
 {
   if (!src)
     return NULL;
 
-  GPtrArray *dst = g_ptr_array_sized_new (src->len);
-  if (!dst)
-    return NULL;
-
-  g_ptr_array_set_free_func (dst, g_free);
+  GPtrArray *dst = g_ptr_array_new_with_free_func (
+    (GDestroyNotify) agent_controller_scheduler_cron_free);
 
   for (guint i = 0; i < src->len; ++i)
     {
-      const char *s = g_ptr_array_index ((GPtrArray *) src, i);
-      char *copy = s ? g_strdup (s) : NULL;
+      agent_controller_scheduler_cron_t entry =
+        g_ptr_array_index ((GPtrArray *) src, i);
 
-      if (s && !copy)
-        {
-          g_ptr_array_free (dst, TRUE);
-          return NULL;
-        }
+      if (!entry)
+        continue;
+
+      agent_controller_scheduler_cron_t copy =
+        agent_controller_scheduler_cron_new ();
+
+      copy->cron = g_strdup (entry->cron);
+      copy->max_delay_seconds = entry->max_delay_seconds;
 
       g_ptr_array_add (dst, copy);
     }
@@ -662,7 +676,7 @@ agent_controller_build_updated_agent_config (
       : base_config->agent_script_executor.scheduler_cron_time;
 
   merged->agent_script_executor.scheduler_cron_time =
-    dup_str_ptr_array (src_cron);
+    dup_scheduler_cron_array (src_cron);
 
   return merged;
 }
@@ -993,30 +1007,37 @@ agent_controller_connector_builder (agent_controller_connector_t conn,
   switch (opt)
     {
     case AGENT_CONTROLLER_CA_CERT:
+      g_free (conn->ca_cert);
       conn->ca_cert = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_CERT:
+      g_free (conn->cert);
       conn->cert = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_KEY:
+      g_free (conn->key);
       conn->key = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_API_KEY:
+      g_free (conn->apikey);
       conn->apikey = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_PROTOCOL:
       if (g_strcmp0 ((const gchar *) val, "http") != 0
           && g_strcmp0 ((const gchar *) val, "https") != 0)
         return AGENT_CONTROLLER_INVALID_VALUE;
+      g_free (conn->protocol);
       conn->protocol = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_HOST:
+      g_free (conn->host);
       conn->host = g_strdup ((const gchar *) val);
       break;
     case AGENT_CONTROLLER_PORT:
       conn->port = *((const int *) val);
       break;
     case AGENT_CONTROLLER_UNIX_SOCKET_PATH:
+      g_free (conn->unix_socket_path);
       conn->unix_socket_path = g_strdup ((const gchar *) val);
       break;
     default:
@@ -1068,6 +1089,8 @@ agent_controller_agent_free (agent_controller_agent_t agent)
   g_free (agent->latest_updater_version);
   g_free (agent->operating_system);
   g_free (agent->updater_version);
+  g_free (agent->os_cpe);
+  g_free (agent->os_status);
   g_free (agent);
 }
 
@@ -1277,6 +1300,32 @@ agent_controller_support_bundle_free (agent_controller_support_bundle_t bundle)
   g_free (bundle->data);
   g_free (bundle->filename);
   g_free (bundle);
+}
+
+/**
+ * @brief Allocate/zero a new scheduler cron struct.
+ *
+ * @return Newly allocated scheduler cron struct
+ */
+agent_controller_scheduler_cron_t
+agent_controller_scheduler_cron_new (void)
+{
+  return g_malloc0 (sizeof (struct agent_controller_scheduler_cron));
+}
+
+/**
+ * @brief Free a scheduler cron struct.
+ *
+ * @param[in] cron to be freed
+ */
+void
+agent_controller_scheduler_cron_free (agent_controller_scheduler_cron_t cron)
+{
+  if (cron == NULL)
+    return;
+
+  g_free (cron->cron);
+  g_free (cron);
 }
 
 /**
@@ -1655,11 +1704,22 @@ agent_controller_convert_agent_config_string (
   if (arr && arr->len > 0)
     {
       cJSON *cron = cJSON_CreateArray ();
+
       for (guint i = 0; i < arr->len; ++i)
         {
-          const gchar *expr = g_ptr_array_index ((GPtrArray *) arr, i);
-          if (expr && *expr)
-            cJSON_AddItemToArray (cron, cJSON_CreateString (expr));
+          agent_controller_scheduler_cron_t entry =
+            g_ptr_array_index ((GPtrArray *) arr, i);
+
+          if (!entry || !entry->cron || !*entry->cron)
+            continue;
+
+          cJSON *cron_obj = cJSON_CreateObject ();
+
+          cJSON_AddStringToObject (cron_obj, "cron", entry->cron);
+          cJSON_AddNumberToObject (cron_obj, "max_delay_seconds",
+                                   entry->max_delay_seconds);
+
+          cJSON_AddItemToArray (cron, cron_obj);
         }
 
       if (cJSON_GetArraySize (cron) > 0)
@@ -2077,19 +2137,22 @@ agent_controller_get_installer_instruction (agent_controller_connector_t conn,
 }
 
 /**
- * @brief Downloads a support bundle for a specific agent.
+ * @brief Downloads an encrypted or plain support bundle for an agent.
  *
  * @param[in] conn Active connector to the Agent Controller.
  * @param[in] agent_id ID of the agent.
  * @param[in] days Number of days of logs to include. A value of 0 uses the
  *                 Agent Controller's configured default.
+ * @param[in] encrypted Whether the support bundle is encrypted.
+ * @param[in] anonymized Whether the support bundle is anonymized.
  *
  * @return Newly allocated support bundle on success, NULL on failure.
- *         Free with agent_controller_support_bundle_free().
  */
 agent_controller_support_bundle_t
 agent_controller_download_support_bundle (agent_controller_connector_t conn,
-                                          const gchar *agent_id, int days)
+                                          const gchar *agent_id, int days,
+                                          gboolean encrypted,
+                                          gboolean anonymized)
 {
   gvm_http_headers_t *headers;
   gvm_http_response_t *response;
@@ -2101,18 +2164,26 @@ agent_controller_download_support_bundle (agent_controller_connector_t conn,
     return NULL;
 
   escaped_agent_id = g_uri_escape_string (agent_id, NULL, TRUE);
+
   if (!escaped_agent_id)
     return NULL;
 
-  if (days > 0)
-    path =
-      g_strdup_printf ("/agent-control/v2/api/agents/%s/support-bundle?days=%d",
-                       escaped_agent_id, days);
-  else
-    path = g_strdup_printf ("/agent-control/v2/api/agents/%s/support-bundle",
-                            escaped_agent_id);
+  path = g_strdup_printf ("/agent-control/v2/api/agents/%s/support-bundle"
+                          "?encrypted=%s&anonymized=%s%s",
+                          escaped_agent_id, encrypted ? "true" : "false",
+                          anonymized ? "true" : "false", days > 0 ? "" : "");
 
   g_free (escaped_agent_id);
+
+  if (days > 0)
+    {
+      gchar *path_with_days = g_strdup_printf ("%s&days=%d", path, days);
+      g_free (path);
+      path = path_with_days;
+    }
+
+  if (!path)
+    return NULL;
 
   headers = init_custom_header (conn->apikey, FALSE);
   if (!headers)

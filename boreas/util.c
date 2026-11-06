@@ -567,6 +567,8 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
                  INET_ADDRSTRLEN);
       printf ("%s: Destination: %s. %s", __func__, destination_str,
               str_boreas_error (error));
+      g_free (scanner->ipv6_net->net);
+      g_free (scanner->ipv6_net);
       return BOREAS_INVALID_IPV6_NETWORK;
     }
 
@@ -576,6 +578,8 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
     {
       g_warning ("%s: failed to open ICPMV6 socket: %s", __func__,
                  strerror (errno));
+      g_free (scanner->ipv6_net->net);
+      g_free (scanner->ipv6_net);
       return BOREAS_OPENING_SOCKET_FAILED;
     }
 
@@ -586,6 +590,8 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
       g_warning ("%s: failed to set socket option IP_HDRINCL: %s", __func__,
                  strerror (errno));
       close (soc);
+      g_free (scanner->ipv6_net->net);
+      g_free (scanner->ipv6_net);
       return BOREAS_SETTING_SOCKET_OPTION_FAILED;
     }
 
@@ -594,6 +600,8 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
   if (error != 0)
     {
       close (soc);
+      g_free (scanner->ipv6_net->net);
+      g_free (scanner->ipv6_net);
       return error;
     }
 
@@ -607,6 +615,8 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
       g_warning ("%s: failed to bind socket to source address: %s", __func__,
                  strerror (errno));
       close (soc);
+      g_free (scanner->ipv6_net->net);
+      g_free (scanner->ipv6_net);
       return BOREAS_BIND_SOCKET_FAILED;
     }
   scanner->icmpv6soc = soc;

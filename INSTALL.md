@@ -17,17 +17,18 @@ General build environment:
 
 Specific development libraries:
 
-* libcjson >= 1.7.14 (util)
-* libcurl >= 7.83.0 (openvasd)
-* libgcrypt
+* libcjson >= 1.7.14 (agent_controller, container_image_scanner, cyberark, http_scanner, openvasd, security_intelligence, util, web_application_scanner)
+* libcurl >= 7.83.0 (agent_controller, container_image_scanner, cyberark, http, http_scanner, openvasd, security_intelligence)
+* libgcrypt (util)
 * libgio >= 2.42 (util)
 * libglib >= 2.42 (all)
 * libgnutls >= 3.2.15 (util)
 * libgpgme >= 1.7.0 (util)
 * libhiredis >= 0.10.1 (util)
-* libnet1 >= 1.1.2.1 (boreas)
+* libldap >= 2.4 (util, ldap)
+* libnet >= 1.1.2.1 (boreas)
 * libpaho-mqtt >= 1.3.0 (utils)
-* libpcap
+* libpcap (boreas)
 * libssh >= 0.6.0 (util)
 * libuuid >= 2.25.0 (util)
 * libxcrypt (util)
@@ -55,6 +56,7 @@ Install prerequisites on Debian stable:
     libgnutls28-dev \
     libgpgme-dev \
     libhiredis-dev \
+    libldap-dev \
     libnet1-dev \
     libpaho-mqtt-dev \
     libpcap-dev \
@@ -67,19 +69,14 @@ Install prerequisites on Debian stable:
 
 Certain features of gvm-libs are optional and require the following:
 
-Prerequisites for LDAP authentication:
-
-* libldap2 library >= 2.4.44 (util) (Debian package: libldap2-dev)
-
 Prerequisites for RADIUS authentication:
 
 * libradcli4 library >= 1.2.6 (util) (Debian package: libradcli-dev)
 * Alternative: libfreeradius3 library (util) (Debian package: libfreeradius-dev)
 
-Install prerequisites for optional features on Debian GNU/Linux 'Buster' 10:
+Install prerequisites for optional features on Debian stable:
 
     apt-get install \
-    libldap2-dev \
     libradcli-dev
 
 ## Compiling gvm-libs

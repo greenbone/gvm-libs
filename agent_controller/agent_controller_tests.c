@@ -133,6 +133,35 @@ make_conn (void)
   return conn;
 }
 
+static agent_controller_scheduler_cron_t
+make_scheduler_cron (const gchar *expression, int max_delay_seconds)
+{
+  agent_controller_scheduler_cron_t entry =
+    agent_controller_scheduler_cron_new ();
+  entry->cron = g_strdup (expression);
+  entry->max_delay_seconds = max_delay_seconds;
+  return entry;
+}
+
+static GPtrArray *
+make_scheduler_cron_array (void)
+{
+  return g_ptr_array_new_with_free_func (
+    (GDestroyNotify) agent_controller_scheduler_cron_free);
+}
+
+static void
+assert_scheduler_cron (GPtrArray *entries, guint index, const gchar *expression,
+                       int max_delay_seconds)
+{
+  assert_that (entries, is_not_null);
+  assert_that (entries->len > index, is_true);
+  agent_controller_scheduler_cron_t entry = g_ptr_array_index (entries, index);
+  assert_that (entry, is_not_null);
+  assert_that (entry->cron, is_equal_to_string (expression));
+  assert_that (entry->max_delay_seconds, is_equal_to (max_delay_seconds));
+}
+
 static agent_controller_agent_config_t
 make_agent_config (void)
 {
@@ -146,10 +175,9 @@ make_agent_config (void)
   cfg->agent_script_executor.bulk_size = 1;
   cfg->agent_script_executor.bulk_throttle_time_in_ms = 1;
   cfg->agent_script_executor.indexer_dir_depth = 1;
-  cfg->agent_script_executor.scheduler_cron_time =
-    g_ptr_array_new_with_free_func (g_free);
+  cfg->agent_script_executor.scheduler_cron_time = make_scheduler_cron_array ();
   g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
-                   g_strdup ("* * * * *"));
+                   make_scheduler_cron ("* * * * *", 0));
 
   /* heartbeat */
   cfg->heartbeat.interval_in_seconds = 1;
@@ -175,9 +203,9 @@ make_scan_agent_config (void)
   d->agent_defaults->agent_script_executor.indexer_dir_depth = 10;
 
   d->agent_defaults->agent_script_executor.scheduler_cron_time =
-    g_ptr_array_new_with_free_func (g_free);
+    make_scheduler_cron_array ();
   g_ptr_array_add (d->agent_defaults->agent_script_executor.scheduler_cron_time,
-                   g_strdup ("0 23 * * *"));
+                   make_scheduler_cron ("0 23 * * *", 0));
 
   d->agent_defaults->heartbeat.interval_in_seconds = 600;
   d->agent_defaults->heartbeat.miss_until_inactive = 1;
@@ -353,6 +381,20 @@ Ensure (agent_controller, connector_builder_all_valid_fields)
   agent_controller_connector_free (conn);
 }
 
+Ensure (agent_controller, builder_set_twice_no_leak)
+{
+  agent_controller_connector_t conn = agent_controller_connector_new ();
+  agent_controller_error_t rc;
+  const char *host = "host-1";
+
+  rc = agent_controller_connector_builder (conn, AGENT_CONTROLLER_HOST, host);
+  assert_that (rc, is_equal_to (AGENT_CONTROLLER_OK));
+  rc = agent_controller_connector_builder (conn, AGENT_CONTROLLER_HOST, host);
+  assert_that (rc, is_equal_to (AGENT_CONTROLLER_OK));
+
+  agent_controller_connector_free (conn);
+}
+
 Ensure (agent_controller, connector_builder_valid_protocol_http)
 {
   agent_controller_connector_t conn = agent_controller_connector_new ();
@@ -408,6 +450,8 @@ Ensure (agent_controller, agent_free_handles_agent)
   agent->agent_version = g_strdup ("1.2.3");
   agent->operating_system = g_strdup ("linux");
   agent->architecture = g_strdup ("amd64");
+  agent->os_cpe = g_strdup ("cpe:/o:example:linux");
+  agent->os_status = g_strdup ("detected");
 
   agent_controller_agent_free (agent);
   assert_that (true, is_true);
@@ -768,7 +812,8 @@ Ensure (agent_controller, parse_agent_config_string_stored_directly)
                      "    \"{\\\"heartbeat\\\":{\\\"interval_in_seconds\\\":7,"
                      "      \\\"miss_until_inactive\\\":2},"
                      "      \\\"agent_script_executor\\\":{"
-                     "        \\\"scheduler_cron_time\\\":[\\\"* * 1 * *\\\"]"
+                     "        \\\"scheduler_cron_time\\\":[{\\\"cron\\\":\\\"* "
+                     "* 1 * *\\\",\\\"max_delay_seconds\\\":7}]"
                      "      }"
                      "    }\""
                      "}";
@@ -784,14 +829,13 @@ Ensure (agent_controller, parse_agent_config_string_stored_directly)
   assert_that (agent->config->heartbeat.interval_in_seconds, is_equal_to (7));
   assert_that (agent->config->heartbeat.miss_until_inactive, is_equal_to (2));
 
-  /* scheduler_cron_time: GPtrArray of gchar* */
+  /* scheduler_cron_time: GPtrArray of cron structures */
   assert_that (agent->config->agent_script_executor.scheduler_cron_time,
                is_not_null);
   GPtrArray *cron = agent->config->agent_script_executor.scheduler_cron_time;
   assert_that ((int) cron->len, is_equal_to (1));
 
-  const gchar *expr0 = g_ptr_array_index (cron, 0);
-  assert_that (expr0, is_equal_to_string ("* * 1 * *"));
+  assert_scheduler_cron (cron, 0, "* * 1 * *", 7);
 
   agent_controller_agent_free (agent);
   cJSON_Delete (root);
@@ -1095,14 +1139,13 @@ Ensure (agent_controller, agent_config_free_frees_cron_array_safely)
   agent_controller_agent_config_t cfg = agent_controller_agent_config_new ();
   assert_that (cfg, is_not_null);
 
-  cfg->agent_script_executor.scheduler_cron_time =
-    g_ptr_array_new_with_free_func (g_free);
+  cfg->agent_script_executor.scheduler_cron_time = make_scheduler_cron_array ();
   g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
-                   g_strdup ("0 23 * * *"));
+                   make_scheduler_cron ("0 23 * * *", 0));
   g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
-                   g_strdup ("*/5 * * * *"));
+                   make_scheduler_cron ("*/5 * * * *", 5));
   g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
-                   g_strdup ("15 2 * * 1"));
+                   make_scheduler_cron ("15 2 * * 1", 0));
 
   cfg->agent_control.retry.attempts = 5;
   cfg->heartbeat.interval_in_seconds = 600;
@@ -1146,12 +1189,11 @@ Ensure (agent_controller, build_agent_config_payload_with_values)
   cfg->agent_script_executor.indexer_dir_depth = 10;
 
   /* GPtrArray-based cron list */
-  cfg->agent_script_executor.scheduler_cron_time =
-    g_ptr_array_new_with_free_func (g_free);
+  cfg->agent_script_executor.scheduler_cron_time = make_scheduler_cron_array ();
   g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
-                   g_strdup ("0 23 * * *"));
+                   make_scheduler_cron ("0 23 * * *", 0));
   g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
-                   g_strdup ("*/5 * * * *"));
+                   make_scheduler_cron ("*/5 * * * *", 5));
 
   cfg->heartbeat.interval_in_seconds = 600;
   cfg->heartbeat.miss_until_inactive = 1;
@@ -1170,8 +1212,9 @@ Ensure (agent_controller, build_agent_config_payload_with_values)
   assert_that (payload, contains_string ("\"indexer_dir_depth\":10"));
 
   assert_that (payload, contains_string ("\"scheduler_cron_time\":["));
-  assert_that (payload, contains_string ("\"0 23 * * *\""));
-  assert_that (payload, contains_string ("\"*/5 * * * *\""));
+  assert_that (payload, contains_string ("\"cron\":\"0 23 * * *\""));
+  assert_that (payload, contains_string ("\"cron\":\"*/5 * * * *\""));
+  assert_that (payload, contains_string ("\"max_delay_seconds\":5"));
 
   /* heartbeat */
   assert_that (payload, contains_string ("\"interval_in_seconds\":600"));
@@ -1195,7 +1238,9 @@ Ensure (agent_controller, parse_agent_config_full)
     "    \"bulk_throttle_time_in_ms\":100,"
     "    \"indexer_dir_depth\":10,"
     "    \"period_in_seconds\":60,"
-    "    \"scheduler_cron_time\":[\"0 23 * * *\",\"*/5 * * * *\"]"
+    "    \"scheduler_cron_time\":[{\"cron\":\"0 23 * * "
+    "*\",\"max_delay_seconds\":0},{\"cron\":\"*/5 * * * "
+    "*\",\"max_delay_seconds\":5}]"
     "  },"
     "  \"heartbeat\": {\"interval_in_seconds\":600,\"miss_until_inactive\":1}"
     "}";
@@ -1222,10 +1267,8 @@ Ensure (agent_controller, parse_agent_config_full)
   assert_that (cfg->agent_script_executor.scheduler_cron_time, is_not_null);
   GPtrArray *cron = cfg->agent_script_executor.scheduler_cron_time;
   assert_that ((int) cron->len, is_equal_to (2));
-  assert_that ((const gchar *) g_ptr_array_index (cron, 0),
-               is_equal_to_string ("0 23 * * *"));
-  assert_that ((const gchar *) g_ptr_array_index (cron, 1),
-               is_equal_to_string ("*/5 * * * *"));
+  assert_scheduler_cron (cron, 0, "0 23 * * *", 0);
+  assert_scheduler_cron (cron, 1, "*/5 * * * *", 5);
 
   /* heartbeat */
   assert_that (cfg->heartbeat.interval_in_seconds, is_equal_to (600));
@@ -1278,10 +1321,9 @@ Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
   cfg->agent_script_executor.bulk_throttle_time_in_ms = 250;
   cfg->agent_script_executor.indexer_dir_depth = 2;
 
-  cfg->agent_script_executor.scheduler_cron_time =
-    g_ptr_array_new_with_free_func (g_free);
+  cfg->agent_script_executor.scheduler_cron_time = make_scheduler_cron_array ();
   g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
-                   g_strdup ("15 2 * * 1"));
+                   make_scheduler_cron ("15 2 * * 1", 0));
 
   cfg->heartbeat.interval_in_seconds = 30;
   cfg->heartbeat.miss_until_inactive = 3;
@@ -1310,8 +1352,7 @@ Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
   assert_that (parsed->agent_script_executor.scheduler_cron_time, is_not_null);
   GPtrArray *cron = parsed->agent_script_executor.scheduler_cron_time;
   assert_that ((int) cron->len, is_equal_to (1));
-  assert_that ((const gchar *) g_ptr_array_index (cron, 0),
-               is_equal_to_string ("15 2 * * 1"));
+  assert_scheduler_cron (cron, 0, "15 2 * * 1", 0);
 
   assert_that (parsed->heartbeat.interval_in_seconds, is_equal_to (30));
   assert_that (parsed->heartbeat.miss_until_inactive, is_equal_to (3));
@@ -1489,6 +1530,8 @@ Ensure (agent_controller,
                                  "\"agent_version\":\"0.9.0\","
                                  "\"operating_system\":\"Linux\","
                                  "\"architecture\":\"amd64\","
+                                 "\"os_cpe\":\"cpe:/o:example:linux\","
+                                 "\"os_status\":\"detected\","
                                  "\"update_to_latest\":true"
                                  "}]");
   mock_http_status = 200;
@@ -1513,6 +1556,9 @@ Ensure (agent_controller,
   assert_that (list->agents[0]->agent_version, is_equal_to_string ("0.9.0"));
   assert_that (list->agents[0]->operating_system, is_equal_to_string ("Linux"));
   assert_that (list->agents[0]->architecture, is_equal_to_string ("amd64"));
+  assert_that (list->agents[0]->os_cpe,
+               is_equal_to_string ("cpe:/o:example:linux"));
+  assert_that (list->agents[0]->os_status, is_equal_to_string ("detected"));
   assert_that (list->agents[0]->update_to_latest, is_equal_to (1));
 
   agent_controller_agent_list_free (list);
@@ -1939,7 +1985,9 @@ Ensure (agent_controller, get_scan_agent_config_success_parses_values)
     "      \"bulk_size\":2,"
     "      \"bulk_throttle_time_in_ms\":100,"
     "      \"indexer_dir_depth\":10,"
-    "      \"scheduler_cron_time\":[\"0 23 * * *\",\"*/5 * * * *\"]"
+    "      \"scheduler_cron_time\":[{\"cron\":\"0 23 * * "
+    "*\",\"max_delay_seconds\":0},{\"cron\":\"*/5 * * * "
+    "*\",\"max_delay_seconds\":5}]"
     "    },"
     "    \"heartbeat\": {\"interval_in_seconds\":600,\"miss_until_inactive\":1}"
     "  },"
@@ -1962,10 +2010,8 @@ Ensure (agent_controller, get_scan_agent_config_success_parses_values)
   GPtrArray *cron =
     cfg->agent_defaults->agent_script_executor.scheduler_cron_time;
   assert_that ((int) cron->len, is_equal_to (2));
-  assert_that ((const gchar *) g_ptr_array_index (cron, 0),
-               is_equal_to_string ("0 23 * * *"));
-  assert_that ((const gchar *) g_ptr_array_index (cron, 1),
-               is_equal_to_string ("*/5 * * * *"));
+  assert_scheduler_cron (cron, 0, "0 23 * * *", 0);
+  assert_scheduler_cron (cron, 1, "*/5 * * * *", 5);
 
   assert_that (cfg->agent_defaults->heartbeat.interval_in_seconds,
                is_equal_to (600));
@@ -2056,7 +2102,8 @@ Ensure (agent_controller,
 
   assert_that (last_sent_payload, contains_string ("\"retry\""));
   assert_that (last_sent_payload,
-               contains_string ("\"scheduler_cron_time\":[\"0 23 * * *\"]"));
+               contains_string ("\"scheduler_cron_time\":[{\"cron\":\"0 23 * * "
+                                "*\",\"max_delay_seconds\":0}]"));
   assert_that (last_sent_payload,
                contains_string ("\"miss_until_inactive\":1"));
 
@@ -2443,7 +2490,9 @@ Ensure (agent_controller, parse_cfg_string_populates_fields_correctly)
     "    \"bulk_throttle_time_in_ms\":100,"
     "    \"indexer_dir_depth\":10,"
     "    \"period_in_seconds\":60,"
-    "    \"scheduler_cron_time\":[\"0 23 * * *\",\"@hourly\"]"
+    "    \"scheduler_cron_time\":[{\"cron\":\"0 23 * * "
+    "*\",\"max_delay_seconds\":0},{\"cron\":\"@hourly\",\"max_delay_seconds\":"
+    "5}]"
     "  },"
     "  \"heartbeat\": {\"interval_in_seconds\":600, \"miss_until_inactive\":1}"
     "}";
@@ -2467,10 +2516,8 @@ Ensure (agent_controller, parse_cfg_string_populates_fields_correctly)
   assert_that (cfg->agent_script_executor.scheduler_cron_time, is_not_null);
   GPtrArray *cron = cfg->agent_script_executor.scheduler_cron_time;
   assert_that ((int) cron->len, is_equal_to (2));
-  assert_that ((const gchar *) g_ptr_array_index (cron, 0),
-               is_equal_to_string ("0 23 * * *"));
-  assert_that ((const gchar *) g_ptr_array_index (cron, 1),
-               is_equal_to_string ("@hourly"));
+  assert_scheduler_cron (cron, 0, "0 23 * * *", 0);
+  assert_scheduler_cron (cron, 1, "@hourly", 5);
 
   /* heartbeat */
   assert_that (cfg->heartbeat.interval_in_seconds, is_equal_to (600));
@@ -2872,10 +2919,9 @@ Ensure (agent_controller, build_updated_agent_config_deep_copies_update_cron)
   agent_controller_agent_config_t upd = agent_controller_agent_config_new ();
   assert_that (upd, is_not_null);
 
-  upd->agent_script_executor.scheduler_cron_time =
-    g_ptr_array_new_with_free_func (g_free);
+  upd->agent_script_executor.scheduler_cron_time = make_scheduler_cron_array ();
   g_ptr_array_add (upd->agent_script_executor.scheduler_cron_time,
-                   g_strdup ("0 0 * * *"));
+                   make_scheduler_cron ("0 0 * * *", 0));
 
   agent_controller_agent_config_t merged =
     agent_controller_build_updated_agent_config (base, upd);
@@ -2891,13 +2937,15 @@ Ensure (agent_controller, build_updated_agent_config_deep_copies_update_cron)
     is_not_equal_to (upd->agent_script_executor.scheduler_cron_time));
 
   /* Not the same string pointer either */
-  const gchar *u0 =
+  agent_controller_scheduler_cron_t u0 =
     g_ptr_array_index (upd->agent_script_executor.scheduler_cron_time, 0);
-  const gchar *m0 =
+  agent_controller_scheduler_cron_t m0 =
     g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 0);
 
-  assert_that (m0, is_equal_to_string ("0 0 * * *"));
+  assert_that (m0->cron, is_equal_to_string ("0 0 * * *"));
+  assert_that (m0->max_delay_seconds, is_equal_to (0));
   assert_that (m0, is_not_equal_to (u0));
+  assert_that (m0->cron, is_not_equal_to (u0->cron));
 
   agent_controller_agent_config_free (merged);
   agent_controller_agent_config_free (upd);
@@ -2923,13 +2971,15 @@ Ensure (agent_controller,
     merged->agent_script_executor.scheduler_cron_time,
     is_not_equal_to (base->agent_script_executor.scheduler_cron_time));
 
-  const gchar *b0 =
+  agent_controller_scheduler_cron_t b0 =
     g_ptr_array_index (base->agent_script_executor.scheduler_cron_time, 0);
-  const gchar *m0 =
+  agent_controller_scheduler_cron_t m0 =
     g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 0);
 
-  assert_that (m0, is_equal_to_string (b0));
+  assert_that (m0->cron, is_equal_to_string (b0->cron));
+  assert_that (m0->max_delay_seconds, is_equal_to (b0->max_delay_seconds));
   assert_that (m0, is_not_equal_to (b0));
+  assert_that (m0->cron, is_not_equal_to (b0->cron));
 
   agent_controller_agent_config_free (merged);
   agent_controller_agent_config_free (upd);
@@ -3008,13 +3058,15 @@ Ensure (agent_controller,
     merged->agent_script_executor.scheduler_cron_time,
     is_not_equal_to (base->agent_script_executor.scheduler_cron_time));
 
-  const gchar *b0 =
+  agent_controller_scheduler_cron_t b0 =
     g_ptr_array_index (base->agent_script_executor.scheduler_cron_time, 0);
-  const gchar *m0 =
+  agent_controller_scheduler_cron_t m0 =
     g_ptr_array_index (merged->agent_script_executor.scheduler_cron_time, 0);
 
-  assert_that (m0, is_equal_to_string (b0));
+  assert_that (m0->cron, is_equal_to_string (b0->cron));
+  assert_that (m0->max_delay_seconds, is_equal_to (b0->max_delay_seconds));
   assert_that (m0, is_not_equal_to (b0));
+  assert_that (m0->cron, is_not_equal_to (b0->cron));
 
   agent_controller_agent_config_free (merged);
   agent_controller_agent_config_free (base);
@@ -3081,7 +3133,8 @@ Ensure (agent_controller, convert_scan_agent_config_string_builds_wrapper_json)
   assert_that (payload, contains_string ("\"delay_in_seconds\":60"));
   assert_that (payload, contains_string ("\"max_jitter_in_seconds\":10"));
   assert_that (payload,
-               contains_string ("\"scheduler_cron_time\":[\"0 23 * * *\"]"));
+               contains_string ("\"scheduler_cron_time\":[{\"cron\":\"0 23 * * "
+                                "*\",\"max_delay_seconds\":0}]"));
   assert_that (payload, contains_string ("\"interval_in_seconds\":600"));
   assert_that (payload, contains_string ("\"miss_until_inactive\":1"));
 
@@ -3103,7 +3156,8 @@ Ensure (agent_controller, parse_scan_agent_config_string_parses_all_fields)
     "      \"bulk_size\":2,"
     "      \"bulk_throttle_time_in_ms\":100,"
     "      \"indexer_dir_depth\":10,"
-    "      \"scheduler_cron_time\":[\"0 23 * * *\"]"
+    "      \"scheduler_cron_time\":[{\"cron\":\"0 23 * * "
+    "*\",\"max_delay_seconds\":0}]"
     "    },"
     "    \"heartbeat\": {\"interval_in_seconds\":600,\"miss_until_inactive\":1}"
     "  },"
@@ -3136,10 +3190,9 @@ Ensure (agent_controller, parse_scan_agent_config_string_parses_all_fields)
   assert_that (
     (int) d->agent_defaults->agent_script_executor.scheduler_cron_time->len,
     is_equal_to (1));
-  assert_that (
-    (const gchar *) g_ptr_array_index (
-      d->agent_defaults->agent_script_executor.scheduler_cron_time, 0),
-    is_equal_to_string ("0 23 * * *"));
+  assert_scheduler_cron (
+    d->agent_defaults->agent_script_executor.scheduler_cron_time, 0,
+    "0 23 * * *", 0);
 
   assert_that (d->agent_defaults->heartbeat.interval_in_seconds,
                is_equal_to (600));
@@ -3704,7 +3757,8 @@ Ensure (agent_controller, download_support_bundle_returns_data_and_filename)
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "GAT-29::2d61a736", 0);
+    agent_controller_download_support_bundle (conn, "GAT-29::2d61a736", 0, TRUE,
+                                              FALSE);
 
   assert_that (bundle, is_not_null);
   assert_that (bundle->data, is_not_null);
@@ -3716,8 +3770,9 @@ Ensure (agent_controller, download_support_bundle_returns_data_and_filename)
 
   assert_that (
     last_sent_url,
-    is_equal_to_string ("http://localhost:8081/agent-control/v2/api/agents/"
-                        "GAT-29%3A%3A2d61a736/support-bundle"));
+    is_equal_to_string (
+      "http://localhost:8081/agent-control/v2/api/agents/"
+      "GAT-29%3A%3A2d61a736/support-bundle?encrypted=true&anonymized=false"));
 
   assert_that (last_sent_payload, is_null);
 
@@ -3746,14 +3801,16 @@ Ensure (agent_controller, download_support_bundle_adds_days_parameter)
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", 7);
+    agent_controller_download_support_bundle (conn, "agent-123", 7, TRUE,
+                                              FALSE);
 
   assert_that (bundle, is_not_null);
 
   assert_that (
     last_sent_url,
-    is_equal_to_string ("http://localhost:8081/agent-control/v2/api/agents/"
-                        "agent-123/support-bundle?days=7"));
+    is_equal_to_string (
+      "http://localhost:8081/agent-control/v2/api/agents/"
+      "agent-123/support-bundle?encrypted=true&anonymized=false&days=7"));
 
   agent_controller_support_bundle_free (bundle);
   agent_controller_connector_free (conn);
@@ -3770,7 +3827,8 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, TRUE,
+                                              FALSE);
 
   assert_that (bundle, is_not_null);
   assert_that (bundle->filename, is_null);
@@ -3793,7 +3851,8 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, TRUE,
+                                              FALSE);
 
   assert_that (bundle, is_not_null);
   assert_that (bundle->filename, is_null);
@@ -3806,7 +3865,8 @@ Ensure (agent_controller,
         download_support_bundle_returns_null_for_null_connection)
 {
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (NULL, "agent-123", 0);
+    agent_controller_download_support_bundle (NULL, "agent-123", 0, TRUE,
+                                              FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
@@ -3818,7 +3878,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, NULL, 0);
+    agent_controller_download_support_bundle (conn, NULL, 0, TRUE, FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
@@ -3832,7 +3892,7 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "", 0);
+    agent_controller_download_support_bundle (conn, "", 0, TRUE, FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
@@ -3846,7 +3906,8 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", -1);
+    agent_controller_download_support_bundle (conn, "agent-123", -1, TRUE,
+                                              FALSE);
 
   assert_that (bundle, is_null);
   assert_that (last_sent_url, is_null);
@@ -3862,12 +3923,16 @@ Ensure (agent_controller, download_support_bundle_returns_null_for_http_error)
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "missing-agent", 0);
+    agent_controller_download_support_bundle (conn, "missing-agent", 0, TRUE,
+                                              FALSE);
 
   assert_that (bundle, is_null);
 
-  assert_that (last_sent_url, contains_string ("/agent-control/v2/api/agents/"
-                                               "missing-agent/support-bundle"));
+  assert_that (
+    last_sent_url,
+    contains_string (
+      "/agent-control/v2/api/agents/"
+      "missing-agent/support-bundle?encrypted=true&anonymized=false"));
 
   agent_controller_connector_free (conn);
 }
@@ -3880,7 +3945,8 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, TRUE,
+                                              FALSE);
 
   assert_that (bundle, is_null);
 
@@ -3898,11 +3964,346 @@ Ensure (agent_controller,
   agent_controller_connector_t conn = make_conn ();
 
   agent_controller_support_bundle_t bundle =
-    agent_controller_download_support_bundle (conn, "agent-123", 0);
+    agent_controller_download_support_bundle (conn, "agent-123", 0, TRUE,
+                                              FALSE);
 
   assert_that (bundle, is_null);
 
   agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_unencrypted_returns_data_and_filename)
+{
+  static const guint8 plain_data[] = {0x50, 0x4b, 0x03, 0x04, 0x00,
+                                      0xff, 0x10, 0x20, 0x00, 0x42};
+
+  const gchar *expected_filename = "support-bundle-GAT-29::2d61a736-"
+                                   "20260616T062558Z.tar.gz";
+
+  mock_http_status = 200;
+
+  set_mock_binary_response (plain_data, sizeof (plain_data));
+
+  mock_content_disposition =
+    g_strdup_printf ("attachment; filename=\"%s\"", expected_filename);
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "GAT-29::2d61a736", 0,
+                                              FALSE, FALSE);
+
+  assert_that (bundle, is_not_null);
+  assert_that (bundle->data, is_not_null);
+  assert_that (bundle->size, is_equal_to ((gsize) sizeof (plain_data)));
+  assert_that (bundle->filename, is_equal_to_string (expected_filename));
+
+  assert_that (memcmp (bundle->data, plain_data, sizeof (plain_data)),
+               is_equal_to (0));
+
+  assert_that (
+    last_sent_url,
+    is_equal_to_string (
+      "http://localhost:8081/agent-control/v2/api/agents/"
+      "GAT-29%3A%3A2d61a736/support-bundle?encrypted=false&anonymized=false"));
+
+  assert_that (last_sent_payload, is_null);
+
+  assert_that (called_headers, is_not_null);
+  assert_that ((int) called_headers->len, is_equal_to (2));
+
+  assert_that ((const gchar *) g_ptr_array_index (called_headers, 0),
+               is_equal_to_string ("X-API-KEY: token"));
+
+  assert_that ((const gchar *) g_ptr_array_index (called_headers, 1),
+               is_equal_to_string ("Accept: application/octet-stream"));
+
+  agent_controller_support_bundle_free (bundle);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_unencrypted_adds_days_parameter)
+{
+  static const guint8 plain_data[] = {0x01, 0x02, 0x03};
+
+  mock_http_status = 200;
+  set_mock_binary_response (plain_data, sizeof (plain_data));
+
+  mock_content_disposition =
+    g_strdup ("attachment; filename=\"bundle.tar.gz\"");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "agent-123", 7, FALSE,
+                                              FALSE);
+
+  assert_that (bundle, is_not_null);
+
+  assert_that (
+    last_sent_url,
+    is_equal_to_string (
+      "http://localhost:8081/agent-control/v2/api/agents/"
+      "agent-123/support-bundle?encrypted=false&anonymized=false&days=7"));
+
+  agent_controller_support_bundle_free (bundle);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_unencrypted_allows_missing_content_disposition)
+{
+  static const guint8 plain_data[] = {0x01, 0x02};
+
+  mock_http_status = 200;
+  set_mock_binary_response (plain_data, sizeof (plain_data));
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "agent-123", 0, FALSE,
+                                              FALSE);
+
+  assert_that (bundle, is_not_null);
+  assert_that (bundle->filename, is_null);
+  assert_that (bundle->size, is_equal_to ((gsize) sizeof (plain_data)));
+
+  agent_controller_support_bundle_free (bundle);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_unencrypted_allows_invalid_content_disposition)
+{
+  static const guint8 plain_data[] = {0x01, 0x02};
+
+  mock_http_status = 200;
+  set_mock_binary_response (plain_data, sizeof (plain_data));
+
+  mock_content_disposition = g_strdup ("attachment");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "agent-123", 0, FALSE,
+                                              FALSE);
+
+  assert_that (bundle, is_not_null);
+  assert_that (bundle->filename, is_null);
+
+  agent_controller_support_bundle_free (bundle);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_unencrypted_returns_null_for_null_connection)
+{
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (NULL, "agent-123", 0, FALSE,
+                                              FALSE);
+
+  assert_that (bundle, is_null);
+  assert_that (last_sent_url, is_null);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_unencrypted_returns_null_for_null_agent_id)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, NULL, 0, FALSE, FALSE);
+
+  assert_that (bundle, is_null);
+  assert_that (last_sent_url, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_unencrypted_returns_null_for_empty_agent_id)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "", 0, FALSE, FALSE);
+
+  assert_that (bundle, is_null);
+  assert_that (last_sent_url, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_unencrypted_returns_null_for_negative_days)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "agent-123", -1, FALSE,
+                                              FALSE);
+
+  assert_that (bundle, is_null);
+  assert_that (last_sent_url, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_unencrypted_returns_null_for_http_error)
+{
+  mock_http_status = 404;
+  mock_response_data = g_strdup ("Agent not found");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "missing-agent", 0, FALSE,
+                                              FALSE);
+
+  assert_that (bundle, is_null);
+
+  assert_that (
+    last_sent_url,
+    contains_string (
+      "/agent-control/v2/api/agents/"
+      "missing-agent/support-bundle?encrypted=false&anonymized=false"));
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_unencrypted_returns_null_when_request_fails)
+{
+  mock_http_status = 500;
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "agent-123", 0, FALSE,
+                                              FALSE);
+
+  assert_that (bundle, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        download_support_bundle_unencrypted_returns_null_for_empty_response)
+{
+  mock_http_status = 200;
+  mock_empty_response = TRUE;
+
+  mock_content_disposition =
+    g_strdup ("attachment; filename=\"bundle.tar.gz\"");
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "agent-123", 0, FALSE,
+                                              FALSE);
+
+  assert_that (bundle, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, download_support_bundle_encrypted_anonymized)
+{
+  static const guint8 data[] = {0x01, 0x02, 0x03};
+
+  mock_http_status = 200;
+  set_mock_binary_response (data, sizeof (data));
+
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "agent-123", 7, TRUE, TRUE);
+
+  assert_that (bundle, is_not_null);
+  assert_that (
+    last_sent_url,
+    is_equal_to_string (
+      "http://localhost:8081/agent-control/v2/api/agents/"
+      "agent-123/support-bundle?encrypted=true&anonymized=true&days=7"));
+
+  agent_controller_support_bundle_free (bundle);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, download_support_bundle_unencrypted_anonymized)
+{
+  static const guint8 data[] = {0x01, 0x02, 0x03};
+
+  mock_http_status = 200;
+  set_mock_binary_response (data, sizeof (data));
+
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_support_bundle_t bundle =
+    agent_controller_download_support_bundle (conn, "agent-123", 0, FALSE,
+                                              TRUE);
+
+  assert_that (bundle, is_not_null);
+  assert_that (last_sent_url,
+               is_equal_to_string (
+                 "http://localhost:8081/agent-control/v2/api/agents/"
+                 "agent-123/support-bundle?encrypted=false&anonymized=true"));
+
+  agent_controller_support_bundle_free (bundle);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        parses_new_agent_response_with_null_ips_and_cron_objects)
+{
+  mock_response_data =
+    g_strdup ("[{"
+              "\"agentid\":\"GAT-29::2d61a736\","
+              "\"authorized\":true,"
+              "\"connection_status\":\"inactive\","
+              "\"hostname\":\"\","
+              "\"ip_addresses\":null,"
+              "\"operating_system\":\"linux\","
+              "\"architecture\":\"amd64\","
+              "\"os_cpe\":\"\","
+              "\"os_status\":\"unknown\","
+              "\"config\":{\"agent_script_executor\":{"
+              "\"scheduler_cron_time\":["
+              "{\"cron\":\"0 */1 * * *\",\"max_delay_seconds\":0},"
+              "{\"cron\":\"0 */4 * * *\",\"max_delay_seconds\":17}"
+              "]}}}]");
+
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_agent_list_t list = agent_controller_get_agents (conn);
+  assert_that (list, is_not_null);
+  assert_that (list->count, is_equal_to (1));
+  agent_controller_agent_t agent = list->agents[0];
+  assert_that (agent->agent_id, is_equal_to_string ("GAT-29::2d61a736"));
+  assert_that (agent->ip_addresses, is_null);
+  assert_that (agent->ip_address_count, is_equal_to (0));
+  assert_that (agent->os_cpe, is_equal_to_string (""));
+  assert_that (agent->os_status, is_equal_to_string ("unknown"));
+  assert_that (agent->config, is_not_null);
+  GPtrArray *cron = agent->config->agent_script_executor.scheduler_cron_time;
+  assert_that ((int) cron->len, is_equal_to (2));
+  assert_scheduler_cron (cron, 0, "0 */1 * * *", 0);
+  assert_scheduler_cron (cron, 1, "0 */4 * * *", 17);
+  agent_controller_agent_list_free (list);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, scheduler_cron_new_and_free)
+{
+  agent_controller_scheduler_cron_t cron =
+    agent_controller_scheduler_cron_new ();
+  assert_that (cron, is_not_null);
+  assert_that (cron->cron, is_null);
+  assert_that (cron->max_delay_seconds, is_equal_to (0));
+  cron->cron = g_strdup ("0 */6 * * *");
+  cron->max_delay_seconds = 9;
+  agent_controller_scheduler_cron_free (cron);
+  agent_controller_scheduler_cron_free (NULL);
 }
 
 int
@@ -3911,6 +4312,10 @@ main (int argc, char **argv)
   int ret;
   TestSuite *suite = create_test_suite ();
 
+  add_test_with_context (
+    suite, agent_controller,
+    parses_new_agent_response_with_null_ips_and_cron_objects);
+  add_test_with_context (suite, agent_controller, scheduler_cron_new_and_free);
   add_test_with_context (suite, agent_controller,
                          connector_new_returns_valid_connector);
   add_test_with_context (suite, agent_controller,
@@ -3918,6 +4323,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller, connector_free_safely);
   add_test_with_context (suite, agent_controller,
                          connector_builder_all_valid_fields);
+  add_test_with_context (suite, agent_controller, builder_set_twice_no_leak);
   add_test_with_context (suite, agent_controller,
                          connector_builder_valid_protocol_http);
   add_test_with_context (suite, agent_controller,
@@ -4217,13 +4623,9 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, agent_controller,
     build_config_with_defaults_starts_from_update_when_provided);
-  add_test_with_context (
-    suite, agent_controller,
-    build_config_with_defaults_starts_from_update_when_provided);
   add_test_with_context (suite, agent_controller,
                          scan_agent_config_new_initializes_members);
-  add_test_with_context (suite, agent_controller,
-                         scan_agent_config_free_handles_null);
+
   add_test_with_context (suite, agent_controller,
                          parse_scan_agent_config_string_parses_all_fields);
   add_test_with_context (suite, agent_controller,
@@ -4340,7 +4742,50 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, agent_controller,
     download_support_bundle_returns_null_for_empty_response);
+  add_test_with_context (suite, agent_controller,
+                         download_support_bundle_encrypted_anonymized);
 
+  add_test_with_context (suite, agent_controller,
+                         agent_config_free_handles_null);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_unencrypted_adds_days_parameter);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_unencrypted_allows_invalid_content_disposition);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_unencrypted_allows_missing_content_disposition);
+  add_test_with_context (suite, agent_controller,
+                         download_support_bundle_unencrypted_anonymized);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_unencrypted_returns_data_and_filename);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_unencrypted_returns_null_for_empty_agent_id);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_unencrypted_returns_null_for_empty_response);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_unencrypted_returns_null_for_http_error);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_unencrypted_returns_null_for_negative_days);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_unencrypted_returns_null_for_null_agent_id);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_unencrypted_returns_null_for_null_connection);
+  add_test_with_context (
+    suite, agent_controller,
+    download_support_bundle_unencrypted_returns_null_when_request_fails);
+  add_test_with_context (suite, agent_controller,
+                         update_agents_fails_with_empty_updates);
+  add_test_with_context (suite, agent_controller,
+                         update_agents_fails_with_null_updates);
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
   else

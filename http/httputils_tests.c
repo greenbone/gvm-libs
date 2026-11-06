@@ -8,10 +8,128 @@
 #include <cgreen/cgreen.h>
 #include <curl/curl.h>
 
+static gboolean post_request_called = FALSE;
+static gboolean get_request_called = FALSE;
+static gboolean put_request_called = FALSE;
+static gboolean patch_request_called = FALSE;
+static gboolean delete_request_called = FALSE;
+static gboolean head_request_called = FALSE;
+static const char *last_postfields = NULL;
+static long last_postfieldsize = -1;
+
+/* Mocks */
+
+CURLcode
+__wrap_curl_easy_setopt (CURL *handle, CURLoption option, ...);
+
+CURLcode
+__wrap_curl_easy_setopt (CURL *handle, CURLoption option, ...)
+{
+  (void) handle;
+  va_list args;
+  va_start (args, option);
+  switch (option)
+    {
+    case CURLOPT_HTTPGET:
+      if (va_arg (args, long) == 1L)
+        get_request_called = TRUE;
+      break;
+    case CURLOPT_POST:
+      if (va_arg (args, long) == 1L)
+        post_request_called = TRUE;
+      break;
+    case CURLOPT_CUSTOMREQUEST:
+      {
+        const char *method = va_arg (args, const char *);
+        if (g_strcmp0 (method, "PUT") == 0)
+          put_request_called = TRUE;
+        else if (g_strcmp0 (method, "PATCH") == 0)
+          patch_request_called = TRUE;
+        else if (g_strcmp0 (method, "DELETE") == 0)
+          delete_request_called = TRUE;
+      }
+      break;
+    case CURLOPT_NOBODY:
+      if (va_arg (args, long) == 1L)
+        head_request_called = TRUE;
+      break;
+    case CURLOPT_POSTFIELDS:
+      last_postfields = va_arg (args, const char *);
+      break;
+    case CURLOPT_POSTFIELDSIZE:
+      last_postfieldsize = va_arg (args, long);
+      break;
+    default:
+      (void) option;
+      break;
+    }
+  va_end (args);
+  return CURLE_OK;
+}
+
+static gboolean multi_init_use_real = TRUE;
+
+__attribute__ ((weak)) CURLM *
+__real_curl_multi_init (void);
+
+CURLM *
+__wrap_curl_multi_init (void);
+
+CURLM *
+__wrap_curl_multi_init (void)
+{
+  if (multi_init_use_real)
+    return __real_curl_multi_init ();
+
+  return NULL;
+}
+
+/* Helper functions */
+
+static void
+assert_method_and_payload (gvm_http_method_t method, const gchar *payload,
+                           gvm_http_method_t expected_method)
+{
+  gvm_http_response_stream_t s = gvm_http_response_stream_new ();
+  gvm_http_t *http = gvm_http_new ("http://example.com", method, payload, NULL,
+                                   NULL, NULL, NULL, s);
+
+  assert_that (http, is_not_null);
+  assert_that (post_request_called, is_equal_to (expected_method == POST));
+  assert_that (get_request_called, is_equal_to (expected_method == GET));
+  assert_that (put_request_called, is_equal_to (expected_method == PUT));
+  assert_that (patch_request_called, is_equal_to (expected_method == PATCH));
+  assert_that (delete_request_called, is_equal_to (expected_method == DELETE));
+  assert_that (head_request_called, is_equal_to (expected_method == HEAD));
+
+  if (payload == NULL)
+    {
+      assert_that (last_postfields, is_null);
+      assert_that (last_postfieldsize, is_equal_to (-1));
+    }
+  else
+    {
+      assert_that (last_postfields, is_equal_to_string (payload));
+      assert_that (last_postfieldsize, is_equal_to ((long) strlen (payload)));
+    }
+
+  gvm_http_free (http);
+  gvm_http_response_stream_free (s);
+}
+
 Describe (gvm_http);
 
 BeforeEach (gvm_http)
 {
+  post_request_called = FALSE;
+  get_request_called = FALSE;
+  put_request_called = FALSE;
+  patch_request_called = FALSE;
+  delete_request_called = FALSE;
+  head_request_called = FALSE;
+  last_postfields = NULL;
+  last_postfieldsize = -1;
+  multi_init_use_real = TRUE;
 }
 
 AfterEach (gvm_http)
@@ -53,6 +171,17 @@ Ensure (gvm_http, multi_init_returns_valid_object)
   assert_that (multi, is_not_null);
   assert_that (multi->handler, is_not_null);
   assert_that (multi->headers, is_not_null);
+
+  gvm_http_multi_free (multi);
+}
+
+Ensure (gvm_http, multi_new_returns_null_when_multi_init_fails)
+{
+  multi_init_use_real = FALSE;
+  gvm_http_multi_t *multi = gvm_http_multi_new ();
+  multi_init_use_real = TRUE;
+
+  assert_that (multi, is_null);
 
   gvm_http_multi_free (multi);
 }
@@ -219,6 +348,69 @@ Ensure (gvm_http, store_response_header_trims_value)
   g_free (response.content_disposition);
 }
 
+Ensure (gvm_http, post_request_empty_payload_sets_post_method)
+{
+  assert_method_and_payload (POST, "", POST);
+}
+
+Ensure (gvm_http, post_request_null_payload_sets_post_method)
+{
+  assert_method_and_payload (POST, NULL, POST);
+}
+
+Ensure (gvm_http, post_request_nonempty_payload_sets_post_method)
+{
+  const gchar *payload = "{\"key\": \"value\"}";
+  assert_method_and_payload (POST, payload, POST);
+}
+
+Ensure (gvm_http, put_request_empty_payload_sets_put_method)
+{
+  assert_method_and_payload (PUT, "", PUT);
+}
+
+Ensure (gvm_http, put_request_null_payload_sets_put_method)
+{
+  assert_method_and_payload (PUT, NULL, PUT);
+}
+
+Ensure (gvm_http, put_request_nonempty_payload_sets_put_method)
+{
+  const gchar *payload = "{\"key\": \"value\"}";
+  assert_method_and_payload (PUT, payload, PUT);
+}
+
+Ensure (gvm_http, patch_request_empty_payload_sets_patch_method)
+{
+  assert_method_and_payload (PATCH, "", PATCH);
+}
+
+Ensure (gvm_http, patch_request_null_payload_sets_patch_method)
+{
+  assert_method_and_payload (PATCH, NULL, PATCH);
+}
+
+Ensure (gvm_http, patch_request_nonempty_payload_sets_patch_method)
+{
+  const gchar *payload = "{\"key\": \"value\"}";
+  assert_method_and_payload (PATCH, payload, PATCH);
+}
+
+Ensure (gvm_http, get_request_sets_get_method)
+{
+  assert_method_and_payload (GET, NULL, GET);
+}
+
+Ensure (gvm_http, head_request_sets_head_method)
+{
+  assert_method_and_payload (HEAD, NULL, HEAD);
+}
+
+Ensure (gvm_http, delete_request_sets_delete_method)
+{
+  assert_method_and_payload (DELETE, NULL, DELETE);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -230,6 +422,8 @@ main (int argc, char **argv)
   add_test_with_context (suite, gvm_http, cleanup_headers_handles_null_safely);
   add_test_with_context (suite, gvm_http, headers_new_initializes_empty_list);
   add_test_with_context (suite, gvm_http, multi_init_returns_valid_object);
+  add_test_with_context (suite, gvm_http,
+                         multi_new_returns_null_when_multi_init_fails);
   add_test_with_context (suite, gvm_http,
                          multi_add_handler_with_null_returns_bad_handle);
   add_test_with_context (suite, gvm_http,
@@ -255,6 +449,31 @@ main (int argc, char **argv)
   add_test_with_context (suite, gvm_http,
                          store_response_header_matches_case_insensitively);
   add_test_with_context (suite, gvm_http, store_response_header_trims_value);
+
+  add_test_with_context (suite, gvm_http,
+                         post_request_empty_payload_sets_post_method);
+  add_test_with_context (suite, gvm_http,
+                         post_request_null_payload_sets_post_method);
+  add_test_with_context (suite, gvm_http,
+                         post_request_nonempty_payload_sets_post_method);
+
+  add_test_with_context (suite, gvm_http,
+                         put_request_empty_payload_sets_put_method);
+  add_test_with_context (suite, gvm_http,
+                         put_request_null_payload_sets_put_method);
+  add_test_with_context (suite, gvm_http,
+                         put_request_nonempty_payload_sets_put_method);
+
+  add_test_with_context (suite, gvm_http,
+                         patch_request_empty_payload_sets_patch_method);
+  add_test_with_context (suite, gvm_http,
+                         patch_request_null_payload_sets_patch_method);
+  add_test_with_context (suite, gvm_http,
+                         patch_request_nonempty_payload_sets_patch_method);
+
+  add_test_with_context (suite, gvm_http, get_request_sets_get_method);
+  add_test_with_context (suite, gvm_http, head_request_sets_head_method);
+  add_test_with_context (suite, gvm_http, delete_request_sets_delete_method);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());

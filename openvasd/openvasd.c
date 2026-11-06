@@ -158,9 +158,13 @@ openvasd_get_performance (http_scanner_connector_t conn,
   g_free (query);
 
   if (response->code != RESP_CODE_ERR)
-    response->body = g_strdup (http_scanner_stream_str (conn));
+    {
+      g_free (response->body);
+      response->body = g_strdup (http_scanner_stream_str (conn));
+    }
   else
     {
+      g_free (response->body);
       response->body = g_strdup (
         "{\"error\": \"Not possible to get performance information.\"}");
       g_warning ("%s: Not possible to get performance information", __func__);
@@ -200,7 +204,6 @@ openvasd_parsed_performance (http_scanner_connector_t conn,
     }
   else if (resp->code != 200)
     {
-      parser = cJSON_Parse (resp->body);
       item = cJSON_GetObjectItem (parser, "error");
       if (item != NULL)
         *err = g_strdup (cJSON_GetStringValue (item));
@@ -242,7 +245,7 @@ add_port_to_scan_json (gpointer range, gpointer p_array)
   cJSON *range_obj = cJSON_CreateObject ();
   cJSON_AddNumberToObject (range_obj, "start", ports->start);
 
-  if (ports->end > ports->start && ports->end < 65535)
+  if (ports->end >= ports->start && ports->end <= 65535)
     cJSON_AddNumberToObject (range_obj, "end", ports->end);
   else
     cJSON_AddNumberToObject (range_obj, "end", ports->start);
@@ -423,7 +426,7 @@ openvasd_build_scan_config_json (openvasd_target_t *target,
           finished_host_item = cJSON_CreateString (finished_hosts_list[i]);
           cJSON_AddItemToArray (finished_hosts_array, finished_host_item);
         }
-      g_strfreev (hosts_list);
+      g_strfreev (finished_hosts_list);
       cJSON_AddItemToObject (target_obj, "finished_hosts",
                              finished_hosts_array);
     }
