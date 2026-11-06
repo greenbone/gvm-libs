@@ -522,6 +522,23 @@ Ensure (ad_connector, builder_rejects_changes_when_connection_exists)
 
 /* ad_search_config_builder */
 
+Ensure (ad_connector, search_base_dn_is_within_allowed_base)
+{
+  const gchar *allowed = "DC=example,DC=com";
+
+  assert_that (ad_search_base_dn_is_within (allowed, allowed), is_true);
+  assert_that (
+    ad_search_base_dn_is_within ("OU=hosts,DC=example,DC=com", allowed),
+    is_true);
+  assert_that (ad_search_base_dn_is_within ("DC=other,DC=com", allowed),
+               is_false);
+  assert_that (ad_search_base_dn_is_within ("OU=bad,", allowed), is_false);
+  assert_that (ad_search_base_dn_is_within (NULL, allowed), is_false);
+  assert_that (ad_search_base_dn_is_within ("CN=#04024869,DC=example,DC=com",
+                                            "CN=#04024869,DC=example,DC=com"),
+               is_false);
+}
+
 Ensure (ad_connector, search_config_builder_rejects_null_config)
 {
   gint value = 1;
@@ -533,21 +550,24 @@ Ensure (ad_connector, search_config_builder_rejects_null_config)
 
 Ensure (ad_connector, search_config_builder_validates_base_dn)
 {
-  ad_search_config_t config;
-  const gchar *base_dn = "DC=example,DC=org";
-  const gchar *empty = "";
+  ad_search_config_t config = ad_search_config_new ();
+  const gchar *binary_base = "CN=#04024869,DC=example,DC=com";
 
-  config = ad_search_config_new ();
-  assert_that (config, is_not_null);
-
+  assert_that (ad_search_config_builder (config, AD_SEARCH_CONFIG_OPT_BASE_DN,
+                                         "DC=example,DC=com"),
+               is_equal_to (AD_CONNECTOR_OK));
+  assert_that (config->base_dn, is_equal_to_string ("DC=example,DC=com"));
   assert_that (
-    ad_search_config_builder (config, AD_SEARCH_CONFIG_OPT_BASE_DN, base_dn),
-    is_equal_to (AD_CONNECTOR_OK));
-  assert_that (config->base_dn, is_equal_to_string ("DC=example,DC=org"));
-
-  assert_that (
-    ad_search_config_builder (config, AD_SEARCH_CONFIG_OPT_BASE_DN, empty),
+    ad_search_config_builder (config, AD_SEARCH_CONFIG_OPT_BASE_DN, "not-a-dn"),
     is_equal_to (AD_CONNECTOR_INVALID_VALUE));
+  assert_that (
+    ad_search_config_builder (config, AD_SEARCH_CONFIG_OPT_BASE_DN, ""),
+    is_equal_to (AD_CONNECTOR_INVALID_VALUE));
+  assert_that (config->base_dn, is_equal_to_string ("DC=example,DC=com"));
+  assert_that (ad_search_config_builder (config, AD_SEARCH_CONFIG_OPT_BASE_DN,
+                                         binary_base),
+               is_equal_to (AD_CONNECTOR_OK));
+  assert_that (config->base_dn, is_equal_to_string (binary_base));
 
   ad_search_config_free (config);
 }
@@ -1745,6 +1765,8 @@ main (int argc, char **argv)
                          search_config_builder_rejects_null_config);
   add_test_with_context (suite, ad_connector,
                          search_config_builder_validates_base_dn);
+  add_test_with_context (suite, ad_connector,
+                         search_base_dn_is_within_allowed_base);
   add_test_with_context (
     suite, ad_connector,
     search_config_builder_validates_non_negative_numeric_options);

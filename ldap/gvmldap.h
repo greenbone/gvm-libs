@@ -118,6 +118,9 @@ gvm_ldap_escape_filter_value (const gchar *);
 gboolean
 gvm_ldap_dn_is_valid (const gchar *);
 
+gboolean
+gvm_ldap_dn_is_within_base (const gchar *, const gchar *);
+
 gchar *
 gvm_ldap_entry_get_string (gvm_ldap_entry_t *, const gchar *);
 
