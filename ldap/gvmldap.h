@@ -113,6 +113,12 @@ gchar *
 gvm_ldap_entry_get_dn (gvm_ldap_entry_t *);
 
 gchar *
+gvm_ldap_escape_filter_value (const gchar *);
+
+gboolean
+gvm_ldap_dn_is_valid (const gchar *);
+
+gchar *
 gvm_ldap_entry_get_string (gvm_ldap_entry_t *, const gchar *);
 
 GPtrArray *

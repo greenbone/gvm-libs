@@ -375,6 +375,65 @@ tls_error:
 }
 
 /**
+ * @brief Escape a string for use as an LDAP filter assertion value.
+ *
+ * Uses RFC 4515 hexadecimal escapes for filter metacharacters, control bytes,
+ * and non-ASCII bytes. Embedded NULs are not supported.
+ * It does not validate DN syntax.
+ *
+ * @param value Unescaped value, not an entire filter. An empty string is valid.
+ *              Input is NUL-terminated.
+ *
+ * @return Newly allocated escaped value or NULL on failure. Free with g_free().
+ */
+gchar *
+gvm_ldap_escape_filter_value (const gchar *value)
+{
+  GString *escaped;
+
+  if (!value)
+    return NULL;
+
+  escaped = g_string_new (NULL);
+  for (const guchar *p = (const guchar *) value; *p; p++)
+    {
+      if (*p == '*' || *p == '(' || *p == ')' || *p == '\\' || *p < 0x20
+          || *p >= 0x7f)
+        g_string_append_printf (escaped, "\\%02x", (unsigned int) *p);
+      else
+        g_string_append_c (escaped, *p);
+    }
+
+  return g_string_free (escaped, FALSE);
+}
+
+/**
+ * @brief Validate the syntax of a nonempty LDAPv3 distinguished name.
+ *        Empty DNs are rejected by this function.
+ *
+ * @param value NUL-terminated distinguished name.
+ *
+ * @return TRUE for a syntactically valid, nonempty DN, FALSE otherwise.
+ */
+gboolean
+gvm_ldap_dn_is_valid (const gchar *value)
+{
+  LDAPDN dn = NULL;
+  gboolean valid;
+
+  if (!value || !*value)
+    return FALSE;
+
+  valid = ldap_str2dn (value, &dn, LDAP_DN_FORMAT_LDAPV3) == LDAP_SUCCESS;
+  valid = valid && dn && dn[0];
+
+  if (dn)
+    ldap_dnfree (dn);
+
+  return valid;
+}
+
+/**
  * @brief Checks if the given LDAP bind DN is valid.
  *
  * @param bind_dn The bind DN to validate.
@@ -384,8 +443,6 @@ tls_error:
 static gboolean
 ldap_bind_dn_is_valid (const gchar *bind_dn)
 {
-  LDAPDN dn = NULL;
-
   if (!bind_dn || bind_dn[0] == '\0')
     return FALSE;
 
@@ -395,14 +452,8 @@ ldap_bind_dn_is_valid (const gchar *bind_dn)
         return FALSE;
     }
 
-  if (ldap_str2dn (bind_dn, &dn, LDAP_DN_FORMAT_LDAPV3) == LDAP_SUCCESS)
-    {
-      ldap_dnfree (dn);
-      return TRUE;
-    }
-
-  if (dn)
-    ldap_dnfree (dn);
+  if (gvm_ldap_dn_is_valid (bind_dn))
+    return TRUE;
 
   /* Allow user@domain */
   const gchar *at = strchr (bind_dn, '@');
