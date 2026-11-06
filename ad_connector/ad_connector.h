@@ -53,7 +53,7 @@ typedef enum
 
 typedef enum
 {
-  AD_SEARCH_CONFIG_OPT_BASE_DN,   /**< Base distinguished name for the search */
+  AD_SEARCH_CONFIG_OPT_BASE_DN,   /**< Nonempty LDAPv3 base DN for the search */
   AD_SEARCH_CONFIG_OPT_SCOPE,     /**< Search scope. Instance of
                                      ad_connector_search_scope_t */
   AD_SEARCH_CONFIG_OPT_PAGE_SIZE, /**< Page size for the search results.
@@ -68,6 +68,13 @@ typedef enum
   AD_SEARCH_CONFIG_OPT_INCLUDE_DISABLED_COMPUTERS, /**< Whether to include
                                                       disabled computer accounts
                                                       in the search */
+  AD_SEARCH_CONFIG_OPT_GROUP_DN, /**< Optional group DN for explicit direct
+                                    membership searches. Uses the configured
+                                    scope, default ONELEVEL, relative to base
+                                    DN. SUBTREE includes members at all depths.
+                                    Requires a nonempty LDAPv3 DN.
+                                    NULL clears the option.
+                                    Excludes primary and indirect membership. */
 } ad_search_config_opt_t;
 
 typedef enum
