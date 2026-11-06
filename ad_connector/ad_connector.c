@@ -42,8 +42,9 @@ struct ad_connector
 
 struct ad_search_config
 {
-  gchar *base_dn;                    /**< Base Distinguished Name (DN)
-                                           for the LDAP search. */
+  gchar *base_dn;  /**< Base Distinguished Name (DN)
+                         for the LDAP search. */
+  gchar *group_dn; /**< Optional explicit membership selector. */
   ad_connector_search_scope_t scope; /**< Search scope for the LDAP query. */
   ad_object_type_t object_types;     /**< Bitmask of object types to include
                                           in the search. */
@@ -81,30 +82,7 @@ typedef struct
 /**
  * @brief List of general LDAP attributes for Active Directory searches.
  */
-static const gchar *ad_object_core_attributes[] = {
-  "objectClass", "objectCategory", "name", "description", "cn", NULL};
-
-/**
- * @brief Organizational Unit (OU) LDAP attributes.
- */
-static const gchar *ad_ou_attributes[] = {"ou", NULL};
-
-/**
- * @brief Computer LDAP attributes.
- */
-static const gchar *ad_computer_attributes[] = {"dNSHostName",
-                                                "sAMAccountName",
-                                                "operatingSystem",
-                                                "operatingSystemVersion",
-                                                "servicePrincipalName",
-                                                "userAccountControl",
-                                                NULL};
-
-/**
- * @brief Group LDAP attributes.
- */
-static const gchar *ad_group_attributes[] = {"sAMAccountName", "displayName",
-                                             "groupType", "memberOf", NULL};
+static const gchar *ad_object_core_attributes[] = {"objectClass", "name", NULL};
 
 /**
  * @brief Create a new Active Directory connector instance.
@@ -273,11 +251,31 @@ ad_object_type_flags_are_valid (ad_object_type_t object_types)
 }
 
 /**
+ * @brief Check whether a search base DN is within an allowed base DN.
+ *
+ * Both DNs must be valid. Comparison is conservative: uncertain equivalence
+ * is rejected, including differently ordered attributes in an RDN and values
+ * that differ in case. No directory schema matching rules are applied.
+ *
+ * @param base_dn          Requested search base DN.
+ * @param allowed_base_dn  Allowed search base DN.
+ *
+ * @return TRUE if the requested base is equal to or below the allowed base,
+ *         FALSE otherwise.
+ */
+gboolean
+ad_search_base_dn_is_within (const gchar *base_dn, const gchar *allowed_base_dn)
+{
+  return gvm_ldap_dn_is_within_base (base_dn, allowed_base_dn);
+}
+
+/**
  * @brief Sets one option on an AD search configuration.
  *
  * String values are copied. Numeric values are passed as pointers to gint.
  * Scope and object types are passed as pointers to their respective enum
- * types.
+ * types. BASE_DN and GROUP_DN require nonempty LDAPv3 DN syntax. GROUP_DN
+ * accepts NULL to clear the selector. No existence lookup is performed.
  *
  * @param config  Search configuration to modify.
  * @param opt     Option to set.
@@ -293,13 +291,25 @@ ad_search_config_builder (ad_search_config_t config, ad_search_config_opt_t opt,
   if (!config)
     return AD_CONNECTOR_INVALID_VALUE;
 
-  if (!value && opt != AD_SEARCH_CONFIG_OPT_EXTRA_ATTRIBUTES)
+  if (!value && opt != AD_SEARCH_CONFIG_OPT_EXTRA_ATTRIBUTES
+      && opt != AD_SEARCH_CONFIG_OPT_GROUP_DN)
     return AD_CONNECTOR_INVALID_VALUE;
 
   switch (opt)
     {
     case AD_SEARCH_CONFIG_OPT_BASE_DN:
+      if (!gvm_ldap_dn_is_valid (value))
+        return AD_CONNECTOR_INVALID_VALUE;
       return set_non_empty_string_value (value, &config->base_dn);
+    case AD_SEARCH_CONFIG_OPT_GROUP_DN:
+      if (value)
+        {
+          if (!gvm_ldap_dn_is_valid (value))
+            return AD_CONNECTOR_INVALID_VALUE;
+          return set_non_empty_string_value (value, &config->group_dn);
+        }
+      g_clear_pointer (&config->group_dn, g_free);
+      break;
     case AD_SEARCH_CONFIG_OPT_SCOPE:
       {
         ad_connector_search_scope_t scope =
@@ -354,6 +364,7 @@ ad_search_config_free (ad_search_config_t config)
     return;
 
   g_free (config->base_dn);
+  g_free (config->group_dn);
   g_free (config->extra_attributes);
   g_free (config);
 }
@@ -597,7 +608,7 @@ get_parent_dn_from_dn (const gchar *dn)
  *
  * @param object The AD object to free.
  */
-static void
+void
 ad_object_free (ad_object_t *object)
 {
   if (object == NULL)
@@ -669,9 +680,8 @@ ad_object_from_ldap_entry (gvm_ldap_entry_t *entry, gchar **attributes)
 /**
  * @brief LDAP search callback that converts entries to AD objects.
  *
- * Converts supported LDAP entries to temporary AD objects and passes them to
- *  the user callback stored in the search context.
- *  The AD object is valid only for the duration of the user callback.
+ * Converts supported LDAP entries to owned AD objects and transfers ownership
+ * to the user callback.
  *
  * @param entry    The LDAP entry to process.
  * @param context  ad_search_context_t used to track callback state.
@@ -706,7 +716,6 @@ ad_search_ldap_entry_callback (gvm_ldap_entry_t *entry, gpointer context)
     }
 
   result = ctx->callback (object, ctx->user_data);
-  ad_object_free (object);
 
   switch (result)
     {
@@ -792,20 +801,39 @@ ad_connector_build_search_filter (ad_search_config_t config)
   if (clauses->len == 1)
     {
       result = g_strdup (g_ptr_array_index (clauses, 0));
-      g_ptr_array_free (clauses, TRUE);
-      return result;
     }
+  else
+    {
+      filter = g_string_new ("(|");
 
-  filter = g_string_new ("(|");
+      for (index = 0; index < clauses->len; index++)
+        g_string_append (filter, g_ptr_array_index (clauses, index));
 
-  for (index = 0; index < clauses->len; index++)
-    g_string_append (filter, g_ptr_array_index (clauses, index));
-
-  g_string_append_c (filter, ')');
+      g_string_append_c (filter, ')');
+      result = g_string_free (filter, FALSE);
+    }
 
   g_ptr_array_free (clauses, TRUE);
 
-  return g_string_free (filter, FALSE);
+  if (config->group_dn)
+    {
+      gchar *escaped = gvm_ldap_escape_filter_value (config->group_dn);
+      gchar *membership_filter;
+
+      if (!escaped)
+        {
+          g_free (result);
+          return NULL;
+        }
+
+      membership_filter =
+        g_strdup_printf ("(&%s(memberOf=%s))", result, escaped);
+      g_free (escaped);
+      g_free (result);
+      result = membership_filter;
+    }
+
+  return result;
 }
 
 /**
@@ -879,8 +907,8 @@ ad_attribute_array_add_extra_attributes (GPtrArray *attributes,
 
 /**
  * @brief Builds the LDAP attributes list for the given search configuration.
- *        Returns an array with the default attributes based on the object
- *        types and any extra attributes specified in the search configuration.
+ *        Returns objectClass and name plus and any extra attributes
+ *        specified in the search configuration.
  *
  * @param search_config  Pointer to the search configuration instance.
  *
@@ -896,15 +924,6 @@ ad_connector_build_attributes (ad_search_config_t search_config)
   GPtrArray *attributes = g_ptr_array_new_with_free_func (g_free);
 
   ad_attribute_array_add_list (attributes, ad_object_core_attributes);
-
-  if (search_config->object_types & AD_OBJECT_TYPE_COMPUTER)
-    ad_attribute_array_add_list (attributes, ad_computer_attributes);
-
-  if (search_config->object_types & AD_OBJECT_TYPE_OU)
-    ad_attribute_array_add_list (attributes, ad_ou_attributes);
-
-  if (search_config->object_types & AD_OBJECT_TYPE_GROUP)
-    ad_attribute_array_add_list (attributes, ad_group_attributes);
 
   ad_attribute_array_add_extra_attributes (attributes,
                                            search_config->extra_attributes);
@@ -950,8 +969,15 @@ get_ldap_search_scope (ad_connector_search_scope_t scope,
  * @brief Searches for AD objects in Active Directory.
  *
  * Performs a paged LDAP search using the given configuration. For each
- * supported AD object found, the callback is invoked with an ad_object_t
- * that is valid only for the duration of the callback.
+ * supported AD object found, ownership of an ad_object_t transfers to the
+ * callback.
+ *
+ * When GROUP_DN is configured, selects explicit direct members within the
+ * configured base_dn and scope. The default ONELEVEL scope finds members
+ * immediately below base_dn; SUBTREE finds members at all depths below it.
+ * Scope controls directory traversal, not membership recursion. Primary-group
+ * and indirect membership are excluded. OUs are not group members and are not
+ * returned by the membership filter.
  *
  * If max_results is reached, the search stops early, returns
  * AD_CONNECTOR_OK, and sets result->truncated to TRUE when result is
@@ -962,8 +988,7 @@ get_ldap_search_scope (ad_connector_search_scope_t scope,
  * @param callback       Callback invoked for each AD object found.
  * @param user_data      User data passed to the callback.
  * @param result         Optional search metadata.
- *                       emitted is the number of objects whose calllback
- *                       returned AD_OBJECT_CALLBACK_CONTINUE.
+ *                       emitted counts callbacks returning CONTINUE or STOP.
  *
  * @return AD_CONNECTOR_OK on success, AD_CONNECTOR_RESULT_ERROR if the
  *         callback reports an error, AD_CONNECTOR_SEARCH_ERROR for LDAP
