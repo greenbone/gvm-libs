@@ -562,9 +562,9 @@ init_ipv6_net_data (scanner_t *scanner, const char *net)
                               &(scanner->ipv6_net->src));
   if (error)
     {
-      char destination_str[INET_ADDRSTRLEN];
+      char destination_str[INET6_ADDRSTRLEN];
       inet_ntop (AF_INET6, (const void *) &first, destination_str,
-                 INET_ADDRSTRLEN);
+                 sizeof (destination_str));
       printf ("%s: Destination: %s. %s", __func__, destination_str,
               str_boreas_error (error));
       g_free (scanner->ipv6_net->net);
