@@ -42,8 +42,9 @@ struct ad_connector
 
 struct ad_search_config
 {
-  gchar *base_dn;                    /**< Base Distinguished Name (DN)
-                                           for the LDAP search. */
+  gchar *base_dn;  /**< Base Distinguished Name (DN)
+                         for the LDAP search. */
+  gchar *group_dn; /**< Optional explicit membership selector. */
   ad_connector_search_scope_t scope; /**< Search scope for the LDAP query. */
   ad_object_type_t object_types;     /**< Bitmask of object types to include
                                           in the search. */
@@ -254,7 +255,8 @@ ad_object_type_flags_are_valid (ad_object_type_t object_types)
  *
  * String values are copied. Numeric values are passed as pointers to gint.
  * Scope and object types are passed as pointers to their respective enum
- * types.
+ * types. BASE_DN and GROUP_DN require nonempty LDAPv3 DN syntax. GROUP_DN
+ * accepts NULL to clear the selector. No existence lookup is performed.
  *
  * @param config  Search configuration to modify.
  * @param opt     Option to set.
@@ -270,13 +272,25 @@ ad_search_config_builder (ad_search_config_t config, ad_search_config_opt_t opt,
   if (!config)
     return AD_CONNECTOR_INVALID_VALUE;
 
-  if (!value && opt != AD_SEARCH_CONFIG_OPT_EXTRA_ATTRIBUTES)
+  if (!value && opt != AD_SEARCH_CONFIG_OPT_EXTRA_ATTRIBUTES
+      && opt != AD_SEARCH_CONFIG_OPT_GROUP_DN)
     return AD_CONNECTOR_INVALID_VALUE;
 
   switch (opt)
     {
     case AD_SEARCH_CONFIG_OPT_BASE_DN:
+      if (!gvm_ldap_dn_is_valid (value))
+        return AD_CONNECTOR_INVALID_VALUE;
       return set_non_empty_string_value (value, &config->base_dn);
+    case AD_SEARCH_CONFIG_OPT_GROUP_DN:
+      if (value)
+        {
+          if (!gvm_ldap_dn_is_valid (value))
+            return AD_CONNECTOR_INVALID_VALUE;
+          return set_non_empty_string_value (value, &config->group_dn);
+        }
+      g_clear_pointer (&config->group_dn, g_free);
+      break;
     case AD_SEARCH_CONFIG_OPT_SCOPE:
       {
         ad_connector_search_scope_t scope =
@@ -331,6 +345,7 @@ ad_search_config_free (ad_search_config_t config)
     return;
 
   g_free (config->base_dn);
+  g_free (config->group_dn);
   g_free (config->extra_attributes);
   g_free (config);
 }
@@ -767,20 +782,39 @@ ad_connector_build_search_filter (ad_search_config_t config)
   if (clauses->len == 1)
     {
       result = g_strdup (g_ptr_array_index (clauses, 0));
-      g_ptr_array_free (clauses, TRUE);
-      return result;
     }
+  else
+    {
+      filter = g_string_new ("(|");
 
-  filter = g_string_new ("(|");
+      for (index = 0; index < clauses->len; index++)
+        g_string_append (filter, g_ptr_array_index (clauses, index));
 
-  for (index = 0; index < clauses->len; index++)
-    g_string_append (filter, g_ptr_array_index (clauses, index));
-
-  g_string_append_c (filter, ')');
+      g_string_append_c (filter, ')');
+      result = g_string_free (filter, FALSE);
+    }
 
   g_ptr_array_free (clauses, TRUE);
 
-  return g_string_free (filter, FALSE);
+  if (config->group_dn)
+    {
+      gchar *escaped = gvm_ldap_escape_filter_value (config->group_dn);
+      gchar *membership_filter;
+
+      if (!escaped)
+        {
+          g_free (result);
+          return NULL;
+        }
+
+      membership_filter =
+        g_strdup_printf ("(&%s(memberOf=%s))", result, escaped);
+      g_free (escaped);
+      g_free (result);
+      result = membership_filter;
+    }
+
+  return result;
 }
 
 /**
@@ -918,6 +952,13 @@ get_ldap_search_scope (ad_connector_search_scope_t scope,
  * Performs a paged LDAP search using the given configuration. For each
  * supported AD object found, ownership of an ad_object_t transfers to the
  * callback.
+ *
+ * When GROUP_DN is configured, selects explicit direct members within the
+ * configured base_dn and scope. The default ONELEVEL scope finds members
+ * immediately below base_dn; SUBTREE finds members at all depths below it.
+ * Scope controls directory traversal, not membership recursion. Primary-group
+ * and indirect membership are excluded. OUs are not group members and are not
+ * returned by the membership filter.
  *
  * If max_results is reached, the search stops early, returns
  * AD_CONNECTOR_OK, and sets result->truncated to TRUE when result is
