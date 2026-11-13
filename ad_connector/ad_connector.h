@@ -87,17 +87,21 @@ typedef enum
 /**
  * @brief AD object type bitmask.
  *
- * Values can be ORed together. Use AD_OBJECT_TYPE_ALL for all supported types.
+ * Values can be ORed together. Use AD_OBJECT_TYPE_DEFAULT for the default
+ * selection or AD_OBJECT_TYPE_ALL for all supported types.
  */
 typedef enum
 {
   AD_OBJECT_TYPE_OU = 1 << 0,
   AD_OBJECT_TYPE_COMPUTER = 1 << 1,
   AD_OBJECT_TYPE_GROUP = 1 << 2,
+  AD_OBJECT_TYPE_CONTAINER = 1 << 3,
 } ad_object_type_t;
 
-#define AD_OBJECT_TYPE_ALL \
+#define AD_OBJECT_TYPE_DEFAULT \
   (AD_OBJECT_TYPE_OU | AD_OBJECT_TYPE_COMPUTER | AD_OBJECT_TYPE_GROUP)
+
+#define AD_OBJECT_TYPE_ALL (AD_OBJECT_TYPE_DEFAULT | AD_OBJECT_TYPE_CONTAINER)
 
 typedef struct
 {

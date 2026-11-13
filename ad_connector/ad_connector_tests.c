@@ -630,7 +630,8 @@ Ensure (ad_connector, search_config_builder_validates_scope_and_object_types)
   ad_object_type_t invalid_types_unknown =
     (ad_object_type_t) (AD_OBJECT_TYPE_ALL | (1 << 7));
   ad_object_type_t valid_types =
-    (ad_object_type_t) (AD_OBJECT_TYPE_OU | AD_OBJECT_TYPE_GROUP);
+    (ad_object_type_t) (AD_OBJECT_TYPE_OU | AD_OBJECT_TYPE_CONTAINER
+                        | AD_OBJECT_TYPE_GROUP);
 
   config = ad_search_config_new ();
   assert_that (config, is_not_null);
@@ -655,7 +656,8 @@ Ensure (ad_connector, search_config_builder_validates_scope_and_object_types)
                  config, AD_SEARCH_CONFIG_OPT_OBJECT_TYPES, &valid_types),
                is_equal_to (AD_CONNECTOR_OK));
   assert_that (config->object_types,
-               is_equal_to (AD_OBJECT_TYPE_OU | AD_OBJECT_TYPE_GROUP));
+               is_equal_to (AD_OBJECT_TYPE_OU | AD_OBJECT_TYPE_CONTAINER
+                            | AD_OBJECT_TYPE_GROUP));
 
   ad_search_config_free (config);
 }
@@ -953,7 +955,7 @@ Ensure (ad_connector, ad_ldap_entry_has_value_scans_all_values)
                is_false);
 }
 
-/* entry_is_ou / entry_is_computer / entry_is_group */
+/* entry_is_ou / entry_is_container / entry_is_computer / entry_is_group */
 
 Ensure (ad_connector, entry_is_ou_matches_object_class)
 {
@@ -981,6 +983,20 @@ Ensure (ad_connector, entry_is_computer_matches_object_class)
 
   assert_that (entry_is_computer (computer_entry), is_true);
   assert_that (entry_is_computer (non_computer_entry), is_false);
+}
+
+Ensure (ad_connector, entry_is_container_matches_object_class)
+{
+  gvm_ldap_entry_t *container_entry = (gvm_ldap_entry_t *) 0x22;
+  gvm_ldap_entry_t *non_container_entry = (gvm_ldap_entry_t *) 0x23;
+
+  stub_set_entry_attr_values (container_entry, "objectClass", "top",
+                              "Container", NULL);
+  stub_set_entry_attr_values (non_container_entry, "objectClass", "top",
+                              "organizationalUnit", NULL);
+
+  assert_that (entry_is_container (container_entry), is_true);
+  assert_that (entry_is_container (non_container_entry), is_false);
 }
 
 Ensure (ad_connector, entry_is_group_matches_object_class)
@@ -1077,6 +1093,27 @@ Ensure (ad_connector,
   dns = g_hash_table_lookup (object->attributes, "dNSHostName");
   assert_that (dns, is_not_null);
   assert_that (dns->len, is_equal_to (1));
+
+  ad_object_free (object);
+}
+
+Ensure (ad_connector, ad_object_from_ldap_entry_builds_container_object)
+{
+  gvm_ldap_entry_t *entry = (gvm_ldap_entry_t *) 0x44;
+  ad_object_t *object;
+
+  stub_last_entry_dn = g_strdup ("CN=Computers,DC=example,DC=org");
+  stub_last_entry_name = g_strdup ("Computers");
+  stub_set_entry_attr_values (entry, "objectClass", "top", "container", NULL);
+
+  object = ad_object_from_ldap_entry (entry, NULL);
+
+  assert_that (object, is_not_null);
+  assert_that (object->type, is_equal_to (AD_OBJECT_TYPE_CONTAINER));
+  assert_that (object->name, is_equal_to_string ("Computers"));
+  assert_that (object->distinguished_name,
+               is_equal_to_string ("CN=Computers,DC=example,DC=org"));
+  assert_that (object->parent_dn, is_equal_to_string ("DC=example,DC=org"));
 
   ad_object_free (object);
 }
@@ -1289,6 +1326,23 @@ Ensure (ad_connector, build_search_filter_single_ou_clause)
   ad_search_config_free (config);
 }
 
+Ensure (ad_connector, build_search_filter_single_container_clause)
+{
+  ad_search_config_t config = ad_search_config_new ();
+  gchar *filter;
+
+  assert_that (config, is_not_null);
+  config->object_types = AD_OBJECT_TYPE_CONTAINER;
+
+  filter = ad_connector_build_search_filter (config);
+  assert_that (filter,
+               is_equal_to_string (
+                 "(&(objectCategory=container)(objectClass=container))"));
+
+  g_free (filter);
+  ad_search_config_free (config);
+}
+
 Ensure (ad_connector,
         build_search_filter_single_computer_clause_enabled_and_disabled)
 {
@@ -1355,6 +1409,7 @@ Ensure (ad_connector,
     filter,
     is_equal_to_string (
       "(|(&(objectCategory=organizationalUnit)(objectClass=organizationalUnit))"
+      "(&(objectCategory=container)(objectClass=container))"
       "(&(objectCategory=computer)(objectClass=computer)"
       "(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
       "(&(objectCategory=group)(objectClass=group)))"));
@@ -1809,6 +1864,8 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, ad_connector, entry_is_ou_matches_object_class);
   add_test_with_context (suite, ad_connector,
+                         entry_is_container_matches_object_class);
+  add_test_with_context (suite, ad_connector,
                          entry_is_computer_matches_object_class);
   add_test_with_context (suite, ad_connector,
                          entry_is_group_matches_object_class);
@@ -1824,6 +1881,8 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, ad_connector,
     ad_object_from_ldap_entry_builds_computer_object_with_attributes);
+  add_test_with_context (suite, ad_connector,
+                         ad_object_from_ldap_entry_builds_container_object);
   add_test_with_context (
     suite, ad_connector,
     ad_object_from_ldap_entry_returns_null_when_dn_or_name_missing);
@@ -1850,6 +1909,8 @@ main (int argc, char **argv)
                          build_search_filter_returns_null_for_invalid_config);
   add_test_with_context (suite, ad_connector,
                          build_search_filter_single_ou_clause);
+  add_test_with_context (suite, ad_connector,
+                         build_search_filter_single_container_clause);
   add_test_with_context (
     suite, ad_connector,
     build_search_filter_single_computer_clause_enabled_and_disabled);

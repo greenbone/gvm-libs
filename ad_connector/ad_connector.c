@@ -214,7 +214,7 @@ ad_connector_builder (ad_connector_t connector, ad_connector_opt_t opt,
  * @brief Creates a new AD search configuration with default values.
  *
  * The configuration defaults to:
- *   - object_types: AD_OBJECT_TYPE_ALL
+ *   - object_types: AD_OBJECT_TYPE_DEFAULT
  *   - scope: AD_CONNECTOR_SEARCH_SCOPE_ONELEVEL
  *   - max_results: AD_CONNECTOR_DEFAULT_MAX_RESULTS
  *   - page_size: 0
@@ -228,7 +228,7 @@ ad_search_config_new (void)
 {
   ad_search_config_t config = g_malloc0 (sizeof (struct ad_search_config));
 
-  config->object_types = AD_OBJECT_TYPE_ALL;
+  config->object_types = AD_OBJECT_TYPE_DEFAULT;
   config->scope = AD_CONNECTOR_SEARCH_SCOPE_ONELEVEL;
   config->max_results = AD_CONNECTOR_DEFAULT_MAX_RESULTS;
   config->page_size = 0;
@@ -521,6 +521,19 @@ entry_is_ou (gvm_ldap_entry_t *entry)
 }
 
 /**
+ * @brief Checks if an LDAP entry represents a container.
+ *
+ * @param entry  The LDAP entry to check.
+ *
+ * @return TRUE if the entry is a container, FALSE otherwise.
+ */
+static gboolean
+entry_is_container (gvm_ldap_entry_t *entry)
+{
+  return ad_ldap_entry_has_value (entry, "objectClass", "container");
+}
+
+/**
  * @brief Checks if an LDAP entry represents a computer.
  *
  * @param entry  The LDAP entry to check.
@@ -641,6 +654,8 @@ ad_object_from_ldap_entry (gvm_ldap_entry_t *entry, gchar **attributes)
 
   if (entry_is_ou (entry))
     type = AD_OBJECT_TYPE_OU;
+  else if (entry_is_container (entry))
+    type = AD_OBJECT_TYPE_CONTAINER;
   else if (entry_is_computer (entry))
     type = AD_OBJECT_TYPE_COMPUTER;
   else if (entry_is_group (entry))
@@ -783,6 +798,10 @@ ad_connector_build_search_filter (ad_search_config_t config)
   if (config->object_types & AD_OBJECT_TYPE_OU)
     g_ptr_array_add (clauses, g_strdup ("(&(objectCategory=organizationalUnit)"
                                         "(objectClass=organizationalUnit))"));
+
+  if (config->object_types & AD_OBJECT_TYPE_CONTAINER)
+    g_ptr_array_add (clauses, g_strdup ("(&(objectCategory=container)"
+                                        "(objectClass=container))"));
 
   if (config->object_types & AD_OBJECT_TYPE_COMPUTER)
     g_ptr_array_add (clauses, ad_connector_build_computer_filter (
