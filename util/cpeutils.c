@@ -1500,7 +1500,10 @@ compare_strings (const char *source, const char *target)
       escapes = count_escapes (target, 0, index);
       if (index > 0 && begins != -1 && begins < (index - escapes))
         break;
-      escapes = count_escapes (target, index + 1, strlen (target));
+      /* Escapes in the matched literal are already included in its length.
+       * Only unquote the remaining suffix when checking trailing wildcards. */
+      escapes =
+        count_escapes (target, index + strlen (sub_source), strlen (target));
       leftover = strlen (target) - index - escapes - strlen (sub_source);
       if (leftover > 0 && (ends != -1 && leftover > ends))
         continue;

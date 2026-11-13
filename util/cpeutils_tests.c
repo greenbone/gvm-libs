@@ -8,13 +8,19 @@
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
 
+static cpe_struct_t matching_source, matching_target;
+
 Describe (cpeutils);
 BeforeEach (cpeutils)
 {
+  cpe_struct_init (&matching_source);
+  cpe_struct_init (&matching_target);
 }
 
 AfterEach (cpeutils)
 {
+  cpe_struct_free (&matching_source);
+  cpe_struct_free (&matching_target);
 }
 
 /* parse_entity */
@@ -328,6 +334,123 @@ Ensure (cpeutils, add_quoting_stops_at_trailing_backslash)
   g_free (result);
 }
 
+Ensure (cpeutils, question_suffix_accepts_one_character_after_dot)
+{
+  gboolean matches;
+  uri_cpe_to_cpe_struct ("cpe:/o:vendor:product:8.%01", &matching_source);
+  uri_cpe_to_cpe_struct ("cpe:/o:vendor:product:8.1", &matching_target);
+
+  matches = cpe_struct_match (&matching_source, &matching_target);
+
+  assert_that (matches, is_true);
+}
+
+Ensure (cpeutils, question_suffix_rejects_two_characters_after_dot)
+{
+  gboolean matches;
+  uri_cpe_to_cpe_struct ("cpe:/o:vendor:product:8.%01", &matching_source);
+  uri_cpe_to_cpe_struct ("cpe:/o:vendor:product:8.12", &matching_target);
+
+  matches = cpe_struct_match (&matching_source, &matching_target);
+
+  assert_that (matches, is_false);
+}
+
+Ensure (cpeutils, literal_dotted_version_rejects_additional_character)
+{
+  gboolean matches;
+  uri_cpe_to_cpe_struct ("cpe:/o:vendor:product:8.1", &matching_source);
+  uri_cpe_to_cpe_struct ("cpe:/o:vendor:product:8.12", &matching_target);
+
+  matches = cpe_struct_match (&matching_source, &matching_target);
+
+  assert_that (matches, is_false);
+}
+
+Ensure (cpeutils, question_suffix_does_not_recount_escaped_prefix_characters)
+{
+  const struct
+  {
+    const char *source, *target;
+  } cases[] = {
+    {"8\\.?", "8\\.12"},   {"8\\-?", "8\\-12"}, {"8\\~?", "8\\~12"},
+    {"8\\\\?", "8\\\\12"}, {"8\\??", "8\\?12"},
+  };
+  enum set_relation results[G_N_ELEMENTS (cases)];
+
+  for (guint i = 0; i < G_N_ELEMENTS (cases); i++)
+    results[i] = compare_strings (cases[i].source, cases[i].target);
+
+  for (guint i = 0; i < G_N_ELEMENTS (cases); i++)
+    assert_that (results[i], is_equal_to (DISJOINT));
+}
+
+Ensure (cpeutils, question_suffix_counts_only_unescaped_suffix_length)
+{
+  const struct
+  {
+    const char *target;
+    enum set_relation expected;
+  } cases[] = {
+    {"8\\.1", SUPERSET},     {"8\\.\\-", SUPERSET},
+    {"8\\.\\\\", SUPERSET},  {"8\\.\\-\\-", DISJOINT},
+    {"8\\.\\\\1", DISJOINT}, {"8\\.\\\\\\\\", DISJOINT},
+  };
+  enum set_relation results[G_N_ELEMENTS (cases)];
+
+  for (guint i = 0; i < G_N_ELEMENTS (cases); i++)
+    results[i] = compare_strings ("8\\.?", cases[i].target);
+
+  for (guint i = 0; i < G_N_ELEMENTS (cases); i++)
+    assert_that (results[i], is_equal_to (cases[i].expected));
+}
+
+Ensure (cpeutils, leading_wildcards_preserve_question_suffix_length_limit)
+{
+  const struct
+  {
+    const char *source, *target;
+    enum set_relation expected;
+  } cases[] = {
+    {"*8\\.?", "abc8\\.1", SUPERSET}, {"*8\\.?", "abc8\\.12", DISJOINT},
+    {"?8\\.?", "a8\\.1", SUPERSET},   {"?8\\.?", "a8\\.12", DISJOINT},
+    {"?8\\.?", "aa8\\.1", DISJOINT},  {"*8\\.?", "8\\.128\\.1", SUPERSET},
+  };
+  enum set_relation results[G_N_ELEMENTS (cases)];
+
+  for (guint i = 0; i < G_N_ELEMENTS (cases); i++)
+    results[i] = compare_strings (cases[i].source, cases[i].target);
+
+  for (guint i = 0; i < G_N_ELEMENTS (cases); i++)
+    assert_that (results[i], is_equal_to (cases[i].expected));
+}
+
+Ensure (cpeutils, suffix_wildcards_preserve_existing_length_limits)
+{
+  const struct
+  {
+    const char *source, *target;
+    enum set_relation expected;
+  } cases[] = {
+    {"8?", "8", SUPERSET},
+    {"8?", "81", SUPERSET},
+    {"8?", "812", DISJOINT},
+    {"8\\.??", "8\\.12", SUPERSET},
+    {"8\\.??", "8\\.123", DISJOINT},
+    {"8\\.*", "8\\.123", SUPERSET},
+    {"8\\.*", "8\\.\\-\\-", SUPERSET},
+    {"8\\.", "8\\.1", DISJOINT},
+    {"8\\?", "8\\?1", DISJOINT},
+  };
+  enum set_relation results[G_N_ELEMENTS (cases)];
+
+  for (guint i = 0; i < G_N_ELEMENTS (cases); i++)
+    results[i] = compare_strings (cases[i].source, cases[i].target);
+
+  for (guint i = 0; i < G_N_ELEMENTS (cases); i++)
+    assert_that (results[i], is_equal_to (cases[i].expected));
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -351,6 +474,22 @@ main (int argc, char **argv)
                          add_quoting_rejects_interior_question);
   add_test_with_context (suite, cpeutils,
                          add_quoting_stops_at_trailing_backslash);
+
+  add_test_with_context (suite, cpeutils,
+                         question_suffix_accepts_one_character_after_dot);
+  add_test_with_context (suite, cpeutils,
+                         question_suffix_rejects_two_characters_after_dot);
+  add_test_with_context (suite, cpeutils,
+                         literal_dotted_version_rejects_additional_character);
+  add_test_with_context (
+    suite, cpeutils,
+    question_suffix_does_not_recount_escaped_prefix_characters);
+  add_test_with_context (suite, cpeutils,
+                         question_suffix_counts_only_unescaped_suffix_length);
+  add_test_with_context (
+    suite, cpeutils, leading_wildcards_preserve_question_suffix_length_limit);
+  add_test_with_context (suite, cpeutils,
+                         suffix_wildcards_preserve_existing_length_limits);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
