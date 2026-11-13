@@ -22,7 +22,12 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.repository == 'greenbone/gvm-libs' }}
+    # Fork pull requests cannot inherit the registry credentials required by
+    # the reusable publishing workflow. They are built and tested by ci-c.yml.
+    if: >-
+      ${{ github.repository == 'greenbone/gvm-libs'
+          && (github.event_name != 'pull_request'
+              || github.event.pull_request.head.repo.full_name == github.repository) }}
     strategy:
       fail-fast: false
       matrix:
