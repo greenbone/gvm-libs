@@ -375,6 +375,195 @@ tls_error:
 }
 
 /**
+ * @brief Escape a string for use as an LDAP filter assertion value.
+ *
+ * Uses RFC 4515 hexadecimal escapes for filter metacharacters, control bytes,
+ * and non-ASCII bytes. Embedded NULs are not supported.
+ * It does not validate DN syntax.
+ *
+ * @param value Unescaped value, not an entire filter. An empty string is valid.
+ *              Input is NUL-terminated.
+ *
+ * @return Newly allocated escaped value or NULL on failure. Free with g_free().
+ */
+gchar *
+gvm_ldap_escape_filter_value (const gchar *value)
+{
+  GString *escaped;
+
+  if (!value)
+    return NULL;
+
+  escaped = g_string_new (NULL);
+  for (const guchar *p = (const guchar *) value; *p; p++)
+    {
+      if (*p == '*' || *p == '(' || *p == ')' || *p == '\\' || *p < 0x20
+          || *p >= 0x7f)
+        g_string_append_printf (escaped, "\\%02x", (unsigned int) *p);
+      else
+        g_string_append_c (escaped, *p);
+    }
+
+  return g_string_free (escaped, FALSE);
+}
+
+/**
+ * @brief Validate the syntax of a nonempty LDAPv3 distinguished name.
+ *        Empty DNs are rejected by this function.
+ *
+ * @param value NUL-terminated distinguished name.
+ *
+ * @return TRUE for a syntactically valid, nonempty DN, FALSE otherwise.
+ */
+gboolean
+gvm_ldap_dn_is_valid (const gchar *value)
+{
+  LDAPDN dn = NULL;
+  gboolean valid;
+
+  if (!value || !*value)
+    return FALSE;
+
+  valid = ldap_str2dn (value, &dn, LDAP_DN_FORMAT_LDAPV3) == LDAP_SUCCESS;
+  valid = valid && dn && dn[0];
+
+  if (dn)
+    ldap_dnfree (dn);
+
+  return valid;
+}
+
+/**
+ * @brief Compare two parsed DN attribute types without requiring NUL
+ * termination.
+ *
+ * Attribute type names are ASCII case-insensitive. Their berval lengths must
+ * match, and missing value buffers are rejected.
+ *
+ * @param a First borrowed attribute type.
+ * @param b Second borrowed attribute type.
+ *
+ * @return TRUE if the attribute type bytes match ignoring ASCII case.
+ */
+static gboolean
+dn_attribute_types_equal (const struct berval *a, const struct berval *b)
+{
+  if (!a->bv_val || !b->bv_val)
+    return FALSE;
+  if (a->bv_len != b->bv_len)
+    return FALSE;
+
+  for (gsize i = 0; i < a->bv_len; i++)
+    if (g_ascii_tolower (a->bv_val[i]) != g_ascii_tolower (b->bv_val[i]))
+      return FALSE;
+
+  return TRUE;
+}
+
+/**
+ * @brief Compare two parsed RDNs conservatively.
+ *
+ * Both RDNs must contain the same nonzero number of string AVAs in the same
+ * order. Attribute types are compared without ASCII case, decoded attribute
+ * values must match byte for byte. This may reject RDNs that LDAP matching
+ * rules consider equal.
+ *
+ * @param left   First borrowed, NULL-terminated array of AVAs.
+ * @param right  Second borrowed, NULL-terminated array of AVAs.
+ *
+ * @return TRUE if every corresponding AVA matches, FALSE otherwise.
+ */
+static gboolean
+dn_rdns_equal (LDAPRDN left, LDAPRDN right)
+{
+  for (gsize i = 0;; i++)
+    {
+      LDAPAVA *left_ava = left[i];
+      LDAPAVA *right_ava = right[i];
+
+      if (!left_ava && !right_ava)
+        return i > 0;
+      if (!left_ava || !right_ava)
+        return FALSE;
+
+      if (!left_ava->la_attr.bv_val || !left_ava->la_value.bv_val)
+        return FALSE;
+      if (!right_ava->la_attr.bv_val || !right_ava->la_value.bv_val)
+        return FALSE;
+
+      if (!(left_ava->la_flags & LDAP_AVA_STRING)
+          || !(right_ava->la_flags & LDAP_AVA_STRING))
+        return FALSE;
+
+      if (!dn_attribute_types_equal (&left_ava->la_attr, &right_ava->la_attr))
+        return FALSE;
+
+      if (left_ava->la_value.bv_len != right_ava->la_value.bv_len)
+        return FALSE;
+
+      if (memcmp (left_ava->la_value.bv_val, right_ava->la_value.bv_val,
+                  left_ava->la_value.bv_len)
+          != 0)
+        return FALSE;
+    }
+}
+
+/**
+ * @brief Check whether a DN is equal to or below a base DN.
+ *
+ * Only identical decoded string values are considered equal. LDAP matching
+ * rules can equate further spellings, but those rules require directory
+ * schema; this local check intentionally rejects uncertain comparisons.
+ * Multi-valued RDNs must have their attributes in the same order.
+ *
+ * @return TRUE if containment is proven, FALSE if parsing fails or the DN is
+ *         unsupported or outside the base. Empty DNs are rejected.
+ */
+gboolean
+gvm_ldap_dn_is_within_base (const gchar *dn, const gchar *base_dn)
+{
+  LDAPDN parsed_dn = NULL;
+  LDAPDN parsed_base = NULL;
+  gsize dn_len = 0;
+  gsize base_len = 0;
+  gboolean within = FALSE;
+
+  if (!dn || !*dn || !base_dn || !*base_dn)
+    return FALSE;
+
+  if (ldap_str2dn (dn, &parsed_dn, LDAP_DN_FORMAT_LDAPV3) != LDAP_SUCCESS)
+    goto cleanup;
+
+  if (ldap_str2dn (base_dn, &parsed_base, LDAP_DN_FORMAT_LDAPV3)
+      != LDAP_SUCCESS)
+    goto cleanup;
+
+  if (!parsed_dn || !parsed_dn[0] || !parsed_base || !parsed_base[0])
+    goto cleanup;
+
+  while (parsed_dn[dn_len])
+    dn_len++;
+  while (parsed_base[base_len])
+    base_len++;
+
+  if (dn_len < base_len)
+    goto cleanup;
+
+  for (gsize i = 0; i < base_len; i++)
+    if (!dn_rdns_equal (parsed_dn[dn_len - base_len + i], parsed_base[i]))
+      goto cleanup;
+
+  within = TRUE;
+
+cleanup:
+  if (parsed_dn)
+    ldap_dnfree (parsed_dn);
+  if (parsed_base)
+    ldap_dnfree (parsed_base);
+  return within;
+}
+
+/**
  * @brief Checks if the given LDAP bind DN is valid.
  *
  * @param bind_dn The bind DN to validate.
@@ -384,8 +573,6 @@ tls_error:
 static gboolean
 ldap_bind_dn_is_valid (const gchar *bind_dn)
 {
-  LDAPDN dn = NULL;
-
   if (!bind_dn || bind_dn[0] == '\0')
     return FALSE;
 
@@ -395,14 +582,8 @@ ldap_bind_dn_is_valid (const gchar *bind_dn)
         return FALSE;
     }
 
-  if (ldap_str2dn (bind_dn, &dn, LDAP_DN_FORMAT_LDAPV3) == LDAP_SUCCESS)
-    {
-      ldap_dnfree (dn);
-      return TRUE;
-    }
-
-  if (dn)
-    ldap_dnfree (dn);
+  if (gvm_ldap_dn_is_valid (bind_dn))
+    return TRUE;
 
   /* Allow user@domain */
   const gchar *at = strchr (bind_dn, '@');

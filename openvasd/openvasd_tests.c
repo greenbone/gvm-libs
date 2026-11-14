@@ -372,7 +372,7 @@ Ensure (openvasd, openvasd_set_alive_test_methods)
 
   target = openvasd_target_new ("scan-1", "127.0.0.1", "T:22", NULL, 0, 0);
 
-  methods = (openvasd_alive_test_methods_t){
+  methods = (openvasd_alive_test_methods_t) {
     .icmp = TRUE,
     .tcp_syn = TRUE,
     .tcp_ack = TRUE,
@@ -400,7 +400,7 @@ Ensure (openvasd, openvasd_set_host_discovery_ipv6_alive_test_method)
 
   target = openvasd_target_new ("scan-1", "127.0.0.1", "T:22", NULL, 0, 0);
 
-  methods = (openvasd_alive_test_methods_t){
+  methods = (openvasd_alive_test_methods_t) {
     .icmp = TRUE,
     .tcp_syn = TRUE,
     .tcp_ack = TRUE,
@@ -433,7 +433,7 @@ Ensure (openvasd, openvasd_build_scan_config_json_with_host_discovery_ipv6)
 
   target = openvasd_target_new ("scan-1", "2001:db8::/64", "T:22", NULL, 0, 0);
 
-  methods = (openvasd_alive_test_methods_t){
+  methods = (openvasd_alive_test_methods_t) {
     .icmp = TRUE,
     .tcp_syn = TRUE,
     .tcp_ack = TRUE,
@@ -483,7 +483,7 @@ Ensure (openvasd, openvasd_build_scan_config_json_with_alive_tests)
 
   target = openvasd_target_new ("scan-1", "127.0.0.1", "T:22", NULL, 0, 0);
 
-  methods = (openvasd_alive_test_methods_t){
+  methods = (openvasd_alive_test_methods_t) {
     .icmp = TRUE,
     .tcp_syn = TRUE,
     .tcp_ack = TRUE,
@@ -542,7 +542,7 @@ Ensure (openvasd, openvasd_build_scan_config_json_with_host_discovery_ipv6_only)
 
   target = openvasd_target_new ("scan-1", "2001:db8::/64", "T:22", NULL, 0, 0);
 
-  methods = (openvasd_alive_test_methods_t){
+  methods = (openvasd_alive_test_methods_t) {
     .icmp = TRUE,
     .tcp_syn = TRUE,
     .tcp_ack = TRUE,

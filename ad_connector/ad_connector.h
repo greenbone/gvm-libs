@@ -53,7 +53,7 @@ typedef enum
 
 typedef enum
 {
-  AD_SEARCH_CONFIG_OPT_BASE_DN,   /**< Base distinguished name for the search */
+  AD_SEARCH_CONFIG_OPT_BASE_DN,   /**< Nonempty LDAPv3 base DN for the search */
   AD_SEARCH_CONFIG_OPT_SCOPE,     /**< Search scope. Instance of
                                      ad_connector_search_scope_t */
   AD_SEARCH_CONFIG_OPT_PAGE_SIZE, /**< Page size for the search results.
@@ -68,6 +68,13 @@ typedef enum
   AD_SEARCH_CONFIG_OPT_INCLUDE_DISABLED_COMPUTERS, /**< Whether to include
                                                       disabled computer accounts
                                                       in the search */
+  AD_SEARCH_CONFIG_OPT_GROUP_DN, /**< Optional group DN for explicit direct
+                                    membership searches. Uses the configured
+                                    scope, default ONELEVEL, relative to base
+                                    DN. SUBTREE includes members at all depths.
+                                    Requires a nonempty LDAPv3 DN.
+                                    NULL clears the option.
+                                    Excludes primary and indirect membership. */
 } ad_search_config_opt_t;
 
 typedef enum
@@ -80,17 +87,21 @@ typedef enum
 /**
  * @brief AD object type bitmask.
  *
- * Values can be ORed together. Use AD_OBJECT_TYPE_ALL for all supported types.
+ * Values can be ORed together. Use AD_OBJECT_TYPE_DEFAULT for the default
+ * selection or AD_OBJECT_TYPE_ALL for all supported types.
  */
 typedef enum
 {
   AD_OBJECT_TYPE_OU = 1 << 0,
   AD_OBJECT_TYPE_COMPUTER = 1 << 1,
   AD_OBJECT_TYPE_GROUP = 1 << 2,
+  AD_OBJECT_TYPE_CONTAINER = 1 << 3,
 } ad_object_type_t;
 
-#define AD_OBJECT_TYPE_ALL \
+#define AD_OBJECT_TYPE_DEFAULT \
   (AD_OBJECT_TYPE_OU | AD_OBJECT_TYPE_COMPUTER | AD_OBJECT_TYPE_GROUP)
+
+#define AD_OBJECT_TYPE_ALL (AD_OBJECT_TYPE_DEFAULT | AD_OBJECT_TYPE_CONTAINER)
 
 typedef struct
 {
@@ -110,8 +121,8 @@ typedef enum
 } ad_object_callback_result_t;
 
 /**
- * The object passed to the callback is owned by the connector and is valid
- * only for the duration of the callback.
+ * Ownership of the object transfers to the callback on entry. The callback
+ * must retain it or free it with ad_object_free().
  */
 typedef ad_object_callback_result_t (*ad_object_callback_t) (
   ad_object_t *object, gpointer user_data);
@@ -132,6 +143,10 @@ ad_connector_return_t
 ad_search_config_builder (ad_search_config_t, ad_search_config_opt_t,
                           const void *);
 
+gboolean
+ad_search_base_dn_is_within (const gchar *base_dn,
+                             const gchar *allowed_base_dn);
+
 void ad_search_config_free (ad_search_config_t);
 
 ad_connector_t
@@ -149,5 +164,8 @@ ad_connector_return_t
 ad_connector_search_objects (ad_connector_t, const ad_search_config_t,
                              ad_object_callback_t, gpointer,
                              ad_object_search_result_t *);
+
+void
+ad_object_free (ad_object_t *);
 
 #endif /* not _GVM_AD_CONNECTOR_AD_CONNECTOR_H */
