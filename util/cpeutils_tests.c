@@ -328,6 +328,14 @@ Ensure (cpeutils, add_quoting_stops_at_trailing_backslash)
   g_free (result);
 }
 
+Ensure (cpeutils, decode_uri_component_ends_with_percent)
+{
+  char *component;
+
+  component = decode_uri_component ("%");
+  g_free (component);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -351,6 +359,8 @@ main (int argc, char **argv)
                          add_quoting_rejects_interior_question);
   add_test_with_context (suite, cpeutils,
                          add_quoting_stops_at_trailing_backslash);
+  add_test_with_context (suite, cpeutils,
+                         decode_uri_component_ends_with_percent);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
