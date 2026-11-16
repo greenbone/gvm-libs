@@ -637,6 +637,13 @@ decode_uri_component (const char *component)
           continue;
         }
 
+      if (strlen (tmp_component) < index + 3)
+        {
+          g_string_free (decoded_component, TRUE);
+          g_free (tmp_component);
+          return NULL;
+        }
+
       get_code (code_a, tmp_component + index);
 
       if (strcmp (code_a, "%01") == 0)
