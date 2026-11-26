@@ -117,6 +117,14 @@ struct agent_controller_heartbeat_cfg
 };
 
 /**
+ * @brief file_search block
+ */
+struct agent_controller_file_search_cfg
+{
+  GPtrArray *excluded_paths; ///< Array of excluded file paths
+};
+
+/**
  * @brief Top-level scan agent config.
  *
  * Groups all configuration sections for the scan agent service.
@@ -126,6 +134,7 @@ struct agent_controller_agent_config
   struct agent_controller_agent_control_cfg agent_control;
   struct agent_controller_script_exec_cfg agent_script_executor;
   struct agent_controller_heartbeat_cfg heartbeat;
+  struct agent_controller_file_search_cfg file_search;
 };
 
 typedef struct agent_controller_agent_config *agent_controller_agent_config_t;
