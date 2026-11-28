@@ -13,6 +13,17 @@
 
 #define TCP "tcp://"
 
+redisContext *
+redisConnect (const char *ip, int port)
+{
+  char *host;
+
+  (void) port;
+  host = strdup (ip);
+  free (host);
+  return NULL;
+}
+
 Describe (kb);
 BeforeEach (kb)
 {
@@ -51,6 +62,15 @@ Ensure (kb, parse_port_of_addr_v6)
   assert_that (port, is_equal_to_string ("8080"));
 }
 
+Ensure (kb, connect_redis_tcp_host_terminator)
+{
+  const char *addr = TCP "127.0.0.1:6379";
+  redisContext *result;
+
+  result = connect_redis (addr, strlen (addr));
+  assert_that (result, is_null);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -63,6 +83,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, kb, parse_port_of_addr);
   add_test_with_context (suite, kb, parse_port_of_addr_missing);
   add_test_with_context (suite, kb, parse_port_of_addr_v6);
+  add_test_with_context (suite, kb, connect_redis_tcp_host_terminator);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
