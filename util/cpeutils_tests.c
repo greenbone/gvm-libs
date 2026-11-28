@@ -451,6 +451,14 @@ Ensure (cpeutils, suffix_wildcards_preserve_existing_length_limits)
     assert_that (results[i], is_equal_to (cases[i].expected));
 }
 
+Ensure (cpeutils, decode_uri_component_ends_with_percent)
+{
+  char *component;
+
+  component = decode_uri_component ("%");
+  g_free (component);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -474,6 +482,8 @@ main (int argc, char **argv)
                          add_quoting_rejects_interior_question);
   add_test_with_context (suite, cpeutils,
                          add_quoting_stops_at_trailing_backslash);
+  add_test_with_context (suite, cpeutils,
+                         decode_uri_component_ends_with_percent);
 
   add_test_with_context (suite, cpeutils,
                          question_suffix_accepts_one_character_after_dot);
