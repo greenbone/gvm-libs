@@ -1170,6 +1170,8 @@ Ensure (agent_controller, build_agent_config_payload_defaults)
 
   gchar *payload = agent_controller_convert_agent_config_string (cfg);
   assert_that (payload, is_not_null);
+  assert_that (payload,
+               contains_string ("\"file_search\":{\"excluded_paths\":[]}"));
 
   cJSON_free (payload);
   agent_controller_agent_config_free (cfg);
@@ -1306,6 +1308,64 @@ Ensure (agent_controller, parse_agent_config_missing_blocks)
 
   agent_controller_agent_config_free (cfg);
   cJSON_Delete (root);
+}
+
+Ensure (agent_controller, file_search_paths_roundtrip)
+{
+  agent_controller_agent_config_t cfg =
+    agent_controller_parse_agent_config_string (
+      "{\"agent_script_executor\":{\"excluded_paths\":[\"/wrong\"]},"
+      "\"file_search\":{\"excluded_paths\":[\"/var/log\",\"/"
+      "tmp\",\"\",null,42]}}");
+  assert_that (cfg, is_not_null);
+  assert_that (cfg->file_search.excluded_paths, is_not_null);
+  assert_that (cfg->file_search.excluded_paths->len, is_equal_to (2));
+  assert_that (g_ptr_array_index (cfg->file_search.excluded_paths, 0),
+               is_equal_to_string ("/var/log"));
+  assert_that (g_ptr_array_index (cfg->file_search.excluded_paths, 1),
+               is_equal_to_string ("/tmp"));
+
+  gchar *payload = agent_controller_convert_agent_config_string (cfg);
+  assert_that (payload, is_not_null);
+  assert_that (
+    payload, contains_string (
+               "\"file_search\":{\"excluded_paths\":[\"/var/log\",\"/tmp\"]}"));
+  assert_that (payload, does_not_contain_string ("\"file_path\""));
+  agent_controller_agent_config_free (cfg);
+
+  agent_controller_agent_config_t parsed =
+    agent_controller_parse_agent_config_string (payload);
+  cJSON_free (payload);
+  assert_that (parsed, is_not_null);
+  assert_that (parsed->file_search.excluded_paths, is_not_null);
+  assert_that (parsed->file_search.excluded_paths->len, is_equal_to (2));
+  assert_that (g_ptr_array_index (parsed->file_search.excluded_paths, 0),
+               is_equal_to_string ("/var/log"));
+  assert_that (g_ptr_array_index (parsed->file_search.excluded_paths, 1),
+               is_equal_to_string ("/tmp"));
+  agent_controller_agent_config_free (parsed);
+}
+
+Ensure (agent_controller, file_search_missing_or_empty_returns_empty_list)
+{
+  const char *inputs[] = {"{}", "{\"file_search\":{}}",
+                          "{\"file_search\":{\"excluded_paths\":[]}}"};
+
+  for (guint i = 0; i < G_N_ELEMENTS (inputs); ++i)
+    {
+      agent_controller_agent_config_t cfg =
+        agent_controller_parse_agent_config_string (inputs[i]);
+      assert_that (cfg, is_not_null);
+      assert_that (cfg->file_search.excluded_paths, is_not_null);
+      assert_that (cfg->file_search.excluded_paths->len, is_equal_to (0));
+
+      gchar *payload = agent_controller_convert_agent_config_string (cfg);
+      assert_that (payload, is_not_null);
+      assert_that (payload,
+                   contains_string ("\"file_search\":{\"excluded_paths\":[]}"));
+      cJSON_free (payload);
+      agent_controller_agent_config_free (cfg);
+    }
 }
 
 Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
@@ -2986,6 +3046,72 @@ Ensure (agent_controller,
   agent_controller_agent_config_free (base);
 }
 
+Ensure (agent_controller, build_updated_agent_config_deep_copies_file_search)
+{
+  agent_controller_agent_config_t base =
+    agent_controller_parse_agent_config_string (
+      "{\"file_search\":{\"excluded_paths\":[\"/base\"]}}");
+  agent_controller_agent_config_t upd = agent_controller_agent_config_new ();
+
+  agent_controller_agent_config_t merged =
+    agent_controller_build_updated_agent_config (base, upd);
+  assert_that (merged, is_not_null);
+  assert_that (merged->file_search.excluded_paths, is_not_null);
+  assert_that (merged->file_search.excluded_paths->len, is_equal_to (1));
+  assert_that (merged->file_search.excluded_paths,
+               is_not_equal_to (base->file_search.excluded_paths));
+  assert_that (
+    g_ptr_array_index (merged->file_search.excluded_paths, 0),
+    is_not_equal_to (g_ptr_array_index (base->file_search.excluded_paths, 0)));
+  assert_that (g_ptr_array_index (merged->file_search.excluded_paths, 0),
+               is_equal_to_string ("/base"));
+  agent_controller_agent_config_free (merged);
+  agent_controller_agent_config_free (upd);
+
+  upd = agent_controller_parse_agent_config_string (
+    "{\"file_search\":{\"excluded_paths\":[\"/updated\"]}}");
+  merged = agent_controller_build_updated_agent_config (base, upd);
+  assert_that (merged, is_not_null);
+  assert_that (merged->file_search.excluded_paths, is_not_null);
+  assert_that (merged->file_search.excluded_paths->len, is_equal_to (1));
+  assert_that (merged->file_search.excluded_paths,
+               is_not_equal_to (upd->file_search.excluded_paths));
+  assert_that (
+    g_ptr_array_index (merged->file_search.excluded_paths, 0),
+    is_not_equal_to (g_ptr_array_index (upd->file_search.excluded_paths, 0)));
+  agent_controller_agent_config_free (upd);
+  agent_controller_agent_config_free (base);
+  assert_that (g_ptr_array_index (merged->file_search.excluded_paths, 0),
+               is_equal_to_string ("/updated"));
+  agent_controller_agent_config_free (merged);
+}
+
+Ensure (agent_controller,
+        build_updated_agent_config_empty_file_search_clears_paths)
+{
+  agent_controller_agent_config_t base =
+    agent_controller_parse_agent_config_string (
+      "{\"file_search\":{\"excluded_paths\":[\"/base\"]}}");
+  agent_controller_agent_config_t upd =
+    agent_controller_parse_agent_config_string (
+      "{\"file_search\":{\"excluded_paths\":[]}}");
+  agent_controller_agent_config_t merged =
+    agent_controller_build_updated_agent_config (base, upd);
+  assert_that (merged, is_not_null);
+  assert_that (merged->file_search.excluded_paths, is_not_null);
+  assert_that (merged->file_search.excluded_paths->len, is_equal_to (0));
+  assert_that (base->file_search.excluded_paths->len, is_equal_to (1));
+
+  gchar *payload = agent_controller_convert_agent_config_string (merged);
+  assert_that (payload, is_not_null);
+  assert_that (payload,
+               contains_string ("\"file_search\":{\"excluded_paths\":[]}"));
+  cJSON_free (payload);
+  agent_controller_agent_config_free (merged);
+  agent_controller_agent_config_free (upd);
+  agent_controller_agent_config_free (base);
+}
+
 Ensure (agent_controller, patch_payload_config_zeros_default_to_base_values)
 {
   const char *ids[] = {"agentZ"};
@@ -4427,6 +4553,9 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller, parse_agent_config_full);
   add_test_with_context (suite, agent_controller,
                          parse_agent_config_missing_blocks);
+  add_test_with_context (suite, agent_controller, file_search_paths_roundtrip);
+  add_test_with_context (suite, agent_controller,
+                         file_search_missing_or_empty_returns_empty_list);
   add_test_with_context (suite, agent_controller,
                          scan_agent_config_roundtrip_build_then_parse);
   add_test_with_context (suite, agent_controller,
@@ -4612,6 +4741,11 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, agent_controller,
     build_updated_agent_config_deep_copies_base_cron_when_update_missing);
+  add_test_with_context (suite, agent_controller,
+                         build_updated_agent_config_deep_copies_file_search);
+  add_test_with_context (
+    suite, agent_controller,
+    build_updated_agent_config_empty_file_search_clears_paths);
   add_test_with_context (suite, agent_controller,
                          patch_payload_config_zeros_default_to_base_values);
   add_test_with_context (
