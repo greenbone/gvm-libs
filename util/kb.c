@@ -286,7 +286,7 @@ connect_redis (const char *addr, int len)
       port = atoi (tmp);
       host_len -= strlen (tmp) + 1;
     }
-  host = calloc (1, host_len);
+  host = calloc (1, host_len + 1);
   memmove (host, addr + tcp_indicator_len, host_len);
   result = redisConnect (host, port);
   if (warn_flag == 0)
