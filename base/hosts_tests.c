@@ -101,6 +101,13 @@ Ensure (hosts, gvm_get_host_type_returns_host_type_cidr6_block)
                is_equal_to (HOST_TYPE_CIDR6_BLOCK));
 }
 
+Ensure (hosts, gvm_cidr6_get_ip_returns_error_for_non_ipv6_block)
+{
+  struct in6_addr addr6;
+
+  assert_that (gvm_cidr6_get_ip ("192.168.0.0/64", &addr6), is_equal_to (-1));
+}
+
 Ensure (hosts, gvm_get_host_type_returns_host_type_range_short)
 {
   assert_that (gvm_get_host_type ("192.168.10.1-9"),
@@ -554,6 +561,8 @@ main (int argc, char **argv)
                          gvm_get_host_type_returns_host_type_cidr_block);
   add_test_with_context (suite, hosts,
                          gvm_get_host_type_returns_host_type_cidr6_block);
+  add_test_with_context (suite, hosts,
+                         gvm_cidr6_get_ip_returns_error_for_non_ipv6_block);
   add_test_with_context (suite, hosts,
                          gvm_get_host_type_returns_host_type_range_short);
   add_test_with_context (suite, hosts,
