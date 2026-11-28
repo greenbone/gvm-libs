@@ -551,7 +551,10 @@ gvm_cidr6_get_ip (const char *str, struct in6_addr *addr6)
   *tmp = '\0';
 
   if (inet_pton (AF_INET6, addr6_str, addr6) != 1)
-    return -1;
+    {
+      g_free (addr6_str);
+      return -1;
+    }
 
   g_free (addr6_str);
   return 0;
