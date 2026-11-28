@@ -403,6 +403,31 @@ agent_controller_parse_agent_config (cJSON *root)
         gvm_json_obj_int (hb, "miss_until_inactive");
     }
 
+  /* file_search */
+  cJSON *file_search = cJSON_GetObjectItem (root, "file_search");
+  GPtrArray *arr = g_ptr_array_new_with_free_func (g_free);
+  if (cJSON_IsObject (file_search))
+    {
+      cJSON *excluded_paths =
+        cJSON_GetObjectItem (file_search, "excluded_paths");
+      if (cJSON_IsArray (excluded_paths))
+        {
+          int n = cJSON_GetArraySize (excluded_paths);
+
+          for (int i = 0; i < n; ++i)
+            {
+              cJSON *it = cJSON_GetArrayItem (excluded_paths, i);
+              if (cJSON_IsString (it) && it->valuestring
+                  && it->valuestring[0] != '\0')
+                {
+                  g_ptr_array_add (arr, g_strdup (it->valuestring));
+                }
+            }
+        }
+    }
+
+  cfg->file_search.excluded_paths = arr;
+
   return cfg;
 }
 
@@ -603,6 +628,43 @@ dup_scheduler_cron_array (const GPtrArray *src)
 }
 
 /**
+ * @brief Deep-copy a GPtrArray of char*.
+ *
+ * @param[in] src  Source pointer array to duplicate (may be NULL).
+ *
+ * @return A newly allocated #GPtrArray on success; NULL if @p src is NULL
+ *         or if an allocation fails.
+ */
+static GPtrArray *
+dup_str_ptr_array (const GPtrArray *src)
+{
+  if (!src)
+    return NULL;
+
+  GPtrArray *dst = g_ptr_array_sized_new (src->len);
+  if (!dst)
+    return NULL;
+
+  g_ptr_array_set_free_func (dst, g_free);
+
+  for (guint i = 0; i < src->len; ++i)
+    {
+      const char *s = g_ptr_array_index ((GPtrArray *) src, i);
+      char *copy = s ? g_strdup (s) : NULL;
+
+      if (s && !copy)
+        {
+          g_ptr_array_free (dst, TRUE);
+          return NULL;
+        }
+
+      g_ptr_array_add (dst, copy);
+    }
+
+  return dst;
+}
+
+/**
  * @brief Resolve and merge scan agent configuration.
  *
  * The returned configuration is heap-allocated and must be freed
@@ -677,6 +739,13 @@ agent_controller_build_updated_agent_config (
 
   merged->agent_script_executor.scheduler_cron_time =
     dup_scheduler_cron_array (src_cron);
+
+  const GPtrArray *src_exclude_paths =
+    (update_config && update_config->file_search.excluded_paths)
+      ? update_config->file_search.excluded_paths
+      : base_config->file_search.excluded_paths;
+
+  merged->file_search.excluded_paths = dup_str_ptr_array (src_exclude_paths);
 
   return merged;
 }
@@ -1244,6 +1313,11 @@ agent_controller_agent_config_free (agent_controller_agent_config_t cfg)
       g_ptr_array_free (cfg->agent_script_executor.scheduler_cron_time, TRUE);
       cfg->agent_script_executor.scheduler_cron_time = NULL;
     }
+  if (cfg->file_search.excluded_paths)
+    {
+      g_ptr_array_free (cfg->file_search.excluded_paths, TRUE);
+      cfg->file_search.excluded_paths = NULL;
+    }
 
   g_free (cfg);
 }
@@ -1738,6 +1812,24 @@ agent_controller_convert_agent_config_string (
   cJSON_AddNumberToObject (hb, "miss_until_inactive",
                            cfg->heartbeat.miss_until_inactive);
   cJSON_AddItemToObject (root, "heartbeat", hb);
+
+  /* ---------- file_search ---------- */
+
+  cJSON *file_search = cJSON_CreateObject ();
+  cJSON *excluded_paths = cJSON_CreateArray ();
+  const GPtrArray *path_arr = cfg->file_search.excluded_paths;
+  if (path_arr)
+    {
+      for (guint i = 0; i < path_arr->len; ++i)
+        {
+          const gchar *path = g_ptr_array_index ((GPtrArray *) path_arr, i);
+          if (path && *path)
+            cJSON_AddItemToArray (excluded_paths, cJSON_CreateString (path));
+        }
+    }
+
+  cJSON_AddItemToObject (file_search, "excluded_paths", excluded_paths);
+  cJSON_AddItemToObject (root, "file_search", file_search);
 
   gchar *payload = cJSON_PrintUnformatted (root);
   cJSON_Delete (root);
