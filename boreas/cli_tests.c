@@ -3,20 +3,20 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "ping.c"
+#include "cli.c"
 
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
 
-Describe (ping);
-BeforeEach (ping)
+Describe (cli);
+BeforeEach (cli)
 {
 }
-AfterEach (ping)
+AfterEach (cli)
 {
 }
 
-Ensure (ping, dummy_test)
+Ensure (cli, dummy_test)
 {
   assert_that (0, is_equal_to (0));
 }
@@ -29,7 +29,7 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
-  add_test_with_context (suite, ping, dummy_test);
+  add_test_with_context (suite, cli, dummy_test);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
